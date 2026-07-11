@@ -1,0 +1,10 @@
+{
+    "name": "systems",
+    "version": "1.0.0",
+    "license": "MIT",
+    "dependencies": {
+        "vcr_shared_types": "*"
+    },
+    "frameworks": "*",
+    "platforms": "*"
+}
