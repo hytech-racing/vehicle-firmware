@@ -8,7 +8,7 @@
 /VCR/                      @hytech-racing/Firmware-Lead
 /Dashboard/                @hytech-racing/Firmware-Lead
 
-# Shared config —Lead only
+# Shared config — Lead only
 /.github/                  @hytech-racing/Firmware-Lead
 /platformio.ini            @hytech-racing/Firmware-Lead
 /.clang-tidy               @hytech-racing/Firmware-Lead

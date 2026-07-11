@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+
+jobs:
+  # ── Path filtering — only run jobs for changed subsystems ──────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      acu:       ${{ steps.filter.outputs.acu }}
+      ccu:       ${{ steps.filter.outputs.ccu }}
+      vcf:       ${{ steps.filter.outputs.vcf }}
+      vcr:       ${{ steps.filter.outputs.vcr }}
+      dashboard: ${{ steps.filter.outputs.dashboard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            acu:       ['ACU/**', 'platformio.ini', '.clang-tidy']
+            ccu:       ['CCU/**', 'platformio.ini', '.clang-tidy']
+            vcf:       ['VCF/**', 'platformio.ini', '.clang-tidy']
+            vcr:       ['VCR/**', 'platformio.ini', '.clang-tidy']
+            dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
+
+  # ── ACU ────────────────────────────────────────────────────────────
+  build-ACU:
+    needs: changes
+    if: needs.changes.outputs.acu == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install platformio
+      - name: Build ACU
+        run: pio run -e ACU
+      - name: Test ACU
+        run: pio test -e ACU_test_systems
+      - name: Lint ACU
+        run: pio check -e ACU --fail-on-defect high
+
+  # ── CCU ────────────────────────────────────────────────────────────
+  build-CCU:
+    needs: changes
+    if: needs.changes.outputs.ccu == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install platformio
+      - name: Build CCU
+        run: pio run -e CCU
+      - name: Test CCU
+        run: pio test -e CCU_test_systems
+      - name: Lint CCU
+        run: pio check -e CCU --fail-on-defect high
+
+  # ── VCF ────────────────────────────────────────────────────────────
+  build-VCF:
+    needs: changes
+    if: needs.changes.outputs.vcf == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install platformio
+      - name: Build VCF
+        run: pio run -e VCF
+      - name: Test VCF
+        run: pio test -e VCF_test_systems
+      - name: Lint VCF
+        run: pio check -e VCF --fail-on-defect high
+
+  # ── VCR ────────────────────────────────────────────────────────────
+  build-VCR:
+    needs: changes
+    if: needs.changes.outputs.vcr == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install platformio
+      - name: Build VCR
+        run: pio run -e VCR
+      - name: Test VCR
+        run: pio test -e VCR_test_systems
+      - name: Lint VCR
+        run: pio check -e VCR --fail-on-defect high
+
+  # ── Dashboard ──────────────────────────────────────────────────────
+  build-Dashboard:
+    needs: changes
+    if: needs.changes.outputs.dashboard == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install platformio
+      - name: Build Dashboard
+        run: pio run -e Dashboard_H750_dfu
+      - name: Lint Dashboard
+        run: pio check -e Dashboard_H750_dfu --fail-on-defect high
+

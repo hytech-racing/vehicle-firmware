@@ -1,0 +1,99 @@
+name: Release on merge to main
+
+on:
+  pull_request:
+    types: [closed]
+    # ^ Workflow triggers on a "pull_request" event, specifically when its "closed".
+    #   NOTE: "closed" is for BOTH a merged PR and a manually-closed (without-merging) PR
+    branches: [main]
+    # ^ Restricts this trigger to only PRs whose target branch is main
+
+jobs:
+  release:
+  # ^ The internal ID of this job, which can be referenced if other jobs ever needed to depend on it
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+        # ^ The actual gate deciding whether this job runs.
+        #   `github.event.pull_request.merged` — a boolean GitHub sets, true only if the PR was actually merged and not just closed.
+        #   `github.event.pull_request.head.ref` — the name of the source branch of the PR (e.g. "release/*").
+        #   `startsWith(...)` — a built-in GitHub Actions expression function that confirms the source branch is actually a release
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        # ^ Runs a pre-built "action" (reusable workflow step) that
+        #   clones your repository onto the runner. Without this,
+        #   the runner is an empty machine with no access to your code.
+        with:
+          fetch-depth: 0
+          # ^ By default, checkout only fetches the single most recent commit for speed.
+          #   "fetch-depth: 0" overrides that to pull the full git history, which we need for `git log` and `git describe`
+          #   to see tags and merge commits
+          ref: main
+          # ^ Explicitly checks out the main branch itself (post-merge), rather than the PR's merge commit reference
+          #   Just a safety check to so that we are tagging and building from the permanent main branch state.
+
+      - name: Compute next version
+        id: version
+        # ^ The internal ID of this job, which can be referenced if other jobs ever needed to depend on it
+        run: echo "version=$(python3 scripts/compute_version.py)" >> "$GITHUB_OUTPUT"
+        # ^
+        #   `$(python3 scripts/compute_version.py)` — The command is written/script will run, the output is then substituted and
+        #                                             printed to stdout (e.g. "v2.5.0") as a string.
+        #   `echo "version=v2.5.0"` — constructs a line in the exact `key=value` format GitHub Actions requires for outputs.
+        #   `>> "$GITHUB_OUTPUT"` — appends that line to a special file path GitHub provides via this environment variable.
+        #                           Any step in this job can later read it back as steps.version.outputs.version.
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          git fetch --tags
+          if git rev-parse -q --verify "refs/tags/${{ steps.version.outputs.version }}" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.version.outputs.version }} already exists — skipping release."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        # ^ The `|` after `run:` is YAML's "literal block scalar". It saying this is a genuine multi-line shell script, and to
+        #   run it exactly as written, line by line
+        #
+        #   `git fetch --tags` — pulls the current list of tags from the remote repo
+        #   `git rev-parse -q --verify "refs/tags/..."` — attempts to resolve that specific tag reference.
+        #                                                 `--verify` makes it exit 0 if found, non-zero if not;
+        #                                                 `-q` suppresses the error message it would otherwise print on failure.
+        #   `${{ steps.version.outputs.version }}` — GitHub Actions expression syntax, substitutes in the version string we computed in
+        #                                            the previous step, by referencing its ID.
+        #   `>/dev/null` — discards the command's normal stdout output (a commit hash, if found) since we only care about its
+        #                  exit code here, not what it prints.
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        # For new tag
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+        # ^ `git tag <name>` creates the tag locally, pointing at whatever commit is currently checked out (main, per our
+        #   earlier `ref: main`).
+        #   `git push origin <name>` then pushes just that tag reference up to GitHub
+
+      - name: Install PlatformIO
+        if: steps.check_tag.outputs.exists == 'false'
+        # For new tag
+        run: pip install platformio
+
+      - name: Build firmware
+        if: steps.check_tag.outputs.exists == 'false'
+        run: pio run -e teensy41
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        # ^ A third-party action that handles the GitHub API calls needed to create a Release object.
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          # ^ Tells the action which tag this Release should be attached to.
+          files: .pio/build/teensy41/firmware.hex
+          # ^ Path to the compiled binary (produced by the previous "Build firmware" step) to upload as a downloadable
+          #   artifact attached to the Release.
+          generate_release_notes: true
+          # ^ Tells GitHub to auto-write release notes by summarizing
+          #   the merged PRs since the last release.
