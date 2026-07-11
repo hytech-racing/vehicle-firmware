@@ -1,0 +1,16 @@
+{
+    "name": "interfaces",
+    "version": "1.0.0",
+    "license": "MIT",
+    "dependencies": {
+        "vcr_shared_types": "*",
+        "shared_firmware_types": "*",
+        "FlexCAN_T4": "*",
+        "can_lib": "*",
+        "Embedded Template Library": "*",
+        "QNEthernet": "*",
+        "shared-interfaces-lib": "*"
+    },
+    "frameworks": "*",
+    "platforms": "*"
+}
