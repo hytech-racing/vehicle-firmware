@@ -1,0 +1,27 @@
+name: PlatformIO CI
+
+on: [push, pull_request]
+
+jobs:
+  run_build_and_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: webfactory/ssh-agent@v0.9.0
+      with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Check out the repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install PlatformIO CLI
+      run: pip install platformio
+    
+    - name: Run PlatformIO build for teensy
+      run: pio run -e H750_dfu
+
+    - name: run checks
+      run: pio check -e H750_dfu --fail-on-defect high
