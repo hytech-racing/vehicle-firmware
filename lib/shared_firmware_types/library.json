@@ -1,0 +1,19 @@
+{
+    "name": "shared_firmware_types",
+    "version": "1.0.0",
+    "description": "A list of struct declarations that are shared between different boards on the vehicle.",
+    "authors":
+    [
+      {
+        "name": "Benjamin Hall",
+        "email": "bhall75@gatech.edu"
+      },
+      {
+        "name": "Justin Hwang",
+        "email": "justin@goliath.org"
+      }
+    ],
+    "exclude": "verify_compile.cpp",
+    "frameworks": "*",
+    "platforms": "*"
+}
