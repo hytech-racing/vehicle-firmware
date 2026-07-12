@@ -1,0 +1,15 @@
+syntax = "proto3";
+package dv_msgs;
+import "base_msgs.proto";
+
+import "google/protobuf/timestamp.proto";
+
+message PointCloud
+{
+  google.protobuf.Timestamp timestamp = 1;
+  string frame_id = 2;
+  hytech_msgs.pose pose = 3;
+  fixed32 point_stride = 4;
+  repeated hytech_msgs.PackedElementField fields = 5;
+  bytes data = 6;
+}
