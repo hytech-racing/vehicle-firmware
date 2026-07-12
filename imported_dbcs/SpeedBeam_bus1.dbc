@@ -1,0 +1,142 @@
+VERSION "HIPBNYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY/4/%%%/4/'%**4YYY///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Sensor User
+VAL_TABLE_ SENSOR_VALIDITY 3 "Speed_Too_High" 2 "Bad_Optical_Signal" 1 "Response_Timeout" 0 "Sensor_Valid" ;
+VAL_TABLE_ CAN_TERMINATION_STATUS 1 "CAN_BUS_TERMINATED" 0 "CAN_BUS_UNTERMINATED" ;
+VAL_TABLE_ FILTER_CONFIGURATION 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_TABLE_ Broadcast_Rates 6 "500_Hz" 5 "250_Hz" 4 "100_Hz" 3 "50_Hz" 2 "10_Hz" 1 "5_Hz" 0 "1_Hz" ;
+VAL_TABLE_ SpeedBeam_Health 6 "SPEED_TOO_HIGH" 5 "SENSOR_COMMUNICATION_ERROR" 4 "SAVING_CALIBRATION" 3 "TEMPERATURE_TOO_HIGH" 2 "DATA_OPTICAL_QUALITY_POOR" 1 "NON_MEASUREMENT_MODE" 0 "SENSOR_HEALTHY" ;
+
+
+BO_ 3 Settings: 6 User
+ SG_ Velocity_Filtering : 43|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ IMU_Filtering : 40|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Attitude_Filtering : 37|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Sensor_Y_Location : 25|12@1- (0.01,0) [-20.48|20.47] "m" Vector__XXX
+ SG_ Sensor_X_Location : 13|12@1- (0.01,0) [-20.48|20.47] "m" Vector__XXX
+ SG_ Height_Offset : 5|8@1- (0.5,0) [-64|63.5] "cm" Vector__XXX
+ SG_ CAN_Termination_Setting_Bus_2 : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CAN_Termination_Setting_Bus_1 : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Broadcast_rate : 0|3@1+ (1,0) [0|7] "" Vector__XXX
+
+BO_ 2 State: 5 Sensor
+ SG_ sensor_0_Validity : 24|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ sensor_3_Validity : 30|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ sensor_2_Validity : 28|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ sensor_1_Validity : 26|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ SpeedBeam_Health : 32|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Firmware_Version : 8|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ Temperature_Internal : 0|8@1- (0.5,20) [-44|83.5] "C" Vector__XXX
+
+BO_ 1 IMU: 8 Sensor
+ SG_ Pitch_Rate : 52|11@1- (0.01,0) [-10.24|10.23] "rad/s" Vector__XXX
+ SG_ Yaw_Rate : 41|11@1- (0.01,0) [-10.24|10.23] "rad/s" Vector__XXX
+ SG_ Roll_Rate : 30|11@1- (0.01,0) [-10.24|10.23] "rad/s" Vector__XXX
+ SG_ Accel_Z : 20|10@1- (0.057,0) [-29.184|29.127] "m/s2" Vector__XXX
+ SG_ Accel_Y : 10|10@1- (0.057,0) [-29.184|29.127] "m/s2" Vector__XXX
+ SG_ Accel_X : 0|10@1- (0.057,0) [-29.184|29.127] "m/s2" Vector__XXX
+
+BO_ 6 Configuration: 6 Sensor
+ SG_ CAN_Termination_State_Bus_2 : 39|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CAN_Termination_State_Bus_1 : 38|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Velocity_Filtering : 40|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ IMU_Filtering : 35|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Attitude_Filtering : 32|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ Sensor_X_Location : 20|12@1- (0.01,0) [-20.48|20.47] "m" Vector__XXX
+ SG_ Sensor_Y_Location : 8|12@1- (0.01,0) [-20.48|20.47] "m" Vector__XXX
+ SG_ Height_Offset : 0|8@1- (0.5,0) [-64|63.5] "cm" Vector__XXX
+
+BO_ 5 Attitude: 6 Sensor
+ SG_ Roll_angle : 32|9@1- (0.25,0) [-64|63.75] "deg" Vector__XXX
+ SG_ Pitch_angle : 16|9@1- (0.25,0) [-64|63.75] "deg" Vector__XXX
+ SG_ Height : 0|12@1- (0.035,0) [-71.68|71.645] "cm" Vector__XXX
+
+BO_ 4 Velocities: 8 Sensor
+ SG_ Velocity_z_CGCorrected : 53|9@1- (0.025,0) [-10.24|10.22] "m/s" Vector__XXX
+ SG_ Velocity_y_CGCorrected : 43|10@1- (0.03,0) [-15.36|15.33] "m/s" Vector__XXX
+ SG_ Velocity_x_CGCorrected : 31|12@1- (0.02,0) [-40.96|40.94] "m/s" Vector__XXX
+ SG_ Velocity_z : 22|9@1- (0.025,0) [-6.4|6.375] "m/s" Vector__XXX
+ SG_ Velocity_y : 12|10@1- (0.03,0) [-15.36|15.33] "m/s" Vector__XXX
+ SG_ Velocity_x : 0|12@1- (0.02,0) [-40.96|40.94] "m/s" Vector__XXX
+
+
+
+CM_ BU_ Sensor "Laser Sensor";
+CM_ BU_ User "User of the Sensor";
+CM_ SG_ 3 Sensor_Y_Location "This is the Y position of the center of the sensor, with ISO signedness (positive is left (driver side in US) negative is right (passenger)
+This is used to generate the CG_Corrected velocities";
+CM_ SG_ 3 Sensor_X_Location "This is the X position of the center of the sensor, with ISO signedness (positive is forward, negative is rearward)
+This is used to generate the CG_Corrected velocities";
+CM_ SG_ 3 Height_Offset "This value will be SUBTRACTED from the height. 
+So if you mount the sensor at 40cm, and you want that to read as 20cm, set this value to 20cm";
+CM_ SG_ 2 Temperature_Internal "Measurement of the internal air temperature of the SpeedBeam sensor";
+CM_ SG_ 1 Pitch_Rate "Sign convention in ISO Standard";
+CM_ SG_ 1 Roll_Rate "Sign convention in ISO Standard";
+CM_ SG_ 1 Accel_Z "Follows ISO Standard Sign Convention";
+CM_ SG_ 1 Accel_Y "Follows ISO Standard Sign Convention";
+CM_ SG_ 1 Accel_X "Follows ISO Standard Sign Convention";
+CM_ SG_ 6 Sensor_X_Location "This is the X position of the center of the sensor, with ISO signedness (positive is forward, negative is rearward)
+This is used to generate the CG_Corrected velocities";
+CM_ SG_ 6 Sensor_Y_Location "This is the Y position of the center of the sensor, with ISO signedness (positive is left (driver side in US) negative is right (passenger)
+This is used to generate the CG_Corrected velocities";
+CM_ SG_ 6 Height_Offset "This value will be SUBTRACTED from the height. 
+So if you mount the sensor at 40cm, and you want that to read as 20cm, set this value to 20cm";
+CM_ SG_ 5 Roll_angle "Sign convention in ISO Standard";
+CM_ SG_ 5 Pitch_angle "Sign convention in ISO Standard";
+CM_ SG_ 5 Height "Height after adjusting for height offset";
+CM_ SG_ 4 Velocity_z_CGCorrected "ISO Standard Sign, Positive is Vehicle Moving Up";
+CM_ SG_ 4 Velocity_y_CGCorrected "ISO Standard Sign, Positive is Vehicle Turning Left";
+CM_ SG_ 4 Velocity_x_CGCorrected "ISO Standard Sign, Positive is Vehicle Moving Forward";
+CM_ SG_ 4 Velocity_z "ISO Standard Sign, Positive is Vehicle Moving Up";
+CM_ SG_ 4 Velocity_y "ISO Standard Sign, Positive is Vehicle Turning Left";
+CM_ SG_ 4 Velocity_x "ISO Standard Sign, Positive is Vehicle Moving Forward";
+VAL_ 3 Velocity_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_ 3 IMU_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_ 3 Attitude_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_ 3 CAN_Termination_Setting_Bus_2 1 "CAN_BUS_TERMINATED" 0 "CAN_BUS_UNTERMINATED" ;
+VAL_ 3 CAN_Termination_Setting_Bus_1 1 "CAN_BUS_TERMINATED" 0 "CAN_BUS_UNTERMINATED" ;
+VAL_ 3 Broadcast_rate 6 "500_Hz" 5 "250_Hz" 4 "100_Hz" 3 "50_Hz" 2 "10_Hz" 1 "5_Hz" 0 "1_Hz" ;
+VAL_ 2 sensor_0_Validity 3 "Speed_Too_High" 2 "Bad_Optical_Signal" 1 "Response_Timeout" 0 "Sensor_Valid" ;
+VAL_ 2 sensor_3_Validity 3 "Speed_Too_High" 2 "Bad_Optical_Signal" 1 "Response_Timeout" 0 "Sensor_Valid" ;
+VAL_ 2 sensor_2_Validity 3 "Speed_Too_High" 2 "Bad_Optical_Signal" 1 "Response_Timeout" 0 "Sensor_Valid" ;
+VAL_ 2 sensor_1_Validity 3 "Speed_Too_High" 2 "Bad_Optical_Signal" 1 "Response_Timeout" 0 "Sensor_Valid" ;
+VAL_ 2 SpeedBeam_Health 6 "SPEED_TOO_HIGH" 5 "SENSOR_COMMUNICATION_ERROR" 4 "SAVING_CALIBRATION" 3 "TEMPERATURE_TOO_HIGH" 2 "DATA_OPTICAL_QUALITY_POOR" 1 "NON_MEASUREMENT_MODE" 0 "SENSOR_HEALTHY" ;
+VAL_ 6 CAN_Termination_State_Bus_2 1 "CAN_BUS_TERMINATED" 0 "CAN_BUS_UNTERMINATED" ;
+VAL_ 6 CAN_Termination_State_Bus_1 1 "CAN_BUS_TERMINATED" 0 "CAN_BUS_UNTERMINATED" ;
+VAL_ 6 Velocity_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_ 6 IMU_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+VAL_ 6 Attitude_Filtering 3 "HEAVY_FILTERING" 2 "MEDIUM_FILTERING" 1 "LIGHT_FILTERING" 0 "NO_FILTERING" ;
+
