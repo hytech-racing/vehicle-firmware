@@ -1,0 +1,14 @@
+{
+    "name": "HT_SCHED",
+    "description": "A cooperative scheduler for HyTech Racing's embedded systems.",
+    "authors":
+    [
+      {
+        "name": "Mikhail Allen",
+        "email": "mik@gatech.edu"
+      }
+    ],
+    "build": {
+      "includeDir": "inc"
+    }
+}
