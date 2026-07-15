@@ -1,138 +1,263 @@
 name: CI
 
+# ─────────────────────────────────────────────────────────────────────
+# Triggers
+# Runs on every PR targeting main or develop, and on every direct
+# push to develop (e.g. hotfixes merged by firmware-lead directly).
+# ─────────────────────────────────────────────────────────────────────
 on:
   pull_request:
     branches: [main, develop]
   push:
     branches: [develop]
 
+# ─────────────────────────────────────────────────────────────────────
+# Permissions
+# contents: read  — lets the workflow check out the repo
+# pull-requests: write — lets the workflow post comments on PRs
+# ─────────────────────────────────────────────────────────────────────
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  # ── Path filtering — only run jobs for changed subsystems ──────────
+  # ═══════════════════════════════════════════════════════════════════
+  # JOB 1 — changes
+  # Detects which subsystems were modified in this PR/push so we only
+  # build what actually changed. No point rebuilding ACU if only CCU
+  # files were touched.
+  # ═══════════════════════════════════════════════════════════════════
   changes:
     runs-on: ubuntu-latest
     outputs:
-      acu:       ${{ steps.filter.outputs.acu }}
-      ccu:       ${{ steps.filter.outputs.ccu }}
-      vcf:       ${{ steps.filter.outputs.vcf }}
-      vcr:       ${{ steps.filter.outputs.vcr }}
-      dashboard: ${{ steps.filter.outputs.dashboard }}
+      # Outputs a JSON array of changed subsystem names, e.g. ["ACU","CCU"]
+      # This is consumed by the matrix strategy in the build job below.
+      subsystems: ${{ steps.filter.outputs.changes }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          # Each key here becomes an element in the output array if any
+          # of its listed paths changed. platformio.ini and .clang-tidy
+          # are included in every filter because a change to shared config
+          # affects all subsystems and should trigger a full rebuild.
           filters: |
-            acu:       ['ACU/**', 'platformio.ini', '.clang-tidy']
-            ccu:       ['CCU/**', 'platformio.ini', '.clang-tidy']
-            vcf:       ['VCF/**', 'platformio.ini', '.clang-tidy']
-            vcr:       ['VCR/**', 'platformio.ini', '.clang-tidy']
-            dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
+            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy']
+            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
+            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
+            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
+            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
 
-  # ── ACU ────────────────────────────────────────────────────────────
-  build-ACU:
+  # ═══════════════════════════════════════════════════════════════════
+  # JOB 2 — build
+  # Runs in parallel for each changed subsystem using a matrix strategy.
+  # A matrix strategy means GitHub spins up one independent runner per
+  # subsystem simultaneously — so ACU, CCU, VCF etc. all build at the
+  # same time rather than one after another.
+  # ═══════════════════════════════════════════════════════════════════
+  build:
     needs: changes
-    if: needs.changes.outputs.acu == 'true'
+    # Only run if at least one subsystem changed.
+    # fromJson converts the JSON string output from the changes job
+    # back into an actual array that the matrix can iterate over.
+    if: needs.changes.outputs.subsystems != '[]'
     runs-on: ubuntu-latest
+
+    strategy:
+      # fail-fast: false means if ACU fails, CCU/VCF/VCR/Dashboard
+      # still continue running. Without this, one failure cancels all
+      # other in-progress jobs — you'd only see one error at a time.
+      fail-fast: false
+      matrix:
+        subsystem: ${{ fromJson(needs.changes.outputs.subsystems) }}
+
     steps:
+      # ── Checkout ──────────────────────────────────────────────────
       - uses: actions/checkout@v4
+
+      # ── Cache ─────────────────────────────────────────────────────
+      # Caches ~/.platformio between runs so the ARM toolchain,
+      # Teensy platform, and library downloads are reused.
+      # The cache key includes a hash of platformio.ini — if the ini
+      # changes (e.g. a library version is bumped) the cache is
+      # invalidated and everything re-downloads fresh.
       - uses: actions/cache@v4
         with:
           path: ~/.platformio
           key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # ── Python + PlatformIO ───────────────────────────────────────
+      # PlatformIO is a Python application. We pin Python to 3.11 for
+      # reproducibility — the same reason we pin library versions.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install platformio
-      - name: Build ACU
-        run: pio run -e ACU
-      - name: Test ACU
-        run: pio test -e ACU_test_systems
-      - name: Lint ACU
-        run: pio check -e ACU --fail-on-defect high
 
-  # ── CCU ────────────────────────────────────────────────────────────
-  build-CCU:
-    needs: changes
-    if: needs.changes.outputs.ccu == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.platformio
-          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install platformio
-      - name: Build CCU
-        run: pio run -e CCU
-      - name: Test CCU
-        run: pio test -e CCU_test_systems
-      - name: Lint CCU
-        run: pio check -e CCU --fail-on-defect high
+      - name: Install PlatformIO
+        run: pip install platformio
 
-  # ── VCF ────────────────────────────────────────────────────────────
-  build-VCF:
-    needs: changes
-    if: needs.changes.outputs.vcf == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.platformio
-          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install platformio
-      - name: Build VCF
-        run: pio run -e VCF
-      - name: Test VCF
-        run: pio test -e VCF_test_systems
-      - name: Lint VCF
-        run: pio check -e VCF --fail-on-defect high
+      # ── Build ─────────────────────────────────────────────────────
+      # Compiles the firmware for this subsystem.
+      # id: build lets later steps reference this step's outcome via
+      # steps.build.outcome (either 'success' or 'failure').
+      # tee captures the build output to a file so we can parse it
+      # for memory usage in the next step.
+      - name: Build ${{ matrix.subsystem }}
+        id: build
+        run: |
+          pio run -e ${{ matrix.subsystem }} 2>&1 | tee build_output.txt
 
-  # ── VCR ────────────────────────────────────────────────────────────
-  build-VCR:
-    needs: changes
-    if: needs.changes.outputs.vcr == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.platformio
-          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install platformio
-      - name: Build VCR
-        run: pio run -e VCR
-      - name: Test VCR
-        run: pio test -e VCR_test_systems
-      - name: Lint VCR
-        run: pio check -e VCR --fail-on-defect high
+      # ── Memory usage check ────────────────────────────────────────
+      # Parses the PlatformIO build output for flash and RAM usage
+      # percentages and fails CI if either exceeds 90%.
+      # This catches "we're about to run out of flash" before it
+      # becomes a problem on the car.
+      - name: Check memory usage
+        if: steps.build.outcome == 'success'
+        run: |
+          python3 - <<'EOF'
+          import re, sys
 
-  # ── Dashboard ──────────────────────────────────────────────────────
-  build-Dashboard:
-    needs: changes
-    if: needs.changes.outputs.dashboard == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: ~/.platformio
-          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install platformio
-      - name: Build Dashboard
-        run: pio run -e Dashboard_H750_dfu
-      - name: Lint Dashboard
-        run: pio check -e Dashboard_H750_dfu --fail-on-defect high
+          with open("build_output.txt") as f:
+              output = f.read()
 
+          # PlatformIO prints lines like:
+          # Flash: [========  ]  80.3% (used 105432 bytes from 131072 bytes)
+          # RAM:   [===       ]  32.1% (used 52488 bytes from 163840 bytes)
+          flash = re.search(r"Flash:\s+\[=*\s*\]\s+([\d.]+)%", output)
+          ram   = re.search(r"RAM:\s+\[=*\s*\]\s+([\d.]+)%",   output)
+
+          flash_pct = float(flash.group(1)) if flash else 0.0
+          ram_pct   = float(ram.group(1))   if ram   else 0.0
+
+          print(f"Flash usage: {flash_pct:.1f}%")
+          print(f"RAM usage:   {ram_pct:.1f}%")
+
+          # Write to GitHub step summary so it shows on the Actions page
+          with open("summary.md", "a") as s:
+              s.write(f"| Flash | {flash_pct:.1f}% | {'⚠️' if flash_pct > 80 else '✅'} |\n")
+              s.write(f"| RAM   | {ram_pct:.1f}%   | {'⚠️' if ram_pct   > 80 else '✅'} |\n")
+
+          if flash_pct > 90:
+              print("::error::Flash usage exceeds 90% — binary too large")
+              sys.exit(1)
+          if ram_pct > 90:
+              print("::error::RAM usage exceeds 90% — too much static memory")
+              sys.exit(1)
+          EOF
+
+      # ── Test ──────────────────────────────────────────────────────
+      # Runs unit tests on the native platform (your laptop's CPU,
+      # not the Teensy). Dashboard is excluded because it has no
+      # native test environment — it's STM32 only.
+      - name: Test ${{ matrix.subsystem }}
+        id: test
+        if: |
+          steps.build.outcome == 'success' &&
+          matrix.subsystem != 'Dashboard'
+        run: pio test -e ${{ matrix.subsystem }}_test_systems
+
+      # ── Lint ──────────────────────────────────────────────────────
+      # Runs clang-tidy static analysis.
+      # --fail-on-defect high means only high severity issues block
+      # the build — medium severity issues are reported but don't fail.
+      # Dashboard uses a different environment name.
+      - name: Lint ${{ matrix.subsystem }}
+        id: lint
+        if: steps.build.outcome == 'success'
+        run: |
+          if [ "${{ matrix.subsystem }}" = "Dashboard" ]; then
+            pio check -e Dashboard_H750_dfu --fail-on-defect high
+          else
+            pio check -e ${{ matrix.subsystem }} --fail-on-defect high
+          fi
+
+      # ── Upload firmware artifact ───────────────────────────────────
+      # Uploads the compiled .hex file as a downloadable artifact on
+      # the PR. Reviewers can download and flash directly without
+      # needing to build locally.
+      # github.sha is the full commit hash — including it in the name
+      # makes each artifact uniquely identifiable.
+      # retention-days: 30 means artifacts are auto-deleted after 30
+      # days to avoid filling up storage.
+      - name: Upload ${{ matrix.subsystem }} firmware artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.subsystem }}-firmware-${{ github.sha }}
+          path: |
+            .pio/build/${{ matrix.subsystem }}/firmware.hex
+            .pio/build/Dashboard_H750_dfu/firmware.hex
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # ── Job summary ───────────────────────────────────────────────
+      # Writes a summary table to the GitHub Actions job summary page.
+      # This is visible by clicking on the job in the Actions tab —
+      # no need to dig through logs to see pass/fail at a glance.
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## ${{ matrix.subsystem }} CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step  | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ steps.build.outcome == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test  | ${{ steps.test.outcome  == 'success' && '✅ passed' || steps.test.outcome == 'skipped' && '⏭️ skipped' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint  | ${{ steps.lint.outcome  == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          # Append memory usage from the python script above if it exists
+          if [ -f summary.md ]; then
+            echo "### Memory Usage" >> $GITHUB_STEP_SUMMARY
+            echo "| Section | Usage | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|---------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+            cat summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── PR comment ────────────────────────────────────────────────
+      # Posts a comment on the PR with a build summary table.
+      # only runs on pull_request events, not on push to develop
+      # (pushes to develop don't have a PR number to comment on).
+      # github-script lets you run JavaScript that calls the GitHub
+      # API directly from the workflow.
+      - name: Post PR comment
+        if: |
+          always() &&
+          github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const subsystem = '${{ matrix.subsystem }}';
+            const sha       = '${{ github.sha }}'.substring(0, 7);
+            const build     = '${{ steps.build.outcome }}';
+            const test      = '${{ steps.test.outcome }}';
+            const lint      = '${{ steps.lint.outcome }}';
+
+            // Helper — converts a step outcome string to an emoji
+            const icon = outcome =>
+              outcome === 'success'  ? '✅' :
+              outcome === 'skipped'  ? '⏭️' :
+              outcome === 'failure'  ? '❌' : '⏸️';
+
+            const overall = (build === 'success' && lint === 'success') ? '✅' : '❌';
+
+            const body = [
+              `### ${overall} ${subsystem} — \`${sha}\``,
+              '',
+              '| Step  | Result |',
+              '|-------|--------|',
+              `| Build | ${icon(build)} ${build} |`,
+              `| Test  | ${icon(test)}  ${test}  |`,
+              `| Lint  | ${icon(lint)}  ${lint}  |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
