@@ -1,0 +1,13 @@
+syntax = "proto3";
+package dv_msgs;
+import "base_msgs.proto";
+
+/**
+ * Driverless cones proto message. Primarily used to package ground-truth cone positions from the simulator to Drivebrain itself.
+*/
+message Cones {
+  enum ConeColor { UNKNOWN = 0; BLUE = 1; YELLOW = 2; ORANGE_SMALL = 3; ORANGE_BIG = 4 ; }
+  message Cone { hytech_msgs.xyz_vector position = 1; ConeColor color = 2; }
+  repeated Cone cones = 1;
+  uint64 timestamp_us = 2;
+}
