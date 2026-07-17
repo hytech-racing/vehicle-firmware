@@ -8,7 +8,7 @@ NOTE: Since VCF handles pedal data, it sits in the critical torque path. If the 
 
 **Microcontroller:** Teensy 4.1
 
-### Primary Responsibilities
+##### Primary Responsibilities
 
 - Reading and validating accelerator/brake pedal signals
 - BSPD (Brake System Plausibility Device) monitoring
