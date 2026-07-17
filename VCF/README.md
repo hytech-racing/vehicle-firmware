@@ -18,7 +18,7 @@ NOTE: Since VCF handles pedal data, it sits in the critical torque path. If the 
 - Driving dashboard buttons, buzzer, and status neopixels
 - Streaming processed sensor data over CAN and Ethernet
 
----
+
 
 ## Sensors
 Overall the system monitors:
@@ -31,7 +31,7 @@ Overall the system monitors:
 - 2 shutdown circuit voltage taps
 - 7 dashboard buttons, 1 buzzer, 16 status neopixels
 
----
+
 
 ## Hardware Connections
 
