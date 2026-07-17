@@ -8,8 +8,7 @@ NOTE: Since VCF handles pedal data, it sits in the critical torque path. If the 
 
 **Microcontroller:** Teensy 4.1
 
-**Primary Responsibilities**
-
+**Primary Responsibilities:**
 - Reading and validating accelerator/brake pedal signals
 - BSPD (Brake System Plausibility Device) monitoring
 - Reading redundant analog + digital steering sensors, cross-checked against each other
@@ -31,7 +30,7 @@ Overall the system monitors:
 - 2 shutdown circuit voltage taps
 - 7 dashboard buttons, 1 buzzer, 16 status neopixels
 
-
+&nbsp;
 
 ## Hardware Connections
 
@@ -55,7 +54,7 @@ The VCF reads all analog sensors through **two MCP3208 8-channel ADCs**.
 
 Address 0x20, used for dashboard IO.
 
----
+&nbsp;
 
 ## ADC Interface
 
@@ -91,7 +90,7 @@ Sample 7 channels                  Sample 8 channels
       (and, where applicable, filtered) values
 ```
 
----
+&nbsp;
 
 ## CAN Interface
 
@@ -122,7 +121,7 @@ vcf_recv_switch(interfaces, msg, millis, interface_type)
 
 Outbound messages from VCF's own systems (pedals, steering, suspension, dash) are pushed into a per-bus TX circular buffer as they're produced, and `send_all_CAN_msgs()` drains that buffer out to the FlexCAN peripheral.
 
----
+&nbsp;
 
 ## Ethernet Interface
 
@@ -198,7 +197,7 @@ Update system state (pedals / steering / suspension)
 
 `ADCInterface::update_filtered_values(alpha)` runs an IIR low-pass filter on **both the load cells and the suspension potentiometers** (not just load cells) between calibration and validation, smoothing out noise before the value is trusted.
 
----
+&nbsp;
 
 ## Data Reporting
 
@@ -222,7 +221,7 @@ ethernet_send_task (10 Hz)
         └── Stream telemetry over UDP
 ```
 
----
+&nbsp;
 
 ## Safety Systems
 
@@ -238,7 +237,7 @@ The two steering sensors (analog + digital) are checked against each other every
 
 Accelerator and brake are each read from two redundant sensors and cross-checked, per FSAE EV rules — see the **Pedals System** explanation below.
 
----
+&nbsp;
 
 ## Calibration
 
@@ -254,7 +253,7 @@ steering_calibration_task (10 Hz)
 
 This is likely triggered by the dashboard's recalibration button, and lets each board be calibrated in place rather than requiring identical, pre-matched sensors.
 
----
+&nbsp;
 
 ## Pedals System
 
@@ -309,7 +308,7 @@ When the driver holds the recalibration button (**only valid with both pedals at
 2. Whichever the current reading is *closer to* — min or max — tells the system whether that sensor is wired with a **negative-coefficient** (output decreases as the pedal is pressed).
 3. Assigns `min_pedal_*` / `max_pedal_*` accordingly, flipping them for negative-coefficient sensors.
 
----
+&nbsp;
 
 ## Steering System
 
