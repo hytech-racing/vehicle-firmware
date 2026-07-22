@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "SteeringEncoderInterface.h"
-#include "Orbis_BR.h"
+#include "OrbisInterface.h"
 
 constexpr int SAMPLE_RATE = 5000;
 
@@ -10,12 +10,12 @@ unsigned long lastPrintTime = 0;
 
 void setup()
 {
-    Serial.begin(OrbisConstants::ORBIS_BR_DEFAULT_BAUD_RATE);
+    Serial.begin(orbis_constants::DEFAULT_BAUD_RATE);
 
     while(!Serial);
     Serial.println("Serial Monitor connected.");        // Debug line
 
-    OrbisBRInstance::create(&Serial2);
+    OrbisInterfaceInstance::create(&Serial2);
 
 
     Serial.println("Calling Self-Calib");                  // Debug line
@@ -23,10 +23,10 @@ void setup()
     bool _isCalibrated = false;    // Assume sensor is not calibrated
     while (!_isCalibrated) //NOLINT
     {
-        _isCalibrated = OrbisBRInstance::instance().performSelfCalibration();
+        _isCalibrated = OrbisInterfaceInstance::instance().performSelfCalibration();
     }
 
-    OrbisBRInstance::instance().setEncoderOffset();
+    OrbisInterfaceInstance::instance().setEncoderOffset();
 
     /* --- Block For Debugging --- */
     // OrbisBRInstance::instance().sample();
@@ -53,14 +53,14 @@ void loop()
     {
         lastPrintTime = millis();
 
-        OrbisBRInstance::instance().sample();
+        OrbisInterfaceInstance::instance().sample();
 
-        SteeringEncoderReading_s result = OrbisBRInstance::instance().getLastReading();
+        SteeringEncoderReading_s result = OrbisInterfaceInstance::instance().getLastReading();
         if (result.errors.dataInvalid)   { Serial.println("General error"); }
         if (result.errors.operatingLimit) { Serial.println("General warning"); }
         if (result.errors.noData)         { Serial.println("No data"); }
 
-        OrbisErrorFlags_s orbisErrors = OrbisBRInstance::instance().getOrbisDetailedErrors();
+        OrbisErrorFlags_s orbisErrors = OrbisInterfaceInstance::instance().getOrbisDetailedErrors();
         if (orbisErrors.dist_far)              { Serial.println("Readhead too far"); }
         if (orbisErrors.dist_near)             { Serial.println("Readhead too close"); }
         if (orbisErrors.temp_out_of_range)     { Serial.println("Temperature out of range"); }
