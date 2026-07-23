@@ -6,8 +6,8 @@
 # Usage: ./scripts/prepush.sh [subsystem ...]
 # Examples:
 #   ./scripts/prepush.sh          ← runs all subsystems
-#   ./scripts/prepush.sh ACU      ← runs ACU only
-#   ./scripts/prepush.sh CCU VCF  ← runs CCU and VCF
+#   ./scripts/prepush.sh acu      ← runs ACU only
+#   ./scripts/prepush.sh ccu vcf  ← runs CCU and VCF
 
 # Maps a friendly subsystem name to its actual PlatformIO "prod" build
 # environment. Explicit lookup rather than string-concatenation, since
@@ -16,11 +16,11 @@ get_prod_env() {
     case "$1" in
     # "$1" refers to the first argument passed to this function when it's called.
     # "case" works like a switch statement
-        ACU)       echo "acu-prod" ;;
-        CCU)       echo "ccu-prod" ;;
-        VCF)       echo "vcf-prod" ;;
-        VCR)       echo "vcr-prod" ;;
-        Dashboard) echo "dash-dfu-prod" ;;
+        acu)       echo "acu-prod" ;;
+        ccu)       echo "ccu-prod" ;;
+        vcf)       echo "vcf-prod" ;;
+        vcr)       echo "vcr-prod" ;;
+        dash) echo "dash-dfu-prod" ;;
     esac
 }
 
@@ -28,15 +28,15 @@ get_prod_env() {
 # entry since no native test environment exists for it.
 get_test_env() {
     case "$1" in
-        ACU) echo "acu_test_systems" ;;
-        CCU) echo "ccu_test_systems" ;;
-        VCF) echo "vcf_test_systems" ;;
-        VCR) echo "vcr_test_systems" ;;
+        acu) echo "acu_test_systems" ;;
+        ccu) echo "ccu_test_systems" ;;
+        vcf) echo "vcf_test_systems" ;;
+        vcr) echo "vcr_test_systems" ;;
     esac
 }
 
 # ${@:-default}: use script arguments if given, otherwise run every subsystem.
-SUBSYSTEMS=${@:-"ACU CCU VCF VCR Dashboard"}
+SUBSYSTEMS=${@:-"acu ccu vcf vcr dash"}
 
 FAILED=()
 
@@ -58,7 +58,7 @@ for SUBSYSTEM in $SUBSYSTEMS; do
     # --- Test check ---
     # Skipped for Dashboard (no native test environment). A test failure
     # does NOT `continue` — lint still runs afterward regardless.
-    if [ "$SUBSYSTEM" != "Dashboard" ]; then
+    if [ "$SUBSYSTEM" != "dash" ]; then
         TEST="$(get_test_env "$SUBSYSTEM")"
         echo "→ Testing $SUBSYSTEM ($TEST)..."
         if ! pio test -e "$TEST"; then

@@ -9,8 +9,8 @@ This repository contains the firmware for all HyTech Racing boards in a single, 
 | **ACU** | Accumulator Control Unit |
 | **CCU** | Charger Control Unit |
 | **Dashboard** | Driver Dashboard |
-| **VCF** | Vehicle Control Front |
-| **VCR** | Vehicle Control Rear |
+| **VCF** | Vehicle Controller Front |
+| **VCR** | Vehicle Controller Rear |
 
 ## Documentation
 
