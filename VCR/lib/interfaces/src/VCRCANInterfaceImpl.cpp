@@ -22,7 +22,7 @@ void VCRCANInterfaceImpl::on_telem_can_receive(const CAN_message_t &msg)
     VCRCANInterfaceInstance::instance().telem_can_rx_buffer.push_back(buf.data(), sizeof(CAN_message_t));
 }
 
-void vcr_CAN_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type)
+void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {

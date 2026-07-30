@@ -109,6 +109,10 @@ void initialize_all_interfaces()
                                 DashboardInterfaceInstance::instance(),
                                 VCRInterfaceInstance::instance()
     );
+
+    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
+
+
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
 

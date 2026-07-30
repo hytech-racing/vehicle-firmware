@@ -31,9 +31,6 @@ void initialize_all_interfaces()
     );
     ADCInterfaceInstance::instance().init(sys_time::hal_millis());
 
-    /* CAN Interfaces  */
-    CANInterfacesInstance::create(ACUInterfaceInstance::instance(), ChargerInterfaceInstance::instance(), EnergyMeterInterfaceInstance::instance());
-
     /* Charger Interface */
     ChargerInterface(ACUInterfaceInstance::instance());
 
@@ -77,6 +74,17 @@ void initialize_all_interfaces()
 
     // CCUEthernetInterface::create();
     // CCUEthernetInterface::instance().init_ethernet_device();
+
+     /* CAN Interfaces  */
+    CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
+                                ChargerInterfaceInstance::instance(),
+                                EnergyMeterInterfaceInstance::instance()
+    );
+
+    CCUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::ccu_recv_switch>());
+
+    handle_CAN_setup(CCUCANInterfaceInstance::instance().ACU_CAN, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::on_acu_can_receive);
+    handle_CAN_setup(CCUCANInterfaceInstance::instance().CHARGER_CAN, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::on_charger_can_receive);
 }
 
 HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
