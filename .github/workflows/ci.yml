@@ -68,21 +68,21 @@ jobs:
           mapping = {name: {"build_env": None, "test_env": None} for name in changed}
 
           for section in config.sections():
-          if not section.startswith("env:"):
-            continue
+            if not section.startswith("env:"):
+              continue
 
-          env_name = section[len("env:"):]
-          if not config.has_option(section, "custom_subsystem"):
-            continue
+            env_name = section[len("env:"):]
+            if not config.has_option(section, "custom_subsystem"):
+              continue
 
-          subsystem = config.get(section, "custom_subsystem")
-          if subsystem not in mapping:
-            continue
+            subsystem = config.get(section, "custom_subsystem")
+            if subsystem not in mapping:
+              continue
 
-          if env_name.lower().endswith("_unit_tests"):
-            mapping[subsystem]["test_env"] = env_name
-          else:
-            mapping[subsystem]["build_env"] = env_name
+            if env_name.lower().endswith("_unit_tests"):
+              mapping[subsystem]["test_env"] = env_name
+            else:
+              mapping[subsystem]["build_env"] = env_name
 
           matrix = []
           for subsystem, envs in mapping.items():
@@ -191,8 +191,13 @@ jobs:
       # native test environment at the moment.
       - name: Test ${{ matrix.subsystem }}
         id: test
-        if: steps.build.outcome == 'success' && matrix.test_env != ''
-        run: pio test -e ${{ matrix.test_env }}
+        if: steps.build.outcome == 'success' && join(matrix.test_envs, '') != ''
+        run: |
+          for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
+            echo "→ Building and running $TEST_ENV"
+            pio run -e "$TEST_ENV"
+            ./.pio/build/"$TEST_ENV"/program
+          done
 
       # Runs lint/clang-tidy static analysis.
       # --fail-on-defect high means only high severity issues block
