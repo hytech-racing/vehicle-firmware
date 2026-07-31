@@ -109,26 +109,30 @@ TEST (ADCInterfaceTesting, init)
     Verify(Method(ArduinoFake(), pinMode).Using(pinout.teensy_scaled_24V_pin, INPUT)).Once();
 }
 
-TEST (ADCInterfaceTesting, read_imd_ok)
+TEST(ADCInterfaceTesting, read_imd_ok)
 {
     When(Method(ArduinoFake(), pinMode)).AlwaysReturn();
-    When(Method(ArduinoFake(), analogRead)).AlwaysReturn(0);
     When(Method(ArduinoFake(), digitalWrite)).AlwaysReturn();
+    When(Method(ArduinoFake(), analogRead)).AlwaysReturn(0);
 
     ADCInterfaceInstance::create(pinout, channels, conversions, scales, offsets, pairs, spi_speed, bit_res);
     ADCInterfaceInstance::instance().init(0);
 
-    ADCInterfaceInstance::instance().read_imd_ok(1000);
+    unsigned long before_startup_ends = adc_default_parameters::IMD_STARTUP_TIME / 2;
+    unsigned long after_startup_ends  = adc_default_parameters::IMD_STARTUP_TIME + 1;
+
+    ADCInterfaceInstance::instance().read_imd_ok(before_startup_ends);
     ASSERT_EQ(ADCInterfaceInstance::instance().is_in_imd_startup_period(), true);
     Verify(Method(ArduinoFake(), analogRead)).Never();
 
-    ADCInterfaceInstance::instance().read_imd_ok(3000);
+    ADCInterfaceInstance::instance().read_imd_ok(after_startup_ends);
     ASSERT_EQ(ADCInterfaceInstance::instance().is_in_imd_startup_period(), false);
     Verify(Method(ArduinoFake(), analogRead)).Never();
 
-    ADCInterfaceInstance::instance().read_imd_ok(3000);
+    ADCInterfaceInstance::instance().read_imd_ok(after_startup_ends);
     Verify(Method(ArduinoFake(), analogRead).Using(pinout.teensy_imd_ok_pin)).Once();
 }
+
 
 TEST (ADCInterfaceTesting, read_functions)
 {
