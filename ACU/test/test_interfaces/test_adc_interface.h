@@ -93,6 +93,7 @@ void AnalogMultiSensor<N>::tick()
 TEST (ADCInterfaceTesting, init)
 {
     When(Method(ArduinoFake(), pinMode)).AlwaysReturn();
+    When(Method(ArduinoFake(), digitalWrite)).AlwaysReturn();
 
     ADCInterfaceInstance::create(pinout, channels, conversions, scales, offsets, pairs, spi_speed, bit_res);
     ADCInterfaceInstance::instance().init(0);
@@ -112,6 +113,7 @@ TEST (ADCInterfaceTesting, read_imd_ok)
 {
     When(Method(ArduinoFake(), pinMode)).AlwaysReturn();
     When(Method(ArduinoFake(), analogRead)).AlwaysReturn(0);
+    When(Method(ArduinoFake(), digitalWrite)).AlwaysReturn();
 
     ADCInterfaceInstance::create(pinout, channels, conversions, scales, offsets, pairs, spi_speed, bit_res);
     ADCInterfaceInstance::instance().init(0);
@@ -132,6 +134,7 @@ TEST (ADCInterfaceTesting, read_functions)
 {
     When(Method(ArduinoFake(), pinMode)).AlwaysReturn();
     When(Method(ArduinoFake(), analogRead)).AlwaysReturn(0);
+    When(Method(ArduinoFake(), digitalWrite)).AlwaysReturn();
 
     ADCInterfaceInstance::create(pinout, channels, conversions, scales, offsets, pairs, spi_speed, bit_res);
     ADCInterfaceInstance::instance().init(3000);
