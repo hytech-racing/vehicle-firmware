@@ -65,7 +65,7 @@ jobs:
           config = configparser.ConfigParser(interpolation=None)
           config.read("platformio.ini")
 
-          mapping = {name: {"build_env": None, "test_env": None} for name in changed}
+          mapping = {name: {"build_env": None, "test_envs": []} for name in changed}
 
           for section in config.sections():
             if not section.startswith("env:"):
@@ -80,24 +80,23 @@ jobs:
               continue
 
             if env_name.lower().endswith("_unit_tests"):
-              mapping[subsystem]["test_env"] = env_name
-            else:
+              mapping[subsystem]["test_envs"].append(env_name)
+            elif env_name.lower().endswith("-prod") or env_name.lower().endswith("_prod"):
               mapping[subsystem]["build_env"] = env_name
 
           matrix = []
           for subsystem, envs in mapping.items():
             if envs["build_env"] is None:
-              print(f"::error::No build environment declares custom_subsystem = {subsystem}", file=sys.stderr)
-              sys.exit(1)
+                print(f"::error::No build environment declares custom_subsystem = {subsystem}", file=sys.stderr)
+                sys.exit(1)
             matrix.append({
-              "subsystem": subsystem,
-              "build_env": envs["build_env"],
-              "test_env": envs["test_env"] or "",
+                "subsystem": subsystem,
+                "build_env": envs["build_env"],
+                "test_envs": envs["test_envs"],
             })
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
             f.write(f"matrix={json.dumps(matrix)}\n")
-
           EOF
 
   # ═══════════════════════════════════════════════════════════════════
