@@ -3,7 +3,6 @@
 
 void initialize_all_systems()
 {
-
     /* Neopixel Controller */
     NeopixelControllerInstance::create(VCFSystems::NEOPIXEL_COUNT, VCFSystems::NEOPIXEL_CONTROL_PIN);
     NeopixelControllerInstance::instance().init_neopixels();
@@ -63,7 +62,6 @@ void initialize_all_systems()
     steering_params.digital_midpoint = (steering_params.min_steering_signal_digital + steering_params.max_steering_signal_digital) / 2;
     SteeringSystemInstance::create(steering_params); // NOLINT thinks steering params is not initialized
 
-
 }
 
 HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
@@ -110,15 +108,16 @@ HT_TASK::TaskResponse enqueue_pedals_data(const unsigned long &sys_micros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
     const uint32_t analog_raw = SteeringSystemInstance::instance().get_steering_system_data().analog_raw; // NOLINT thinks this is not initialized
     const uint32_t digital_raw = SteeringSystemInstance::instance().get_steering_system_data().digital_raw; // NOLINT thinks this is not initialized
 
     SteeringSystemInstance::instance().update_observed_steering_limits(analog_raw, digital_raw);
 
 
-     if (VCRInterfaceInstance::instance().is_in_steering_calibration_state()) {
-
+    if (VCRInterfaceInstance::instance().is_in_steering_calibration_state())
+    {
         SteeringSystemInstance::instance().recalibrate_steering_digital();
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_analog);
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().max_steering_signal_analog);
@@ -158,4 +157,3 @@ HT_TASK::TaskResponse update_neopixels_task(const unsigned long& sys_micros, con
     NeopixelControllerInstance::instance().refresh_neopixels(PedalsSystemInstance::instance().get_pedals_system_data(), CANInterfacesInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
-

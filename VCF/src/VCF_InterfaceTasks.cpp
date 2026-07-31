@@ -95,10 +95,10 @@ void initialize_all_interfaces()
         .BUTTON_2 = VCFInterfaces::BUTTON_2
     };
     DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); //NOLINT
-        DashboardInterfaceInstance::instance().init();
+    DashboardInterfaceInstance::instance().init();
 
     /* Orbis Interface */
-    OrbisInterfaceInstance::create(&Serial2); // fix t
+    OrbisInterfaceInstance::create(&Serial2);
 
     /* VCR Interface */
     VCRInterfaceInstance::create();
@@ -112,11 +112,10 @@ void initialize_all_interfaces()
 
     VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
 
-
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
 
-    // Create Ethernet singletons
+    /* Ethernet */
     VCFEthernetInterfaceInstance::create();
     VCFEthernetInterfaceInstance::instance().init_ethernet_device();
 }

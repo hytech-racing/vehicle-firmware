@@ -1,59 +1,153 @@
-# Why this folder exists
+# test/
 
-This folder is a placeholder. It exists purely to satisfy a validation
-check performed by PlatformIO's `pio test` command. It does not contain
-any real tests, and nothing should ever be added here.
+> **⚠️ Do not add files or folders here!!!**
 
-## The problem this solves
+Everything in this directory **except this README** is a **symbolic link (symlink)**, not a real directory. A symlink is a just a pointer to another folder.
 
-Before `pio test` runs a build for any environment, it first does an
-upfront check: "does a test directory exist?" It looks for the global
-`test_dir` option in the `[platformio]` section of `platformio.ini`
-(or defaults to `./test` at the project root if that option isn't set).
-This check is a simple existence check, and it happens *before* any
-environment-specific configuration or scripts run.
+Do **not**:
+- Create files or folders in `test/`
+- Delete or replace any symlinks
+- Convert a symlink into a real directory
 
-Our repo has 5 subsystems and they keep their own tests in its own
-folder (`ACU/test`, `CCU/test`, `VCF/test`, `VCR/test`), not in one shared
-root-level `test/` folder. Because of that, there was no folder at
-`vehicle-firmware/test` for PlatformIO's upfront check to find, which
-caused `pio test` to fail immediately with:
+For a full explanation, see the bookstack page on Unit Testing.
 
-    TestDirNotExistsError: A test folder '.../vehicle-firmware/test'
-    does not exist.
+---
 
-This happened even though each environment's *actual* test directory is
-set correctly, because the failure occurs at a check that runs earlier
-than any of that per-environment logic.
+## Directory Structure
 
-## How the real per-subsystem redirection works
+```text
+test/
+├── README.md      # The only real file in this directory
+├── acu -> ../ACU/test
+├── ccu -> ../CCU/test
+├── vcf -> ../VCF/test
+└── vcr -> ../VCR/test
+```
 
-Once PlatformIO's upfront check passes, each native test environment
-(`acu_test_systems`, `ccu_test_systems`, `vcf_test_systems`,
-`vcr_test_systems`) runs `scripts/set_directory.py. That script
-overrides `PROJECT_TEST_DIR` to point at the correct subsystem folder
-(e.g. `ACU/test`) for the actual build and test compilation.
+Each board entry is a symlink pointing to that board's actual `test/` directory.
 
-## Why an *empty* folder, specifically
+For example:
 
-We deliberately keep this folder empty (aside from this README) rather
-than pointing the global `test_dir` at some other existing folder, like
-the project root (`test_dir = .`). Pointing it at the project root
-technically also satisfies the existence check, but it has a side
-effect: PlatformIO's Library Dependency Finder uses `test_dir` not just
-for the existence check, but also as the scope of what it scans for
-`#include` statements and dependencies. Setting it to `.` widened that
-scan to the entire monorepo, which caused PlatformIO to detect (and try
-to install) libraries belonging to every subsystem, not just the one
-actually being tested.
+```text
+test/vcf/test_systems/foo.h
+        │
+        └───────────────► VCF/test/test_systems/foo.h
+```
 
-An empty folder avoids this entirely since there's nothing here for the
-dependency scanner to find, so the scan stays effectively empty for any
-environment relying on the global default.
+These are **the exact same file on disk**, simply accessible through two different paths.
 
-## Where this matters in practice
+---
 
-This came up specifically because `scripts/prepush.sh` runs `pio test`
-locally before pushing, across all subsystems. Without this folder, that
-script fails immediately on the first native test environment it tries,
-before ever reaching the actual test logic.
+## Why This Exists
+
+PlatformIO always scans the monorepo root's `test/` directory before any board-specific redirection (via `scripts/set_directory.py`) occurs.
+
+Without these symlinks:
+
+```text
+pio test
+```
+
+fails immediately with:
+
+```text
+Error: Nothing to build
+```
+
+even though every board already contains valid test code.
+
+The symlinks expose each board's real test directory to PlatformIO without duplicating any files.
+
+---
+
+## Rules
+
+### Edit tests in the real board directory
+
+✅ Correct
+
+```text
+VCF/test/
+ACU/test/
+CCU/test/
+VCR/test/
+```
+
+⚠️ Although editing through `test/vcf/...` works (it resolves to the same file), editing inside the real board directory keeps:
+
+- editor navigation correct
+- Git history (`git blame`)
+- searches
+- repository organization
+
+centered on the canonical location.
+
+---
+
+### Never replace a symlink with a real directory
+
+**Good**
+
+```text
+test/
+└── vcf -> ../VCF/test
+```
+
+**Bad**
+
+```text
+test/
+└── vcf/
+```
+
+Replacing a symlink creates a completely separate copy of the tests.
+
+That causes Git to track two independent directories which will eventually drift out of sync.
+
+---
+
+### Adding a new board
+
+Create exactly one symlink:
+
+```bash
+ln -s ../NEWBOARD/test test/newboard
+```
+
+Nothing else in this directory should be modified.
+
+---
+
+### If a symlink disappears
+
+If a board appears as a real directory instead of a symlink:
+
+```bash
+find test -maxdepth 1
+```
+
+or
+
+```bash
+ls -l test
+```
+
+shows something like:
+
+```text
+vcf/
+```
+
+instead of
+
+```text
+vcf -> ../VCF/test
+```
+
+stop before running any tests.
+
+1. Remove the incorrect directory.
+2. Recreate the symlink.
+3. Compare its contents with the real `<BOARD>/test/` directory to ensure nothing has diverged.
+
+Do **not** assume the duplicate directory can simply be deleted without checking.
