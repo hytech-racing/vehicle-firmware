@@ -30,8 +30,9 @@ namespace orbis_constants
 }
 
 /**
- * @brief General errors are included in the first byte of the detailed position request response. Detailed errors are from the fourth byte.
- */
+ * @brief General errors are included in the first byte of the detailed position request response.
+ * Detailed errors are from the fourth byte.
+*/
 namespace orbis_bitmasks
 {
     const uint8_t GENERAL_WARNING_BITMASK = 0b00000001; // Error if low, position data is valid, but some operating conditions are close to limits
@@ -85,29 +86,31 @@ public:
 
     OrbisInterface(HardwareSerial* serial);
 
-    OrbisErrorFlags_s getOrbisDetailedErrors() const { return _orbisErrors; }
+    OrbisErrorFlags_s get_orbis_detailed_errors() const { return _orbis_errors; }
 
-    bool performSelfCalibration();
+    bool perform_self_calibration();
 
-    void setEncoderOffset();
+    void set_encoder_offset();
 
-    void saveConfiguration();
+    void save_configuration();
 
-    void factoryReset();
+    void factory_reset();
 
     void sample();
 
-    SteeringEncoderReading_s getLastReading();
+    SteeringEncoderReading_s get_last_reading() { return _last_reading;}
 
 private:
 
     HardwareSerial* _serial;
-    SteeringEncoderReading_s _lastReading; // Most recently sampled encoder reading.
-    OrbisErrorFlags_s _orbisErrors;
+    SteeringEncoderReading_s _last_reading; // Most recently sampled encoder reading.
+    OrbisErrorFlags_s _orbis_errors;
 
-    void _decodeErrors(uint8_t general, uint8_t detailed);
-    void _sendUnlockSequence();
-    void _flushSerialBuffer();
+    void _decode_errors(uint8_t general, uint8_t detailed);
+
+    void _send_unlock_sequence();
+
+    void _flush_serial_buffer();
 
 };
 

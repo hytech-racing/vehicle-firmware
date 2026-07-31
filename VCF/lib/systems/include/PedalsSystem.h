@@ -47,91 +47,14 @@ class PedalsSystem
 {
 public:
 
-    /// @param accelParams Accel pedal parameters. By rules, 2 sensors must be used for redundancy and evaluated w.r.t each other
-    /// @param brakeParams Brake pedal params. When used with only one pedal sensor, the pedal parameter evaluation for brakes only looks at the min and max for min_pedal_1 / max_pedal_1
-    PedalsSystem(const PedalsParams &accelParams, const PedalsParams &brakeParams) :
-        _accelParams(accelParams),
-        _brakeParams(brakeParams),
-        _implausibilityStartTime(0)
+    /// @param accel_params Accel pedal parameters. By rules, 2 sensors must be used for redundancy and evaluated w.r.t each other
+    /// @param brake_params Brake pedal params. When used with only one pedal sensor, the pedal parameter evaluation for brakes only looks at the min and max for min_pedal_1 / max_pedal_1
+    PedalsSystem(const PedalsParams &accel_params, const PedalsParams &brake_params) :
+        _accel_params(accel_params),
+        _brake_params(brake_params),
+        _implausibility_start_time(0)
     {};
 
-    void set_params(const PedalsParams &accelParams, const PedalsParams &brakeParams)
-    {
-        _accelParams = accelParams;
-        _brakeParams = brakeParams;
-
-    }
-
-    void set_pedals_sensor_data(const PedalSensorData_s &pedal_data)
-    {
-        _sensorData.accel_1 = pedal_data.accel_1;
-        _sensorData.accel_2 = pedal_data.accel_2;
-        _sensorData.brake_1 = pedal_data.brake_1;
-        _sensorData.brake_2 = pedal_data.brake_2;
-    }
-
-    const PedalsSystemData_s &get_pedals_system_data()
-    {
-        return _systemData;
-    }
-
-    const PedalSensorData_s &get_pedals_sensor_data()
-    {
-        return _sensorData;
-    }
-
-    float get_mech_brake_activation_threshold()
-    {
-        return _brakeParams.mechanical_activation_percentage;
-    }
-
-    /// @brief Pedal evaluation function that takes in the direct analog values of the pedals and
-    ///        returns all of the pedals system data.
-    void evaluate_pedals(PedalSensorData_s pedal_data, unsigned long curr_millis);
-
-    PedalsParams get_accel_params() {return _accelParams;}
-    PedalsParams get_brake_params() {return _brakeParams;}
-
-    /**
-     * This is a way to force-update the calibrated min/max values.
-     * WARNING: This should only be called when driver holds the button!
-     * WARNING: This requires both pedals to be near 0% travel!
-     */
-    void recalibrate_min_max(const PedalSensorData_s &curr_values)
-    {
-        // If pedal is near 0% travel and is closer to the observed max, then this sensor is a negative coefficient.
-        bool accel_1_flipped = std::abs((int) curr_values.accel_1 - (int) max_observed_accel_1) < std::abs((int) curr_values.accel_1 - (int) min_observed_accel_1);
-        bool accel_2_flipped = std::abs((int) curr_values.accel_2 - (int) max_observed_accel_2) < std::abs((int) curr_values.accel_2 - (int) min_observed_accel_2);
-        bool brake_1_flipped = std::abs((int) curr_values.brake_1 - (int) max_observed_brake_1) < std::abs((int) curr_values.brake_1 - (int) min_observed_brake_1);
-        bool brake_2_flipped = std::abs((int) curr_values.brake_2 - (int) max_observed_brake_2) < std::abs((int) curr_values.brake_2 - (int) min_observed_brake_2);
-
-        _accelParams.min_pedal_1 = accel_1_flipped ? max_observed_accel_1 : min_observed_accel_1;
-        _accelParams.max_pedal_1 = accel_1_flipped ? min_observed_accel_1 : max_observed_accel_1;
-        _accelParams.min_pedal_2 = accel_2_flipped ? max_observed_accel_2 : min_observed_accel_2;
-        _accelParams.max_pedal_2 = accel_2_flipped ? min_observed_accel_2 : max_observed_accel_2;
-        _brakeParams.min_pedal_1 = brake_1_flipped ? max_observed_brake_1 : min_observed_brake_1;
-        _brakeParams.max_pedal_1 = brake_1_flipped ? min_observed_brake_1 : max_observed_brake_1;
-        _brakeParams.min_pedal_2 = brake_2_flipped ? max_observed_brake_2 : min_observed_brake_2;
-        _brakeParams.max_pedal_2 = brake_2_flipped ? min_observed_brake_2 : max_observed_brake_2;
-    }
-
-    /**
-     * From code startup, the PedalsSystem should constantly update what its observed max/min
-     * values are. When the driver triggers a pedal recalibration, these values will be written
-     * to non-volatile memory (EEPROM). This should be called constantly to update the
-     * observation.
-     */
-    void update_observed_pedal_limits(const PedalSensorData_s &curr_values)
-    {
-        min_observed_accel_1 = std::min(min_observed_accel_1, curr_values.accel_1);
-        max_observed_accel_1 = std::max(max_observed_accel_1, curr_values.accel_1);
-        min_observed_accel_2 = std::min(min_observed_accel_2, curr_values.accel_2);
-        max_observed_accel_2 = std::max(max_observed_accel_2, curr_values.accel_2);
-        min_observed_brake_1 = std::min(min_observed_brake_1, curr_values.brake_1);
-        max_observed_brake_1 = std::max(max_observed_brake_1, curr_values.brake_1);
-        min_observed_brake_2 = std::min(min_observed_brake_2, curr_values.brake_2);
-        max_observed_brake_2 = std::max(max_observed_brake_2, curr_values.brake_2);
-    }
     uint32_t min_observed_accel_1 = 4095;
     uint32_t max_observed_accel_1 = 0;
     uint32_t min_observed_accel_2 = 4095;
@@ -141,10 +64,61 @@ public:
     uint32_t min_observed_brake_2 = 4095;
     uint32_t max_observed_brake_2 = 0;
 
+    void set_params(const PedalsParams &accelParams, const PedalsParams &brakeParams)
+    {
+        _accel_params = accelParams;
+        _brake_params = brakeParams;
+    }
+
+    void set_pedals_sensor_data(const PedalSensorData_s &pedal_data)
+    {
+        _sensor_data.accel_1 = pedal_data.accel_1;
+        _sensor_data.accel_2 = pedal_data.accel_2;
+        _sensor_data.brake_1 = pedal_data.brake_1;
+        _sensor_data.brake_2 = pedal_data.brake_2;
+    }
+
+    const PedalsSystemData_s &get_pedals_system_data() { return _system_data; }
+
+    const PedalSensorData_s &get_pedals_sensor_data() { return _sensor_data; }
+
+    float get_mech_brake_activation_threshold() { return _brake_params.mechanical_activation_percentage; }
+
+    /// @brief Pedal evaluation function that takes in the direct analog values of the pedals and
+    ///        returns all of the pedals system data.
+    void evaluate_pedals(PedalSensorData_s pedal_data, unsigned long curr_millis);
+
+    PedalsParams get_accel_params() {return _accel_params;}
+
+    PedalsParams get_brake_params() {return _brake_params;}
+
+    /**
+     * This is a way to force-update the calibrated min/max values.
+     * WARNING: This should only be called when driver holds the button!
+     * WARNING: This requires both pedals to be near 0% travel!
+     */
+    void recalibrate_min_max(const PedalSensorData_s &curr_values);
+
+    /**
+     * From code startup, the PedalsSystem should constantly update what its observed max/min
+     * values are. When the driver triggers a pedal recalibration, these values will be written
+     * to non-volatile memory (EEPROM). This should be called constantly to update the
+     * observation.
+     */
+    void update_observed_pedal_limits(const PedalSensorData_s &curr_values);
+
 private:
+
+    PedalsSystemData_s _system_data {};
+    PedalSensorData_s _sensor_data {};
+    PedalsParams _accel_params {};
+    PedalsParams _brake_params {};
+    bool _implausibility_occured = false;
+    unsigned long _implausibility_start_time;
+    
     /// @brief function to determine the percentage of pedal pressed
-    /// @param pedal1val the value of the first pedal without deadzone removed (analog 0-4095)
-    /// @param pedal2val the value of the second pedal without deadzone removed (analog 0-4095)
+    /// @param scaled_pedal_1 the value of the first pedal without deadzone removed (analog 0-4095)
+    /// @param scaled_pedal_2 the value of the second pedal without deadzone removed (analog 0-4095)
     /// @param params the pedal parameters for this specific pedal
     float _pedal_percentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams& params);
 
@@ -154,12 +128,6 @@ private:
     /// @param min_pedal pedal minimum
     /// @return the scaled value of the pedal without deadzone removed (0-1)
     float _pedals_scaler(int pedal_val, int max_pedal, int min_pedal);
-
-    /// @brief function to remove deadzone from pedal data
-    /// @param conversion_input the value of the pedal without deadzone removed
-    /// @param deadzone the deadzone value for this specific pedal
-    float _remove_deadzone(float conversion_input, float deadzone);
-
 
     /// @brief function to determine if the implausibility duration has been exceeded
     /// @param curr_time the current time in milliseconds
@@ -188,12 +156,6 @@ private:
                                           const PedalsParams &params,
                                           float max_percent_diff);
 
-    /// @brief function to determine if the pedals and the brakes are pressed at the same time.
-    ///        evaluates brake being pressed with mech brake activation threshold AFTER removing
-    ///        deadzones for both brake and accel
-    /// @param pedal_data the pedal data struct containing the values of the pedals
-    bool _evaluate_brake_and_accel_pressed(PedalSensorData_s & pedal_data);
-
     /// @brief function to determine if the pedal is out of range of the calibrated value for the pedal
     /// @param pedalData_analog the value of the pedal without deadzone removed
     /// @param min the min value of the pedal -- min sensor value
@@ -212,21 +174,11 @@ private:
                                                   int max,
                                                   float implaus_margin_scale);
 
-    /// @brief Checks whether or not pedal is active according to input parameters. Returns true if either pedal is over threshold. Removes the deadzone before checking.
-    /// @param pedal1ConvertedData the value 0 to 1 of the first pedal without deadzone removed
-    /// @param pedal2ConvertedData ... second pedal 0 to 1 val
-    /// @param params the pedal parameters for this specific pedal
-    /// @param check_mech_activation if this is true, function will check percentages against the mechanical activation percentage
-    /// @return true or false accordingly
-    bool _pedal_is_active(float pedal1ConvertedData, float pedal2ConvertedData, const PedalsParams &params, bool check_mech_activation);
+    /// @brief function to remove deadzone from pedal data
+    /// @param conversion_input the value of the pedal without deadzone removed
+    /// @param deadzone the deadzone value for this specific pedal
+    float _remove_deadzone(float conversion_input, float deadzone);
 
-private:
-    PedalsSystemData_s _systemData{};
-    PedalSensorData_s _sensorData{};
-    PedalsParams _accelParams{};
-    PedalsParams _brakeParams{};
-    bool _implaus_occured = false;
-    unsigned long _implausibilityStartTime;
 };
 
 using PedalsSystemInstance = etl::singleton<PedalsSystem>;

@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "CANInterface.h"
 
 FlexCAN_T4<CAN1> TELEM_CAN;
@@ -25,7 +23,7 @@ void on_recv_telem(const CAN_message_t &msg)
     }
     Serial.print("  TS: "); Serial.println(msg.timestamp);
 }
-    
+
 void on_recv_faux(const CAN_message_t &msg)
 {
     Serial.println("msg recvd on faux can!");
@@ -42,7 +40,7 @@ void on_recv_faux(const CAN_message_t &msg)
 
 void setup()
 {
-    
+
     handle_CAN_setup(TELEM_CAN, CAN_BAUDRATE, &on_recv_telem);
     handle_CAN_setup(FAUX_CAN, CAN_BAUDRATE, &on_recv_faux);
 }

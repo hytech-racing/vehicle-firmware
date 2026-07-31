@@ -1,5 +1,6 @@
 #include "DashboardInterface.h"
 
+
 void DashboardInterface::init()
 {
     pinMode(_dashboard_gpios.START_BUTTON, INPUT_PULLUP);
@@ -13,11 +14,7 @@ void DashboardInterface::init()
 
     _i2c_bus.begin();
 
-    _io_expander.init();
-    _io_expander.portMode(MCP23017Port::A, 0b00000000); // 0b0000 0000 = 0
-    _io_expander.portMode(MCP23017Port::B, 0b01111111); // 0b0111 1111 = 127
-    _io_expander.writeRegister(MCP23017Register::GPPU_B, 0xFF); // Internal pull-ups
-    _io_expander.writeRegister(MCP23017Register::IPOL_B, 0xFF); // Polarity (inverted)
+    _init_io_expander();
 }
 
 void DashboardInterface::sync_dashboard_stored_state()
@@ -45,27 +42,27 @@ void DashboardInterface::read_ioexpander()
     ControllerMode_e new_mode = ControllerMode_e::MODE_0; // default to mode 0
 
     // check for value of dial
-    if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 0)) // NOLINT 0 is pos of bit
+    if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 0)) // NOLINT 0 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_0;
     }
-    else if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 1)) // NOLINT 1 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 1)) // NOLINT 1 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_1;
     }
-    else if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 2)) // NOLINT 2 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 2)) // NOLINT 2 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_2;
     }
-    else if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 3)) // NOLINT 3 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 3)) // NOLINT 3 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_3;
     }
-    else if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 4)) // NOLINT 4 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 4)) // NOLINT 4 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_4;
     }
-    else if (IOExpanderUtilities::getBit(data, (bool) MCP23017Port::B, 5)) // NOLINT 5 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 5)) // NOLINT 5 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_5;
     }
@@ -129,4 +126,15 @@ DashInputState_s DashboardInterface::get_dashboard_outputs()
 DashInputState_s DashboardInterface::get_dashboard_stored_state()
 {
     return _dashboard_stored_state;
+}
+
+void DashboardInterface::_init_io_expander()
+{
+    _io_expander.init();
+
+    _io_expander.portMode(MCP23017Port::A, 0b00000000); // 0b0000 0000 = 0
+    _io_expander.portMode(MCP23017Port::B, 0b01111111); // 0b0111 1111 = 127
+
+    _io_expander.writeRegister(MCP23017Register::GPPU_A, 0xFF); // Internal pull-ups
+    _io_expander.writeRegister(MCP23017Register::IPOL_B, 0xFF); // Polarity (inverted)
 }

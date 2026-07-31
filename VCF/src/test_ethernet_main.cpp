@@ -1,21 +1,11 @@
-#include <Arduino.h>
-#include <cstdint>
-#include <QNEthernet.h>
 #include "VCFEthernetInterface.h"
-#include "SharedFirmwareTypes.h"
-#include "EthernetAddressDefs.h"
-#include "hytech_msgs.pb.h"
-
-
 
 #include <array>
 #include <cstring>
-
-#include "ProtobufMsgInterface.h"
 #include "etl/optional.h"
 
 using namespace qindesign::network;
-EthernetUDP socket; 
+EthernetUDP socket;
 
 void init_ethernet_device()
 {
@@ -53,8 +43,8 @@ void loop()
     {
         Serial.printf("message RR: %d\n", (*protoc_struct).rear_loadcell_data.RR_loadcell_analog);
         Serial.printf("message RL: %d\n", (*protoc_struct).rear_loadcell_data.RL_loadcell_analog);
-        
-    } 
+
+    }
 
 
     //test_send();

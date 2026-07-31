@@ -18,10 +18,8 @@
 #include "IOExpanderUtilities.h"
 
 
-// Struct representing dashboard gpios
 struct DashboardGPIOs_s
 {
-    // GPIO
     uint8_t BRIGHTNESS_CONTROL_PIN;
     uint8_t PRESET_BUTTON;
     uint8_t MC_CYCLE_BUTTON;
@@ -33,10 +31,11 @@ struct DashboardGPIOs_s
 class DashboardInterface
 {
 public:
-    DashboardInterface(DashboardGPIOs_s gpios,
+
+    DashboardInterface(DashboardGPIOs_s gpio,
                     uint8_t io_expander_addr,
                     TwoWire &i2c_bus
-    ) : _dashboard_gpios(gpios),
+    ) : _dashboard_gpios(gpio),
         _io_expander(MCP23017(io_expander_addr, i2c_bus)),
         _i2c_bus(i2c_bus)
     {};
@@ -72,7 +71,7 @@ private:
     TwoWire &_i2c_bus;
     unsigned long _dash_created_millis;
 
-    void _init_ioexpander();
+    void _init_io_expander();
 
 };
 

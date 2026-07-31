@@ -1,5 +1,6 @@
 #include "VCRInterface.h"
 
+
 void VCRInterface::receive_dash_control_data(const CAN_message_t &can_msg)
 {
     DASHBOARD_BUZZER_CONTROL_t unpacked_msg;
@@ -7,7 +8,7 @@ void VCRInterface::receive_dash_control_data(const CAN_message_t &can_msg)
 
     if (unpacked_msg.dash_buzzer_flag)
     {
-        BuzzerController::getInstance().activate(millis());
+        BuzzerControllerInstance::instance().activate(millis());
     }
 
     _is_in_pedals_calibration_state = unpacked_msg.in_pedal_calibration_state;
