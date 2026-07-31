@@ -1,14 +1,15 @@
 #include <Arduino.h>
-
 #include "CANInterface.h"
 
 const FlexCAN_T4<CAN3> MAIN_CAN;
+
 const size_t CAN_BAUDRATE = 500000;
-const size_t delay = 10;
-const uint8_t test_msg_id = 0x11;
-const uint8_t test_msg_len = 1;
-const uint8_t test_msg_buf0 = 0x45;
-const uint8_t buf_len = 8;
+
+const uint32_t MSG_ID = 0x11;
+const uint8_t MSG_DATA = 0x45;
+
+const uint32_t DELAY = 10;
+
 
 void on_recv(const CAN_message_t &msg)
 {
@@ -18,25 +19,25 @@ void on_recv(const CAN_message_t &msg)
     Serial.print("  EXT: "); Serial.print(msg.flags.extended);
     Serial.print("  LEN: "); Serial.print(msg.len);
     Serial.print(" DATA: ");
-    for (auto b : msg.buf) {
+    for (auto b : msg.buf)
+    {
       Serial.print(b); Serial.print(" ");
     }
     Serial.print("  TS: "); Serial.println(msg.timestamp);
 }
-    
 
 void setup()
 {
-    
     handle_CAN_setup(MAIN_CAN, CAN_BAUDRATE, &on_recv);
 }
 
 void loop()
 {
-    delay(delay);
+    delay(DELAY);
     CAN_message_t test_msg;
-    test_msg.id = test_msg_id;
-    test_msg.len = test_msg_len;
-    test_msg.buf[0] = test_msg_buf0;
+    test_msg.id = MSG_ID;
+    test_msg.len = 1;
+    test_msg.buf[0] = MSG_DATA;
     MAIN_CAN.write(test_msg);
+    // Serial.println("testing");
 }

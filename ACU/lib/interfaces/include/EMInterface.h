@@ -7,6 +7,7 @@
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 #include "FlexCAN_T4.h"
+#include "hytech.h"
 
 
 struct EMData_s
@@ -22,7 +23,7 @@ class EMInterface
 public:
 
     EMInterface() = delete;
-    
+
     EMInterface(uint32_t init_millis)
     {
         _em_data.prev_time_stamp_ms = init_millis;

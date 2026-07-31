@@ -5,7 +5,6 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <Arduino.h>
 #include "SharedFirmwareTypes.h"
 #include <EEPROM.h>
 
@@ -54,7 +53,7 @@ private:
     double _lifetime_ah_throughput = 0.0f;
     double _last_saved_ah = 0.0f;
     time_ms _last_write_ms = 0;
-    
+
 };
 
 using SoHPersistenceInterfaceInstance = etl::singleton<SoHPersistenceInterface>;

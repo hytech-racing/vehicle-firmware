@@ -6,7 +6,7 @@
 
 /* External Includes */
 #include <Arduino.h>
-#include "SD.h"
+#include <SD.h>
 #include <EEPROM.h>
 #include <string>
 
@@ -21,6 +21,8 @@
 using BMSDriverInstance_t = BMSDriverInstance<12, 2, LTC6811_Type_e::LTC6811_1>;
 
 
+
+
 class DataLoggingInterface
 {
 public:
@@ -28,6 +30,7 @@ public:
     DataLoggingInterface() = default;
 
     bool init();
+
     void log_data();
 
 private:
@@ -35,9 +38,9 @@ private:
     File data_file;
     std::string file_name;
 
-    static const int eeprom_counter_address = 0;
-    static const int eeprom_magic_address = 4;
-    static const uint32_t magic_number = 0x12345678;
+    static constexpr int _eeprom_counter_address = 0;
+    static constexpr int _eeprom_magic_address = 4;
+    static constexpr uint32_t _magic_number = 0x12345678;
 
 };
 

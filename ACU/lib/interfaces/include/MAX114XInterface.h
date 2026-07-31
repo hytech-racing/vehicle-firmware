@@ -83,7 +83,9 @@ private:
     int _currentChannel;
 
     bool _dma_busy;
+    #ifdef ARDUINO
     EventResponder _spi_event;
+    #endif
 
     array<uint8_t, buffer_size> _tx_buf;
     array<uint8_t, buffer_size> _rx_buf;

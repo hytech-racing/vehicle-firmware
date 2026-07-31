@@ -18,7 +18,8 @@ void WatchdogInterface::init()
 
 bool WatchdogInterface::update_watchdog_state(uint32_t curr_millis)
 {
-    if ((curr_millis - _watchdog_time) > _watchdog_parameters.watchdog_kick_interval) {
+    if ((curr_millis - _watchdog_time) > _watchdog_parameters.watchdog_kick_interval)
+    {
         _watchdog_state = !_watchdog_state;
         _watchdog_time = curr_millis;
         digitalWrite(_watchdog_parameters.pinout.teensy_wd_kick_pin, _watchdog_state ? HIGH : LOW);
@@ -36,7 +37,6 @@ void WatchdogInterface::set_teensy_ok_high()
 {
     digitalWrite(_watchdog_parameters.pinout.teensy_ok_pin, HIGH);
 }
-
 
 void WatchdogInterface::set_n_latch_en_low()
 {

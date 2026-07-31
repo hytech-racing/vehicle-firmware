@@ -27,7 +27,7 @@ volatile SPIState_e spi_state = SPIState_e::IDLE;
 
 elapsedMillis conversion_timer;
 
-unsigned long current_time = 0; 
+unsigned long current_time = 0;
 elapsedMillis timer = 0;
 
 const int pulse_time = 250;
@@ -39,17 +39,17 @@ void async_event_responder(EventResponderRef event_responder)
     delayMicroseconds(1);
     SPI1.endTransaction();
 
-    if (spi_state == SPIState_e::WAIT_POLL_ADC_COMPLETE) 
+    if (spi_state == SPIState_e::WAIT_POLL_ADC_COMPLETE)
     {
         conversion_timer = 0;
         dma_busy = false;
         spi_state = SPIState_e::WAIT_CONVERSION;
-    } 
+    }
     else if (spi_state == SPIState_e::WAIT_READ_COMPLETE)
     {
         Serial.println("RX DATA after Callback:");
         for (size_t i = 0; i < buffer_size; i++)
-        {   
+        {
             Serial.print(read_rx_buf[i], HEX); Serial.print(" ");
         }
         Serial.println();
@@ -74,7 +74,7 @@ void setup()
     digitalWrite(ACUConstants::CS[1], HIGH);
 
     // EventResponder init
-    spi_event.attachImmediate(&asyncEventResponder);
+    spi_event.attachImmediate(&async_event_responder);
 }
 
 void loop()

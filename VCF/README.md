@@ -1,8 +1,8 @@
-# VCF — Vehicle Control Front
+# VCF — Vehicle Controller Front
 
 ## Overview
 
-The **Vehicle Control Front (VCF)** is a low voltage board responsible for acquiring the digital and analog signals from the front of the car — pedals, steering, front suspension — and streaming that data out to the rest of the car over CAN and Ethernet. It also drives the dashboard: buttons, buzzer, and status neopixels.
+The **Vehicle Controller Front (VCF)** is a low voltage board responsible for acquiring the digital and analog signals from the front of the car — pedals, steering, front suspension — and streaming that data out to the rest of the car over CAN and Ethernet. It also drives the dashboard: buttons, buzzer, and status neopixels.
 
 NOTE: Since VCF handles pedal data, it sits in the critical torque path. If the firmware ever freezes or hangs, the watchdog forces the car into shutdown rather than continuing on stale sensor data.
 

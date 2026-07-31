@@ -5,7 +5,6 @@
 #include "etl/singleton.h"
 
 /* External Includes*/
-#include <Arduino.h>
 #include "SharedFirmwareTypes.h"
 #include "MAX114XInterface.h"
 
@@ -338,7 +337,7 @@ private:
      * @brief timestamp captured in init()
      */
     uint32_t _init_millis = 0;
-    
+
 };
 
 using ADCInterfaceInstance = etl::singleton<ADCInterface>;

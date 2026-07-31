@@ -1,12 +1,8 @@
 #ifndef ACUCANINTERFACEIMPL_H
 #define ACUCANINTERFACEIMPL_H
 
-/* Standard Library */
-#include <cstdint>
-
 /* ETL Library */
-#include "etl/delegate.h"
-#include "etl/singleton.h"
+#include <etl/singleton.h>
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
