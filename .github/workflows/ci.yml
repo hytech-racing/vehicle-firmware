@@ -65,39 +65,51 @@ jobs:
           config = configparser.ConfigParser(interpolation=None)
           config.read("platformio.ini")
 
+          def resolve_subsystem(section, depth=0):
+            if depth > 10 or not config.has_section(section):
+                return None
+            if config.has_option(section, "custom_subsystem"):
+                return config.get(section, "custom_subsystem")
+            if config.has_option(section, "extends"):
+                parent = config.get(section, "extends").split(",")[0].strip()
+                parent_section = parent if parent.startswith("env:") or config.has_section(parent) else f"env:{parent}"
+                return resolve_subsystem(parent_section, depth + 1)
+            return None
+
+          default_envs = [e.strip() for e in config.get("platformio", "default_envs").split(",")]
+
           mapping = {name: {"build_env": None, "test_envs": []} for name in changed}
+
+          for env_name in default_envs:
+            subsystem = resolve_subsystem(f"env:{env_name}")
+            if subsystem in mapping:
+                mapping[subsystem]["build_env"] = env_name
 
           for section in config.sections():
             if not section.startswith("env:"):
               continue
-
             env_name = section[len("env:"):]
-            if not config.has_option(section, "custom_subsystem"):
-              continue
-
-            subsystem = config.get(section, "custom_subsystem")
+            subsystem = resolve_subsystem(section)
             if subsystem not in mapping:
               continue
-
             if env_name.lower().endswith("_unit_tests"):
               mapping[subsystem]["test_envs"].append(env_name)
-            elif env_name.lower().endswith("-prod") or env_name.lower().endswith("_prod"):
-              mapping[subsystem]["build_env"] = env_name
 
           matrix = []
           for subsystem, envs in mapping.items():
             if envs["build_env"] is None:
-                print(f"::error::No build environment declares custom_subsystem = {subsystem}", file=sys.stderr)
-                sys.exit(1)
+              print(f"::error::No default_envs entry resolves to custom_subsystem = {subsystem}", file=sys.stderr)
+              sys.exit(1)
             matrix.append({
-                "subsystem": subsystem,
-                "build_env": envs["build_env"],
-                "test_envs": envs["test_envs"],
+              "subsystem": subsystem,
+              "build_env": envs["build_env"],
+              "test_envs": envs["test_envs"],
             })
 
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-            f.write(f"matrix={json.dumps(matrix)}\n")
-          EOF
+            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"matrix={json.dumps(matrix)}\n")
+
+            EOF
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 2 — build
