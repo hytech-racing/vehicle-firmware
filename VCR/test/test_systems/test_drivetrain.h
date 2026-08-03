@@ -24,7 +24,7 @@ class MockInverterInterface {
 
 public:
 
-    DrivetrainSystem::InverterFuncts inverter_functs;
+    DrivetrainSystem::InverterFuncts_s inverter_functs;
 
     MockInverterInterface(InverterStatus_s &status, MotorMechanics_s &m_mech)
     : inverter_status(status), motor_mechanics(m_mech) {
@@ -44,7 +44,7 @@ public:
     }
 
     InverterControlWord_s get_control_word() {return _last_control_word;}
-    InverterControlInput_s get_control_input() {return _last_control_input;} 
+    InverterControlInput_s get_control_input() {return _last_control_input;}
 
 private:
 
@@ -86,7 +86,7 @@ MockInverterInterface FR(FR_status, FR_motor_mechanics);
 MockInverterInterface RL(RL_status, RL_motor_mechanics);
 MockInverterInterface RR(RR_status, RR_motor_mechanics);
 
-veh_vec<DrivetrainSystem::InverterFuncts> mock_inverter_functs = {FL.inverter_functs, FR.inverter_functs, RL.inverter_functs, RR.inverter_functs};
+veh_vec<DrivetrainSystem::InverterFuncts_s> mock_inverter_functs = {FL.inverter_functs, FR.inverter_functs, RL.inverter_functs, RR.inverter_functs};
 
 DrivetrainInit_s init = {DrivetrainModeRequest_e::INIT_DRIVE_MODE};
 DrivetrainResetError_s reset = {true};
@@ -163,7 +163,7 @@ TEST (DrivetrainTest, test) {
     ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
     ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
     ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-    
+
     // Calling init when only two of the inverters are connected (should stay in NOT_CONNECTED)
     FL_status.connected = true;
     FR_status.connected = true;
