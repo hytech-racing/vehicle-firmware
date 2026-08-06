@@ -97,7 +97,7 @@ void initialize_all_interfaces()
 
     /* ---------- IO Expander Interface ---------- */
     IOExpanderInterfaceInstance::create(Wire,
-                                        IOExpanderInterfaceParams_s {
+                                        IOExpanderParams_s {
                                             VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
                                             IOExpanderPortMode_s {
                                                 VCRInterfaces::PORTA_DIRECTIONS,
@@ -167,24 +167,24 @@ HT_TASK::TaskResponse read_ioexpander(const unsigned long& sysMicros, const HT_T
     IOExpanderInterfaceInstance::instance().read();
 
     // Inputs on Port A (0)
-    vcr_data.interface_data.shutdown_sensing_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);
+    vcr_data.interface_data.shutdown_sensing_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_a(0);
     // nothing = IOExpanderInterfaceInstance::instance().getBitPortA(1);
-    // vcr_data.interface_data.shutdown_sensing_data.bspd_fault = IOExpanderInterfaceInstance::instance().getBitPortA(2);
-    vcr_data.interface_data.ethernet_is_linked.vn_link = IOExpanderInterfaceInstance::instance().getBitPortA(3);
-    vcr_data.interface_data.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().getBitPortA(4);
-    vcr_data.interface_data.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().getBitPortA(5);
-    // vcr_data.interface_data.shutdown_sensing_data.bspd_missing = IOExpanderInterfaceInstance::instance().getBitPortA(6);
-    // nothing = IOExpanderInterfaceInstance::instance().getBitPortA(7);
+    // vcr_data.interface_data.shutdown_sensing_data.bspd_fault = IOExpanderInterfaceInstance::instance().get_bit_port_a(2);
+    vcr_data.interface_data.ethernet_is_linked.vn_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(3);
+    vcr_data.interface_data.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(4);
+    vcr_data.interface_data.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(5);
+    // vcr_data.interface_data.shutdown_sensing_data.bspd_missing = IOExpanderInterfaceInstance::instance().get_bit_port_a(6);
+    // nothing = IOExpanderInterfaceInstance::instance().get_bit_port_a(7);
 
     // Inputs on Port B (1)
-    // vcr_data.interface_data.shutdown_sensing_data.lv_present = IOExpanderInterfaceInstance::instance().getBitPortB(0);
-    vcr_data.interface_data.shutdown_sensing_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);
-    vcr_data.interface_data.shutdown_sensing_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);
-    vcr_data.interface_data.shutdown_sensing_data.vcr_sw_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3);
-    vcr_data.interface_data.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4);
-    vcr_data.interface_data.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().getBitPortB(5);
-    vcr_data.interface_data.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);
-    // nothing = IOExpanderInterfaceInstance::instance().getBitPortB(7);
+    // vcr_data.interface_data.shutdown_sensing_data.lv_present = IOExpanderInterfaceInstance::instance().get_bit_port_b(0);
+    vcr_data.interface_data.shutdown_sensing_data.bms_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(1);
+    vcr_data.interface_data.shutdown_sensing_data.imd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(2);
+    vcr_data.interface_data.shutdown_sensing_data.vcr_sw_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(3);
+    vcr_data.interface_data.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(4);
+    vcr_data.interface_data.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(5);
+    vcr_data.interface_data.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(6);
+    // nothing = IOExpanderInterfaceInstance::instance().get_bit_port_b(7);
 
     return HT_TASK::TaskResponse::YIELD;
 }

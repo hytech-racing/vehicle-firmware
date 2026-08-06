@@ -3,14 +3,5 @@
     "version": "1.0.0",
     "license": "MIT",
     "frameworks": "*",
-    "platforms": "*",
-    "build": {
-        "srcFilter": [
-            "+<*>",
-            "-<ADCInterface.cpp>",
-            "-<ACUInterface.cpp>",
-            "-<DrivebrainInterface.cpp>",
-            "-<IOExpanderInterface.cpp>"
-        ]
-    }
+    "platforms": "*"
 }

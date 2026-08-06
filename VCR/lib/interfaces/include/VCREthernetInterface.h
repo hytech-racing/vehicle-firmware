@@ -16,7 +16,7 @@
 /* Local Interface Includes */
 #include "ADCInterface.h"
 #include "InverterInterface.h"
-#include "IOExpanderInterface.h"
+#include "MCP23017IOExpanderInterface.h"
 #include "VCFInterface.h"
 
 /* Local System Includes */

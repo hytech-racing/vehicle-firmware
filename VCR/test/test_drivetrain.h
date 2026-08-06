@@ -20,14 +20,17 @@ void set_ef_active_pin(bool value)
     ef_is_active = value;
 }
 
-class MockInverterInterface {
-
+class MockInverterInterface
+{
 public:
 
     DrivetrainSystem::InverterFuncts_s inverter_functs;
 
-    MockInverterInterface(InverterStatus_s &status, MotorMechanics_s &m_mech)
-    : inverter_status(status), motor_mechanics(m_mech) {
+    MockInverterInterface(InverterStatus_s &status,
+                        MotorMechanics_s &m_mech
+    ) : inverter_status(status),
+        motor_mechanics(m_mech)
+    {
 
         using namespace std::placeholders;
 
@@ -60,20 +63,24 @@ private:
         _last_control_input.negative_torque_limit = -1.0f * ::fabs(torque_limit_nm);
         return;
     }
+
     void set_idle()
     {
         // inverter_status.speed_rpm = 0;
         return;
     }
+
     void set_inverter_control_word(InverterControlWord_s control_word)
     {
         _last_control_word = control_word;
         return;
     }
+
     InverterStatus_s get_status()
     {
         return inverter_status;
     }
+
     MotorMechanics_s get_motor_mechanics()
     {
         return motor_mechanics;
@@ -316,7 +323,7 @@ TEST (DrivetrainTest, test) {
     ASSERT_EQ(ef_is_active, false);
 
     // (requesting init) && (inverters ready) && (quit dc on)
-    uint32_t arbitrary_time_ms = 670;
+    uint32_t arbitrary_time_ms = 2001;
     sys_time::set_millis(arbitrary_time_ms);
     drivetrain.evaluate_drivetrain(init);
     ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Goes to INVERTERS_HV_ENABLED because all conditions have been met
