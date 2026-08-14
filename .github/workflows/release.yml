@@ -142,7 +142,7 @@ jobs:
           # ^ Since this runs 5 times (once per matrix value), each
           #   instance uploads under its OWN name — ACU-firmware,
           #   CCU-firmware, etc.
-          path: .pio/build/${{ steps.env.outputs.name }}/firmware.hex
+          path: .pio/build/${{ steps.env.outputs.name }}/firmware.${{ matrix.subsystem == 'Dashboard' && 'bin' || 'hex' }}
           retention-days: 7
           # ^ Auto-deleted after a week. These are only meant to bridge
           #   the gap to the next job, not serve as permanent storage —
@@ -179,7 +179,7 @@ jobs:
             firmware/CCU-firmware/firmware.hex
             firmware/VCF-firmware/firmware.hex
             firmware/VCR-firmware/firmware.hex
-            firmware/Dashboard-firmware/firmware.hex
+            firmware/Dashboard-firmware/firmware.bin
           # Each firmware.hex needs a distinct FOLDER path here
           # (from the download step above) since they'd otherwise
           # all collide on the same literal filename "firmware.hex".
