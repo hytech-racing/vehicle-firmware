@@ -47,7 +47,7 @@ jobs:
             CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
             VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
             VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
-            DASHBOARD: ['DASHBOARD/**', 'platformio.ini', '.clang-tidy']
+            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
 
       # For each changed subsystem, look up its build/test environment
       # names from platformio.ini use the `custom_subsystem` key.
