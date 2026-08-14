@@ -20,7 +20,9 @@ jobs:
   # and creates/pushes the tag if not. Uses compute_version.py script.
   # ═══════════════════════════════════════════════════════════════════
   version:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    if: |
+      github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/'))
     runs-on: ubuntu-latest
     # This `if:` is the main gate. Even though the workflow "runs" on
     # every PR close to main, this job's actual steps only execute if
