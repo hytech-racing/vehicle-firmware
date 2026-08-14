@@ -166,24 +166,26 @@ jobs:
         with:
           path: firmware
 
+      # Each subsystem's firmware is currently named identically
+      # (firmware.hex / firmware.bin) inside its own folder. GitHub
+      # Release assets are flat — two assets can't share a filename —
+      # so we rename each one to include its subsystem before upload.
+      - name: Rename firmware files for release
+        run: |
+          mv firmware/ACU-firmware/firmware.hex       firmware/ACU-firmware/ACU-firmware.hex
+          mv firmware/CCU-firmware/firmware.hex       firmware/CCU-firmware/CCU-firmware.hex
+          mv firmware/VCF-firmware/firmware.hex       firmware/VCF-firmware/VCF-firmware.hex
+          mv firmware/VCR-firmware/firmware.hex       firmware/VCR-firmware/VCR-firmware.hex
+          mv firmware/Dashboard-firmware/firmware.bin firmware/Dashboard-firmware/Dashboard-firmware.bin
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        # ^ A popular third-party (community-maintained, not official
-        #   GitHub) action. It handles both creating the Release object
-        #   AND attaching files to it in one step
         with:
           tag_name: ${{ needs.version.outputs.version }}
-          # ^ Reading job 1's output via needs.<job_id>.outputs.<key>.
           files: |
-            firmware/ACU-firmware/firmware.hex
-            firmware/CCU-firmware/firmware.hex
-            firmware/VCF-firmware/firmware.hex
-            firmware/VCR-firmware/firmware.hex
-            firmware/Dashboard-firmware/firmware.bin
-          # Each firmware.hex needs a distinct FOLDER path here
-          # (from the download step above) since they'd otherwise
-          # all collide on the same literal filename "firmware.hex".
+            firmware/ACU-firmware/ACU-firmware.hex
+            firmware/CCU-firmware/CCU-firmware.hex
+            firmware/VCF-firmware/VCF-firmware.hex
+            firmware/VCR-firmware/VCR-firmware.hex
+            firmware/Dashboard-firmware/Dashboard-firmware.bin
           generate_release_notes: true
-          # ^ Tells GitHub to auto-write release notes summarizing the
-          #   PRs merged since the last release — no manual changelog
-          #   writing needed.
