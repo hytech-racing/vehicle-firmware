@@ -117,6 +117,7 @@ jobs:
   # CCU, VCF etc. all build at the same time.
   # ═══════════════════════════════════════════════════════════════════
   build:
+    name: build (${{ matrix.subsystem }})
     needs: changes
     # Only run if at least one subsystem changed.
     if: needs.changes.outputs.subsystems != '[]'
