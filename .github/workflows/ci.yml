@@ -92,7 +92,7 @@ jobs:
             subsystem = resolve_subsystem(section)
             if subsystem not in mapping:
               continue
-            if env_name.lower().endswith("_unit_tests"):
+            if env_name.lower().endswith("_sil_tests"):
               mapping[subsystem]["test_envs"].append(env_name)
 
           matrix = []
@@ -204,9 +204,8 @@ jobs:
         if: steps.build.outcome == 'success' && join(matrix.test_envs, '') != ''
         run: |
           for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
-            echo "→ Building and running $TEST_ENV"
-            pio run -e "$TEST_ENV"
-            ./.pio/build/"$TEST_ENV"/program
+            echo "→ Running $TEST_ENV"
+            pio test -e "$TEST_ENV"
           done
 
       # Runs lint/clang-tidy static analysis.
@@ -291,3 +290,35 @@ jobs:
               issue_number: context.issue.number,
               body,
             });
+
+  # ═══════════════════════════════════════════════════════════════════
+  #                    JOB 3 — all-checks-passed
+  # A single, stable check that always runs on every PR regardless
+  # of which subsystems changed (or none). This is the one check we
+  # mark as "required" in branch protection
+  # ═══════════════════════════════════════════════════════════════════
+  all-checks-passed:
+    needs: [changes, build]
+    # `always()` makes this job run even if `build` failed or was
+    # skipped entirely — otherwise a failure upstream would skip this
+    # job too, and a skipped required check blocks merging forever,
+    # which defeats the purpose.
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate results
+        run: |
+          echo "changes job result: ${{ needs.changes.result }}"
+          echo "build job result:   ${{ needs.build.result }}"
+
+          if [ "${{ needs.changes.result }}" == "failure" ]; then
+            echo "::error::changes job failed"
+            exit 1
+          fi
+
+          if [ "${{ needs.build.result }}" == "failure" ]; then
+            echo "::error::one or more subsystem builds failed"
+            exit 1
+          fi
+
+          echo "All checks passed."
