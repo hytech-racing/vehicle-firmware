@@ -16,10 +16,24 @@ void init_ethernet_device()
 
 void test_send()
 {
-    hytech_msgs_VCFData_s msg = VCFEthernetInterface::make_vcf_data_msg(ADCInterfaceInstance::instance(), DashboardInterfaceInstance::instance(), PedalsSystemInstance::instance());
-    if (handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size, hytech_msgs_VCFData_s>(EthernetIPDefsInstance::instance().vcr_ip, EthernetIPDefsInstance::instance().VCRData_port, &socket, msg, &hytech_msgs_VCFData_s_msg)) {
+    hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(ADCInterfaceInstance::instance(),
+                                                                                        DashboardInterfaceInstance::instance(),
+                                                                                        PedalsSystemInstance::instance(),
+                                                                                        SteeringSystemInstance::instance(),
+                                                                                        BrakeRotorTempInterfaceInstance::instance()
+    );
+
+    if (handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size, hytech_msgs_VCFData_s>(EthernetIPDefsInstance::instance().vcr_ip,
+                                                                                        EthernetIPDefsInstance::instance().VCRData_port,
+                                                                                        &socket,
+                                                                                        msg,
+                                                                                        &hytech_msgs_VCFData_s_msg)
+    )
+    {
         Serial.println("Sent");
-    } else {
+    }
+    else
+    {
         Serial.println("Failed");
     }
 }
@@ -39,6 +53,7 @@ void setup()
 void loop()
 {
     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&socket, &hytech_msgs_VCRData_s_msg);
+
     if (protoc_struct)
     {
         Serial.printf("message RR: %d\n", (*protoc_struct).rear_loadcell_data.RR_loadcell_analog);

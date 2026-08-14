@@ -16,7 +16,7 @@
 #include "ADCInterface.h"
 #include "DrivebrainInterface.h"
 #include "FlowmeterInterface.h"
-#include "MCP23017IOExpanderInterface.h"
+#include "MCP23017Interface.h"
 #include "SystemTimeInterface.h"
 #include "VCRCANInterfaceImpl.h"
 #include "VCREthernetInterface.h"

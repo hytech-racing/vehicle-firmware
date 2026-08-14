@@ -42,3 +42,4 @@ env.Replace(PROJECT_INCLUDE_DIR = include)
 # Here we Append instead of Replace since LIBSOURCE_DIRS may already hold other paths
 # (e.g. global libs) that should still be searched.
 env.Append(LIBSOURCE_DIRS = [lib])
+env.Append(CPPPATH=[include])
