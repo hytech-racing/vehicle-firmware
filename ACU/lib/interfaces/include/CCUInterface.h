@@ -2,16 +2,11 @@
 #define CCU_INTERFACE_H
 
 /* ETL Library */
-#include "etl/delegate.h"
-#include "etl/singleton.h"
+#include <etl/singleton.h>
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 #include "FlexCAN_T4.h"
-#include <cstdint>
-#include <tuple>
-#include <utility>
-#include <array>
 
 
 namespace ccu_interface_defaults

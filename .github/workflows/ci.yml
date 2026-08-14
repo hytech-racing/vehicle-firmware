@@ -1,0 +1,293 @@
+name: CI
+# More detailed notes/explanation on bookstack!
+
+# ─────────────────────────────────────────────────────────────────────
+#                             Triggers
+# ─────────────────────────────────────────────────────────────────────
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+
+# ─────────────────────────────────────────────────────────────────────
+#                             Permissions
+# contents: read  — lets the workflow check out the repo
+# pull-requests: write — lets the workflow post comments on PRs
+# ─────────────────────────────────────────────────────────────────────
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════
+  #                         JOB 1 — changes
+  # Detects which subsystems were modified in this PR/push so we only
+  # build what actually changed.
+  # ═══════════════════════════════════════════════════════════════════
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      # Raw list of changed subsystem names, e.g. ["ACU","CCU"].
+      subsystems: ${{ steps.filter.outputs.changes }}
+      # Same list but each entry also has the PlatformIO environment name
+      # alongside the subsystem label.
+      matrix: ${{ steps.map.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Detects which subsystem folders changed in this push/PR.
+      # platformio.ini and .clang-tidy are shared config, so a change to
+      # either counts as a change to every subsystem (full rebuild).
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy']
+            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
+            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
+            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
+            DASHBOARD: ['DASHBOARD/**', 'platformio.ini', '.clang-tidy']
+
+      # For each changed subsystem, look up its build/test environment
+      # names from platformio.ini use the `custom_subsystem` key.
+      - name: Map subsystems to real PlatformIO environments
+        id: map
+        if: steps.filter.outputs.changes != '[]'
+        env:
+          CHANGED_SUBSYSTEMS: ${{ steps.filter.outputs.changes }}
+        run: |
+          python3 - <<'EOF'
+          import configparser, json, os, sys
+
+          changed = json.loads(os.environ["CHANGED_SUBSYSTEMS"])
+
+          config = configparser.ConfigParser(interpolation=None)
+          config.read("platformio.ini")
+
+          def resolve_subsystem(section, depth=0):
+            if depth > 10 or not config.has_section(section):
+              return None
+            if config.has_option(section, "custom_subsystem"):
+              return config.get(section, "custom_subsystem")
+            if config.has_option(section, "extends"):
+              parent = config.get(section, "extends").split(",")[0].strip()
+              parent_section = parent if parent.startswith("env:") or config.has_section(parent) else f"env:{parent}"
+              return resolve_subsystem(parent_section, depth + 1)
+            return None
+
+          default_envs = [e.strip() for e in config.get("platformio", "default_envs").split(",")]
+
+          mapping = {name: {"build_env": None, "test_envs": []} for name in changed}
+
+          for env_name in default_envs:
+            subsystem = resolve_subsystem(f"env:{env_name}")
+            if subsystem in mapping:
+              mapping[subsystem]["build_env"] = env_name
+
+          for section in config.sections():
+            if not section.startswith("env:"):
+              continue
+            env_name = section[len("env:"):]
+            subsystem = resolve_subsystem(section)
+            if subsystem not in mapping:
+              continue
+            if env_name.lower().endswith("_unit_tests"):
+              mapping[subsystem]["test_envs"].append(env_name)
+
+          matrix = []
+          for subsystem, envs in mapping.items():
+            if envs["build_env"] is None:
+              print(f"::error::No default_envs entry resolves to custom_subsystem = {subsystem}", file=sys.stderr)
+              sys.exit(1)
+            matrix.append({
+              "subsystem": subsystem,
+              "build_env": envs["build_env"],
+              "test_envs": envs["test_envs"],
+            })
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"matrix={json.dumps(matrix)}\n")
+          EOF
+
+  # ═══════════════════════════════════════════════════════════════════
+  #                         JOB 2 — build
+  # Runs in parallel for each changed subsystem using a matrix strategy.
+  # A matrix strategy mean one independent runner per subsystem. So ACU,
+  # CCU, VCF etc. all build at the same time.
+  # ═══════════════════════════════════════════════════════════════════
+  build:
+    needs: changes
+    # Only run if at least one subsystem changed.
+    if: needs.changes.outputs.subsystems != '[]'
+    runs-on: ubuntu-latest
+
+    strategy:
+      # fail-fast: false means if ACU fails, CCU/VCF/VCR/Dashboard
+      #   still continue running.
+      # fromJson converts the JSON string output from the changes job
+      #   back into an actual array that the matrix can iterate over.
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.changes.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Caches ~/.platformio between runs so the ARM toolchain,
+      # Teensy platform, and library downloads are reused.
+      # The cache key includes a hash of platformio.ini — if the ini
+      # changes the cache is invalidated and everything re-downloads fresh.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+          restore-keys: |
+            pio-${{ runner.os }}-
+
+      # PlatformIO is a Python based tool/application. We pin Python to 3.11 for
+      # reproducibility.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      # Compile the firmware for this subsystem.
+      # tee captures the build output to a file so we can parse it
+      # for memory usage in the next step.
+      - name: Build ${{ matrix.subsystem }}
+        id: build
+        run: pio run -e ${{ matrix.build_env }} 2>&1 | tee build_output.txt
+
+      # Memory usage check.
+      # Parses the PlatformIO build output for flash and RAM usage
+      # percentages and fails CI if either exceeds 90%.
+      # Ex:
+      #   Flash: [========  ]  80.3% (used 105432 bytes from 131072 bytes)
+      #   RAM:   [===       ]  32.1% (used 52488 bytes from 163840 bytes)
+      - name: Check memory usage
+        if: steps.build.outcome == 'success'
+        run: |
+          python3 - <<'EOF'
+          import re, sys
+
+          with open("build_output.txt") as f:
+            output = f.read()
+
+          flash = re.search(r"Flash:\s+\[=*\s*\]\s+([\d.]+)%", output)
+          ram   = re.search(r"RAM:\s+\[=*\s*\]\s+([\d.]+)%",   output)
+
+          flash_percent = float(flash.group(1)) if flash else 0.0
+          ram_percent   = float(ram.group(1))   if ram   else 0.0
+
+          print(f"Flash usage: {flash_percent:.1f}%")
+          print(f"RAM usage:   {ram_percent:.1f}%")
+
+          with open("summary.md", "a") as s:
+            s.write(f"| Flash | {flash_percent:.1f}% | {'⚠️' if flash_percent > 80 else '✅'} |\n")
+            s.write(f"| RAM   | {ram_percent:.1f}%   | {'⚠️' if ram_percent   > 80 else '✅'} |\n")
+
+          if flash_percent > 90:
+            print("::error::Flash usage exceeds 90% — binary too large")
+            sys.exit(1)
+          if ram_percent > 90:
+            print("::error::RAM usage exceeds 90% — too much static memory")
+            sys.exit(1)
+          EOF
+
+      # Runs unit tests on the native platform. Dashboard is excluded because it has no
+      # native test environment at the moment.
+      - name: Test ${{ matrix.subsystem }}
+        id: test
+        if: steps.build.outcome == 'success' && join(matrix.test_envs, '') != ''
+        run: |
+          for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
+            echo "→ Building and running $TEST_ENV"
+            pio run -e "$TEST_ENV"
+            ./.pio/build/"$TEST_ENV"/program
+          done
+
+      # Runs lint/clang-tidy static analysis.
+      # --fail-on-defect high means only high severity issues block
+      # the build. Medium severity issues are reported but don't fail.
+      - name: Lint ${{ matrix.subsystem }}
+        id: lint
+        if: steps.build.outcome == 'success'
+        run: pio check -e ${{ matrix.build_env }} --fail-on-defect high
+
+      # Uploads the firmware artifacts on the PR: compiled .hex file
+      # github.sha is the full commit hash — including it in the name
+      # makes each artifact uniquely identifiable.
+      # Artifacts are auto-deleted after 30 days to avoid filling up storage.
+      - name: Upload ${{ matrix.subsystem }} firmware artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.subsystem }}-firmware-${{ github.sha }}
+          path: .pio/build/${{ matrix.build_env }}/firmware.hex
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # Writes a summary table to the GitHub Actions job summary page.
+      # This is visible by clicking on the job in the Actions tab —
+      # no need to dig through logs to see pass/fail at a glance.
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## ${{ matrix.subsystem }} CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step  | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ steps.build.outcome == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test  | ${{ steps.test.outcome  == 'success' && '✅ passed' || steps.test.outcome == 'skipped' && '⏭️ skipped' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint  | ${{ steps.lint.outcome  == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          # Append memory usage from the python script above if it exists
+          if [ -f summary.md ]; then
+            echo "### Memory Usage" >> $GITHUB_STEP_SUMMARY
+            echo "| Section | Usage | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|---------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+            cat summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # Posts a comment on the PR with a build summary table.
+      # only runs on pull_request events, not on push to develop
+      - name: Post PR comment
+        if: |
+          always() &&
+          github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const subsystem = '${{ matrix.subsystem }}';
+            const sha       = '${{ github.sha }}'.substring(0, 7);
+            const build     = '${{ steps.build.outcome }}';
+            const test      = '${{ steps.test.outcome }}';
+            const lint      = '${{ steps.lint.outcome }}';
+
+            // Helper — converts a step outcome string to an emoji
+            const icon = outcome =>
+              outcome === 'success'  ? '✅' :
+              outcome === 'skipped'  ? '⏭️' :
+              outcome === 'failure'  ? '❌' : '⏸️';
+
+            const overall = (build === 'success' && lint === 'success') ? '✅' : '❌';
+
+            const body = [
+              `### ${overall} ${subsystem} — \`${sha}\``,
+              '',
+              '| Step  | Result |',
+              '|-------|--------|',
+              `| Build | ${icon(build)} ${build} |`,
+              `| Test  | ${icon(test)}  ${test}  |`,
+              `| Lint  | ${icon(lint)}  ${lint}  |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

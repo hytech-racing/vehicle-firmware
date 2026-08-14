@@ -5,8 +5,6 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "Arduino.h"
-#include <algorithm>
 #include "SharedFirmwareTypes.h"
 #include "hytech_msgs.pb.h"
 #include "ProtobufMsgInterface.h"

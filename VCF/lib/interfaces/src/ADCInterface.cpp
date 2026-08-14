@@ -1,5 +1,6 @@
 #include "ADCInterface.h"
 
+
 void ADCInterface::tick_adc0()
 {
     _adc0.tick();
@@ -140,11 +141,13 @@ AnalogConversion_s ADCInterface::get_FR_sus_pot()
     return _adc1.data.conversions[_adc_parameters.channels.fr_suspot_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_pressure_front() {
+AnalogConversion_s ADCInterface::get_brake_pressure_front()
+{
     return _adc1.data.conversions[_adc_parameters.channels.brake_pressure_front_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_pressure_rear() {
+AnalogConversion_s ADCInterface::get_brake_pressure_rear()
+{
     return _adc1.data.conversions[_adc_parameters.channels.brake_pressure_rear_channel];
 }
 

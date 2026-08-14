@@ -85,7 +85,7 @@ namespace VCRCANInterfaceImpl
 
     void on_telem_can_receive(const CAN_message_t &msg);
 
-    void vcr_CAN_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type);
+    void vcr_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type);
 
     void send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
 }; // namespace VCRCANInterfaceImpl

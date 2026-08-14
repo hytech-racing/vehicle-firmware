@@ -1,0 +1,17 @@
+# Everything Requires Firmware-Lead Approval
+*                          @hytech-racing/Firmware-Lead
+
+# Subsystems
+/ACU/                      @hytech-racing/Firmware-Lead
+/CCU/                      @hytech-racing/Firmware-Lead
+/VCF/                      @hytech-racing/Firmware-Lead
+/VCR/                      @hytech-racing/Firmware-Lead
+/Dashboard/                @hytech-racing/Firmware-Lead
+
+# Shared config — Lead only
+/.github/                  @hytech-racing/Firmware-Lead
+/platformio.ini            @hytech-racing/Firmware-Lead
+/.clang-tidy               @hytech-racing/Firmware-Lead
+
+# Docs — Reviewers can approve
+/docs/                     @hytech-racing/Firmware-Reviewers

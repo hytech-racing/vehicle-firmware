@@ -52,7 +52,8 @@ using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
  */
 struct VCFCANInterface_s
 {
-    explicit VCFCANInterface_s(etl::delegate<void (CANInterfaces_s &, const CAN_message_t &, uint32_t, CANInterfaceType_e)> recv_switch_func) : can_recv_switch(recv_switch_func) {}
+    explicit VCFCANInterface_s(etl::delegate<void (CANInterfaces_s &, const CAN_message_t &, uint32_t, CANInterfaceType_e)> recv_switch_func
+    ) : can_recv_switch(recv_switch_func) {}
 
     FlexCAN_t<CAN1> TELEM_CAN;
     CANRXBuffer_t telem_can_rx_buffer;

@@ -1,5 +1,4 @@
 #include "EMInterface.h"
-#include "hytech.h"
 
 
 void EMInterface::receive_EM_measurement_message(const CAN_message_t &msg, uint32_t curr_millis)

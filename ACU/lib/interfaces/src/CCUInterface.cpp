@@ -1,6 +1,5 @@
 #include "CCUInterface.h"
 #include "ACUCANInterfaceImpl.h"
-#include "hytech.h"
 
 
 void CCUInterface::receive_CCU_status_message(const CAN_message_t& msg, unsigned long curr_millis)
@@ -127,4 +126,3 @@ CCUCANInterfaceData_s CCUInterface::get_latest_data(unsigned long curr_millis)
 {
     return _curr_data;
 }
-

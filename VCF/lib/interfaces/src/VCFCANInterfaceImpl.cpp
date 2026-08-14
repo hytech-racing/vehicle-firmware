@@ -1,5 +1,6 @@
 #include "VCFCANInterfaceImpl.h"
 
+
 void VCFCANInterfaceImpl::on_telem_can_recv(const CAN_message_t &msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
@@ -69,8 +70,10 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
         case FR_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:
         case FR_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
         case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
-            interfaces.brake_rotor_temp_interface.receiveBrakeRotorTempData(msg);
+        {
+            interfaces.brake_rotor_temp_interface.receive_brake_rotor_temp_data(msg);
             break;
+        }
         default:
         {
             break;
@@ -90,4 +93,3 @@ void VCFCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Ba
         can_interface->write(msg);
     }
 }
-

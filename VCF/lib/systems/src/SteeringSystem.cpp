@@ -1,5 +1,6 @@
 #include "SteeringSystem.h"
 
+
 void SteeringSystem::recalibrate_steering_digital()
 {
     _params.min_steering_signal_analog = _min_observed_analog;
@@ -126,7 +127,8 @@ void SteeringSystem::evaluate_steering(const uint32_t analog_raw, const Steering
         else if (digital_valid)
         {
             _system_data.output_steering_angle = _system_data.digital_steering_angle;
-        } else // if both sensors fail
+        }
+        else // if both sensors fail
         {
             _system_data.output_steering_angle = _prev_digital_angle;
             _system_data.both_sensors_fail = true;

@@ -1,10 +1,6 @@
 #include "DataLoggingInterface.h"
 
 
-const int DataLoggingInterface::eeprom_counter_address;
-const int DataLoggingInterface::eeprom_magic_address;
-const uint32_t DataLoggingInterface::magic_number;
-
 static const char* CSV_HEADER = "timestamp_ms,em_current_A,min_cell_v," "soc_pct,lifetime_ah,soh,soe_pct,v1,remaining_wh";
 
 bool DataLoggingInterface::init()
@@ -19,16 +15,16 @@ bool DataLoggingInterface::init()
     uint32_t file_counter = 0;
     uint32_t magic_check  = 0;
 
-    EEPROM.get(eeprom_magic_address, magic_check);
-    if (magic_check != magic_number)
+    EEPROM.get(_eeprom_magic_address, magic_check);
+    if (magic_check != _magic_number)
     {
         file_counter = 0;
-        EEPROM.put(eeprom_magic_address,   magic_number);
-        EEPROM.put(eeprom_counter_address, file_counter);
+        EEPROM.put(_eeprom_magic_address,   _magic_number);
+        EEPROM.put(_eeprom_counter_address, file_counter);
     }
     else
     {
-        EEPROM.get(eeprom_counter_address, file_counter);
+        EEPROM.get(_eeprom_counter_address, file_counter);
     }
 
     file_name = std::string("soc_log_") + std::to_string(file_counter) + std::string(".csv");

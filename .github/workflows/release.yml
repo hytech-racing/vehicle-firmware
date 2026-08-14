@@ -1,0 +1,187 @@
+name: Release on merge to main
+# When a release/* branch gets merged into main, this computes the next
+# version number, tags it, builds firmware for all five subsystems, and
+# publishes a single GitHub Release with all five .hex files attached.
+
+on:
+  pull_request:
+    types: [closed]
+    # ^ Workflow triggers on a "pull_request" event, specifically when it's "closed".
+    #   NOTE: "closed" fires for BOTH a merged PR and a manually-closed
+    #   (without-merging) PR. We distinguish between the two below in the
+    #   `if:` condition on the first job.
+    branches: [main]
+    # ^ Restricts this trigger to only PRs whose target branch is main.
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════
+  # JOB 1 — Version
+  # Computes the next version, checks whether its tag already exists,
+  # and creates/pushes the tag if not. Uses compute_version.py script.
+  # ═══════════════════════════════════════════════════════════════════
+  version:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    # This `if:` is the main gate. Even though the workflow "runs" on
+    # every PR close to main, this job's actual steps only execute if
+    # PR is actually merged and if it is actually a release branch
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      exists:  ${{ steps.check_tag.outputs.exists }}
+    # Jobs run on separate machines with no shared memory or filesystem.
+    # `outputs:` is how this job exposes values that other jobs can read afterward.
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # ^ By default, checkout only grabs the single latest commit
+          #   for speed. We need the full git history here (all commits
+          #   and tags), since compute_version.py uses `git describe`
+          #   and `git log` to look back through past tags/merges.
+          ref: main
+          # ^ Explicitly check out the main branch itself (post-merge
+          #   state)
+
+      - name: Compute next version
+        id: version
+        # ^ `id:` gives this specific step a nickname so other steps can reference
+        #         whatever this step produces via `steps.version.outputs.<key>`.
+        run: echo "version=$(python3 scripts/compute_version.py)" >> "$GITHUB_OUTPUT"
+        # ^ `echo "version=v2.5.0"` builds a line in the exact `key=value` format
+        #   GitHub Actions requires.
+        #   `>> "$GITHUB_OUTPUT"` appends that line to a special file
+        #   GitHub provides via this env var — anything written here
+        #   becomes retrievable later as steps.<id>.outputs.<key>.
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          git fetch --tags
+          if git rev-parse -q --verify "refs/tags/${{ steps.version.outputs.version }}" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.version.outputs.version }} already exists — skipping release."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        #   `git fetch --tags` pulls the current list of tags from the remote.
+        #   `git rev-parse -q --verify "refs/tags/..."` tries to resolve that exact tag.
+        #       `--verify` makes it exit 0 if found, nonzero if not.
+        #       `-q` suppresses the error message on failure.
+        #       `${{ ... }}` substitutes in the version string computed above
+        #   `>/dev/null` discards the normal output (a commit hash, if
+        #   found) since we only care about the exit code here.
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
+        # ^ Step-level `if:` — same idea as job-level, but scoped to just
+        #   this one step. Only runs if the tag doesn't already exist.
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
+  # ═══════════════════════════════════════════════════════════════════
+  # JOB 2 — Build
+  # Builds every subsystem in parallel via a matrix strategy,
+  # same pattern as the CI workflow.
+  # ═══════════════════════════════════════════════════════════════════
+  build:
+    needs: version
+    # ^ `needs:` makes this job wait for `version` to finish successfully
+    #   before starting.
+    if: needs.version.outputs.exists == 'false'
+    # ^ Reads the other job's output
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # ^ By default, if one matrix instance fails, GitHub cancels all
+      #   the others still running. Setting this false means every
+      #   subsystem still gets a chance to finish independently, so you
+      #   can see all five results instead of one truncated run.
+      matrix:
+        subsystem: [ACU, CCU, VCF, VCR, Dashboard]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      # Maps friendly subsystem name (ACU, CCU, ...) to the actual
+      # PlatformIO environment name in platformio.ini (acu-prod,
+      # ccu-prod, ...).
+      - name: Resolve environment name
+        id: env
+        run: |
+          case "${{ matrix.subsystem }}" in
+            ACU)       echo "name=acu-prod"      >> "$GITHUB_OUTPUT" ;;
+            CCU)       echo "name=ccu-prod"      >> "$GITHUB_OUTPUT" ;;
+            VCF)       echo "name=vcf-prod"      >> "$GITHUB_OUTPUT" ;;
+            VCR)       echo "name=vcr-prod"      >> "$GITHUB_OUTPUT" ;;
+            Dashboard) echo "name=dash-dfu-prod" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Build ${{ matrix.subsystem }}
+        run: pio run -e ${{ steps.env.outputs.name }}
+
+      # Uploads this subsystem's .hex as a workflow artifact.
+      # The release job below downloads all of these and attaches them
+      # to a single Release.
+      - name: Upload ${{ matrix.subsystem }} firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.subsystem }}-firmware
+          # ^ Since this runs 5 times (once per matrix value), each
+          #   instance uploads under its OWN name — ACU-firmware,
+          #   CCU-firmware, etc.
+          path: .pio/build/${{ steps.env.outputs.name }}/firmware.hex
+          retention-days: 7
+          # ^ Auto-deleted after a week. These are only meant to bridge
+          #   the gap to the next job, not serve as permanent storage —
+          #   the actual permanent copy lives on the GitHub Release
+          #   created in the next job.
+
+  # ═══════════════════════════════════════════════════════════════════
+  # JOB 3 — Release
+  # Downloads every subsystem's built firmware from job 2 and attaches
+  # all of them to a single GitHub Release, tagged with the version
+  # computed in job 1.
+  # ═══════════════════════════════════════════════════════════════════
+  release:
+    needs: [version, build]
+    if: needs.version.outputs.exists == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      # Downloads every artifact uploaded anywhere in this workflow run.
+      - name: Download all firmware artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: firmware
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        # ^ A popular third-party (community-maintained, not official
+        #   GitHub) action. It handles both creating the Release object
+        #   AND attaching files to it in one step
+        with:
+          tag_name: ${{ needs.version.outputs.version }}
+          # ^ Reading job 1's output via needs.<job_id>.outputs.<key>.
+          files: |
+            firmware/ACU-firmware/firmware.hex
+            firmware/CCU-firmware/firmware.hex
+            firmware/VCF-firmware/firmware.hex
+            firmware/VCR-firmware/firmware.hex
+            firmware/Dashboard-firmware/firmware.hex
+          # Each firmware.hex needs a distinct FOLDER path here
+          # (from the download step above) since they'd otherwise
+          # all collide on the same literal filename "firmware.hex".
+          generate_release_notes: true
+          # ^ Tells GitHub to auto-write release notes summarizing the
+          #   PRs merged since the last release — no manual changelog
+          #   writing needed.

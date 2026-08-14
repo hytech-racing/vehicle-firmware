@@ -15,7 +15,7 @@ namespace IOExpanderUtilities
     @param port port from which to get the bit from (A=0, B=1)
     @param bit  bit number of port to get bit from
     */
-    bool getBit(uint16_t data, bool port, uint8_t bit);
+    bool get_bit(uint16_t data, bool port, uint8_t bit);
 }
 
 #endif

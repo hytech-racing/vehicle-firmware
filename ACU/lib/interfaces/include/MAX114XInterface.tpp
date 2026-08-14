@@ -66,12 +66,14 @@ void MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>::init()
 
     _dma_busy = false;
 
+#ifdef ARDUINO
     _spi_event.setContext(this);
     _spi_event.attachImmediate([](EventResponderRef ref)
     {
         SPI1.endTransaction();
         static_cast<MAX114XInterface*>(ref.getContext())->_dma_callback();
     });
+#endif
 
     _tx_buf.fill(0);
     _rx_buf.fill(0);
@@ -192,8 +194,20 @@ void MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>::_sample()
 
     _tx_buf[0] = command;
     _rx_buf.fill(0);
-    SPI.transfer(_tx_buf.data(), _rx_buf.data(), buffer_size, _spi_event);
 
-    // set the dma busy flag
+#ifdef ARDUINO
+    // Real hardware: async DMA transfer via EventResponder.
+    SPI.transfer(_tx_buf.data(), _rx_buf.data(), buffer_size, _spi_event);
     _dma_busy = true;
+#else
+    // Native/test builds: ArduinoFake's SPI.transfer only supports an
+    // in-place buffer overload (input and output share one buffer), not
+    // separate tx/rx buffers with a size argument. Copy tx into rx first,
+    // then transfer in-place, and call the completion handler immediately
+    // since there's no real async/interrupt mechanism on native.
+    _rx_buf = _tx_buf;
+    SPI.transfer(_rx_buf.data(), buffer_size);
+    _dma_busy = false;
+    _dma_callback();
+#endif
 }

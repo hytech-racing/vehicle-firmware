@@ -95,10 +95,10 @@ void initialize_all_interfaces()
         .BUTTON_2 = VCFInterfaces::BUTTON_2
     };
     DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); //NOLINT
-        DashboardInterfaceInstance::instance().init();
+    DashboardInterfaceInstance::instance().init();
 
     /* Orbis Interface */
-    OrbisInterfaceInstance::create(&Serial2); // fix t
+    OrbisInterfaceInstance::create(&Serial2);
 
     /* VCR Interface */
     VCRInterfaceInstance::create();
@@ -109,10 +109,13 @@ void initialize_all_interfaces()
                                 DashboardInterfaceInstance::instance(),
                                 VCRInterfaceInstance::instance()
     );
+
+    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
+
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
 
-    // Create Ethernet singletons
+    /* Ethernet */
     VCFEthernetInterfaceInstance::create();
     VCFEthernetInterfaceInstance::instance().init_ethernet_device();
 }
@@ -187,7 +190,7 @@ HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, c
 HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
 
-    bool buzzer_is_active = BuzzerController::getInstance().buzzer_is_active(sys_time::hal_millis()); //NOLINT
+    bool buzzer_is_active = BuzzerControllerInstance::instance().buzzer_is_active(sys_time::hal_millis()); //NOLINT
 
     digitalWrite(VCFInterfaces::BUZZER_CONTROL_PIN, buzzer_is_active);
     return HT_TASK::TaskResponse::YIELD;
@@ -455,7 +458,7 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     Serial.print(DashboardInterfaceInstance::instance().get_dashboard_outputs().mc_reset_btn_is_pressed); Serial.print("\t");
     Serial.print(DashboardInterfaceInstance::instance().get_dashboard_outputs().start_btn_is_pressed); Serial.print("\t");
     Serial.print(DashboardInterfaceInstance::instance().get_dashboard_outputs().data_btn_is_pressed); Serial.print("\t");
-    Serial.println(BuzzerController::getInstance().buzzer_is_active(sys_time::hal_millis()));
+    Serial.println(BuzzerControllerInstance::instance().buzzer_is_active(sys_time::hal_millis()));
 
     /* Brake Rotor Temp Info */
     Serial.println("\nBrake Rotor Temps:");
@@ -463,24 +466,24 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     // Sensor 1
     Serial.print("FL\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.max_temp); Serial.print("\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.avg_temp); Serial.print("\t");
+    Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fl_sensor.max_temp); Serial.print("\t");
+    Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fl_sensor.avg_temp); Serial.print("\t");
 
     for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
     {
-        Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.channel_data[i]);
+        Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fl_sensor.channel_data[i]);
         Serial.print("\t");
     }
     Serial.println();
 
     // Sensor 2
     Serial.print("FR\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.max_temp); Serial.print("\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.avg_temp); Serial.print("\t");
+    Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fr_sensor.max_temp); Serial.print("\t");
+    Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fr_sensor.avg_temp); Serial.print("\t");
 
     for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
     {
-        Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.channel_data[i]);
+        Serial.print(BrakeRotorTempInterfaceInstance::instance().get_brake_rotor_temp_data().fr_sensor.channel_data[i]);
         Serial.print("\t");
     }
     Serial.println();

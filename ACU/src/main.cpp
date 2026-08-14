@@ -65,9 +65,6 @@ void setup()
     // scheduler.schedule(run_datalogger_task);
 
     // scheduler.schedule(debug_prints_task);
-
-    handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
-    handle_CAN_setup(ACUCANInterfaceInstance::instance().EM_CAN, ACUConstants::EM_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_em_can_receive);
 }
 
 void loop()

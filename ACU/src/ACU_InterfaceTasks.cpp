@@ -197,7 +197,15 @@ void initialize_all_interfaces()
     // SoHPersistenceInterfaceInstance::instance().save(historical_ah_throughput, sys_time::hal_millis(), true);
 
     /* CAN Interfaces Construct */
-    CANInterfacesInstance::create(CCUInterfaceInstance::instance(), EMInterfaceInstance::instance());
+    CANInterfacesInstance::create(CCUInterfaceInstance::instance(),
+                                EMInterfaceInstance::instance()
+    );
+
+    ACUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
+
+
+    handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
+    handle_CAN_setup(ACUCANInterfaceInstance::instance().EM_CAN, ACUConstants::EM_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_em_can_receive);
 }
 
 HT_TASK::TaskResponse run_kick_watchdog(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)

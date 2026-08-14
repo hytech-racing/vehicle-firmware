@@ -14,6 +14,7 @@ namespace adc_default_parameters
 {
     constexpr const unsigned int channels_within_mcp_adc = 8;
 }
+
 struct ADCPinout_s
 {
     pin adc0_spi_cs_pin;
@@ -127,14 +128,8 @@ public:
         )
     {};
 
-    /**
-     * Samples from ADC0
-     */
     void tick_adc0();
 
-    /**
-     * Samples from ADC1
-     */
     void tick_adc1();
 
 
@@ -142,38 +137,39 @@ public:
 
     /**
      * @return Pedal Reference Reading
-     */
+    */
     AnalogConversion_s pedal_reference();
 
     /**
      * @return Analog Steering Degrees [Steering 1]
-     */
+    */
     AnalogConversion_s get_steering_degrees_cw();
 
     /**
      * @return Analog Steering Degrees [Steering 2]
-     */
+    */
     AnalogConversion_s get_steering_degrees_ccw();
 
     /**
      * @return Acceleration Pedal 1
-     */
+    */
     AnalogConversion_s get_acceleration_1();
 
     /**
      * @return Acceleration Pedal 2
-     */
+    */
     AnalogConversion_s get_acceleration_2();
 
     /**
      * @return Brake Pedal 1
-     */
+    */
     AnalogConversion_s get_brake_1();
 
     /**
      * @return Brake Pedal 2
-     */
+    */
     AnalogConversion_s get_brake_2();
+
 
     /* -------------------- ADC1 -------------------- */
 
@@ -184,63 +180,62 @@ public:
 
     /**
      * @return SHDN D Voltage Sense
-     */
+    */
     AnalogConversion_s shdn_d();
 
     /**
      * @return Front Left Load Cell
-     */
+    */
     AnalogConversion_s get_FL_load_cell();
 
     /**
      * @return Front Right Load Cell
-     */
+    */
     AnalogConversion_s get_FR_load_cell();
 
     /**
      * @return Front Left Suspension Potentiometer Reading
-     */
+    */
     AnalogConversion_s get_FL_sus_pot();
 
     /**
      * @return Front Right Suspension Potentiometer Reading
-     */
+    */
     AnalogConversion_s get_FR_sus_pot();
 
     /**
      * @return Front Brake Pressure
-     */
+    */
     AnalogConversion_s get_brake_pressure_front();
 
     /**
      * @return Rear Brake Pressure
-     */
+    */
     AnalogConversion_s get_brake_pressure_rear();
 
     /**
-     * Update the filtered values for the load cells and sus pots.
-     * Uses the iir_filter method to do so.
-     */
+     * @brief Update the filtered values for the load cells and sus pots. Uses iir filter.
+    */
     void update_filtered_values(float alpha);
 
     /**
      * @return Filtered Front Left Load Cell
-     */
+    */
     float get_filtered_FL_load_cell();
 
     /**
      * @return Filtered Front Right Load Cell
-     */
+    */
     float get_filtered_FR_load_cell();
 
     /**
      * @return Filtered Front Left Sus Pot
-     */
+    */
     float get_filtered_FL_sus_pot();
 
     /**
      * @return Filtered Front Right Sus Pot
-     */
+    */
     float get_filtered_FR_sus_pot();
 
 private:
@@ -256,7 +251,7 @@ private:
     float _FR_load_cell_filtered;
     float _FL_sus_pot_filtered;
     float _FR_sus_pot_filtered;
-    
+
     std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_scales();
     std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
     std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_scales();

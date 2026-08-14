@@ -7,9 +7,6 @@
 /* External Includes */
 #include <Arduino.h>
 
-/* Local Interface Includes */
-#include "SystemTimeInterface.h"
-
 using pin = uint8_t;
 
 
@@ -34,6 +31,7 @@ struct WatchdogInterfaceParams_s
 class WatchdogInterface
 {
 public:
+
     WatchdogInterface(WatchdogPinout_s pinout,
                     uint32_t watchdog_kick_interval = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL
     ): _watchdog_parameters {

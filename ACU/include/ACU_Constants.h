@@ -1,16 +1,8 @@
 #ifndef ACU_CONSTANTS
 #define ACU_CONSTANTS
 
-/* Standard Library */
-#include <stddef.h>
-#include <stdio.h>
-
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include <cstddef>
-#include <iostream>
-#include <array>
-#include <algorithm>
 
 using pin = uint8_t;
 using time_us = uint32_t;
@@ -94,15 +86,15 @@ namespace ACUInterfaces
 namespace ACUSystems
 {
     constexpr const volt MIN_DISCHARGE_VOLTAGE_THRESH = 3.8F; // Minimum voltage for a cell to be discharged
-    constexpr const volt CELL_OVERVOLTAGE_THRESH = 4.2;   // Cell overvoltage threshold in Volts
-    constexpr const volt CELL_UNDERVOLTAGE_THRESH = 3.05; // Cell undervoltage threshold in Volts
-    constexpr const volt MIN_PACK_TOTAL_VOLTAGE = 420.0;  // Volts
-    constexpr const celsius CHARGING_OT_THRESH = 60.0;    // Celsius
-    constexpr const celsius RUNNING_OT_THRESH = 60.0;     // Celsius
-    constexpr const volt VOLTAGE_DIFF_TO_INIT_CB = 0.02;  // differential with lowest cell voltage to enable cell balancing for a cell
+    constexpr const volt CELL_OVERVOLTAGE_THRESH = 4.2;       // Cell overvoltage threshold in Volts
+    constexpr const volt CELL_UNDERVOLTAGE_THRESH = 3.05;     // Cell undervoltage threshold in Volts
+    constexpr const volt MIN_PACK_TOTAL_VOLTAGE = 420.0;
+    constexpr const celsius CHARGING_OT_THRESH = 60.0;
+    constexpr const celsius RUNNING_OT_THRESH = 60.0;
+    constexpr const volt VOLTAGE_DIFF_TO_INIT_CB = 0.02;      // differential with lowest cell voltage to enable cell balancing for a cell
     constexpr const celsius BALANCE_TEMP_LIMIT_C = 50.0;
-    constexpr const celsius BALANCE_ENABLE_TEMP_THRESH_C = 35.0; // Celsius
-    constexpr const volt TS_ISOLATION_VOLTAGE = 100; // Volts
+    constexpr const celsius BALANCE_ENABLE_TEMP_THRESH_C = 35.0;
+    constexpr const volt TS_ISOLATION_VOLTAGE = 100;
 }
 namespace ACUConstants
 {

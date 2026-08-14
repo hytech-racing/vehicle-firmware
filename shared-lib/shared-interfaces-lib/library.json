@@ -1,0 +1,14 @@
+{
+    "name": "shared-interfaces-lib",
+    "version": "1.0.0",
+    "license": "MIT",
+    "frameworks": "*",
+    "platforms": "*",
+    "dependencies":
+    {
+      "shared_firmware_types": "*",
+      "FlexCAN_T4": "*",
+      "Embedded Template Library": "*",
+      "QNEthernet": "*"
+    }
+  }

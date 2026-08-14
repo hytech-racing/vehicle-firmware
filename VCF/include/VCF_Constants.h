@@ -2,7 +2,8 @@
 #define VCF_CONSTANTS
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
+#include <cstdint>
+#include <cstddef>
 
 using pin = uint8_t;
 using degree  = float;
@@ -80,12 +81,6 @@ namespace VCFInterfaces
     constexpr float BRAKE_PRESSURE_REAR_SCALE   = 1.0f;
     constexpr float BRAKE_PRESSURE_REAR_OFFSET  = 0.0f;
 
-    /* Not on Schematic
-    // constexpr int BTN_DIM_READ = 28; // Currently used for steering system recalibration TODO: change pin
-    // constexpr int BTN_PRESET_READ = 31;
-    // constexpr int BTN_MODE_READ = 27; // USED TO BE 26.
-    */
-
     /* Dashboard GPIO */
     constexpr int BRIGHTNESS_CONTROL_PIN  = 26; // BUTTON_1 on schematic
     constexpr int BUTTON_2                = 27; // BUTTON_2 on schematic
@@ -99,8 +94,6 @@ namespace VCFInterfaces
     constexpr pin WATCHDOG_KICK_PIN = 36;
     constexpr pin SOFTWARE_OK_PIN = 37; // Watchdog's !MR pin
 }
-
-// calibration and processing constants
 namespace VCFSystems
 {
     /* IO Expander */
@@ -108,7 +101,7 @@ namespace VCFSystems
 
     /* Neopixel Controller */
     constexpr int NEOPIXEL_CONTROL_PIN = 33;
-    constexpr int NEOPIXEL_COUNT = 16; // 16 neopixeles on dashboard
+    constexpr int NEOPIXEL_COUNT = 16;
 
     /* EEPROM addresses */
     constexpr uint32_t ACCEL_1_MIN_ADDR = 0;

@@ -1,6 +1,8 @@
 #include "VCFEthernetInterface.h"
 #include "hytech_msgs_version.h"
 
+#define hytech_msgs_VCFData_s_fields &hytech_msgs_VCFData_s_msg
+
 
 void VCFEthernetInterface::init_ethernet_device()
 {
@@ -99,10 +101,10 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.brake_pressure_data.rear_brake_pressure = adc_int.get_brake_pressure_rear().conversion;
 
     // Brake rotor temps
-    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.max_temp;
-    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.avg_temp;
-    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.max_temp;
-    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.avg_temp;
+    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = brake_rotor_temp_int.get_brake_rotor_temp_data().fl_sensor.max_temp;
+    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = brake_rotor_temp_int.get_brake_rotor_temp_data().fl_sensor.avg_temp;
+    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = brake_rotor_temp_int.get_brake_rotor_temp_data().fr_sensor.max_temp;
+    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = brake_rotor_temp_int.get_brake_rotor_temp_data().fr_sensor.avg_temp;
 
     // Shutdown Senses
     out.vcf_shutdown_data.d_inertia_switch_out_read = adc_int.shdn_d().conversion;
@@ -143,5 +145,3 @@ void VCFEthernetInterface::handle_send_ethernet_vcf_data(const hytech_msgs_VCFDa
         hytech_msgs_VCFData_s_fields
     );
 }
-
-#define hytech_msgs_VCFData_s_fields &hytech_msgs_VCFData_s_msg

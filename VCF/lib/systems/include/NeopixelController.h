@@ -6,22 +6,20 @@
 #define MIN_BRIGHTNESS 3
 #define BRIGHTNESS_STEPS 4
 #define STEP_BRIGHTNESS ((MAX_BRIGHTNESS - MIN_BRIGHTNESS) / BRIGHTNESS_STEPS)
-// Note from Justin: I know that this sort of breaks the paradigm that we've put
-// in place for most of our code, but
-// - other libraries do this all the time
-// - I don't really see these as externally configurable, so I don't see why we should
-// define a new type of struct, add an arg to the constructor, etc.
-// - this is how it was implemented on STM32 dash and I want to be fast :)
 
 /* ETL Library Includes */
 #include <etl/singleton.h>
 
-/* External Includes */
+/* External Includes — hardware-only, not available on native/test builds */
+#ifdef ARDUINO
 #include <Adafruit_NeoPixel.h>
+#endif
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
+#ifdef ARDUINO
 #include "VCFCANInterfaceImpl.h"
+#endif
 
 
 struct MinCellMonitoringThresholds_s
@@ -71,12 +69,19 @@ class NeopixelController
 {
 public:
 
+#ifdef ARDUINO
     NeopixelController(uint32_t neopixel_count,
                     uint32_t neopixel_pin
     ) : _neopixels(neopixel_count, neopixel_pin, NEO_GRBW + NEO_KHZ800),
         _current_brightness(64),
         _neopixel_count(neopixel_count)
     {};
+#else
+    NeopixelController(uint32_t neopixel_count, uint32_t neopixel_pin)
+        : _current_brightness(64),
+          _neopixel_count(neopixel_count)
+    {};
+#endif
 
     void init_neopixels();
 
@@ -84,18 +89,22 @@ public:
 
     void set_neopixel(uint16_t id, uint32_t c);
 
+    #ifdef ARDUINO
     void refresh_neopixels(const PedalsSystemData_s &pedals_data, CANInterfaces_s &interfaces);
+    #endif
 
     void set_neopixel_color(LED_ID_e led, LED_color_e color);
 
 private:
 
+#ifdef ARDUINO
     Adafruit_NeoPixel _neopixels;
+#endif
     uint8_t _current_brightness;
     uint8_t _neopixel_count;
     const uint8_t _hv_threshold_voltage = 60;
     MinCellMonitoringThresholds_s _min_cell_thresholds;
-    
+
 };
 
 using NeopixelControllerInstance = etl::singleton<NeopixelController>;
