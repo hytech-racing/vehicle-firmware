@@ -2,53 +2,96 @@
 
 
 template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command(ControllerMode_e requested_controller_type,
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command(ControllerMode_e requested_controller_mode,
                                                                                TorqueLimit_e requested_torque_limit,
                                                                                const VCRData_s &input_state
 )
 {
 
-    DrivetrainCommand_s empty_command = {.desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}, .torque_limits = {0.0f, 0.0f, 0.0f, 0.0f}};
+    const DrivetrainCommand_s EMPTY_COMMAND = {.torque_setpoints = {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    DrivetrainCommand_s current_output = empty_command;
+    /**
+     * Want to make sure we are not requesting a controller that doesn't exist. The only controller modes that we using
+     * are modes 0, 1, and 4. There is an argument for slip launch.
+    */
+    bool is_requested_mode_supported = (requested_controller_mode == ControllerMode_e::MODE_0) ||
+                                    (requested_controller_mode == ControllerMode_e::MODE_1) ||
+                                    (requested_controller_mode == ControllerMode_e::MODE_4);
 
-    // why not use enums instead? won't need to cast to an int.
-    // could be keeping enum classes to make sure only values of the same enum class can be directly compared without a cast
-    int req_controller_mode_index = static_cast<int>(requested_controller_type);
-    int active_controller_mode_index = static_cast<int>(_active_status.active_controller_mode);
-
-    if ((std::size_t)req_controller_mode_index > ( _controller_evals.size() - 1 ))
+    if (!is_requested_mode_supported)
     {
         _active_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS;
-        return empty_command;
+        return EMPTY_COMMAND;
     }
 
-    if( (!_controller_evals[active_controller_mode_index]) || (!_controller_evals[req_controller_mode_index]))
+    /**
+     * Here we are going to track...
+     *  1) Which mode is the driver/dashboard currently requesting
+     *  2) What mode the mux is actually running right now
+     *
+     * We want to keep track for these reasons...
+     *  1) Want to double check both the active and requested mode's slots in _controller_evals actually
+     *     holds a bound function before calling either.
+     *  2) We need to perform safety checks before switching modes, so we need to keep track of requested and current mode.
+     *
+    */
+    int requested_mode_index = static_cast<int>(requested_controller_mode);
+    int active_mode_index = static_cast<int>(_active_status.active_controller_mode);
+
+    /**
+     * @brief Defensive guard against a construction-time mistake.
+     *
+     * _controller_evals is a fixed-size std::array<std::function<...>, N>.
+     *
+     * Each slot is either "empty" (holds no callable) or "bound" (wraps a real function/lambda).
+     * We are checking whether a real function was ever assigned into this slot in the first place.
+     *
+     * Two distinct failure modes for an "invalid" std::function, depending on
+     * what's actually wrong:
+     *
+     *   1) Empty (default-constructed, explicitly nullptr, or never assigned):
+     *      compiles fine, but invoking it throws std::bad_function_call at
+     *      runtime. This is the case this guard catches.
+     *
+     *   2) Wrong signature (the assigned callable's parameters/return type don't
+     *      match std::function's declared signature): caught at compile time,
+     *      never reaches runtime — not something this guard needs to handle.
+     *
+     * But if num_controllers ever changes, or a
+     * future edit to that constructor forgets to bind one slot, that slot
+     * silently stays empty — no compile error.
+     */
+    if ((!_controller_evals[active_mode_index]) || (!_controller_evals[requested_mode_index]))
     {
         _active_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER;
-        return empty_command;
+        return EMPTY_COMMAND;
     }
 
-    current_output = _controller_evals[active_controller_mode_index](input_state, sys_time::hal_millis());
+    // Evaluate the currently-active mode's controller (not the requested one yet), this becomes the default
+    // output for this tick unless the mode-switch safety check approves switching to the requested mode instead
+    DrivetrainCommand_s active_mode_output = _controller_evals[active_mode_index](input_state, sys_time::hal_millis());
 
     // std::cout << "output torques " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
 
-    bool requesting_controller_change = requested_controller_type != _active_status.active_controller_mode; // if the requested mode is different than the current mode then go through the change logic
+    bool is_mode_change_requested = requested_controller_mode != _active_status.active_controller_mode;
 
-    if (requesting_controller_change)
+    if (is_mode_change_requested)
     {
-        DrivetrainCommand_s proposed_output = _controller_evals[req_controller_mode_index](input_state, sys_time::hal_millis());
-        TorqueControllerMuxError_e error_state = can_switch_controller(input_state.system_data.drivetrain_data, current_output, proposed_output);
+        DrivetrainCommand_s proposed_output = _controller_evals[requested_mode_index](input_state, sys_time::hal_millis());
 
-        //successful change
-        if (error_state == TorqueControllerMuxError_e::NO_ERROR)
+        bool can_switch_controller = _can_switch_controller(input_state.system_data.drivetrain_data,
+                                                                    active_mode_output,
+                                                                    proposed_output
+        );
+
+        if (can_switch_controller)
         {
-            _active_status.active_controller_mode = requested_controller_type; //active = current; requested = future
-            active_controller_mode_index = req_controller_mode_index;
-            current_output = proposed_output;
+            _active_status.active_controller_mode = requested_controller_mode;
+            active_mode_index = requested_mode_index;
+            active_mode_output = proposed_output;
         }
-        _active_status.active_error = error_state;
     }
+
     if (!_mux_bypass_limits[active_controller_mode_index])
     {
         _active_status.active_torque_limit_enum = requested_torque_limit;
@@ -85,55 +128,40 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
 }
 
 template <std::size_t num_controllers>
-TorqueControllerMuxError_e TorqueControllerMux<num_controllers>::can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
+bool TorqueControllerMux<num_controllers>::_can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
                                                                                       DrivetrainCommand_s previous_controller_command,
                                                                                       DrivetrainCommand_s desired_controller_out
 )
 {
-    bool speedPreventsModeChange = false;
+    auto measured_speeds_array = active_drivetrain_data.measured_speeds.as_array();
+    auto desired_torque_setpoints_array = desired_controller_out.torque_setpoints.as_array();
+    auto previous_torque_setpoints_array = previous_controller_command.torque_setpoints.as_array();
 
-    // Check if torque delta permits mode change
-    bool torqueDeltaPreventsModeChange = false;
-
-    auto speeds = active_drivetrain_data.measuredSpeeds.as_array();
-    auto desired_torq_lims = desired_controller_out.torque_limits.as_array();
-    auto prev_torq_lims = previous_controller_command.torque_limits.as_array();
-
-
-    // is there a specific reason why we want to switch under speed and torque differences? would it not be safer to keep it to switching under near-stationary conditions instead?
     for (size_t i = 0; i < _num_motors; i++)
     {
-        // if a motor's speed >= 5 m/s, don't switch to new controller
-        speedPreventsModeChange = (fabs(speeds[i] * RPM_TO_METERS_PER_SECOND) >= _max_change_speed);
+        bool is_speed_preventing_mode_change =
+            std::fabs(measured_speeds_array[i] * RPM_TO_METERS_PER_SECOND) >= _max_speed_during_mode_change;
 
-        // only if the torque delta is positive do we not want to switch to the new one
-        torqueDeltaPreventsModeChange = (desired_torq_lims[i] - prev_torq_lims[i]) > _max_torque_pos_change_delta;
-        if (speedPreventsModeChange)
+        bool is_torque_delta_preventing_mode_change =
+            std::fabs(desired_torque_setpoints_array[i] - previous_torque_setpoints_array[i]) > _max_torque_delta_during_mode_change;
+
+        if (is_speed_preventing_mode_change)
         {
-            return TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH;
+            _active_status.active_error = TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH;
+            return false;
         }
-        if (torqueDeltaPreventsModeChange)
+
+        if (is_torque_delta_preventing_mode_change)
         {
-            return TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH;
+            _active_status.active_error = TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH;
+            return false;
         }
     }
-    return TorqueControllerMuxError_e::NO_ERROR; //successful change to new controller
+
+    _active_status.active_error = TorqueControllerMuxError_e::NO_ERROR;
+    return true;
 }
 
-/* Apply limit such that wheelspeed never goes negative */
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_positive_speed_limit(const DrivetrainCommand_s &command)
-{
-    DrivetrainCommand_s out;
-    out = command;
-
-    // I just hope HyTech never has to go back to single motor. that would be very sadge :(
-    out.desired_speeds.FL = std::max(0.0f,command.desired_speeds.FL);
-    out.desired_speeds.FR = std::max(0.0f,command.desired_speeds.FR);
-    out.desired_speeds.RL = std::max(0.0f,command.desired_speeds.RL);
-    out.desired_speeds.RR = std::max(0.0f,command.desired_speeds.RR);
-    return out;
-}
 
 template <std::size_t num_controllers>
 DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_torque_limit(const DrivetrainCommand_s &command, float max_torque)

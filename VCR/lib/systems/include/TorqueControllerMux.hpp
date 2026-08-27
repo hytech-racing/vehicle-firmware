@@ -10,15 +10,18 @@
 /* Local Controller Includes */
 #include "PhysicalParameters.h"
 
+/**
+ * @brief Torque Controller (TC) Mux handles these things:
+ *
+ *      1) Swapping between controller outputs
+ *      2) Turning on and off running of controllers
+ *      3) Apply safeties and limits to controller outputs
+ *      4) Torque limit changing (torque mode)???
+*/
+
+
 // notes:
 // 21 torque limit should be first
-
-// tc mux needs to handle these things:
-// 1 swapping between controller outputs
-// 2 turning on and off running of controllers
-// 3 application of safeties and limits to controller outputs
-// 4 torque limit changing (torque mode) -->
-// TODO the torque limit value changing should be handled in the dashboard interface
 
 // TODOs
 // - [x] make the controllers inherit from the base controller class
@@ -52,20 +55,22 @@
 
 // - [x] switch to using bound controller evaluation functions instead of using polymorphism
 
+
+
 /// @brief Contains a max speed for mode changes(5 m/s), a max torque delta for mode change(.5 nm)
 /// and a max power limit(63000 W).
 ///        These values are used in the event that no value is provided for them in the constructor.
-namespace TC_MUX_DEFAULT_PARAMS
+namespace tc_mux_default_params
 {
-    constexpr const float MAX_SPEED_FOR_MODE_CHANGE = 5.0;        // m/s
-    constexpr const float MAX_TORQUE_DELTA_FOR_MODE_CHANGE = 0.5; // Nm
-    constexpr const float MAX_POWER_LIMIT = 60000.0;              // watts of mechanical power
-}; // namespace TC_MUX_DEFAULT_PARAMS
+    constexpr float MAX_SPEED_DURING_MODE_CHANGE = 5.0;                // m/s
+    constexpr torque_nm MAX_TORQUE_DELTA_DURING_MODE_CHANGE = 0.5;
+    constexpr float MAX_POWER_LIMIT_WATTS = 60000.0;                // watts of mechanical power
+};
 
-/// @brief the torque controller muxer that can handle live switching between controller modes
-/// @tparam num_controllers the number of controllers that can be switched between. defaults to 5 if
-/// using TCMuxType.
-template <std::size_t num_controllers> class TorqueControllerMux
+/**
+ * @param num_controllers the number of controllers that can be switched between. Defaults to 5 if using TCMuxType.
+*/
+template <size_t num_controllers> class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 
@@ -73,31 +78,25 @@ public:
 
     TorqueControllerMux() = delete;
 
-    /// @brief constructor for the TC mux
-    /// @param controller_evals the array of controller evaluation functions that are being muxed
-    /// between
-    /// @param mux_bypass_limits the array of aligned bools for determining if the limits should be
-    /// applied to the controller outputs defaults to
-    /// TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE
-    /// @param max_change_speed the max speed difference between the requested controller output and
-    /// the actual speed of each wheel that if the controller has a diff larger than the mux will
-    /// not switch to the requested controller
-    /// @param max_torque_pos_change_delta same as speed but evaluated between the controller
-    /// commanded torques defaults to TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE
-    /// @param max_power_limit the max power limit defaults to
-    /// TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT
-    /// @param num_motors the number of motors. defaults to 4.
-    /// @note TC Mux must be created with at least 1 controller.
+    /**
+     * @brief Constructor for the TC Mux
+     * @param controller_evals the array of controller evaluation functions that are being muxed between
+     * @param mux_bypass_limits the array of aligned bools for determining if the limits should be  applied to the controller outputs defaults to TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE
+     * @param max_torque_pos_change_delta same as speed but evaluated between the controller commanded torques defaults to TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE
+     * @param max_power_limit the max power limit defaults to TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT
+     * @param num_motors the number of motors. defaults to 4.
+     */
     explicit TorqueControllerMux(std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
                             std::array<bool, num_controllers> mux_bypass_limits,
-                            float max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
-                            float max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
-                            float max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT, size_t num_motors = 4
+                            float max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
+                            float max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
+                            float max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
+                            size_t num_motors = 4
     ) : _controller_evals(controller_evals),
         _mux_bypass_limits(mux_bypass_limits),
-        _max_change_speed(max_change_speed),
-        _max_torque_pos_change_delta(max_torque_pos_change_delta),
-        _max_power_limit(max_power_limit),
+        _max_speed_during_mode_change(max_speed_during_mode_change),
+        _max_torque_delta_during_mode_change(max_torque_delta_during_mode_change),
+        _max_power_limit_watts(max_power_limit_watts),
         _num_motors(num_motors)
     {};
 
@@ -116,8 +115,8 @@ public:
 
 private:
 
-    std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
 
+    std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
     std::array<bool, num_controllers> _mux_bypass_limits;
 
     std::unordered_map<TorqueLimit_e, float> _torque_limit_map = {
@@ -126,23 +125,32 @@ private:
         {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}
     };
 
-    float _max_change_speed;
-    float _max_torque_pos_change_delta;
-    float _max_power_limit;
+    float _max_speed_during_mode_change;
+    float _max_torque_delta_during_mode_change;
+    float _max_power_limit_watts;
     size_t _num_motors;
+
     DrivetrainCommand_s _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
-    TorqueControllerMuxError_e
-    can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
+
+    /**
+     * @brief Checks whether it's currently safe to switch to a different torque controller mode.
+     *        A switch is only considered safe near a complete stop.
+     *
+     * Per driver feedback, we don't hard-block switching unless completely stationary. Instead we allow it below a
+     * speed/torque-delta threshold. This is acceptable for safety since we have reasonably slow, safe cutoffs.
+     *
+     *  Speed: block the switch if any wheel exceeds 5 m/s (~11 mph)
+     *  Torque: block the switch if the expected torque jump (in either direction) at any wheel exceeds 0.5 Nm.
+     *          Total torque is 30 Nm (~1.7%)
+     *
+     * @return true if the switch is safe to perform, false otherwise
+     */
+    bool _can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
                           DrivetrainCommand_s previous_controller_command,
                           DrivetrainCommand_s desired_controller_out
     );
 
-    /// @brief Clamps negative rpms to 0f
-    /// @param const DrivetrainCommand_s &command provides the rpm info as a DrivetrainCommand_s
-    /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
-    /// method
-    DrivetrainCommand_s _apply_positive_speed_limit(const DrivetrainCommand_s &command);
 
     /// @brief Ensure torque is at most at the specified limit. If exceeding, then limit it in the
     /// returned DrivetrainCommand_s

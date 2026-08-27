@@ -9,8 +9,11 @@
 using speed_rpm = float;
 using torque_nm = float;
 using volt = float;
+using watt = float;
 using celsius = float;
+using meters = float;
 using time_ms = uint32_t;
+
 
 /**
  * AnalogSensorStatus_e gets packaged along with the AnalogConversion_s struct as
@@ -81,13 +84,13 @@ public:
     {
         return {FL, FR, RL, RR};
     }
-    
+
 };
 
 struct TimestampedData_s
 {
     unsigned long last_recv_millis = 0;
-    bool recvd = false; // flag saying that this message has been received at least once 
+    bool recvd = false; // flag saying that this message has been received at least once
 };
 
 template <typename T>
@@ -322,7 +325,7 @@ struct CurrentSensorData_s
  * nodes to probe and four relay inputs to probe (total of 9 booleans).
  */
 struct ShutdownSensingData_s
-{   
+{
 
     // Shutdown inputs
     bool bspd_is_ok : 1;
@@ -411,10 +414,10 @@ struct EnergyMeterData_s
 /// @brief Defines modes of torque limit to be processed in torque limit map for exact values.
 enum class TorqueLimit_e
 {
-    TCMUX_FULL_TORQUE = 0,
-    TCMUX_MID_TORQUE = 1,
-    TCMUX_LOW_TORQUE = 2,
-    TCMUX_NUM_TORQUE_LIMITS = 3,
+    TCMUX_FULL_TORQUE,
+    TCMUX_MID_TORQUE,
+    TCMUX_LOW_TORQUE,
+    NUM_TCMUX_TORQUE_LIMITS
 };
 
 /// @brief Defines errors for TC Mux to use to maintain system safety
@@ -439,35 +442,35 @@ struct TorqueControllerMuxStatus_s
 };
 
 
-
-/// @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque limits for each motor. These setpoints are defined in the torque controllers cycled by the TC Muxer. 
-/// The Speeds unit is rpm and are the targeted speeds for each wheel of the car.
-/// The torques unit is nm and is the max torque requested from the inverter to reach such speeds.
+/**
+ * @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque setpoints for each motor.
+ *        These setpoints are defined in the torque controllers cycled by TC mux
+ *
+ * @param desired_speeds are the targeted speeds for each wheel of the car.
+ * @param torque_setpoints are the commanded torque sent to each inverter.
+ */
 struct DrivetrainCommand_s
 {
-    veh_vec<speed_rpm> desired_speeds;
-    veh_vec<torque_nm> torque_limits;
+    veh_vec<torque_nm> torque_setpoints;
 };
 
 struct StampedDrivetrainCommand_s
 {
-    StampedVehVec<speed_rpm> desired_speeds;
-    StampedVehVec<torque_nm> torque_limits;
+    StampedVehVec<torque_nm> torque_setpoints;
 
     DrivetrainCommand_s get_command()
     {
-        return {.desired_speeds= desired_speeds.veh_vec_data, 
-                .torque_limits = torque_limits.veh_vec_data};
+        return {.torque_setpoints = torque_setpoints.veh_vec_data};
     }
 };
 
 struct DrivebrainMessageLatencyInfo_s {
-    bool timing_failure; 
-    unsigned long worst_latency_millis; 
+    bool timing_failure;
+    unsigned long worst_latency_millis;
 
-    bool speed_setpoint_msg_too_latent; 
+    bool speed_setpoint_msg_too_latent;
     bool torque_limit_message_too_latent;
-    bool not_all_messages_received; 
+    bool not_all_messages_received;
     bool latency_diff_too_high;
 };
 
@@ -484,18 +487,27 @@ struct StampedDrivetrainTorqueCommand_s
 
     DrivetrainTorqueCommand_s get_command()
     {
-        return {.torque_limits= torque_limits.veh_vec_data, 
+        return {.torque_limits= torque_limits.veh_vec_data,
                 .torque_setpoints = torque_setpoints.veh_vec_data};
     }
 };
 
+
+/**
+ * @brief Real-time feedback report from the drivetrain, sourced from what each inverter actually measures/reports
+ *        This struct is purely feedback from the inverters.
+ */
 struct DrivetrainDynamicReport_s
 {
-    uint16_t measuredInverterFLPackVoltage;
-    veh_vec<speed_rpm> measuredSpeeds;
-    veh_vec<torque_nm> measuredTorques;
-    veh_vec<float> measuredTorqueCurrents;
-    veh_vec<float> measuredMagnetizingCurrents;
+    veh_vec<volt> measured_hv_bus_voltage;
+    veh_vec<speed_rpm> measured_speeds;
+    veh_vec<torque_nm> measured_torques;
+
+    // Iq — the q-axis is the torque-producing current component
+    veh_vec<float> measured_iq_torque_currents;
+
+    // Id — the d-axis is the flux/magnetizing current component
+    veh_vec<float> measured_id_magnetizing_currents;
 };
 
 /**
@@ -511,12 +523,12 @@ struct ACUHeartbeatData_s
 
 enum class ACUState_e
 {
-    STARTUP = 0, 
-    ACTIVE = 1, 
-    CHARGING = 2, 
+    STARTUP = 0,
+    ACTIVE = 1,
+    CHARGING = 2,
     FAULTED = 3,
     WELDED = 4,
-    WELDCHECK = 5 
+    WELDCHECK = 5
 };
 
 /**
@@ -568,7 +580,7 @@ struct ACUAllData_s
     size_t min_cell_voltage_id;
     size_t max_cell_temp_id;
     size_t max_board_temp_id;
-    volt measured_tractive_system_voltage; 
+    volt measured_tractive_system_voltage;
     volt measured_pack_voltage;
     volt measured_shdn_voltage;
     float measured_bspd_current;
@@ -579,10 +591,10 @@ struct ACUAllData_s
     float lifetime_ah_throughput;
     float SoE_percentage;
     float V1;
-    double remaining_pack_wh;    
+    double remaining_pack_wh;
     std::array<size_t, num_chips> consecutive_invalid_packet_counts;
     std::array<volt, num_cells> cell_voltages;
-    std::array<celsius, num_cell_temps> cell_temps; 
+    std::array<celsius, num_cell_temps> cell_temps;
     std::array<celsius, num_chips> board_temps;
     bool shutdown_has_gone_low;
 };
@@ -650,7 +662,8 @@ struct VCFHeartbeatData_s
     unsigned long last_heartbeat_time = 0;
 };
 
-enum class VehicleState_e {
+enum class VehicleState_e
+{
     TRACTIVE_SYSTEM_NOT_ACTIVE = 0,
     TRACTIVE_SYSTEM_ACTIVE = 1,
     WANTING_READY_TO_DRIVE = 2,
@@ -661,19 +674,22 @@ enum class VehicleState_e {
     RECALIBRATING_STEERING = 7
 };
 
+/**
+ * @brief Drivetrain state machine states. DTI has no multi-stage precharge handshake. Enable is a single confirmable bit.
+ *        CONNECTED_HV_NOT_OK / CONNECTED_HV_OK_NOT_ENABLED are our own software HV-sanity gate, independent
+ *        of anything DTI's protocol itself requires.
+*/
 enum class DrivetrainState_e
 {
-    NOT_CONNECTED = 0,
-    NOT_ENABLED_NO_HV_PRESENT = 1,
-    NOT_ENABLED_HV_PRESENT = 2,
-    INVERTERS_READY = 3,
-    INVERTERS_HV_ENABLED = 4,
-    ENABLED_DRIVE_MODE = 5,
-    ERROR = 6, 
-    CLEARING_ERRORS = 7
+    NOT_CONNECTED,
+    CONNECTED_HV_NOT_OK,
+    CONNECTED_HV_OK_NOT_ENABLED,
+    DRIVE_ENABLED,
+    FAULTED,
+    NUM_STATES
 };
 
-struct DrivebrainControllerStatus_s 
+struct DrivebrainControllerStatus_s
 {
     bool drivebrain_is_in_control = false;
     bool drivebrain_controller_timing_failure = false;
@@ -699,7 +715,7 @@ struct VCRSystemData_s
     bool buzzer_is_active = false;
     DrivebrainControllerStatus_s db_cntrl_status = {};
     VCRLOCData vcr_loc_data = {};
-    DrivebrainMessageLatencyInfo_s aux_latency_info; 
+    DrivebrainMessageLatencyInfo_s aux_latency_info;
     DrivebrainMessageLatencyInfo_s telem_latency_info;
 };
 

@@ -1,47 +1,13 @@
 #include "VCR_SystemTasks.h"
 
-
-DrivetrainSystem::InverterFuncts_s fl_inverter_functs = {
-    .set_speed = [](float rpm, float torque_nm) { fl_inverter_interface.set_speed(rpm, torque_nm); },
-    .set_idle = []() { fl_inverter_interface.set_idle(); },
-    .set_inverter_control_word = [](InverterControlWord_s cw) { fl_inverter_interface.set_inverter_control_word(cw); },
-    .get_status = []() { return fl_inverter_interface.get_status(); },
-    .get_motor_mechanics = []() { return fl_inverter_interface.get_motor_mechanics(); }
-};
-
-DrivetrainSystem::InverterFuncts_s fr_inverter_functs = {
-    .set_speed = [](float rpm, float torque_nm) { fr_inverter_interface.set_speed(rpm, torque_nm); },
-    .set_idle = []() { fr_inverter_interface.set_idle(); },
-    .set_inverter_control_word = [](InverterControlWord_s cw) { fr_inverter_interface.set_inverter_control_word(cw); },
-    .get_status = []() { return fr_inverter_interface.get_status(); },
-    .get_motor_mechanics = []() { return fr_inverter_interface.get_motor_mechanics(); }
-};
-
-DrivetrainSystem::InverterFuncts_s rl_inverter_functs = {
-    .set_speed = [](float rpm, float torque_nm) { rl_inverter_interface.set_speed(rpm, torque_nm); },
-    .set_idle = []() { rl_inverter_interface.set_idle(); },
-    .set_inverter_control_word = [](InverterControlWord_s cw) { rl_inverter_interface.set_inverter_control_word(cw); },
-    .get_status = []() { return rl_inverter_interface.get_status(); },
-    .get_motor_mechanics = []() { return rl_inverter_interface.get_motor_mechanics(); }
-};
-
-DrivetrainSystem::InverterFuncts_s rr_inverter_functs = {
-    .set_speed = [](float rpm, float torque_nm) { rr_inverter_interface.set_speed(rpm, torque_nm); },
-    .set_idle = []() { rr_inverter_interface.set_idle(); },
-    .set_inverter_control_word = [](InverterControlWord_s cw) { rr_inverter_interface.set_inverter_control_word(cw); },
-    .get_status = []() { return rr_inverter_interface.get_status(); },
-    .get_motor_mechanics = []() { return rr_inverter_interface.get_motor_mechanics(); }
-};
-
-veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_functs(fl_inverter_functs, fr_inverter_functs, rl_inverter_functs, rr_inverter_functs);
-
-etl::delegate<void(bool)> set_ef_pin_active = etl::delegate<void(bool)>::create(
-    [](bool set_active) { digitalWrite(VCRInterfaces::INVERTER_ENABLE_PIN, static_cast<int>(set_active)); });
-
-
 void initialize_all_systems()
 {
+    veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_functs = make_inverter_functs();
+
     /* Delegate Function Definitions */
+    etl::delegate<void(bool)> set_ef_pin_active = etl::delegate<void(bool)>::create(
+        [](bool set_active) { digitalWrite(VCRInterfaces::INVERTER_ENABLE_PIN, static_cast<int>(set_active)); });
+
     etl::delegate<bool()> hv_over_threshold =
         etl::delegate<bool()>::create<DrivetrainSystem, &DrivetrainSystem::hv_over_threshold>(DrivetrainInstance::instance());
 

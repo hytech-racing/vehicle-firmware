@@ -61,7 +61,7 @@ private:
     MessageLatencyInfo_s _aux_latency_info = { false, 0 };
     MessageLatencyInfo_s _telem_latency_info = {false, 0 };
 
-    TorqueControllerSimple _emergency_control = {{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
+    SimpleTorqueController _emergency_control = {{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
 
     void _check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info);
 

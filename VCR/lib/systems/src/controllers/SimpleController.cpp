@@ -1,39 +1,36 @@
 #include "controllers/SimpleController.h"
 
 
-DrivetrainCommand_s TorqueControllerSimple::evaluate(const VCRData_s &state, unsigned long curr_millis)
+DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, unsigned long curr_millis)
 {
     // Both pedals are not pressed and no implausibility has been detected
     // accelRequest goes between 1.0 and -1.0
-    DrivetrainCommand_s out;
+    DrivetrainCommand_s out = { .torque_setpoints = {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    float accelRequest = state.interface_data.recvd_pedals_data.pedals_data.accel_percent - state.interface_data.recvd_pedals_data.pedals_data.brake_percent;
-    float torqueRequest = 0.0f;
+    float accel_request = state.interface_data.recvd_pedals_data.pedals_data.accel_percent - state.interface_data.recvd_pedals_data.pedals_data.brake_percent;
+    float torque_request = 0.0f;
 
-    constexpr float balance = 2.0;
+    constexpr float scale_range = 2.0;
 
-    if (accelRequest >= 0.0)
+    if (accel_request >= 0.0)
     {
-        // Positive torque request
-        torqueRequest = accelRequest * _params.amk_max_torque;
+        torque_request = accel_request * _params.motor_max_rpm;
 
-        out.desired_speeds = {_params.amk_max_rpm, _params.amk_max_rpm, _params.amk_max_rpm, _params.amk_max_rpm};
-        out.torque_limits.FL = torqueRequest * (balance - _params.rear_torque_scale);
-        out.torque_limits.FR = torqueRequest * (balance - _params.rear_torque_scale);
-        out.torque_limits.RL = torqueRequest * _params.rear_torque_scale;
-        out.torque_limits.RR = torqueRequest * _params.rear_torque_scale;
+        out.torque_setpoints.FL = torque_request * (scale_range - _params.rear_torque_scale);
+        out.torque_setpoints.FR = torque_request * (scale_range - _params.rear_torque_scale);
+        out.torque_setpoints.RL = torque_request * _params.rear_torque_scale;
+        out.torque_setpoints.RR = torque_request * _params.rear_torque_scale;
     }
     else
     {
-        // regen torque request
-        torqueRequest = _params.amk_max_regen_torque * accelRequest * -1.0; // NOLINT (-1 is magic number)
+        // Torque is negated here so the sign itself signals "this is regen/braking".
+        // This is consistent with how DrivetrainSystem/InverterInterface route negative torque to SET_BRAKE_CURRENT.
+        torque_request = -1.0f * (_params.motor_max_regen_torque_nm * accel_request * -1.0f);
 
-        out.desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f};
-
-        out.torque_limits.FL = torqueRequest * (balance - _params.rear_regen_torque_scale);
-        out.torque_limits.FR = torqueRequest * (balance - _params.rear_regen_torque_scale);
-        out.torque_limits.RL = torqueRequest * _params.rear_regen_torque_scale;
-        out.torque_limits.RR = torqueRequest * _params.rear_regen_torque_scale;
+        out.torque_setpoints.FL = torque_request * (scale_range - _params.rear_regen_torque_scale);
+        out.torque_setpoints.FR = torque_request * (scale_range - _params.rear_regen_torque_scale);
+        out.torque_setpoints.RL = torque_request * _params.rear_regen_torque_scale;
+        out.torque_setpoints.RR = torque_request * _params.rear_regen_torque_scale;
     }
 
     return out;

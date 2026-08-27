@@ -56,7 +56,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
             interfaces.acu_interface.receive_em_measurement(msg, millis);
             break;
         }
-
         case DRIVEBRAIN_TORQUE_LIM_INPUT_CANID:
         {
             if (interface_type == CANInterfaceType_e::RAUX)
@@ -85,116 +84,178 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
 
         // Front Left Inverter
         {
-            case INV1_STATUS_CANID:
+            case INV1_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.fl_inverter_interface.receive_INV_STATUS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
-            case INV1_TEMPS_CANID:
+            case INV1_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.fl_inverter_interface.receive_INV_TEMPS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
-            case INV1_DYNAMICS_CANID:
+            case INV1_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_INV_DYNAMICS(msg, millis);
+                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
-            case INV1_POWER_CANID:
+            case INV1_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_INV_POWER(msg, millis);
+                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
-            case INV1_FEEDBACK_CANID:
+            case INV1_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.fl_inverter_interface.receive_INV_FEEDBACK(msg, millis);
+                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
                 break;
             }
-        }
-
-        // Front right inverter
-        {
-            case INV2_STATUS_CANID:
+            case INV1_STATUS_GENERAL_IO_CANID:
             {
-                interfaces.fr_inverter_interface.receive_INV_STATUS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
                 break;
             }
-            case INV2_TEMPS_CANID:
+            case INV1_STATUS_AC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fr_inverter_interface.receive_INV_TEMPS(msg, millis);
+                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
                 break;
             }
-            case INV2_DYNAMICS_CANID:
+            case INV1_STATUS_DC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fr_inverter_interface.receive_INV_DYNAMICS(msg, millis);
-                break;
-            }
-            case INV2_POWER_CANID:
-            {
-                interfaces.fr_inverter_interface.receive_INV_POWER(msg, millis);
-                break;
-            }
-            case INV2_FEEDBACK_CANID:
-            {
-                interfaces.fr_inverter_interface.receive_INV_FEEDBACK(msg, millis);
+                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }
 
-        // Rear left inverter
+        // Front Right Inverter
         {
-            case INV3_STATUS_CANID:
+            case INV2_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.rl_inverter_interface.receive_INV_STATUS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
-            case INV3_TEMPS_CANID:
+            case INV2_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.rl_inverter_interface.receive_INV_TEMPS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
-            case INV3_DYNAMICS_CANID:
+            case INV2_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.rl_inverter_interface.receive_INV_DYNAMICS(msg, millis);
+                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
-            case INV3_POWER_CANID:
+            case INV2_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.rl_inverter_interface.receive_INV_POWER(msg, millis);
+                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
-            case INV3_FEEDBACK_CANID:
+            case INV2_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.rl_inverter_interface.receive_INV_FEEDBACK(msg, millis);
+                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                break;
+            }
+            case INV2_STATUS_GENERAL_IO_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                break;
+            }
+            case INV2_STATUS_AC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                break;
+            }
+            case INV2_STATUS_DC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }
 
-        // Rear right inverter
+
+        // Rear Left Inverter
         {
-            case INV4_STATUS_CANID:
+            case INV3_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.rr_inverter_interface.receive_INV_STATUS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
-            case INV4_TEMPS_CANID:
+            case INV3_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.rr_inverter_interface.receive_INV_TEMPS(msg, millis);
+                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
-            case INV4_DYNAMICS_CANID:
+            case INV3_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.rr_inverter_interface.receive_INV_DYNAMICS(msg, millis);
+                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
-            case INV4_POWER_CANID:
+            case INV3_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.rr_inverter_interface.receive_INV_POWER(msg, millis);
+                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
-            case INV4_FEEDBACK_CANID:
+            case INV3_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.rr_inverter_interface.receive_INV_FEEDBACK(msg, millis);
+                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                break;
+            }
+            case INV3_STATUS_GENERAL_IO_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                break;
+            }
+            case INV3_STATUS_AC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                break;
+            }
+            case INV3_STATUS_DC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
+                break;
+            }
+        }
+
+
+        // Rear Right Inverter
+        {
+            case INV4_STATUS_GENERAL_CONTROL_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
+                break;
+            }
+            case INV4_STATUS_GENERAL_ELEC_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
+                break;
+            }
+            case INV4_STATUS_ACTIVE_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
+                break;
+            }
+            case INV4_STATUS_TEMP_AND_FAULT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
+                break;
+            }
+            case INV4_STATUS_FOC_CURRENTS_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                break;
+            }
+            case INV4_STATUS_GENERAL_IO_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                break;
+            }
+            case INV4_STATUS_AC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                break;
+            }
+            case INV4_STATUS_DC_CONFIG_CURRENT_CANID:
+            {
+                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }

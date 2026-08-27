@@ -12,14 +12,19 @@
 /* Local Controller Includes */
 #include "PhysicalParameters.h"
 
-/// @brief Modes to define launch behavior, where each one waits for acceleration request threshold to move to next mode
-/// LAUNCH_NOT_READY keeps speed at 0 and makes sure pedals are not pressed, the launch controller begins in this state
-/// From this state the launch can only progress forwards to LAUNCH_READY
-/// LAUNCH_READY keeps speed at 0, below the speed threshold(5 m/s) and makes sure brake is not pressed harder than the threshold of .2(20% pushed)
+
+/**
+ * @brief Modes to define launch behavior, where each one waits for acceleration request threshold to move to next mode
+ * @param LAUNCH_NOT_READY state keeps speed at 0 and ensures pedals are not pressed, the launch controller begins in this state.
+ *                         From this state, the launch can only progress forwards to LAUNCH_READY.
+ * @param LAUNCH_READY state keeps speed at 0, below the speed threshold(5 m/s) and makes sure brake is not pressed harder than the threshold of .2(20% pushed)
 /// From this state the launch can progress forwards to LAUNCHING according to the two conditions defined above or backwards to LAUNCH_NOT_READY if those conditions are not met
 /// LAUNCHING uses respective algorithm to set speed set point and requests torque from motors to reach it
+ * @param LAUNCHING state uses respective algorithm to set speed set point and requests torque from motors to reach it
 /// From this state the launch can fully begin and set speed set points above 0.0 m/s and the maximum available torque can be requested from the inverters
 /// This launch state can be terminated if the brake is pressed above the threshold(.2(20% pushed)) or if the accelerator is not pressed enough (<= .5(50% pushed))
+
+*/
 enum class LaunchStates_e
 {
     NO_LAUNCH_MODE,
@@ -28,31 +33,55 @@ enum class LaunchStates_e
     LAUNCHING
 };
 
-/// @brief contains constants for tick behavior/progression(_threshold variables used to determine when to move to the next step) and defaults(DEFAULT_launch_speed_target_rpm)
-namespace LaunchControllerParams
+namespace launch_controller_default_params
 {
-    const int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
-    // const int16_t DEFAULT_INIT_SPEED_RPM = 500; // Target RPM as soon as simple launch begins
-    const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 11.76;
-    // const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 3.0f;
-    const float launch_ready_accel_threshold = .1;
-    const float launch_ready_brake_threshold = .2;
-    const float launch_ready_speed_threshold = 5.0 * METERS_PER_SECOND_TO_RPM; // rpm
-    const float launch_go_accel_threshold = .9;
-    const float launch_stop_accel_threshold = .5;
+    constexpr float DEFAULT_INIT_LAUNCH_TORQUE_NM = 5.0f;                 // TODO: tune — initial torque as launching begins
+    constexpr float DEFAULT_LAUNCH_TORQUE_RAMP_RATE_NM_PER_SEC = 40.0f;   // TODO: tune — how fast torque ramps up during launch
+    constexpr float DEFAULT_MAX_WHEELSPIN_RPM_DELTA = 300.0f;             // TODO: tune — how far a wheel can lead the slowest wheel before its torque is cut
+
+    constexpr float LAUNCH_READY_ACCEL_THRESH = 0.1f;   // Max pedal is 1.0 I beleive, might be -1.0 to 1.0?
+    constexpr float LAUNCH_READY_BRAKE_THRESH = 0.2f;
+    constexpr float LAUNCH_READY_SPEED_THRESH_RPM = 5.0f * physical_motor_scales::METERS_PER_SECOND_TO_RPM;
+
+    constexpr float LAUNCH_GO_ACCEL_THRESH = 0.9f;
+    constexpr float LAUNCH_STOP_ACCEL_THRESH = 0.5f;
 }
+
+struct LaunchControllerThresholds_s
+{
+    float launch_ready_accel_thresh;
+    float launch_ready_brake_thresh;
+    float launch_ready_speed_thresh_rpm;
+    float launch_go_accel_thresh;
+    float launch_stop_accel_thresh;
+};
+
+struct LaunchControllerParams_s
+{
+    float default_init_launch_torque_nm;
+    float default_launch_torque_ramp_rate_nm_per_sec;
+    float default_max_wheelspin_rpm_delta;
+    LaunchControllerThresholds_s thresholds;
+};
 
 class SimpleLaunchController
 {
 public:
 
     /// @brief simple TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
-    SimpleLaunchController() :
-        _launch_rate_target_m_per_sec_sq(LaunchControllerParams::DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ),
-        _time_of_launch(0),
-        _launch_state(LaunchStates_e::LAUNCH_NOT_READY),
-        _launch_speed_target_rpm(0),
-        _init_speed_target_rpm(LaunchControllerParams::DEFAULT_INIT_SPEED_RPM)
+    explicit SimpleLaunchController(LaunchControllerParams_s params)
+        : _params {
+            .default_init_launch_torque_nm = launch_controller_default_params::DEFAULT_INIT_LAUNCH_TORQUE_NM,
+            .default_launch_torque_ramp_rate_nm_per_sec = launch_controller_default_params::DEFAULT_LAUNCH_TORQUE_RAMP_RATE_NM_PER_SEC,
+            .default_max_wheelspin_rpm_delta = launch_controller_default_params::DEFAULT_MAX_WHEELSPIN_RPM_DELTA,
+            .thresholds = {
+                .launch_ready_accel_thresh = launch_controller_default_params::LAUNCH_READY_ACCEL_THRESH,
+                .launch_ready_brake_thresh = launch_controller_default_params::LAUNCH_READY_BRAKE_THRESH,
+                .launch_ready_speed_thresh_rpm = launch_controller_default_params::LAUNCH_READY_SPEED_THRESH_RPM,
+                .launch_go_accel_thresh = launch_controller_default_params::LAUNCH_GO_ACCEL_THRESH,
+                .launch_stop_accel_thresh = launch_controller_default_params::LAUNCH_STOP_ACCEL_THRESH
+            }
+        }
     {};
 
     DrivetrainCommand_s evaluate(const VCRData_s &vcr_data, uint32_t curr_millis);
@@ -61,34 +90,20 @@ public:
 
 private:
 
-    float _launch_rate_target_m_per_sec_sq;
-    uint32_t _time_of_launch;
     LaunchStates_e _launch_state = LaunchStates_e::LAUNCH_NOT_READY;
-    float _launch_speed_target_rpm;
-    int16_t _init_speed_target_rpm;
+    uint32_t _time_of_launch = 0;
+    LaunchControllerParams_s _params;
 
-    /// @brief calculates how speed target (the speed the car is trying to achieve during launch) is set and/or increased during launch
-    /// This updates internal speed target variable _launch_speed_target_rpm
-    /// @param vn_data vector data needed for calulations eg. speed and coordinates
-    /// @note defines important variation in launch controller tick/evaluation as the launch controllers share a tick method defined in this parent class implementation
-    /// @note all launch algorithms are implemented in LaunchControllerAlgos.cpp
-    float calc_launch_algo(uint32_t curr_millis)
+    /**
+     * @brief Ramps commanded torque over time during LAUNCHING, starting from init_launch_torque_nm and increasing at
+     *        launch_torque_ramp_rate_nm_per_sec, capped at the motor's max torque.
+     */
+    float _calculate_launch_torque(uint32_t curr_millis) const
     {
-        /*
-        Stolen launch algo from HT07. This ramps up the speed target over time.
-        launch rate target is m/s^2 and is the target acceleration rate
-        secs_since_launch takes the milliseconds since launch started and converts to sec
-        This is then converted to RPM for a speed target
-        There is an initial speed target that is your iitial instant acceleration on the wheels
-        */
         float secs_since_launch = (curr_millis - _time_of_launch) / 1000.0f;
-        float calculated_rpm = (int16_t) (secs_since_launch * _launch_rate_target_m_per_sec_sq * METERS_PER_SECOND_TO_RPM);
-        calculated_rpm += _init_speed_target_rpm;
-        calculated_rpm = std::min( (int) PhysicalParameters::AMK_MAX_RPM, std::max(0, (int) calculated_rpm));
-        // calculated_rpm = std::min( (int) 5000, std::max(0, (int) calculated_rpm));
-        return calculated_rpm;
+        float ramped_torque = _params.default_init_launch_torque_nm + secs_since_launch * _params.default_launch_torque_ramp_rate_nm_per_sec;
+        return std::min(dti_motor_params::MOTOR_MAX_TORQUE_NM, std::max(0.0f, ramped_torque));
     }
-
 };
 
 #endif // LAUNCH_CONTROLLER_H

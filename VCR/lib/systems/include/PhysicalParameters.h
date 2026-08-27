@@ -1,20 +1,26 @@
 #ifndef PHYSICALPARAMETERS
 #define PHYSICALPARAMETERS
 
-namespace PhysicalParameters
+//
+
+
+namespace dti_motor_params
 {
-    const float AMK_MAX_RPM = 16000;
-    const float AMK_MAX_TORQUE = 21.0f;
-    const float MAX_REGEN_TORQUE = 10.0f;
+    constexpr float MOTOR_MAX_RPM                   = 20000.0f;
+    constexpr torque_nm MOTOR_MAX_TORQUE_NM         = 31.6f;
+    constexpr torque_nm MOTOR_MAX_REGEN_TORQUE_NM   = 10.0f;
+    constexpr watt MOTOR_MAX_POWER_WATTS            = 35000.0f;
+    constexpr float MOTOR_GEARBOX_RATIO             = 11.83f;
+    constexpr meters WHEEL_DIAMETER_METERS          = 0.4064f;
 }
 
-constexpr const float GEARBOX_RATIO               = 11.83f;
-constexpr const float WHEEL_DIAMETER              = 0.4064f; // meters
-constexpr const float RPM_TO_METERS_PER_SECOND    = WHEEL_DIAMETER * 3.1415f / GEARBOX_RATIO / 60.0f;
-constexpr const float RPM_TO_KILOMETERS_PER_HOUR  = RPM_TO_METERS_PER_SECOND * 3600.0f / 1000.0f;
-constexpr const float METERS_PER_SECOND_TO_RPM    = 1.0f / RPM_TO_METERS_PER_SECOND;
-
-const float RPM_TO_RAD_PER_SECOND = 2 * 3.1415f / 60.0f;
-const float RAD_PER_SECOND_TO_RPM = 1 / RPM_TO_RAD_PER_SECOND;
+namespace physical_motor_scales
+{
+    constexpr float RPM_TO_METERS_PER_SECOND    = dti_motor_params::WHEEL_DIAMETER_METERS * 3.1415f / dti_motor_params::MOTOR_GEARBOX_RATIO / 60.0f;
+    constexpr float RPM_TO_KILOMETERS_PER_HOUR  = RPM_TO_METERS_PER_SECOND * 3600.0f / 1000.0f;
+    constexpr float METERS_PER_SECOND_TO_RPM    = 1.0f / RPM_TO_METERS_PER_SECOND;
+    constexpr float RPM_TO_RAD_PER_SECOND       = 2 * 3.1415f / 60.0f;
+    constexpr float RAD_PER_SECOND_TO_RPM       = 1 / RPM_TO_RAD_PER_SECOND;
+}
 
 #endif /* PHYSICALPARAMETERS */

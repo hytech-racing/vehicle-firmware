@@ -3,56 +3,109 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include <algorithm>
 
 /* Local Controller Includes */
 #include "PhysicalParameters.h"
+
+namespace loadcell_vectoring_tc_default_params
+{
+    constexpr float FRONT_REGEN_LIMIT = 13.0f;
+    constexpr float REAR_REGEN_LIMIT = 3.5f;
+    constexpr size_t MAX_LOADCELL_ERROR_COUNT = 25;
+
+    /**
+     *  @param REAR_TORQUE_SCALE 0 to 2 scale on forward torque to rear wheels. 0 = FWD, 1 = 50/50, 2 = RWD
+     *  @param REAR_REGEN_TORQUE_SCALE same as rear_torque_scale but applies to regen torque split. 0 = all regen torque on fronts, 1 = 50/50, 2 = all regen torque on rears
+     *  Works the same for the front scales
+     */
+    constexpr float FRONT_TORQUE_SCALE = 1.0;
+    constexpr float REAR_TORQUE_SCALE = 1.0f;
+    constexpr float FRONT_REGEN_TORQUE_SCALE = 1.7;
+    constexpr float REAR_REGEN_TORQUE_SCALE = 0.3f;
+
+    // Where did we get these values from?
+    constexpr float FL_LOADCELL_SCALE = 0.138796f;
+    constexpr float FR_LOADCELL_SCALE = 0.138796f;
+    constexpr float RL_LOADCELL_SCALE = 0.143619f;
+    constexpr float RR_LOADCELL_SCALE = 0.137349f;
+
+    // Where did we get these values from?
+    constexpr float FL_LOADCELL_OFFSET = -33.7501f;
+    constexpr float FR_LOADCELL_OFFSET = -29.665f;
+    constexpr float RL_LOADCELL_OFFSET = -33.9947f;
+    constexpr float RR_LOADCELL_OFFSET = -25.7212f;
+}
+
+struct LoadcellVectoringOffsets_s
+{
+    const float fl_loadcell_offset;
+    const float fr_loadcell_offset;
+    const float rl_loadcell_offset;
+    const float rr_loadcell_offset;
+};
+
+struct LoadcellVectoringTCScales_s
+{
+    float front_torque_scale;
+    float front_regen_torque_scale;
+    float rear_torque_scale;
+    float rear_regen_torque_scale;
+
+    const float fl_loadcell_scale;
+    const float fr_loadcell_scale;
+    const float rl_loadcell_scale;
+    const float rr_loadcell_scale;
+};
+
+struct LoadcellVectoringTCParams_s
+{
+    LoadcellVectoringOffsets_s offsets;
+    LoadcellVectoringTCScales_s scales;
+    const float front_regen_limit;
+    const float rear_regen_limit;
+    const float max_loadcell_error_count;
+};
+
 
 class LoadCellVectoringTorqueController
 {
 public:
 
-    /// @brief load cell TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
-    /// @param writeout the reference to the torque controller output being sent that contains the drivetrain command
-    /// @param rear_torque_scale 0 to 2 scale on forward torque to rear wheels. 0 = FWD, 1 = Balanced, 2 = RWD
-    /// @param regen_torque_scale same as rear_torque_scale but applies to regen torque split. 0 = All regen torque on the front, 1 = 50/50, 2 = all regen torque on the rear
-    LoadCellVectoringTorqueController(float rear_torque_scale,
-                                    float regen_torque_scale
-    ) : _front_torque_scale(2.0 - rear_torque_scale),
-        _rear_torque_scale(rear_torque_scale),
-        _front_regen_torque_scale(2.0 - regen_torque_scale),
-        _rear_regen_torque_scale(regen_torque_scale)
+    /**
+     * @brief This is our Torque Controller (TC) which uses loadcell vectoring and corresponds to Mode 1.
+     *        This TC has tunable F/R torque balance, as well as accel/regen torque balance (tuned independently)
+    */
+    LoadCellVectoringTorqueController(LoadcellVectoringTCParams_s params)
+        : _params {
+            .offsets = {
+                .fl_loadcell_offset = loadcell_vectoring_tc_default_params::FL_LOADCELL_OFFSET,
+                .fr_loadcell_offset = loadcell_vectoring_tc_default_params::FR_LOADCELL_OFFSET,
+                .rl_loadcell_offset = loadcell_vectoring_tc_default_params::RL_LOADCELL_OFFSET,
+                .rr_loadcell_offset = loadcell_vectoring_tc_default_params::RR_LOADCELL_OFFSET
+            },
+            .scales = {
+                .front_torque_scale = loadcell_vectoring_tc_default_params::FRONT_TORQUE_SCALE,
+                .front_regen_torque_scale = loadcell_vectoring_tc_default_params::FRONT_REGEN_TORQUE_SCALE,
+                .rear_torque_scale = loadcell_vectoring_tc_default_params::REAR_TORQUE_SCALE,
+                .rear_regen_torque_scale = loadcell_vectoring_tc_default_params::REAR_REGEN_TORQUE_SCALE,
+                .fl_loadcell_scale = loadcell_vectoring_tc_default_params::FL_LOADCELL_SCALE,
+                .fr_loadcell_scale = loadcell_vectoring_tc_default_params::FR_LOADCELL_SCALE,
+                .rl_loadcell_scale = loadcell_vectoring_tc_default_params::RL_LOADCELL_SCALE,
+                .rr_loadcell_scale = loadcell_vectoring_tc_default_params::RR_LOADCELL_SCALE
+            },
+            .front_regen_limit = loadcell_vectoring_tc_default_params::FRONT_REGEN_LIMIT,
+            .rear_regen_limit = loadcell_vectoring_tc_default_params::REAR_REGEN_LIMIT,
+            .max_loadcell_error_count = loadcell_vectoring_tc_default_params::MAX_LOADCELL_ERROR_COUNT
+        }
     {};
-
-    /// @brief default contructor with balanced default values: rear_torque_scale = 1.0, regen_torque_scale = 1.0
-    LoadCellVectoringTorqueController() : LoadCellVectoringTorqueController(1.0, 0.3) {};
 
     DrivetrainCommand_s evaluate(const VCRData_s &vcr_data, unsigned long curr_millis);
 
 private:
 
-    const float _front_torque_scale = 1.0;
-    const float _rear_torque_scale = 1.0;
-    const float _front_regen_torque_scale = 1.0f;
-    const float _rear_regen_torque_scale = 1.0f;
+    LoadcellVectoringTCParams_s _params;
 
-    const float _fl_load_cell_offset = -33.7501f;
-    const float _fr_load_cell_offset = -29.665f;
-    const float _rl_load_cell_offset = -33.9947f;
-    const float _rr_load_cell_offset = -25.7212f;
-
-    const float _fl_load_cell_scale = 0.138796f;
-    const float _fr_load_cell_scale = 0.135748f;
-    const float _rl_load_cell_scale = 0.143619f;
-    const float _rr_load_cell_scale = 0.137349f;
-
-    const float _brake_percent_scale = 1.0f;
-
-    const float _rear_regen_limit = 3.5f;
-    const float _front_regen_limit = 13.0f;
-
-    const size_t _max_error_count = 25;
-    veh_vec<size_t> _load_cell_error_counts = {};
+    veh_vec<size_t> _loadcell_error_counts = {};
 
 };
 
