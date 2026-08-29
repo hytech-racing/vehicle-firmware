@@ -199,6 +199,31 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
             }
         }
 
+        case LF_TTPMS_1_CANID:
+        case LF_TTPMS_2_CANID:
+        case LF_TTPMS_3_CANID:
+        case LF_TTPMS_4_CANID:
+        case LF_TTPMS_5_CANID:
+        case RF_TTPMS_1_CANID:
+        case RF_TTPMS_2_CANID:
+        case RF_TTPMS_3_CANID:
+        case RF_TTPMS_4_CANID:
+        case RF_TTPMS_5_CANID:
+        case LR_TTPMS_1_CANID:
+        case LR_TTPMS_2_CANID:
+        case LR_TTPMS_3_CANID:
+        case LR_TTPMS_4_CANID:
+        case LR_TTPMS_5_CANID:
+        case RR_TTPMS_1_CANID:
+        case RR_TTPMS_2_CANID:
+        case RR_TTPMS_3_CANID:
+        case RR_TTPMS_4_CANID:
+        case RR_TTPMS_5_CANID:
+        {
+            interfaces.ttpms_interface.receive_ttpms_data();
+            break;
+        }
+
         default:
         {
             break;

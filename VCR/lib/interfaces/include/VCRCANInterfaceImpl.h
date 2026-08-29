@@ -15,6 +15,7 @@
 #include "VCFInterface.h"
 #include "ACUInterface.h"
 #include "InverterInterface.h"
+#include "TTPMSInterface.h"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);

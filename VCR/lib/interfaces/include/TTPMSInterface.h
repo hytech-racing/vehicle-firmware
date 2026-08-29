@@ -15,8 +15,8 @@
 struct TTPMSSingleSensorData_s
 { 
     uint16_t bat_voltage;
-    uint16_t pressure;
-    uint16_t gauge_pressure;
+    float pressure;
+    float gauge_pressure;
     std::array<float, TEMP_CHANNELS> temp_data;
 };
 
