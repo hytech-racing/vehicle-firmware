@@ -4,6 +4,9 @@
 /* Standard Library */
 #include <stdint.h>
 
+/* ETL Library */
+#include <etl/singleton.h>
+
 /* External Includes */
 #include "shared_types.h"
 #include "FlexCAN_T4.h"
@@ -52,6 +55,8 @@ public:
 private:
     TTPMSAllSensorData_s _ttpms_data;
 
-}
+};
+
+using TTPMSInterfaceInstance = etl::singleton<TTPMSInterface>;
 
 #endif // __TTPMSINTERFACE_H__
