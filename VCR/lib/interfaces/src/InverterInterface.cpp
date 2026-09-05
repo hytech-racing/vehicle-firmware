@@ -1,12 +1,21 @@
 #include "InverterInterface.h"
 #include "VCRCANInterfaceImpl.h"
 
+/**
+ * @note All scaling for signals is defined in the datasheet; we will use the coderdbc API for receiving and sending the
+ *       correctly scaled signal.
+ * @note ro -> raw output
+ *       When the datasheet specifies the scale is 10 for example: raw = physical value on the wire × 10
+ *       PCAN's "Factor" field works the opposite direction: physical value on the wire = raw × Factor
+ *       Which is why in PCAN we say factor is 0.1.
+*/
+
 
 /* ---------- Receiving Callbacks ---------- */
 
 void InverterInterface::receive_GENERAL_CONTROL(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
-    HV500_TargetIq_t unpacked_msg;
+    INV1_STATUS_GENERAL_CONTROL_t unpacked_msg;
     Unpack_INV1_STATUS_GENERAL_CONTROL_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
                         &Pack_INV1_STATUS_GENERAL_CONTROL_hytech,
@@ -15,11 +24,10 @@ void InverterInterface::receive_GENERAL_CONTROL(const CAN_message_t& can_msg, un
 
     auto& msg = _feedback_data.general_control_msg;
     msg.control_mode = static_cast<DTIControlMode_e>(unpacked_msg.control_mode);
-    msg.target_iq_apk = unpacked_msg.target_iq_apk_ro / static_cast<float>(_dti_params.scales.iq_scale);
-    msg.motor_position_deg = unpacked_msg.motor_position_deg_ro / static_cast<float>(_dti_params.scales.motor_position_scale);
+    msg.target_iq_apk = HYTECH_target_iq_apk_ro_fromS(unpacked_msg.target_iq_apk_ro);
+    msg.motor_position_deg = HYTECH_motor_position_deg_ro_fromS(unpacked_msg.motor_position_deg_ro);
     msg.is_motor_stationary = unpacked_msg.is_motor_stationary;
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -35,10 +43,9 @@ void InverterInterface::receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsig
 
     auto& msg = _feedback_data.general_elec_msg;
     msg.erpm = unpacked_msg.erpm;
-    msg.duty_cycle_percent = unpacked_msg.duty_cycle_percent_ro / static_cast<float>(_dti_params.scales.duty_cycle_scale);
+    msg.duty_cycle_percent = HYTECH_duty_cycle_percent_ro_fromS(unpacked_msg.duty_cycle_percent_ro);
     msg.input_voltage = unpacked_msg.input_voltage;
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -53,10 +60,9 @@ void InverterInterface::receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, uns
     );
 
     auto& msg = _feedback_data.active_current_msg;
-    msg.active_ac_current_apk = unpacked_msg.active_ac_current_apk_ro / static_cast<float>(_dti_params.scales.active_ac_current_scale);
-    msg.active_dc_current_amp = unpacked_msg.active_dc_current_amp_ro / static_cast<float>(_dti_params.scales.active_dc_current_scale);
+    msg.active_ac_current_apk = HYTECH_active_ac_current_apk_ro_fromS(unpacked_msg.active_ac_current_apk_ro);
+    msg.active_dc_current_amp = HYTECH_active_dc_current_amp_ro_fromS(unpacked_msg.active_dc_current_amp_ro);
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -71,11 +77,10 @@ void InverterInterface::receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, uns
     );
 
     auto& msg = _feedback_data.temp_and_fault_msg;
-    msg.controller_temp_c = unpacked_msg.controller_temp_c_ro / static_cast<float>(_dti_params.scales.controller_temp_scale);
-    msg.motor_temp_c = unpacked_msg.motor_temp_c_ro / static_cast<float>(_dti_params.scales.motor_temp_scale);
+    msg.controller_temp_c = HYTECH_controller_temp_c_ro_fromS(unpacked_msg.controller_temp_c_ro);
+    msg.motor_temp_c = HYTECH_motor_temp_c_ro_fromS(unpacked_msg.motor_temp_c_ro);
     msg.fault_code = static_cast<DTIFaultCode_e>(unpacked_msg.fault_code);
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -90,10 +95,9 @@ void InverterInterface::receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsig
     );
 
     auto& msg = _feedback_data.foc_current_msg;
-    msg.id_apk = unpacked_msg.id_apk_ro / static_cast<float>(_dti_params.scales.foc_id_scale);
-    msg.iq_apk = unpacked_msg.iq_apk_ro / static_cast<float>(_dti_params.scales.foc_iq_scale);
+    msg.id_apk = HYTECH_id_apk_ro_fromS(unpacked_msg.id_apk_ro);
+    msg.iq_apk = HYTECH_iq_apk_ro_fromS(unpacked_msg.iq_apk_ro);
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -132,7 +136,6 @@ void InverterInterface::receive_GENERAL_IO(const CAN_message_t& can_msg, unsigne
     msg.is_power_limit_active = unpacked_msg.is_power_limit_active;
     msg.can_map_version = unpacked_msg.can_map_version;
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -147,12 +150,11 @@ void InverterInterface::receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
     );
 
     auto& msg = _feedback_data.ac_config_current_msg;
-    msg.max_ac_current_apk = unpacked_msg.max_ac_current_apk_ro / static_cast<float>(_dti_params.scales.max_ac_current_scale);
-    msg.available_max_ac_current_apk = unpacked_msg.available_max_ac_current_apk_ro / static_cast<float>(_dti_params.scales.available_max_ac_current_scale);
-    msg.min_ac_current_apk = unpacked_msg.min_ac_current_apk_ro / static_cast<float>(_dti_params.scales.min_ac_current_scale);
-    msg.available_min_ac_current_apk = unpacked_msg.available_min_ac_current_apk_ro / static_cast<float>(_dti_params.scales.available_min_ac_current_scale);
+    msg.max_ac_current_apk = HYTECH_max_ac_current_apk_ro_fromS(unpacked_msg.max_ac_current_apk_ro);
+    msg.available_max_ac_current_apk = HYTECH_available_max_ac_current_apk_ro_fromS(unpacked_msg.available_max_ac_current_apk_ro);
+    msg.min_ac_current_apk = HYTECH_min_ac_current_apk_ro_fromS(unpacked_msg.min_ac_current_apk_ro);
+    msg.available_min_ac_current_apk = HYTECH_available_min_ac_current_apk_ro_fromS(unpacked_msg.available_min_ac_current_apk_ro);
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -167,12 +169,11 @@ void InverterInterface::receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
     );
 
     auto& msg = _feedback_data.dc_config_current_msg;
-    msg.max_dc_current_amp = unpacked_msg.max_dc_current_amp_ro / static_cast<float>(_dti_params.scales.max_dc_current_scale);
-    msg.available_max_dc_current_amp = unpacked_msg.available_max_dc_current_amp_ro / static_cast<float>(_dti_params.scales.available_max_dc_current_scale);
-    msg.min_dc_current_amp = unpacked_msg.min_dc_current_amp_ro / static_cast<float>(_dti_params.scales.min_dc_current_scale);
-    msg.available_min_dc_current_amp = unpacked_msg.available_min_dc_current_amp_ro / static_cast<float>(_dti_params.scales.available_min_dc_current_scale);
+    msg.max_dc_current_amp = HYTECH_max_dc_current_amp_ro_fromS(unpacked_msg.max_dc_current_amp_ro);
+    msg.available_max_dc_current_amp = HYTECH_available_max_dc_current_amp_ro_fromS(unpacked_msg.available_max_dc_current_amp_ro);
+    msg.min_dc_current_amp = HYTECH_min_dc_current_amp_ro_fromS(unpacked_msg.min_dc_current_amp_ro);
+    msg.available_min_dc_current_amp = HYTECH_available_min_dc_current_amp_ro_fromS(unpacked_msg.available_min_dc_current_amp_ro);
 
-    _connected = true;
     _last_recv_millis = curr_millis;
 }
 
@@ -286,7 +287,7 @@ void InverterInterface::send_MAX_AC_CURRENT(float target_max_ac_current_apk)
 
 void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_current_apk)
 {
-    target_max_ac_brake_current_apk = std::clamp(target_max_ac_brake_current_apk, 0.0f, 850.0f);
+    target_max_ac_brake_current_apk = std::clamp(target_max_ac_brake_current_apk, -850.0f, 0.0f);
 
     INV1_SET_MAX_AC_BRAKE_CURRENT_t msg_out;
     msg_out.max_ac_brake_current_apk_ro = HYTECH_max_ac_brake_current_apk_ro_toS(target_max_ac_brake_current_apk);
@@ -314,7 +315,7 @@ void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_apk)
 
 void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_current_apk)
 {
-    target_max_dc_brake_current_apk = std::clamp(target_max_dc_brake_current_apk, 0.0f, 850.0f);
+    target_max_dc_brake_current_apk = std::clamp(target_max_dc_brake_current_apk, -850.0f, 0.0f);
 
     INV1_SET_MAX_DC_BRAKE_CURRENT_t msg_out;
     msg_out.max_dc_brake_current_amp_ro = HYTECH_max_dc_brake_current_amp_ro_toS(target_max_dc_brake_current_apk);
@@ -341,43 +342,54 @@ void InverterInterface::send_DRIVE_ENABLE()
 
 /* ---------- InverterFuncts_s-facing API ---------- */
 
-void InverterInterface::set_torque(float torque_nm)
+void InverterInterface::set_motors_torque(float torque_nm)
 {
-    float current_apk = _torque_to_current_apk(torque_nm);
+    float requested_current_apk = _torque_to_current(torque_nm);
 
     if (torque_nm >= 0.0f)
     {
-        send_AC_CURRENT(current_apk);
+        _control_inputs.pending_ac_current_apk = requested_current_apk;
     }
     else
     {
-        send_BRAKE_CURRENT(current_apk);   // magnitude only, sign handled by which command you send
+       _control_inputs.pending_ac_brake_current_amp = requested_current_apk;   // magnitude only, sign handled by which command you send
     }
 }
 
-void InverterInterface::set_idle()
+void InverterInterface::set_motors_speed(float speed_rpm)
 {
-    send_AC_CURRENT(0.0f);
+    float requested_speed_erpm = _rpm_to_erpm(speed_rpm);
+    _control_inputs.pending_speed_erpm = requested_speed_erpm;
+}
+
+void InverterInterface::set_motors_idle()
+{
+    _control_inputs.pending_ac_current_apk = 0;
+    _control_inputs.pending_ac_brake_current_amp = 0;
+    _control_inputs.pending_speed_erpm = 0;
 }
 
 void InverterInterface::request_enable(bool enable)
 {
     _enable_requested = enable;
-    send_DRIVE_ENABLE();
 }
 
-void InverterInterface::request_error_reset()
+bool InverterInterface::is_reported_mode_matching_dt(DrivetrainControlMode_e expected_mode) const
 {
-    // TODO: DTI's fault-clearing mechanism is still unconfirmed — no reset
-    // command has been identified in the manual so far. No-op until confirmed;
-    // do not let CLEARING_ERRORS state logic depend on this actually doing
-    // something until it's resolved.
+    DTIControlMode_e reported_mode = _feedback_data.general_control_msg.control_mode;
+
+    if (expected_mode == DrivetrainControlMode_e::TORQUE)
+    {
+        return (reported_mode == DTIControlMode_e::MODE_CURRENT) || (reported_mode == DTIControlMode_e::MODE_CURRENT_BRAKE);
+    }
+
+    return (reported_mode == DTIControlMode_e::MODE_SPEED);
 }
 
 InverterStatus_s InverterInterface::get_status() const
 {
     InverterStatus_s status{};
-    status.is_inverter_connected = _connected;
+    status.is_inverter_connected = (sys_time::hal_millis() - _last_recv_millis) < _dti_params.connection_timeout_ms;
     status.is_fault_code_present = (_feedback_data.temp_and_fault_msg.fault_code != DTIFaultCode_e::NO_FAULTS);
     status.is_hv_present = _feedback_data.general_elec_msg.input_voltage > _dti_params.minimum_hv_voltage;
     status.dc_bus_voltage = _feedback_data.general_elec_msg.input_voltage;
@@ -389,15 +401,14 @@ MotorMechanics_s InverterInterface::get_motor_mechanics() const
 {
     float id_actual = _feedback_data.foc_current_msg.id_apk;
     float iq_actual = _feedback_data.foc_current_msg.iq_apk;
+    float torque_actual_nm = _current_to_torque(id_actual, iq_actual);
 
-    float lambda_eff = _dti_params.lambda_pm_wb +
-                    (_dti_params.ld_henries - _dti_params.lq_henries) *
-                    id_actual;
+
 
     MotorMechanics_s mm{};
-    mm.actual_speed = static_cast<float>(_feedback_data.general_elec_msg.erpm) / static_cast<float>(_dti_params.num_pole_pairs);
-    mm.actual_torque = 1.5f * _dti_params.num_pole_pairs * lambda_eff * iq_actual;
-    mm.actual_power = _feedback_data.general_elec_msg.input_voltage * _feedback_data.active_current_msg.active_dc_current_amp;
+    mm.actual_speed_rpm = static_cast<float>(_feedback_data.general_elec_msg.erpm) / static_cast<float>(_dti_params.num_pole_pairs);
+    mm.actual_torque_nm = torque_actual_nm;
+    mm.actual_power_watts = _feedback_data.general_elec_msg.input_voltage * _feedback_data.active_current_msg.active_dc_current_amp;
     mm.last_recv_millis = _last_recv_millis;
 
     return mm;
@@ -421,7 +432,7 @@ const StatusGeneralControlMsg_s& InverterInterface::get_control_status() const
     return _feedback_data.general_control_msg;
 }
 
-const DTIStatusMessages_s& InverterInterface::get_all_inverter_data() const
+const InverterStatusMessages_s& InverterInterface::get_all_inverter_data() const
 {
     return _feedback_data;
 }
@@ -429,21 +440,34 @@ const DTIStatusMessages_s& InverterInterface::get_all_inverter_data() const
 
 /* ---------- Private helpers ---------- */
 
-float InverterInterface::_torque_to_current_apk(float torque_nm) const
+float InverterInterface::_torque_to_current(float torque_nm) const
 {
-    float id_act = _feedback_data.foc_current_msg.id_apk;   // measured, from 0x23
+    float id_actual = _feedback_data.foc_current_msg.id_apk;
 
-    // Formula based on recommended equation in documentation
     float lambda_effective = _dti_params.lambda_pm_wb +
                             (_dti_params.ld_henries - _dti_params.lq_henries) *
-                            id_act;
+                            id_actual;
 
-    float iq_ff = (2.0f * torque_nm) / (3.0f * _dti_params.num_pole_pairs * lambda_effective);
+    float iq_feed_forward = (2.0f * torque_nm) / (3.0f * _dti_params.num_pole_pairs * lambda_effective);
 
-    // This is i sub s, not "is"
-    float is_magnitude = std::sqrt(id_act * id_act + iq_ff * iq_ff);
+    float total_stator_current = std::sqrt(id_actual * id_actual + iq_feed_forward * iq_feed_forward);
 
-    return is_magnitude;
+    return total_stator_current;
+}
+
+float InverterInterface::_current_to_torque(float id_apk, float iq_apk) const
+{
+    float lambda_effective = _dti_params.lambda_pm_wb +
+                            (_dti_params.ld_henries - _dti_params.lq_henries) *
+                            id_apk;
+
+    return 1.5f * _dti_params.num_pole_pairs * lambda_effective * iq_apk;
+}
+
+float InverterInterface::_rpm_to_erpm(float speed_rpm) const
+{
+    float speed_erpm = speed_rpm * static_cast<float>(_dti_params.num_pole_pairs);
+    return speed_erpm;
 }
 
 uint16_t InverterInterface::_pack_dti_can_id(uint8_t packet_id) const

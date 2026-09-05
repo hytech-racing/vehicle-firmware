@@ -88,9 +88,9 @@ void initialize_all_systems()
 /**
  * TODO: Understand asyn better, but not sure ticking state machine needs to/should go there.
  */
-// HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
-// {
-//     VehicleStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
+HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+{
+    VehicleStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
 
-//     return HT_TASK::TaskResponse::YIELD;
-// }
+    return HT_TASK::TaskResponse::YIELD;
+}

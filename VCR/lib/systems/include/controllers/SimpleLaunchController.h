@@ -14,17 +14,21 @@
 
 
 /**
- * @brief Modes to define launch behavior, where each one waits for acceleration request threshold to move to next mode
- * @param LAUNCH_NOT_READY state keeps speed at 0 and ensures pedals are not pressed, the launch controller begins in this state.
- *                         From this state, the launch can only progress forwards to LAUNCH_READY.
- * @param LAUNCH_READY state keeps speed at 0, below the speed threshold(5 m/s) and makes sure brake is not pressed harder than the threshold of .2(20% pushed)
-/// From this state the launch can progress forwards to LAUNCHING according to the two conditions defined above or backwards to LAUNCH_NOT_READY if those conditions are not met
-/// LAUNCHING uses respective algorithm to set speed set point and requests torque from motors to reach it
- * @param LAUNCHING state uses respective algorithm to set speed set point and requests torque from motors to reach it
-/// From this state the launch can fully begin and set speed set points above 0.0 m/s and the maximum available torque can be requested from the inverters
-/// This launch state can be terminated if the brake is pressed above the threshold(.2(20% pushed)) or if the accelerator is not pressed enough (<= .5(50% pushed))
-
-*/
+ * @brief Launch behavior states. Each waits on a pedal-input threshold before progressing to the next state.
+ *
+ * @param LAUNCH_NOT_READY commands zero speed target, applies requested regen/brake
+ * torque, and confirms pedals aren't pressed and the car is stationary. Only
+ * ever progresses forward to LAUNCH_READY.
+ *
+ * LAUNCH_READY: commands zero speed target, confirms brake isn't pressed past
+ * threshold (0.2 / 20%) and the car stays below the speed threshold (5 m/s).
+ * Progresses forward to LAUNCHING once the accelerator is pressed enough, or
+ * back to LAUNCH_NOT_READY if either condition is lost.
+ *
+ * LAUNCHING: ramps commanded torque toward the target, aiming to reach the
+ * maximum available torque. Exits back to LAUNCH_NOT_READY if the brake is
+ * pressed past threshold or the accelerator drops to or below 0.5 (50%).
+ */
 enum class LaunchStates_e
 {
     NO_LAUNCH_MODE,
@@ -35,9 +39,9 @@ enum class LaunchStates_e
 
 namespace launch_controller_default_params
 {
-    constexpr float DEFAULT_INIT_LAUNCH_TORQUE_NM = 5.0f;                 // TODO: tune — initial torque as launching begins
-    constexpr float DEFAULT_LAUNCH_TORQUE_RAMP_RATE_NM_PER_SEC = 40.0f;   // TODO: tune — how fast torque ramps up during launch
-    constexpr float DEFAULT_MAX_WHEELSPIN_RPM_DELTA = 300.0f;             // TODO: tune — how far a wheel can lead the slowest wheel before its torque is cut
+    constexpr float DEFAULT_INIT_LAUNCH_TORQUE_NM = 5.0f;
+    constexpr float DEFAULT_LAUNCH_TORQUE_RAMP_RATE_NM_PER_SEC = 40.0f;
+    constexpr float DEFAULT_MAX_WHEELSPIN_RPM_DELTA = 300.0f;
 
     constexpr float LAUNCH_READY_ACCEL_THRESH = 0.1f;   // Max pedal is 1.0 I beleive, might be -1.0 to 1.0?
     constexpr float LAUNCH_READY_BRAKE_THRESH = 0.2f;
@@ -68,8 +72,14 @@ class SimpleLaunchController
 {
 public:
 
-    /// @brief simple TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
     explicit SimpleLaunchController(LaunchControllerParams_s params)
+        : _params(params)
+    {};
+
+    /**
+     * @brief Default Constructor
+    */
+    SimpleLaunchController()
         : _params {
             .default_init_launch_torque_nm = launch_controller_default_params::DEFAULT_INIT_LAUNCH_TORQUE_NM,
             .default_launch_torque_ramp_rate_nm_per_sec = launch_controller_default_params::DEFAULT_LAUNCH_TORQUE_RAMP_RATE_NM_PER_SEC,
@@ -97,11 +107,12 @@ private:
     /**
      * @brief Ramps commanded torque over time during LAUNCHING, starting from init_launch_torque_nm and increasing at
      *        launch_torque_ramp_rate_nm_per_sec, capped at the motor's max torque.
-     */
+    */
     float _calculate_launch_torque(uint32_t curr_millis) const
     {
         float secs_since_launch = (curr_millis - _time_of_launch) / 1000.0f;
-        float ramped_torque = _params.default_init_launch_torque_nm + secs_since_launch * _params.default_launch_torque_ramp_rate_nm_per_sec;
+        float ramped_torque =
+            _params.default_init_launch_torque_nm + secs_since_launch * _params.default_launch_torque_ramp_rate_nm_per_sec;
         return std::min(dti_motor_params::MOTOR_MAX_TORQUE_NM, std::max(0.0f, ramped_torque));
     }
 };

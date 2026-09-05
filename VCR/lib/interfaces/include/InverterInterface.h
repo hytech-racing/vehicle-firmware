@@ -19,6 +19,8 @@
  *     Layout: [Packet ID: bits 10:5 (6 bits)] [Node ID: bits 4:0 (5 bits)]
  *   - For all limit booleans: 1 is active, 0 is inactive
  *
+ * set_torque gets called from _set_drivetrain_command, which runs inside VSM's tick — 10 kHz. If each call to set_torque triggered an immediate real CAN send, you'd be sending at 10 kHz regardless of whether the value changed at all between calls — way faster than INVERTER_SEND_PERIOD_US's intended 200 Hz, flooding the bus. This is true even if the torque value is changing every single tick (e.g., smoothly ramping) — the problem isn't "only send on change," it's "the two rates need to be decoupled, full stop."
+ *
 */
 
 
@@ -27,10 +29,11 @@ namespace dti_default_params
 {
     constexpr volt MINIMUM_HV_VOLTAGE = 200.0f;     // TODO: confirm real threshold against pack/HV config
     constexpr volt MAXIMUM_HV_VOLTAGE = 620.f;      // TODO: confirm real threshold against pack/HV config
-    constexpr float LAMBDA_PM_WB = 0.0507f;         // Wb, DTI F-MOT
+    constexpr float LAMBDA_PM_WB = 0.0507f;         // Wb (Weber), DTI F-MOT
     constexpr float LD_HENRIES = 243e-6f;           // H, DTI F-MOT
     constexpr float LQ_HENRIES = 0.000371;          // H, DTI F-MOT
     constexpr uint8_t NUM_POLE_PAIRS = 4;           // TODO: confirm against motor datasheet
+    constexpr unsigned long CONNECTION_TIMEOUT_MS = 200;   // TODO: tune against actual DTI broadcast rate
 }
 
 
@@ -72,41 +75,6 @@ namespace dti_node_ids
     constexpr uint8_t RL = 3;
     constexpr uint8_t RR = 4;
 }
-
-/**
- * @brief Fixed protocol scale factors from the DTI CAN manual. Identical for every inverter.
- */
-struct DTIScales_s
-{
-    const uint8_t iq_scale;                               // 10
-    const uint8_t motor_position_scale;                   // 10
-    const uint8_t duty_cycle_scale;                       // 10
-    const uint8_t active_ac_current_scale;                // 10
-    const uint8_t active_dc_current_scale;                // 10
-    const uint8_t controller_temp_scale;                  // 10
-    const uint8_t motor_temp_scale;                       // 10
-    const uint8_t foc_iq_scale;                           // 100
-    const uint8_t foc_id_scale;                           // 100
-    const uint8_t max_ac_current_scale;                   // 10
-    const uint8_t available_max_ac_current_scale;         // 10
-    const uint8_t min_ac_current_scale;                   // 10
-    const uint8_t available_min_ac_current_scale;         // 10
-    const uint8_t max_dc_current_scale;                   // 10
-    const uint8_t available_max_dc_current_scale;         // 10
-    const uint8_t min_dc_current_scale;                   // 10
-    const uint8_t available_min_dc_current_scale;         // 10
-};
-
-struct DTIParams_s
-{
-    float minimum_hv_voltage;
-    float maximum_hv_voltage;
-    float lambda_pm_wb;
-    float ld_henries;
-    float lq_henries;
-    uint8_t num_pole_pairs;
-    DTIScales_s scales;
-};
 
 /* ---------- Enums (declared before structs that reference them) ---------- */
 
@@ -288,7 +256,7 @@ struct SetDriveEnableMsg_s   // 0x0C
     bool is_drive_enabled;
 };
 
-struct DTIStatusMessages_s
+struct InverterStatusMessages_s
 {
     StatusGeneralControlMsg_s general_control_msg;
     StatusGeneralElecMsg_s general_elec_msg;
@@ -299,7 +267,7 @@ struct DTIStatusMessages_s
     StatusACConfigCurrentMsg_s ac_config_current_msg;
     StatusDCConfigCurrentMsg_s dc_config_current_msg;
 };
-struct DTISetMessages_s
+struct InverterSetMessages_s
 {
     SetACCurrentMsg_s ac_current_msg;
     SetBrakeCurrentMsg_s brake_current_msg;
@@ -315,15 +283,33 @@ struct DTISetMessages_s
     SetDriveEnableMsg_s drive_enable_msg;
 };
 
+struct InverterControlInputs_s
+{
+
+    float pending_ac_current_apk;           // meaningful only when control_mode == TORQUE
+    float pending_ac_brake_current_amp;     // meaningful only when control_mode == TORQUE
+    float pending_speed_erpm;               // meaningful only when control_mode == SPEED
+};
+
+struct DTIParams_s
+{
+    float minimum_hv_voltage;
+    float maximum_hv_voltage;
+    float lambda_pm_wb;
+    float ld_henries;
+    float lq_henries;
+    uint8_t num_pole_pairs;
+    unsigned long connection_timeout_ms;
+};
+
 class InverterInterface
 {
 public:
 
     InverterInterface() = delete;
 
-    InverterInterface(uint8_t node_id,
-                    DTIScales_s scales
-    ) : _node_id(node_id),
+    InverterInterface(uint8_t node_id)
+      : _node_id(node_id),
         _dti_params {
             .minimum_hv_voltage = dti_default_params::MINIMUM_HV_VOLTAGE,
             .maximum_hv_voltage = dti_default_params::MAXIMUM_HV_VOLTAGE,
@@ -331,8 +317,8 @@ public:
             .ld_henries = dti_default_params::LD_HENRIES,
             .lq_henries = dti_default_params::LQ_HENRIES,
             .num_pole_pairs = dti_default_params::NUM_POLE_PAIRS,
-            .scales = scales
-          }
+            .connection_timeout_ms = dti_default_params::CONNECTION_TIMEOUT_MS
+        }
     {}
 
     /* ---------- Receiving Callbacks ---------- */
@@ -368,10 +354,39 @@ public:
     void send_DRIVE_ENABLE();
 
     /* ---------- InverterFuncts_s-facing API ---------- */
-    void set_torque(float torque_nm);
-    void set_idle();
+
+    /**
+     * @brief Method sets the torque produced by the motors by converting to current
+     * @param torque_nm is signed!
+     * @note Current value is stored in _control_inputs. Based on sign, store ac or ac brake current.
+    */
+    void set_motors_torque(float torque_nm);
+
+    /**
+     * @brief Method sets the rpm produced by the motors by converting to ERPM
+     * @param speed_rpm is signed!
+     * @note ERPM value is stored in _control_inputs. The ERPM command accepts both positive and negative values
+    */
+    void set_motors_speed(float speed_rpm);
+
+    /**
+     * @brief Method sets the torque/speed produced by the motors to 0
+    */
+    void set_motors_idle();
+
+    /**
+     * @brief Method changes the state of _enable_requested
+     */
     void request_enable(bool enable);
-    void request_error_reset();
+
+    /**
+     * @brief Method check whether this inverter currently reports it is in a torque or speed control mode
+     * @note Method to be used by Drivetrain, which is why we collapses DTI's finer-grained modes (MODE_CURRENT and MODE_CURRENT_BRAKE)
+     *       into just TORQUE
+     * @return True if the Drivetrain mode matches what the inverter is reporting, false otherwise
+    */
+    bool is_reported_mode_matching_dt(DrivetrainControlMode_e expected_mode) const;
+
     InverterStatus_s get_status() const;
     MotorMechanics_s get_motor_mechanics() const;
 
@@ -379,7 +394,7 @@ public:
     DTIFaultCode_e get_fault_code() const;
     const StatusGeneralIOMsg_s& get_io_status() const;
     const StatusGeneralControlMsg_s& get_control_status() const;
-    const DTIStatusMessages_s& get_all_inverter_data() const;
+    const InverterStatusMessages_s& get_all_inverter_data() const;
 
     uint8_t get_node_id() const { return _node_id; }
 
@@ -390,18 +405,40 @@ private:
 
     bool _enable_requested = false;
 
-    DTIStatusMessages_s _feedback_data = {};
-    DTISetMessages_s _set_commands = {};
+    InverterStatusMessages_s _feedback_data = {};
+    InverterSetMessages_s _set_commands = {};
+    InverterControlInputs_s _control_inputs = {};
 
-    bool _connected = false;
     unsigned long _last_recv_millis = 0;
 
-    /// @brief Packs this inverter's node ID with the given packet ID into a
-    /// standard 11-bit CAN ID. Layout: [Packet ID: bits 10:5] [Node ID: bits 4:0]
+    /**
+     * @brief Method converts a given torque (newton-meters) to current (apk)
+     * @note The formula used is provdided in the datasheet
+     * LINK: https://zapdrive.eu/docs/fsic/fsic_overview/#torque-estimation
+     * @return The total AC stator current vector magnitude
+    */
+    float _torque_to_current(float torque_nm) const;
+
+    /**
+     * @brief Method converts a given current (apk) to current (torque)
+     * @note The formula used is provdided in the datasheet
+     * LINK: https://zapdrive.eu/docs/fsic/fsic_overview/#torque-estimation
+     * @return The total torque provided by the given iq and id currents
+     */
+    float _current_to_torque(float id_apk, float iq_apk) const;
+
+    /**
+     * @brief Method converts a given speed (rpm) to another speed in different units (ERPM)
+     * @note The formula is ERPM = RPM * NUM POLE PAIRS
+    */
+    float _rpm_to_erpm(float speed_rpm) const;
+
+    /**
+     * @brief Method packs an inverter's node ID with the given packet ID into a standard 11-bit CAN ID
+     * @param packet_id is any of the IDs (status or set) which are defined above
+     * @note Layout: [Packet ID: bits 10:5] [Node ID: bits 4:0]
+    */
     uint16_t _pack_dti_can_id(uint8_t packet_id) const;
-
-    float _torque_to_current_apk(float torque_nm) const;
-
 };
 
 #endif // INVERTERINTERFACE_H

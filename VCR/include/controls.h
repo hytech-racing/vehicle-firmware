@@ -25,11 +25,23 @@ class VCRControls
 public:
 
     /**
-     * Explicit constructor that passes in a pointer to an already-instantiated DrivetrainSystem.
-     * @param max_allowed_db_latency_ms The maximum allowed latency between commands from the
-     *                                  DriveBrain before considering the connection invalid.
+     * @brief Explicit constructor that passes in a pointer to an already-instantiated DrivetrainSystem
+     * @param max_allowed_db_latency_ms The maximum allowed latency between commands from the DriveBrain before
+     *                                  considering the connection invalid
      */
-    explicit VCRControls(DrivetrainSystem *dt_system, uint32_t max_allowed_db_latency_ms);
+    explicit VCRControls(DrivetrainSystem *dt_system,
+                        uint32_t max_allowed_db_latency_ms
+    ) : _mode4(max_allowed_db_latency_ms),
+        _tc_mux({
+            [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode0.evaluate(state, curr_millis); },
+            [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode1.evaluate(state, curr_millis); },
+            [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode0.evaluate(state, curr_millis); },
+            [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode3.evaluate(state, curr_millis); },
+            [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode4.evaluate(state, curr_millis); }
+        },
+        {false, false, false, false, true}),
+        _dt_system(dt_system)
+    {};
 
     DrivetrainCommand_s _debug_dt_command = {};
 
@@ -53,7 +65,7 @@ public:
     void cycle_torque_limit()
     {
         size_t torque_limit_int = static_cast<size_t>(_torque_limit);
-        size_t new_torque_limit = (torque_limit_int + 1) % (static_cast<size_t>(TorqueLimit_e::TCMUX_NUM_TORQUE_LIMITS));
+        size_t new_torque_limit = (torque_limit_int + 1) % (static_cast<size_t>(TorqueLimit_e::NUM_TCMUX_TORQUE_LIMITS));
         _torque_limit = static_cast<TorqueLimit_e>(new_torque_limit);
     }
 

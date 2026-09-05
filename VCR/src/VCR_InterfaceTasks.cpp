@@ -263,7 +263,7 @@ HT_TASK::TaskResponse enqueue_inverter_CAN_data(const unsigned long& sysMicros, 
 HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFInterfaceInstance::instance().enqueue_vehicle_state_message(VehicleStateMachineInstance::instance().get_state(),
-                                                                DrivetrainInstance::instance().get_state(),
+                                                                DrivetrainInstance::instance().get_current_state(),
                                                                 VCRControlsInstance::instance().drivebrain_is_in_control());
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -339,10 +339,10 @@ namespace async_tasks
         auto rl_inv_status = can_interfaces.rl_inverter_interface.get_status();
         auto rr_inv_status = can_interfaces.rr_inverter_interface.get_status();
 
-        ret.inverter_data.FL.speed_rpm = fl_inv_mechanics.actual_speed;
-        ret.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed;
-        ret.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed;
-        ret.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed;
+        ret.inverter_data.FL.speed_rpm = fl_inv_mechanics.actual_speed_rpm;
+        ret.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed_rpm;
+        ret.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed_rpm;
+        ret.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed_rpm;
 
         ret.inverter_data.FL.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
         ret.inverter_data.FR.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
@@ -367,7 +367,7 @@ namespace async_tasks
 
         VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
 
-        vcr_data.system_data.drivetrain_data.measuredSpeeds = {
+        vcr_data.system_data.drivetrain_data.measured_speeds = {
             new_interface_data.inverter_data.FL.speed_rpm,
             new_interface_data.inverter_data.FR.speed_rpm,
             new_interface_data.inverter_data.RL.speed_rpm,

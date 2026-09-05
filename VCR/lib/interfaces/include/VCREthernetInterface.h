@@ -39,9 +39,9 @@ public:
      *
      * @param
      * @return A populated instance of the outgoing protoc struct.
-     */
+    */
     hytech_msgs_VCRData_s make_vcr_data_msg(const ADCInterface &adc_interface,
-                                        DrivetrainDynamicReport_s &DrivetrainData,
+                                        DrivetrainDynamicReport_s &drivetrain_data,
                                         const VCFInterface &vcf_interface,
                                         const VehicleStateMachine &vehicle_state_machine,
                                         const DrivetrainSystem &drivetrain_system,

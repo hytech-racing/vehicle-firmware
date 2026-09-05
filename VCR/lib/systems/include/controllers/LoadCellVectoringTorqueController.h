@@ -7,17 +7,21 @@
 /* Local Controller Includes */
 #include "PhysicalParameters.h"
 
+
 namespace loadcell_vectoring_tc_default_params
 {
     constexpr float FRONT_REGEN_LIMIT = 13.0f;
     constexpr float REAR_REGEN_LIMIT = 3.5f;
     constexpr size_t MAX_LOADCELL_ERROR_COUNT = 25;
+    constexpr DrivetrainControlMode_e LOADCELL_CONTROLLER_MODE = DrivetrainControlMode_e::TORQUE;
 
     /**
      *  @param REAR_TORQUE_SCALE 0 to 2 scale on forward torque to rear wheels. 0 = FWD, 1 = 50/50, 2 = RWD
-     *  @param REAR_REGEN_TORQUE_SCALE same as rear_torque_scale but applies to regen torque split. 0 = all regen torque on fronts, 1 = 50/50, 2 = all regen torque on rears
-     *  Works the same for the front scales
-     */
+     *  @param REAR_REGEN_TORQUE_SCALE same as rear_torque_scale but applies to regen torque split.
+     *                                 0 = all regen torque on fronts
+     *                                 1 = 50/50
+     *                                 2 = all regen torque on rears
+    */
     constexpr float FRONT_TORQUE_SCALE = 1.0;
     constexpr float REAR_TORQUE_SCALE = 1.0f;
     constexpr float FRONT_REGEN_TORQUE_SCALE = 1.7;
@@ -64,6 +68,7 @@ struct LoadcellVectoringTCParams_s
     const float front_regen_limit;
     const float rear_regen_limit;
     const float max_loadcell_error_count;
+    DrivetrainControlMode_e control_mode;
 };
 
 
@@ -75,7 +80,14 @@ public:
      * @brief This is our Torque Controller (TC) which uses loadcell vectoring and corresponds to Mode 1.
      *        This TC has tunable F/R torque balance, as well as accel/regen torque balance (tuned independently)
     */
-    LoadCellVectoringTorqueController(LoadcellVectoringTCParams_s params)
+    explicit LoadCellVectoringTorqueController(LoadcellVectoringTCParams_s params)
+        : _params(params)
+    {};
+
+    /**
+     * @brief Default Constructor
+    */
+    LoadCellVectoringTorqueController()
         : _params {
             .offsets = {
                 .fl_loadcell_offset = loadcell_vectoring_tc_default_params::FL_LOADCELL_OFFSET,
@@ -95,7 +107,8 @@ public:
             },
             .front_regen_limit = loadcell_vectoring_tc_default_params::FRONT_REGEN_LIMIT,
             .rear_regen_limit = loadcell_vectoring_tc_default_params::REAR_REGEN_LIMIT,
-            .max_loadcell_error_count = loadcell_vectoring_tc_default_params::MAX_LOADCELL_ERROR_COUNT
+            .max_loadcell_error_count = loadcell_vectoring_tc_default_params::MAX_LOADCELL_ERROR_COUNT,
+            .control_mode = loadcell_vectoring_tc_default_params::LOADCELL_CONTROLLER_MODE
         }
     {};
 
@@ -104,7 +117,6 @@ public:
 private:
 
     LoadcellVectoringTCParams_s _params;
-
     veh_vec<size_t> _loadcell_error_counts = {};
 
 };

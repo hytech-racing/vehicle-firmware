@@ -14,7 +14,7 @@ void VCREthernetInterface::init_ethernet_device()
 }
 
 hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface &adc_interface,
-                                                        DrivetrainDynamicReport_s &DrivetrainData,
+                                                        DrivetrainDynamicReport_s &drivetrain_data,
                                                         const VCFInterface &vcf_interface,
                                                         const VehicleStateMachine &vehicle_state_machine,
                                                         const DrivetrainSystem &drivetrain_system,
@@ -95,12 +95,12 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
 
 
     //DrivetrainDynamicReport_s
-    out.drivetrain_data.measuredInverterFLPackVoltage = DrivetrainData.measuredInverterFLPackVoltage;
+    out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measuredInverterFLPackVoltage;
 
-    copy_veh_vec_members(DrivetrainData.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
-    copy_veh_vec_members(DrivetrainData.measuredTorques, out.drivetrain_data.measuredTorques);
-    copy_veh_vec_members(DrivetrainData.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
-    copy_veh_vec_members(DrivetrainData.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
+    copy_veh_vec_members(drivetrain_data.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
+    copy_veh_vec_members(drivetrain_data.measuredTorques, out.drivetrain_data.measuredTorques);
+    copy_veh_vec_members(drivetrain_data.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
+    copy_veh_vec_members(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
 
     //TorqueControllerMuxStatus
     out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.get_tc_mux_status().active_error;

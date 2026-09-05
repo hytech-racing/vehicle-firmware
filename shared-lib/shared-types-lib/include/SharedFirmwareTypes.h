@@ -15,10 +15,12 @@ using meters = float;
 using time_ms = uint32_t;
 
 
+/* --------------------   --------------------*/
+
 /**
  * AnalogSensorStatus_e gets packaged along with the AnalogConversion_s struct as
  * the output of an AnalogChannel.
- */
+*/
 enum class AnalogSensorStatus_e
 {
     ANALOG_SENSOR_GOOD = 0,
@@ -72,7 +74,7 @@ public:
     }
 
     /// @brief copy values to array in FL, FR, RL, RR order
-    void copy_to_arr(T (&arr_out)[4])
+    void copy_to_arr(T (&arr_out)[4]) const
     {
         arr_out[0] = FL;
         arr_out[1] = FR;
@@ -80,7 +82,7 @@ public:
         arr_out[3] = RR;
     }
 
-    std::array<T, 4> as_array()
+    std::array<T, 4> as_array() const
     {
         return {FL, FR, RL, RR};
     }
@@ -442,36 +444,72 @@ struct TorqueControllerMuxStatus_s
 };
 
 
+/* ---------------------------------------- DRIVETRAIN ---------------------------------------- */
+
+
 /**
- * @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque setpoints for each motor.
- *        These setpoints are defined in the torque controllers cycled by TC mux
- *
- * @param desired_speeds are the targeted speeds for each wheel of the car.
- * @param torque_setpoints are the commanded torque sent to each inverter.
- */
-struct DrivetrainCommand_s
+ * @brief Drivetrain state machine (DTSM) states
+ * @param NOT_CONNECTED default state — not all four inverters are reporting connected
+ * @param CONNECTED_HV_ABSENT all inverters connected, HV not yet confirmed present
+ *                            Equivalent to VSM TRACTIVE_SYSTEM_NOT_ACTIVE (not latched)
+ * @param CONNECTED_HV_PRESENT all inverters connected, HV confirmed present, drive not yet enabled
+ *                             Equivalent to VSM TRACTIVE_SYSTEM_ACTIVE (latched)
+ * @param DRIVE_ENABLED all inverters connected, HV present, drive enabled and confirmed
+ *                      Equivalent to VSM READY_TO_DRIVE
+ * @param FAULTED one or more inverters currently reporting a fault code
+*/
+enum class DrivetrainState_e
 {
-    veh_vec<torque_nm> torque_setpoints;
+    NOT_CONNECTED,
+    CONNECTED_HV_ABSENT,
+    CONNECTED_HV_PRESENT,
+    DRIVE_ENABLED,
+    FAULTED,
+    NUM_STATES
 };
 
+/**
+ * @brief Provides info on which type of command a DrivetrainCommand_s represents: torque or speed
+*/
+enum class DrivetrainControlMode_e
+{
+    TORQUE,
+    SPEED
+};
+
+/**
+ * @brief The desired torque or speed command from a controller, plus which of the two control_modes should actually be applied
+ * @note Built fresh each tick by whichever torque/speed controller is currently active
+ * @param control_mode which of desired_torques/desired_speeds is meaningful this tick
+ * @param desired_torques per-corner commanded torque, meaningful only when control_mode == TORQUE
+ * @param desired_speeds per-corner commanded speed, meaningful only when control_mode == SPEED
+*/
+struct DrivetrainCommand_s
+{
+    DrivetrainControlMode_e control_mode = DrivetrainControlMode_e::TORQUE;
+    veh_vec<torque_nm> desired_torques;
+    veh_vec<speed_rpm> desired_speeds;
+};
+
+/**
+ * @brief Per-corner-timestamped version of DrivetrainCommand_s.
+ * @note The whole command is stamped as one unit. Used wherever a command arrives from an external source with its own
+ *       timing and needs a staleness check before being trusted.
+ * @note get_command() strips the timestamp and hands back the plain DrivetrainCommand_s once freshness has been confirmed.
+*/
 struct StampedDrivetrainCommand_s
 {
-    StampedVehVec<torque_nm> torque_setpoints;
+    DrivetrainControlMode_e control_mode = DrivetrainControlMode_e::TORQUE;
+    StampedVehVec<torque_nm> desired_torques;
+    StampedVehVec<speed_rpm> desired_speeds;
 
     DrivetrainCommand_s get_command()
     {
-        return {.torque_setpoints = torque_setpoints.veh_vec_data};
+        return { .control_mode = control_mode,
+                .desired_torques = desired_torques.veh_vec_data,
+                .desired_speeds = desired_speeds.veh_vec_data
+        };
     }
-};
-
-struct DrivebrainMessageLatencyInfo_s {
-    bool timing_failure;
-    unsigned long worst_latency_millis;
-
-    bool speed_setpoint_msg_too_latent;
-    bool torque_limit_message_too_latent;
-    bool not_all_messages_received;
-    bool latency_diff_too_high;
 };
 
 struct DrivetrainTorqueCommand_s
@@ -492,11 +530,10 @@ struct StampedDrivetrainTorqueCommand_s
     }
 };
 
-
 /**
- * @brief Real-time feedback report from the drivetrain, sourced from what each inverter actually measures/reports
- *        This struct is purely feedback from the inverters.
- */
+ * @brief Real-time feedback report from the drivetrain, sourced from what each inverter actually measures/reports.
+ * TODO: Update whats in here prolly
+*/
 struct DrivetrainDynamicReport_s
 {
     veh_vec<volt> measured_hv_bus_voltage;
@@ -509,6 +546,22 @@ struct DrivetrainDynamicReport_s
     // Id — the d-axis is the flux/magnetizing current component
     veh_vec<float> measured_id_magnetizing_currents;
 };
+
+
+
+
+
+struct DrivebrainMessageLatencyInfo_s {
+    bool timing_failure;
+    unsigned long worst_latency_millis;
+
+    bool speed_setpoint_msg_too_latent;
+    bool torque_limit_message_too_latent;
+    bool not_all_messages_received;
+    bool latency_diff_too_high;
+};
+
+
 
 /**
  * Output data for the ACU Heartbeat. This struct is different from ACUCoreData and
@@ -672,21 +725,6 @@ enum class VehicleState_e
     RECALIBRATING_PEDALS = 5,
     WANTING_RECALIBRATE_STEERING = 6,
     RECALIBRATING_STEERING = 7
-};
-
-/**
- * @brief Drivetrain state machine states. DTI has no multi-stage precharge handshake. Enable is a single confirmable bit.
- *        CONNECTED_HV_NOT_OK / CONNECTED_HV_OK_NOT_ENABLED are our own software HV-sanity gate, independent
- *        of anything DTI's protocol itself requires.
-*/
-enum class DrivetrainState_e
-{
-    NOT_CONNECTED,
-    CONNECTED_HV_NOT_OK,
-    CONNECTED_HV_OK_NOT_ENABLED,
-    DRIVE_ENABLED,
-    FAULTED,
-    NUM_STATES
 };
 
 struct DrivebrainControllerStatus_s
