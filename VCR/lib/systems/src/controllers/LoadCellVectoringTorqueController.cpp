@@ -11,7 +11,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
     const FrontLoadCellData_s &front_loadcell_data = vcr_data.interface_data.front_loadcell_data;
     const RearLoadCellData_s &rear_loadcell_data = vcr_data.interface_data.rear_loadcell_data;
 
-    // what are the units???
+    /// TODO: What deez units
     veh_vec<float> loadcell_data(
         static_cast<float>(front_loadcell_data.FL_loadcell_analog) * _params.scales.fl_loadcell_scale + _params.offsets.fl_loadcell_offset,
         static_cast<float>(front_loadcell_data.FR_loadcell_analog) * _params.scales.fr_loadcell_scale + _params.offsets.fr_loadcell_offset,
@@ -39,54 +39,82 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
 
     float sum_normal_force = loadcell_data.FL + loadcell_data.FR + loadcell_data.RL + loadcell_data.RR;
 
-    // TODO: Add someguard against sum_normal_force being ~0, negative, or otherwise
-    // unreasonable
+    /// TODO: guard against sum_normal_force being ~0, negative, or otherwise unreasonable
 
     float accel_request = pedals_data.accel_percent - pedals_data.brake_percent;
 
     if (_params.control_mode == DrivetrainControlMode_e::TORQUE)
     {
-        float torque_request = 0.0f;
-
         if (accel_request >= 0.0f)
         {
             /**
-             * @note Positive torque request distributed to each corner by fraction of total measured
-             *       normal force (load-cell-based vectoring). The four load-cell fractions sum to 1,
-             *       so torque_request is scaled to a 4-motor budget (*4) before distributing, so each
-             *       wheel can reach up to one full motor's torque at even weight distribution.
+             * @note Total torque budget across all 4 motors (motor_max_torque_nm is a single
+             *       motor's rating, which is why we do *4). Distributed to each corner purely
+             *       by fraction of total measured normal force (load-cell-based vectoring) — no
+             *       fixed front/rear bias is applied here. Since the four load-cell fractions
+             *       always sum to 1, the total delivered torque always equals total_torque_request
+             *       exactly, regardless of actual weight distribution.
             */
-            torque_request = accel_request * dti_motor_params::MOTOR_MAX_TORQUE_NM * 4.0f;
+            float total_torque_request = accel_request * _params.motor_max_torque_nm * 4.0f;
 
-            out.desired_torques.FL = torque_request * _params.scales.front_torque_scale * loadcell_data.FL / sum_normal_force;
-            out.desired_torques.FR = torque_request * _params.scales.front_torque_scale * loadcell_data.FR / sum_normal_force;
-            out.desired_torques.RL = torque_request * _params.scales.rear_torque_scale * loadcell_data.RL / sum_normal_force;
-            out.desired_torques.RR = torque_request * _params.scales.rear_torque_scale * loadcell_data.RR / sum_normal_force;
+            out.desired_torques.FL = total_torque_request * loadcell_data.FL / sum_normal_force;
+            out.desired_torques.FR = total_torque_request * loadcell_data.FR / sum_normal_force;
+            out.desired_torques.RL = total_torque_request * loadcell_data.RL / sum_normal_force;
+            out.desired_torques.RR = total_torque_request * loadcell_data.RR / sum_normal_force;
         }
         else
         {
             /**
-             * @note Regen request. No load-cell vectoring applied to regen. We will just use fixed front/rear split only.
-             *       accel_request is negative here and MOTOR_MAX_REGEN_TORQUE_NM is positive, so torque_request comes out
-             *       negative naturally. Sign just signals regen/braking, matching how InverterInterface
-             *       routes negative torque to SET_BRAKE_CURRENT.
+             * @note Regen request. No load-cell vectoring applied to regen, just a fixed front/rear bias
+             *       only, via regen_bias. accel_request is negative here and MOTOR_MAX_REGEN_TORQUE_NM
+             *       is positive, so total_torque_request comes out negative naturally, matching the
+             *       sign convention InverterInterface uses to route to SET_BRAKE_CURRENT vs SET_AC_CURRENT.
             */
-            torque_request = dti_motor_params::MOTOR_MAX_REGEN_TORQUE_NM * accel_request;
+            float total_torque_request = dti_motor_params::MOTOR_MAX_REGEN_TORQUE_NM * accel_request;
 
-            out.desired_torques.FL = std::max(-_params.front_regen_limit, std::min(0.0f, torque_request * _params.scales.front_regen_torque_scale));
-            out.desired_torques.FR = std::max(-_params.front_regen_limit, std::min(0.0f, torque_request * _params.scales.front_regen_torque_scale));
-            out.desired_torques.RL = std::max(-_params.rear_regen_limit, std::min(0.0f, torque_request * _params.scales.rear_regen_torque_scale));
-            out.desired_torques.RR = std::max(-_params.rear_regen_limit, std::min(0.0f, torque_request * _params.scales.rear_regen_torque_scale));
+            float rear_torque_fraction = _params.regen_bias;
+            float front_torque_fraction = 1.0f - rear_torque_fraction;
+
+            float rears_torque_share = total_torque_request * rear_torque_fraction;
+            float fronts_torque_share = total_torque_request * front_torque_fraction;
+
+            out.desired_torques.FL = std::max(-_params.front_regen_limit, std::min(0.0f, fronts_torque_share / 2.0f));
+            out.desired_torques.FR = std::max(-_params.front_regen_limit, std::min(0.0f, fronts_torque_share / 2.0f));
+            out.desired_torques.RL = std::max(-_params.rear_regen_limit, std::min(0.0f, rears_torque_share / 2.0f));
+            out.desired_torques.RR = std::max(-_params.rear_regen_limit, std::min(0.0f, rears_torque_share / 2.0f));
         }
     }
-    else   // SPEED CONTROL
+    else   // SPEED
     {
-        float speed_request = accel_request * dti_motor_params::MOTOR_MAX_RPM;
+        // Same bias/split logic as TORQUE mode, just producing a speed target instead of a torque target.
+        if (accel_request >= 0.0f)
+        {
+            float total_speed_request = accel_request * _params.motor_max_rpm * 4.0f;
 
-        out.desired_speeds.FL = speed_request;
-        out.desired_speeds.FR = speed_request;
-        out.desired_speeds.RL = speed_request;
-        out.desired_speeds.RR = speed_request;
+            out.desired_speeds.FL = total_speed_request * loadcell_data.FL / sum_normal_force;
+            out.desired_speeds.FR = total_speed_request * loadcell_data.FR / sum_normal_force;
+            out.desired_speeds.RL = total_speed_request * loadcell_data.RL / sum_normal_force;
+            out.desired_speeds.RR = total_speed_request * loadcell_data.RR / sum_normal_force;
+        }
+        else
+        {
+            /**
+             * @note SET_ERPM's sign represents spin direction, not regen/braking
+             *       Reverse rotation is what we want I beleive
+            */
+            float total_speed_request = accel_request * _params.motor_max_rpm;
+
+            float rear_speed_fraction = _params.regen_bias;
+            float front_speed_fraction = 1.0f - rear_speed_fraction;
+
+            float rears_speed_share = total_speed_request * rear_speed_fraction;
+            float fronts_speed_share = total_speed_request * front_speed_fraction;
+
+            out.desired_speeds.FL = fronts_speed_share / 2.0f;
+            out.desired_speeds.FR = fronts_speed_share / 2.0f;
+            out.desired_speeds.RL = rears_speed_share / 2.0f;
+            out.desired_speeds.RR = rears_speed_share / 2.0f;
+        }
     }
 
     return out;
