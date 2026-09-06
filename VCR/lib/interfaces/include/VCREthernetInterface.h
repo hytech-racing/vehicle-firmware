@@ -35,10 +35,8 @@ public:
     void init_ethernet_device();
 
     /**
-     * Function to transform our struct from shared_data_types into the protoc struct hytech_msgs_VCRData_s.
-     *
-     * @param
-     * @return A populated instance of the outgoing protoc struct.
+     * @brief Method to fill the protoc struct hytech_msgs_VCRData_s
+     * @return A populated instance of the outgoing protoc struct
     */
     hytech_msgs_VCRData_s make_vcr_data_msg(const ADCInterface &adc_interface,
                                         DrivetrainDynamicReport_s &drivetrain_data,
@@ -73,12 +71,20 @@ public:
     void receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_in, VCRData_s &shared_state, unsigned long curr_millis);
 
     /**
-     * Helper function to copy an instance of InverterData_s to the protoc struct hytech_msgs_InverterData_s.
-     * @param original A populated instance of the InverterData_s defined in shared firmware types.
-     * @param destination The destination protoc struct.
-     * @post The destination struct will be populated with the data from original.
-     */
-    void copy_inverter_data(const InverterFeedbackData_s &original, hytech_msgs_InverterData_s &destination);
+     * @brief Method to copy an instance of InverterData_s the protoc struct hytech_msgs_InverterData_s
+     * @param original A populated instance of the InverterData_s defined in shared firmware types
+     * @param destination The destination protoc struct
+     * @post The destination struct will be populated with the data from original
+    */
+    void copy_inverter_data(const InverterData_s &original, hytech_msgs_InverterData_s &destination);
+
+    /**
+     * @brief Method to copy an instance of InverterLimits_s the protoc struct hytech_msgs_InverterLimits_s
+     * @param original A populated instance of the InverterLimits_s defined in shared firmware types
+     * @param destination The destination protoc struct
+     * @post The destination struct will be populated with the data from original
+    */
+    void copy_inverter_limits(const InverterLimits_s &original, hytech_msgs_InverterLimits_s &destination);
 
     /**
      * Helper function to copy veh_vec data.
@@ -86,7 +92,7 @@ public:
      * @param original A populated instance of a veh_vec.
      * @param destination A reference to an unpopulated instance of veh_vec.
      * @post The destination veh_vec will be populated with the data from the original.
-     */
+    */
     template <typename from_T, typename to_T>
     void copy_veh_vec_members(const from_T& from, to_T& to)
     {
@@ -96,13 +102,12 @@ public:
         to.RR = from.RR;
     };
 
-    EthernetUDP* get_vcr_data_send_socket() { return &vcr_data_send_socket; }
+    EthernetUDP* get_vcr_data_send_socket() { return &_vcr_data_send_socket; }
 
 private:
 
-    /* Ethernet Sockets */
-    EthernetUDP vcr_data_send_socket;
-    EthernetUDP vcf_data_recv_socket;
+    EthernetUDP _vcr_data_send_socket;
+    EthernetUDP _vcf_data_recv_socket;
 
 };
 

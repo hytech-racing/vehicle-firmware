@@ -437,6 +437,75 @@ const InverterStatusMessages_s& InverterInterface::get_all_inverter_data() const
     return _feedback_data;
 }
 
+InverterData_s InverterInterface::get_telemetry_data() const
+{
+    InverterData_s data{};
+
+    // 0x1F — General control
+    data.control_mode = _feedback_data.general_control_msg.control_mode;
+    data.target_iq_apk = _feedback_data.general_control_msg.target_iq_apk;
+    data.motor_position_deg = _feedback_data.general_control_msg.motor_position_deg;
+    data.is_motor_stationary = _feedback_data.general_control_msg.is_motor_stationary;
+
+    // 0x20 — General elec
+    data.erpm = _feedback_data.general_elec_msg.erpm;
+    data.duty_cycle_percent = _feedback_data.general_elec_msg.duty_cycle_percent;
+    data.input_voltage = _feedback_data.general_elec_msg.input_voltage;
+
+    // 0x21 — Active current
+    data.active_ac_current_apk = _feedback_data.active_current_msg.active_ac_current_apk;
+    data.active_dc_current_amp = _feedback_data.active_current_msg.active_dc_current_amp;
+
+    // 0x22 — Temp and fault
+    data.controller_temp_c = _feedback_data.temp_and_fault_msg.controller_temp_c;
+    data.motor_temp_c = _feedback_data.temp_and_fault_msg.motor_temp_c;
+    data.fault_code = _feedback_data.temp_and_fault_msg.fault_code;
+
+    // 0x23 — FOC currents
+    data.iq_apk = _feedback_data.foc_current_msg.iq_apk;
+    data.id_apk = _feedback_data.foc_current_msg.id_apk;
+
+    // 0x24 — General IO (data fields only; limit-active flags excluded)
+    data.throttle_signal_percent = _feedback_data.general_io_msg.throttle_signal_percent;
+    data.brake_signal_percent = _feedback_data.general_io_msg.brake_signal_percent;
+    data.is_drive_enabled = _feedback_data.general_io_msg.is_drive_enabled;
+    data.can_map_version = _feedback_data.general_io_msg.can_map_version;
+
+    return data;
+}
+
+InverterLimits_s InverterInterface::get_limits_data() const
+{
+    InverterLimits_s limits{};
+
+    // 0x25 — AC current limits
+    limits.max_ac_current_apk = _feedback_data.ac_config_current_msg.max_ac_current_apk;
+    limits.available_max_ac_current_apk = _feedback_data.ac_config_current_msg.available_max_ac_current_apk;
+    limits.min_ac_current_apk = _feedback_data.ac_config_current_msg.min_ac_current_apk;
+    limits.available_min_ac_current_apk = _feedback_data.ac_config_current_msg.available_min_ac_current_apk;
+
+    // 0x26 — DC current limits
+    limits.max_dc_current_amp = _feedback_data.dc_config_current_msg.max_dc_current_amp;
+    limits.available_max_dc_current_amp = _feedback_data.dc_config_current_msg.available_max_dc_current_amp;
+    limits.min_dc_current_amp = _feedback_data.dc_config_current_msg.min_dc_current_amp;
+    limits.available_min_dc_current_amp = _feedback_data.dc_config_current_msg.available_min_dc_current_amp;
+
+    // 0x24 — limit-active flags
+    limits.is_capacitor_temp_limit_active = _feedback_data.general_io_msg.is_capacitor_temp_limit_active;
+    limits.is_dc_current_limit_active = _feedback_data.general_io_msg.is_dc_current_limit_active;
+    limits.is_drive_enable_limit_active = _feedback_data.general_io_msg.is_drive_enable_limit_active;
+    limits.is_igbt_accel_temp_limit_active = _feedback_data.general_io_msg.is_igbt_accel_temp_limit_active;
+    limits.is_igbt_temp_limit_active = _feedback_data.general_io_msg.is_igbt_temp_limit_active;
+    limits.is_input_voltage_limit_active = _feedback_data.general_io_msg.is_input_voltage_limit_active;
+    limits.is_motor_accel_temp_limit_active = _feedback_data.general_io_msg.is_motor_accel_temp_limit_active;
+    limits.is_motor_temp_limit_active = _feedback_data.general_io_msg.is_motor_temp_limit_active;
+    limits.is_rpm_min_limit_active = _feedback_data.general_io_msg.is_rpm_min_limit_active;
+    limits.is_rpm_max_limit_active = _feedback_data.general_io_msg.is_rpm_max_limit_active;
+    limits.is_power_limit_active = _feedback_data.general_io_msg.is_power_limit_active;
+
+    return limits;
+}
+
 
 /* ---------- Private helpers ---------- */
 

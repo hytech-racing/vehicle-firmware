@@ -379,32 +379,6 @@ struct VCFEthernetLinkData_s
 };
 
 /**
- * A collection of all the data InverterInterface.tpp used to send individually over CAN. Now,
- * using ethernet, we can bundle all of these values together for better organization.
- */
-struct InverterData_s
-{
-    bool system_ready : 1;
-    bool error : 1;
-    bool warning : 1;
-    bool quit_dc_on : 1;
-    bool dc_on : 1;
-    bool quit_inverter_on : 1;
-    bool inverter_on : 1;
-    bool derating_on : 1;
-    int speed_rpm;
-    int actual_motor_torque;
-    int commanded_torque;
-    int motor_temp;
-    int inverter_temp;
-    int diagnostic_number;
-    int igbt_temp;
-    int dc_bus_voltage;
-    int actual_power;
-    int feedback_torque;
-};
-
-/**
  * Forwarded directly from CAN with no additional transformations.
  */
 struct EnergyMeterData_s
@@ -441,6 +415,78 @@ struct TorqueControllerMuxStatus_s
     TorqueLimit_e active_torque_limit_enum;
     float active_torque_limit_value;
     bool output_is_bypassing_limits;
+};
+
+/* ---------------------------------------- INVERTER ---------------------------------------- */
+
+/**
+ * @brief Bundle of live important inverter operating data.
+ * @note Essentially a direct field-for-field copy from InverterInterface's status messages.
+ *       Deliberately excludes configured limits messages since those aren't live operating data.
+*/
+struct InverterData_s
+{
+    // 0x1F — General control
+    DTIControlMode_e control_mode;
+    float target_iq_apk;
+    float motor_position_deg;
+    bool is_motor_stationary;
+
+    // 0x20 — General elec
+    int32_t erpm;
+    float duty_cycle_percent;
+    float input_voltage;
+
+    // 0x21 — Active current
+    float active_ac_current_apk;
+    float active_dc_current_amp;
+
+    // 0x22 — Temp and fault
+    float controller_temp_c;
+    float motor_temp_c;
+    DTIFaultCode_e fault_code;
+
+    // 0x23 — FOC currents
+    float iq_apk;
+    float id_apk;
+
+    // 0x24 — General IO (data fields only, limit-active flags excluded)
+    float throttle_signal_percent;
+    float brake_signal_percent;
+    bool is_drive_enabled;
+    float can_map_version;
+};
+
+/**
+ * @brief Bundle of live current-limit configuration and limit-active statuses
+ * @note Sent as a separate telemetry message from InverterData_s since its not crucial
+*/
+struct InverterLimits_s
+{
+    // 0x25 — AC current limits
+    float max_ac_current_apk;
+    float available_max_ac_current_apk;
+    float min_ac_current_apk;
+    float available_min_ac_current_apk;
+
+    // 0x26 — DC current limits
+    float max_dc_current_amp;
+    float available_max_dc_current_amp;
+    float min_dc_current_amp;
+    float available_min_dc_current_amp;
+
+    // 0x24 — limit-active flags
+    bool is_capacitor_temp_limit_active;
+    bool is_dc_current_limit_active;
+    bool is_drive_enable_limit_active;
+    bool is_igbt_accel_temp_limit_active;
+    bool is_igbt_temp_limit_active;
+    bool is_input_voltage_limit_active;
+    bool is_motor_accel_temp_limit_active;
+    bool is_motor_temp_limit_active;
+    bool is_rpm_min_limit_active;
+    bool is_rpm_max_limit_active;
+    bool is_power_limit_active;
 };
 
 

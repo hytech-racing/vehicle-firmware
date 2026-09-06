@@ -9,8 +9,8 @@ void VCREthernetInterface::init_ethernet_device()
                 EthernetIPDefsInstance::instance().car_subnet,
                 EthernetIPDefsInstance::instance().default_gateway
     );
-    vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
-    vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
+    _vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
+    _vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
 }
 
 hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface &adc_interface,
@@ -70,7 +70,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
 
     // VCREthernetLinkData_s
     out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(4);        // GPB4 = ACU_LINK_SENSE
-    // out.ethernet_is_linked.debug_link = shared_state.interface_data.ethernet_is_linked.debug_link; // TODO: fix this still
+    // out.ethernet_is_linked.debug_link = shared_state.interface_data.ethernet_is_linked.debug_link;   // TODO: fix this still
     out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(4); // GPA4 = DB_LINK_SENSE
     out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(5);     // GPB5 = TEENSY_LINK_SENSE
     out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(5);   // GPA5 = Ubiquiti_LINK_SENSE
@@ -129,7 +129,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     // VCR Status
     // const char* state_label = "UNKNOWN";
     out.status.vehicle_state = static_cast<hytech_msgs_VehicleState_e>(vehicle_state_machine.get_state());
-    out.status.drivetrain_state = static_cast<hytech_msgs_DrivetrainState_e>(drivetrain_system.get_state());
+    out.status.drivetrain_state = static_cast<hytech_msgs_DrivetrainState_e>(drivetrain_system.get_current_state());
 
     out.status.drivebrain_controller_timing_failure = vcr_controls.drivebrain_timing_failure();
     out.status.drivebrain_is_in_control = vcr_controls.drivebrain_is_in_control();
@@ -160,33 +160,54 @@ void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_i
     // shared_state.interface_data.dash_input_state.start_btn_is_pressed = msg_in.dash_input_state.start_btn_is_pressed;
 }
 
-void VCREthernetInterface::copy_inverter_data(const InverterFeedbackData_s &original, hytech_msgs_InverterData_s &destination)
+void VCREthernetInterface::copy_inverter_data(const InverterData_s &original, hytech_msgs_InverterData_s &destination)
 {
-    // Status
-    destination.system_ready = original.status.system_ready;
-    destination.error = original.status.error;
-    destination.warning = original.status.warning;
-    destination.quit_dc_on = original.status.quit_dc_on;
-    destination.dc_on = original.status.dc_on;
-    destination.quit_inverter_on = original.status.quit_inverter_on;
-    destination.inverter_on = original.status.inverter_on;
-    destination.derating_on = original.status.derating_on;
-    destination.dc_bus_voltage = original.status.dc_bus_voltage;
-    destination.diagnostic_number = original.status.diagnostic_number;
+    destination.control_mode = static_cast<uint32_t>(original.control_mode);
+    destination.target_iq_apk = original.target_iq_apk;
+    destination.motor_position_deg = original.motor_position_deg;
+    destination.is_motor_stationary = original.is_motor_stationary;
 
-    // Temps
-    destination.igbt_temp = original.temps.igbt_temp;
-    destination.inverter_temp = original.temps.inverter_temp;
-    destination.motor_temp = original.temps.motor_temp;
+    destination.erpm = original.erpm;
+    destination.duty_cycle_percent = original.duty_cycle_percent;
+    destination.input_voltage = original.input_voltage;
 
-    // Power
+    destination.active_ac_current_apk = original.active_ac_current_apk;
+    destination.active_dc_current_amp = original.active_dc_current_amp;
 
-    // Motor Mechanics
-    destination.actual_power = original.motor_mechanics.actual_power;
-    destination.actual_motor_torque = original.motor_mechanics.actual_torque;
-    destination.speed_rpm = original.motor_mechanics.actual_speed;
+    destination.controller_temp_c = original.controller_temp_c;
+    destination.motor_temp_c = original.motor_temp_c;
+    destination.fault_code = static_cast<uint32_t>(original.fault_code);
 
-    // Control Feedback
-    destination.commanded_torque = 0; //TODO: figure out if this is actually used / updated
-    destination.feedback_torque = 0; //TODO: figure out if this is actually used / updated
+    destination.iq_apk = original.iq_apk;
+    destination.id_apk = original.id_apk;
+
+    destination.throttle_signal_percent = original.throttle_signal_percent;
+    destination.brake_signal_percent = original.brake_signal_percent;
+    destination.is_drive_enabled = original.is_drive_enabled;
+    destination.can_map_version = original.can_map_version;
+}
+
+void VCREthernetInterface::copy_inverter_limits(const InverterLimits_s &original, hytech_msgs_InverterLimits_s &destination)
+{
+    destination.max_ac_current_apk = original.max_ac_current_apk;
+    destination.available_max_ac_current_apk = original.available_max_ac_current_apk;
+    destination.min_ac_current_apk = original.min_ac_current_apk;
+    destination.available_min_ac_current_apk = original.available_min_ac_current_apk;
+
+    destination.max_dc_current_amp = original.max_dc_current_amp;
+    destination.available_max_dc_current_amp = original.available_max_dc_current_amp;
+    destination.min_dc_current_amp = original.min_dc_current_amp;
+    destination.available_min_dc_current_amp = original.available_min_dc_current_amp;
+
+    destination.is_capacitor_temp_limit_active = original.is_capacitor_temp_limit_active;
+    destination.is_dc_current_limit_active = original.is_dc_current_limit_active;
+    destination.is_drive_enable_limit_active = original.is_drive_enable_limit_active;
+    destination.is_igbt_accel_temp_limit_active = original.is_igbt_accel_temp_limit_active;
+    destination.is_igbt_temp_limit_active = original.is_igbt_temp_limit_active;
+    destination.is_input_voltage_limit_active = original.is_input_voltage_limit_active;
+    destination.is_motor_accel_temp_limit_active = original.is_motor_accel_temp_limit_active;
+    destination.is_motor_temp_limit_active = original.is_motor_temp_limit_active;
+    destination.is_rpm_min_limit_active = original.is_rpm_min_limit_active;
+    destination.is_rpm_max_limit_active = original.is_rpm_max_limit_active;
+    destination.is_power_limit_active = original.is_power_limit_active;
 }

@@ -390,6 +390,17 @@ public:
     InverterStatus_s get_status() const;
     MotorMechanics_s get_motor_mechanics() const;
 
+    /**
+     * @brief Builds InverterData_s, which is the telemetry-facing snapshot of live inverter data
+    */
+    InverterData_s get_telemetry_data() const;
+
+    /**
+     * @brief Builds InverterLimits_s, which is the telemetry-facing snapshot of live inverter limits configured
+     * @note current-limit configuration and limit-active statuses
+    */
+    InverterLimits_s get_limits_data() const;
+
     /* ---------- DTI-specific diagnostics ---------- */
     DTIFaultCode_e get_fault_code() const;
     const StatusGeneralIOMsg_s& get_io_status() const;
