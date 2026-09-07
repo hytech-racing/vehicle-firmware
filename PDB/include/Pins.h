@@ -1,8 +1,8 @@
 /**
  * @brief Pin definitions for the Power Distribution Board (PDB), Rev 1.
- * @note These map each signal name to its GPIO port + pin, as assigned in STM32CubeMX. 
+ * @note These map each signal name to its GPIO port + pin, as assigned in STM32CubeMX.
  *       Names match the schematic net names.
- * @note For future reference, these can be copied from main.h 
+ * @note For future reference, this file can be copied from Core/main.h from CubeMX code generation
 */
 
 #ifndef PDB_PINS_H
