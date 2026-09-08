@@ -62,12 +62,6 @@ void SystemClock_Config(void)
   }
 }
 
-void Error_Handler(void)
-{
-    __disable_irq();
-    while(1) { }
-}
-
 #ifdef __cplusplus
 }
 #endif
