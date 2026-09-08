@@ -56,7 +56,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
             interfaces.acu_interface.receive_em_measurement(msg, millis);
             break;
         }
-
         case DRIVEBRAIN_TORQUE_LIM_INPUT_CANID:
         {
             if (interface_type == CANInterfaceType_e::RAUX)
@@ -198,7 +197,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
                 break;
             }
         }
-
         case LF_TTPMS_1_CANID:
         case LF_TTPMS_2_CANID:
         case LF_TTPMS_3_CANID:
@@ -220,10 +218,9 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         case RR_TTPMS_4_CANID:
         case RR_TTPMS_5_CANID:
         {
-            interfaces.ttpms_interface.receive_ttpms_data(msg);
+            interfaces.ttpms_interface.receiveTTPMSData(msg);
             break;
         }
-
         default:
         {
             break;
