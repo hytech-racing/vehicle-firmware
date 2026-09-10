@@ -10,7 +10,6 @@
 /* External Includes */
 #include <FlexCAN_T4.h>
 #include "shared_types.h"
-#include "VCRCANInterfaceImpl.h"
 #include "hytech.h"
 
 #define TEMP_CHANNELS 16

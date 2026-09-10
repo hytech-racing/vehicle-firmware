@@ -223,7 +223,10 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         }
         default:
         {
-            break;
+            Serial.print("Unhandled CAN ID: 0x");
+            Serial.print(msg.id, HEX);
+            Serial.print("  interface: ");
+            Serial.println(static_cast<int>(interface_type));
         }
     }
 }

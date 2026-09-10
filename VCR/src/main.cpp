@@ -35,6 +35,9 @@ HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, debug_print, VCRCo
 
 void setup()
 {
+    initialize_all_interfaces();
+    initialize_all_systems();
+
     // Configure pins
     pinMode(VCRInterfaces::MOTOR_COOLING_CONTROL_PIN, OUTPUT);
     pinMode(VCRInterfaces::INVERTER_COOLING_CONTROL_PIN, OUTPUT);

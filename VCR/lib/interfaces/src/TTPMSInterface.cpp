@@ -1,4 +1,5 @@
 #include "TTPMSInterface.h"
+#include "VCRCANInterfaceImpl.h"
 
 
 TTPMSAllSensorData_s TTPMSInterface::getTTPMSData() const
@@ -6,8 +7,6 @@ TTPMSAllSensorData_s TTPMSInterface::getTTPMSData() const
     return _ttpms_data;
 }
 
-// also have a function for programming/setting the CAN ID (pg 4 of datasheet) -. send CAN can_msg?
-// alt implementation: have funcs for  5 types of messages sent from each TTPMS
 
 void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
 {
@@ -107,9 +106,10 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
                                     VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id
                 );
 
+                _ttpms_data.fr_ttpms.serial_number = unpacked_can_msg.RF_TTPMS_SN;
                 _ttpms_data.fr_ttpms.bat_voltage = unpacked_can_msg.RF_TTPMS_BAT_V;
-                _ttpms_data.fr_ttpms.pressure = unpacked_can_msg.RF_TTPMS_P_ro;
-                _ttpms_data.fr_ttpms.pressure = unpacked_can_msg.RF_TTPMS_P_GAUGE;
+                _ttpms_data.fr_ttpms.pressure = HYTECH_RF_TTPMS_P_ro_fromS(unpacked_can_msg.RF_TTPMS_P_ro);
+                _ttpms_data.fr_ttpms.gauge_pressure = unpacked_can_msg.RF_TTPMS_P_GAUGE;
 
                 break;
             }
@@ -190,9 +190,10 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
                                     VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id
                 );
 
+                _ttpms_data.rl_ttpms.serial_number = unpacked_can_msg.LR_TTPMS_SN;
                 _ttpms_data.rl_ttpms.bat_voltage = unpacked_can_msg.LR_TTPMS_BAT_V;
-                _ttpms_data.rl_ttpms.pressure = unpacked_can_msg.LR_TTPMS_P_ro;
-                _ttpms_data.rl_ttpms.pressure = unpacked_can_msg.LR_TTPMS_P_GAUGE;
+                _ttpms_data.rl_ttpms.pressure = HYTECH_LR_TTPMS_P_ro_fromS(unpacked_can_msg.LR_TTPMS_P_ro);
+                _ttpms_data.rl_ttpms.gauge_pressure = unpacked_can_msg.LR_TTPMS_P_GAUGE;
 
                 break;
             }
@@ -205,7 +206,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
                                     VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id
                 );
 
-                _ttpms_data.rl_ttpms.temp_data[0] = HYTECH_LR_TTPMS_T1_ro_fromS(unpacked_can_msg.LR_TTPMS_T1_ro); // unpack struct pointer OR just use struct attribute?
+                _ttpms_data.rl_ttpms.temp_data[0] = HYTECH_LR_TTPMS_T1_ro_fromS(unpacked_can_msg.LR_TTPMS_T1_ro);
                 _ttpms_data.rl_ttpms.temp_data[1] = HYTECH_LR_TTPMS_T2_ro_fromS(unpacked_can_msg.LR_TTPMS_T2_ro);
                 _ttpms_data.rl_ttpms.temp_data[2] = HYTECH_LR_TTPMS_T3_ro_fromS(unpacked_can_msg.LR_TTPMS_T3_ro);
                 _ttpms_data.rl_ttpms.temp_data[3] = HYTECH_LR_TTPMS_T4_ro_fromS(unpacked_can_msg.LR_TTPMS_T4_ro);
@@ -273,9 +274,10 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
                                     VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id
                 );
 
+                _ttpms_data.rr_ttpms.serial_number = unpacked_can_msg.RR_TTPMS_SN;
                 _ttpms_data.rr_ttpms.bat_voltage = unpacked_can_msg.RR_TTPMS_BAT_V;
-                _ttpms_data.rr_ttpms.pressure = unpacked_can_msg.RR_TTPMS_P_ro;
-                _ttpms_data.rr_ttpms.pressure = unpacked_can_msg.RR_TTPMS_P_GAUGE;
+                _ttpms_data.rr_ttpms.pressure = HYTECH_RR_TTPMS_P_ro_fromS(unpacked_can_msg.RR_TTPMS_P_ro);
+                _ttpms_data.rr_ttpms.gauge_pressure = unpacked_can_msg.RR_TTPMS_P_GAUGE;
 
                 break;
             }
@@ -347,20 +349,29 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg)
     }
 }
 
-static void printTTPMSData(const char* wheel_label, const TTPMSSingleSensorData_s &sensor)
+void TTPMSInterface::printTTPMSData(const char* wheel_label, const TTPMSSingleSensorData_s &sensor)
 {
-    Serial.printf("[%s] SN: %u  BatV: %.2f  Pressure: %.2f  GaugeP: %.2f\r\n",
-                  wheel_label,
-                  sensor.serial_number,
-                  sensor.bat_voltage,
-                  sensor.pressure,
-                  sensor.gauge_pressure);
+    Serial.print("[");
+    Serial.print(wheel_label);
+    Serial.print("] SN: ");
+    Serial.print(sensor.serial_number);
+    Serial.print("  BatV: ");
+    Serial.print(sensor.bat_voltage);
+    Serial.print("  Pressure: ");
+    Serial.print(sensor.pressure, 2);
+    Serial.print("  GaugeP: ");
+    Serial.println(sensor.gauge_pressure);
 
-    Serial.printf("[%s] Temps: ", wheel_label);
+    Serial.print("[");
+    Serial.print(wheel_label);
+    Serial.print("] Temps: ");
     for (int i = 0; i < 16; i++)
     {
-        Serial.printf("T%d=%.2f ", i + 1, sensor.temp_data[i]);
+        Serial.print("T");
+        Serial.print(i + 1);
+        Serial.print("=");
+        Serial.print(sensor.temp_data[i], 2);
+        Serial.print(" ");
     }
-
-    Serial.printf("\r\n");
+    Serial.println();
 }

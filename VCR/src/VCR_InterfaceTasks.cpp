@@ -3,6 +3,7 @@
 
 void initialize_all_interfaces()
 {
+    Serial.begin(115200);
     SPI.begin();
     analogReadResolution(VCRInterfaces::ANALOG_RESOLUTION);
 
@@ -129,6 +130,7 @@ void initialize_all_interfaces()
                                 fr_inverter_interface,
                                 rl_inverter_interface,
                                 rr_inverter_interface,
+                                TTPMSInterfaceInstance::instance(),
                                 VCFInterfaceInstance::instance()
     );
 
