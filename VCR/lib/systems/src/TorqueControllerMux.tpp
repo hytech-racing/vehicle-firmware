@@ -1,8 +1,8 @@
 #include "TorqueControllerMux.hpp"
 
 
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command(ControllerMode_e requested_controller_mode,
+template <uint8_t num_controllers>
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(ControllerMode_e requested_controller_mode,
                                                                                TorqueLimit_e requested_torque_limit,
                                                                                const VCRData_s &input_state
 )
@@ -79,9 +79,9 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
     {
         DrivetrainCommand_s proposed_output = _controller_evals[requested_mode_index](input_state, sys_time::hal_millis());
 
-        bool can_switch_controller = _can_switch_controller(input_state.system_data.drivetrain_data,
-                                                                    active_mode_output,
-                                                                    proposed_output
+        bool can_switch_controller = _canSwitchController(input_state.system_data.drivetrain_data,
+                                                        active_mode_output,
+                                                        proposed_output
         );
 
         if (can_switch_controller)
@@ -127,23 +127,23 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
     return current_output;
 }
 
-template <std::size_t num_controllers>
-bool TorqueControllerMux<num_controllers>::_can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
-                                                                                      DrivetrainCommand_s previous_controller_command,
-                                                                                      DrivetrainCommand_s desired_controller_out
+template <uint8_t num_controllers>
+bool TorqueControllerMux<num_controllers>::_canSwitchController(DrivetrainDynamicReport_s active_drivetrain_data,
+                                                                DrivetrainCommand_s previous_controller_command,
+                                                                DrivetrainCommand_s desired_controller_out
 )
 {
     auto measured_speeds_array = active_drivetrain_data.measured_speeds.as_array();
-    auto desired_torque_setpoints_array = desired_controller_out.torque_setpoints.as_array();
-    auto previous_torque_setpoints_array = previous_controller_command.torque_setpoints.as_array();
+    auto desired_torques_array = desired_controller_out.desired_torques.as_array();
+    auto previous_desired_torques_array = previous_controller_command.desired_torques.as_array();
 
-    for (size_t i = 0; i < _num_motors; i++)
+    for (size_t i = 0; i < _params.num_motors; i++)
     {
         bool is_speed_preventing_mode_change =
-            std::fabs(measured_speeds_array[i] * RPM_TO_METERS_PER_SECOND) >= _max_speed_during_mode_change;
+            std::fabs(measured_speeds_array[i] * physical_motor_scales::RPM_TO_METERS_PER_SECOND) >= _params.max_speed_during_mode_change;
 
         bool is_torque_delta_preventing_mode_change =
-            std::fabs(desired_torque_setpoints_array[i] - previous_torque_setpoints_array[i]) > _max_torque_delta_during_mode_change;
+            std::fabs(desired_torques_array[i] - previous_desired_torques_array[i]) > _params.max_torque_delta_during_mode_change;
 
         if (is_speed_preventing_mode_change)
         {
@@ -163,33 +163,33 @@ bool TorqueControllerMux<num_controllers>::_can_switch_controller(DrivetrainDyna
 }
 
 
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_torque_limit(const DrivetrainCommand_s &command, float max_torque)
+template <uint8_t num_controllers>
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(const DrivetrainCommand_s& desired_controller_out, float max_torque_limit)
 {
-    DrivetrainCommand_s out = command;
-    float avg_torque = 0;
     // get the average torque accross all 4 wheels
-    auto torq_lims = out.torque_limits.as_array();
-    for (size_t i = 0; i < torq_lims.size(); i++)
+    float avg_torque = 0;
+    auto desired_torques_array = desired_controller_out.desired_torques.as_array();
+
+    for (size_t i = 0; i < desired_torques_array.size(); i++)
     {
-        avg_torque += abs(torq_lims[i]);
+        avg_torque += abs(desired_torques_array[i]);
     }
 
-    avg_torque /= _num_motors;
+    avg_torque /= _params.num_motors;
 
     // if this is greather than the torque limit, scale down
-    if (avg_torque > max_torque)
+    if (avg_torque > max_torque_limit)
     {
         // get the scale of avg torque above max torque
-        float scale = avg_torque / max_torque;
+        float scale = avg_torque / max_torque_limit;
         // divide by scale to lower avg below max torque
-        out.torque_limits.FL = out.torque_limits.FL / scale;
-        out.torque_limits.FR = out.torque_limits.FR / scale;
-        out.torque_limits.RL = out.torque_limits.RL / scale;
-        out.torque_limits.RR = out.torque_limits.RR / scale;
+        desired_controller_out.desired_torques.FL = desired_controller_out.desired_torques.FL / scale;
+        desired_controller_out.desired_torques.FR = desired_controller_out.desired_torques.FR / scale;
+        desired_controller_out.desired_torques.RL = desired_controller_out.desired_torques.RL / scale;
+        desired_controller_out.desired_torques.RR = desired_controller_out.desired_torques.RR / scale;
     }
 
-    return out;
+    return desired_controller_out;
 }
 
 /*

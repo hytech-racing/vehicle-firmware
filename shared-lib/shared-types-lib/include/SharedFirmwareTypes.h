@@ -399,11 +399,11 @@ enum class TorqueLimit_e
 /// @brief Defines errors for TC Mux to use to maintain system safety
 enum class TorqueControllerMuxError_e
 {
-    NO_ERROR = 0,
-    ERROR_SPEED_DIFF_TOO_HIGH = 1,
-    ERROR_TORQUE_DIFF_TOO_HIGH = 2,
-    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS =3,
-    ERROR_CONTROLLER_NULL_POINTER =4
+    NO_ERROR,
+    ERROR_SPEED_DIFF_TOO_HIGH,
+    ERROR_TORQUE_DIFF_TOO_HIGH,
+    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS,
+    ERROR_CONTROLLER_NULL_POINTER
 };
 
 /// @brief packages TC Mux indicators: errors, mode, torque limit, bypass

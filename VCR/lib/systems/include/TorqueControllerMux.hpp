@@ -13,64 +13,30 @@
 /**
  * @brief Torque Controller (TC) Mux handles these things:
  *
- *      1) Swapping between controller outputs
- *      2) Turning on and off running of controllers
- *      3) Apply safeties and limits to controller outputs
- *      4) Torque limit changing (torque mode)???
+ *   1) Swapping between controller outputs
+ *   2) Turning on and off running of controllers
+ *   3) Apply safeties and limits to controller outputs
 */
 
-
-// notes:
-// 21 torque limit should be first
-
-// TODOs
-// - [x] make the controllers inherit from the base controller class
-//      - [x] port TorqueControllerSimple
-//      - [x] port TorqueControllerLoadCellVectoring
-//      - [x] port BaseLaunchController
-//      - [x] port TorqueControllerSimpleLaunch
-//      - [x] port slip launch
-//      - [x] port TorqueControllerLookupLaunch
-//      - [x] port CASE
-// - [x] add the torque limit evaluation logic into dashboard interface
-// - [x] integrate into state machine
-//   - [x] pass through the car state
-//   - [x] get dial and torque mode from the dashboard
-// - [x] create car_state in main and pass into state machine
-// - [x] add 3 bit status to a telemetry message for the TC mux status to HT_CAN
-// - [x] pass state of tc mux into telem interface and add the CAN signal
-// - [x] remove the old tc mux
-// - [ ] add back checking of the ready flag of the controllers and if the controller isnt ready it
-// defaults
-//        - [ ] add test for this
-// - [x] make folder for the controllers
-// - [ ] write integration tests for the real controllers
-//      - [x] test construction with real controllers
-//      - [ ] ensure that sane outputs occur on first tick of each controller
-// - [x] update the state machine unit test with integration test of new tc mux
-
-// ON CAR testing
-// - [x] test the change of the torque mode from the dashboard interface
-//      - [ ] write testing code for this in separate environment
-
-// - [x] switch to using bound controller evaluation functions instead of using polymorphism
-
-
-
-/// @brief Contains a max speed for mode changes(5 m/s), a max torque delta for mode change(.5 nm)
-/// and a max power limit(63000 W).
-///        These values are used in the event that no value is provided for them in the constructor.
 namespace tc_mux_default_params
 {
-    constexpr float MAX_SPEED_DURING_MODE_CHANGE = 5.0;                // m/s
+    constexpr float MAX_SPEED_DURING_MODE_CHANGE = 5.0; // m/s
     constexpr torque_nm MAX_TORQUE_DELTA_DURING_MODE_CHANGE = 0.5;
-    constexpr float MAX_POWER_LIMIT_WATTS = 60000.0;                // watts of mechanical power
+    constexpr float MAX_POWER_LIMIT_WATTS = 60000.0;  // watts of mechanical power
+};
+
+struct TCMuxParams_s
+{
+    float max_speed_during_mode_change;
+    float max_torque_delta_during_mode_change;
+    float max_power_limit_watts;
+    uint8_t num_motors;
 };
 
 /**
  * @param num_controllers the number of controllers that can be switched between. Defaults to 5 if using TCMuxType.
 */
-template <size_t num_controllers> class TorqueControllerMux
+template <uint8_t num_controllers> class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 
@@ -82,25 +48,21 @@ public:
      * @brief Constructor for the TC Mux
      * @param controller_evals the array of controller evaluation functions that are being muxed between
      * @param mux_bypass_limits the array of aligned bools for determining if the limits should be  applied to the controller outputs defaults to TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE
-     * @param max_torque_pos_change_delta same as speed but evaluated between the controller commanded torques defaults to TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE
-     * @param max_power_limit the max power limit defaults to TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT
-     * @param num_motors the number of motors. defaults to 4.
-     */
+    */
     explicit TorqueControllerMux(std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
-                            std::array<bool, num_controllers> mux_bypass_limits,
-                            float max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
-                            float max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
-                            float max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
-                            size_t num_motors = 4
+                                std::array<bool, num_controllers> mux_bypass_limits,
+                                TCMuxParams_s params = {
+                                    .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
+                                    .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
+                                    .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
+                                    .num_motors = 4;
+                                }
     ) : _controller_evals(controller_evals),
         _mux_bypass_limits(mux_bypass_limits),
-        _max_speed_during_mode_change(max_speed_during_mode_change),
-        _max_torque_delta_during_mode_change(max_torque_delta_during_mode_change),
-        _max_power_limit_watts(max_power_limit_watts),
-        _num_motors(num_motors)
+        _params(params)
     {};
 
-    const TorqueControllerMuxStatus_s &get_tc_mux_status() const { return _active_status; }
+    const TorqueControllerMuxStatus_s &getTCMuxStatus() const { return _active_status; }
 
     /// @brief function that evaluates the mux, controllers and gets the active command
     /// @param requested_controller_type the requested controller type from the dial state
@@ -108,13 +70,12 @@ public:
     /// @param input_state the active state of the car
     /// @return the active DrivetrainCommand_s to be sent to the drivetrain to command increases and
     /// decreases in torque
-    DrivetrainCommand_s get_drivetrain_command(ControllerMode_e requested_controller_type,
+    DrivetrainCommand_s getDrivetrainCommand(ControllerMode_e requested_controller_type,
                                                TorqueLimit_e controller_command_torque_limit,
                                                const VCRData_s &input_state
     );
 
 private:
-
 
     std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
     std::array<bool, num_controllers> _mux_bypass_limits;
@@ -125,30 +86,21 @@ private:
         {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}
     };
 
-    float _max_speed_during_mode_change;
-    float _max_torque_delta_during_mode_change;
-    float _max_power_limit_watts;
-    size_t _num_motors;
-
+    TCMuxParams_s _params;
     DrivetrainCommand_s _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
 
     /**
-     * @brief Checks whether it's currently safe to switch to a different torque controller mode.
-     *        A switch is only considered safe near a complete stop.
-     *
-     * Per driver feedback, we don't hard-block switching unless completely stationary. Instead we allow it below a
-     * speed/torque-delta threshold. This is acceptable for safety since we have reasonably slow, safe cutoffs.
-     *
-     *  Speed: block the switch if any wheel exceeds 5 m/s (~11 mph)
-     *  Torque: block the switch if the expected torque jump (in either direction) at any wheel exceeds 0.5 Nm.
-     *          Total torque is 30 Nm (~1.7%)
-     *
+     * @brief Checks whether it's currently safe to switch to a different torque controller
+     *        A switch is only considered safe near a complete stop
+     * @note Per driver feedback, we don't hard-block switching unless completely stationary.
+     *       Instead we allow it below a speed/torque-delta threshold. This is acceptable for
+     *       safety since we have reasonably slow, safe cutoffs
      * @return true if the switch is safe to perform, false otherwise
-     */
-    bool _can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
-                          DrivetrainCommand_s previous_controller_command,
-                          DrivetrainCommand_s desired_controller_out
+    */
+    bool _canSwitchController(DrivetrainDynamicReport_s active_drivetrain_data,
+                            DrivetrainCommand_s previous_controller_command,
+                            DrivetrainCommand_s desired_controller_out
     );
 
 
@@ -160,7 +112,10 @@ private:
     /// experience before it is limited.
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_torque_limit(const DrivetrainCommand_s &command, float max_torque);
+    /**
+     * @brief 
+    */
+    DrivetrainCommand_s _applyTorqueLimit(const DrivetrainCommand_s &command, float max_torque);
 
     /// @brief Apply power limit (watts) such that the mechanical power of all wheels never exceeds
     /// the preset mechanical power limit. Scales all wheels down to preserve functionality of
