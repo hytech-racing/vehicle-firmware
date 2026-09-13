@@ -26,7 +26,8 @@ public:
 
     DrivebrainInterface(IPAddress drivebrain_ip,
                         uint16_t vcr_data_port,
-                        qindesign::network::EthernetUDP *udp_socket);
+                        qindesign::network::EthernetUDP *udp_socket
+    );
 
     void receive_drivebrain_speed_command_telem(const CAN_message_t &msg, unsigned long curr_millis);
 
