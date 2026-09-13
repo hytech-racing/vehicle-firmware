@@ -26,62 +26,61 @@
 #include "VehicleStateMachine.h"
 
 
-/**
- * Init Functions - to be called in setup@
- */
-void initialize_all_interfaces();
+void initializeAllInterfaces();
 
 /**
- * The read_adc0 task will command adc0 to sample all eight channels, convert the outputs, and
- * store them in structs defined in shared_firmware_types. This function relies on adc_0 being
- * defined in VCRGlobals.h.
- */
-::HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ * @brief Task will tick ADC 0: sample all eight channels, convert the outputs, and store them in structs
+*/
+::HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * NOTE: These channels are UNUSED BY DEFAULT and exist ONLY FOR TESTING. You may edit this
- * manually to add sensors.
- *
- * The read_adc1 task will command adc1 to sample all eight channels, convert the outputs, and
- * store them in a struct defined in shared_firmware_types. This function relies on adc_1 being
- * defined in VCRGlobals.h.
- */
-::HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ * @brief Task will tick ADC 1: sample all eight channels, convert the outputs, and store them in structs
+ * @note These channels are UNUSED BY DEFAULT and exist ONLY FOR TESTING.
+ *       You can edit this task manually to add sensors.
+*/
+::HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * This task will tick the AMS system and will update the software shutdown if necessary.
- */
-::HT_TASK::TaskResponse update_acu_heartbeat(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ * @brief Task checks if we are actively recieving ACU data
+ * @post Set SOFTWARE_OK low if heartbeat is not ok: not recieving updated ACU data
+*/
+::HT_TASK::TaskResponse updateACUHeartbeatTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * This task will fetch the watchdog state from WatchdogSystem and write it to the watchdog pin.
- */
-::HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ * @brief Task will "kick" watchdog
+ * @note Method called fetches the state from WatchdogInterface and write it to the watchdog pin
+*/
+::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * Uses the I2C IOExpander to sense the shutdown line.
- */
-::HT_TASK::TaskResponse read_ioexpander(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+*/
+::HT_TASK::TaskResponse readIOExpanderTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * This task reads the received pedals data and determines whether to turn on the brake light or not.
  */
-::HT_TASK::TaskResponse run_update_brakelight_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-
-
-::HT_TASK::TaskResponse enable_motor_cooling(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-
-::HT_TASK::TaskResponse enable_inverter_cooling(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updateBrakelightTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * Handles sending of suspension CAN message data (load cell and shock pot data)
- */
-::HT_TASK::TaskResponse enqueue_suspension_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+ * @brief Task determines the vehicle states and modes when motor cooling is activated
+*/
+::HT_TASK::TaskResponse enableMotorCoolingTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * Handles sending flowmeter CAN message data
- */
-::HT_TASK::TaskResponse enqueue_flowmeter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT
+ * @brief Task determines the vehicle states and modes when inverter cooling is activated
+*/
+::HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Task calls another method to enqueue suspension CAN data to be sent on TELEM CAN
+*/
+::HT_TASK::TaskResponse enqueueSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+
+/**
+ * @brief Task calls another method to enqueue flowmeter CAN data to be sent on TELEM CAN
+*/
+::HT_TASK::TaskResponse enqueueFlowmeterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT
 
 /**
  * Handles sending controls info for drivebrain (latencies and stuff)
@@ -114,7 +113,7 @@ void initialize_all_interfaces();
  */
 ::HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized VCR)
 
-::HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse debugPrintTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 namespace async_tasks
 {

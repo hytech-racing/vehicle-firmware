@@ -15,7 +15,6 @@
  * pullups: 1 = pullup, 0 = no pullup / pin
  * inverted: 1 = inverted, 0 = normal / pin
 */
-
 class MCP23017IOExpanderInterface : public IOExpanderInterface
 {
 public:

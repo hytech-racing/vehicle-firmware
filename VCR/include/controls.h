@@ -24,11 +24,13 @@ class VCRControls
 {
 public:
 
+    VCRControls() = delete;
+
     /**
      * @brief Explicit constructor that passes in a pointer to an already-instantiated DrivetrainSystem
      * @param max_allowed_db_latency_ms The maximum allowed latency between commands from the DriveBrain before
      *                                  considering the connection invalid
-     */
+    */
     explicit VCRControls(DrivetrainSystem *dt_system,
                         uint32_t max_allowed_db_latency_ms
     ) : _mode4(max_allowed_db_latency_ms),
@@ -50,9 +52,9 @@ public:
      * the drivetrain must be commanded, it invokes this function, which will find the
      * function from the tc_mux and invoke the correct one on the drivetrain system.
      */
-    void handle_drivetrain_command(bool wanting_ready_to_drive, bool ready_to_drive);
+    void handleDrivetrainCommand(bool wanting_ready_to_drive, bool ready_to_drive);
 
-    bool drivebrain_is_in_control() const;
+    bool isDrivebrainInControll() const;
 
     bool drivebrain_timing_failure() const;
 
@@ -73,7 +75,7 @@ public:
 
     SimpleLaunchController& get_launch_controller() { return _mode3; }
 
-    TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.get_tc_mux_status(); }
+    TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.getTCMuxStatus(); }
 
 private:
 
