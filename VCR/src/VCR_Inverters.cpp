@@ -6,7 +6,6 @@ InverterInterface fr_inverter_interface(2);
 InverterInterface rl_inverter_interface(3);
 InverterInterface rr_inverter_interface(4);
 
-
 static InverterInterfaceFuncts_s make_one_inverter_functs(InverterInterface& inv)
 {
     return InverterInterfaceFuncts_s {

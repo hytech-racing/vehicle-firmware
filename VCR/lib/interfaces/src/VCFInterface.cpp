@@ -2,7 +2,7 @@
 #include "VCRCANInterfaceImpl.h"
 
 
-void VCFInterface::receivePedalsCANMessage(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receivePedalsCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     PEDALS_SYSTEM_DATA_t pedals_msg;
     Unpack_PEDALS_SYSTEM_DATA_hytech(&pedals_msg, &msg.buf[0], msg.len);
@@ -35,7 +35,7 @@ void VCFInterface::receivePedalsCANMessage(const CAN_message_t &msg, unsigned lo
     _curr_data.stamped_pedals.last_recv_millis = curr_millis;
 }
 
-void VCFInterface::receiveSteeringCANMessage(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receiveSteeringCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     STEERING_DATA_t steering_msg;
     Unpack_STEERING_DATA_hytech(&steering_msg, &msg.buf[0], msg.len);
@@ -58,7 +58,7 @@ void VCFInterface::receiveSteeringCANMessage(const CAN_message_t &msg, unsigned 
     _curr_data.stamped_steering.last_recv_millis = curr_millis;
 }
 
-void VCFInterface::receiveDashboardCANMessage(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receiveDashboardCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     DASH_INPUT_t dash_msg;
     Unpack_DASH_INPUT_hytech(&dash_msg, &msg.buf[0], msg.len);
@@ -74,7 +74,7 @@ void VCFInterface::receiveDashboardCANMessage(const CAN_message_t &msg, unsigned
     _curr_data.dash_input_state.dial_state = static_cast<ControllerMode_e>(dash_msg.dash_dial_mode);
 }
 
-void VCFInterface::receiveFrontSuspensionCANMessage(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receiveFrontSuspensionCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     FRONT_SUSPENSION_t front_suspension_msg;
     Unpack_FRONT_SUSPENSION_hytech(&front_suspension_msg, &msg.buf[0], msg.len);

@@ -241,9 +241,10 @@ HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros,
 
 HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    VCFInterfaceInstance::instance().enqueue_vehicle_state_message(VehicleStateMachineInstance::instance().get_state(),
+    VCFInterfaceInstance::instance().enqueueVehicleStateCANMessage(VehicleStateMachineInstance::instance().get_state(),
                                                                 DrivetrainInstance::instance().get_current_state(),
-                                                                VCRControlsInstance::instance().isDrivebrainInControll());
+                                                                VCRControlsInstance::instance().isDrivebrainInControll()
+    );
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -257,16 +258,18 @@ HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const
 
 HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    DrivebrainInterfaceInstance::instance().handle_send_ethernet_data(VCREthernetInterfaceInstance::instance().make_vcr_data_msg(ADCInterfaceInstance::instance(),
-                                                                    vcr_data.system_data.drivetrain_data,
-                                                                    VCFInterfaceInstance::instance(),
-                                                                    VehicleStateMachineInstance::instance(),
-                                                                    DrivetrainInstance::instance(),
-                                                                    fl_inverter_interface,
-                                                                    fr_inverter_interface,
-                                                                    rl_inverter_interface,
-                                                                    rr_inverter_interface,
-                                                                    VCRControlsInstance::instance())
+    DrivebrainInterfaceInstance::instance().handle_send_ethernet_data(
+        VCREthernetInterfaceInstance::instance().makeVCRDataPBMsg(ADCInterfaceInstance::instance(),
+                                                                vcr_data.system_data.drivetrain_data,
+                                                                VCFInterfaceInstance::instance(),
+                                                                VehicleStateMachineInstance::instance(),
+                                                                DrivetrainInstance::instance(),
+                                                                fl_inverter_interface,
+                                                                fr_inverter_interface,
+                                                                rl_inverter_interface,
+                                                                rr_inverter_interface,
+                                                                VCRControlsInstance::instance()
+        )
     );
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -345,7 +348,7 @@ namespace async_tasks
     {
         handleCANReceive();
 
-        bool torque_mode_cycle_button_was_pressed = VCFInterfaceInstance::instance().get_latest_data().dash_input_state.BUTTON_2;
+        bool torque_mode_cycle_button_was_pressed = VCFInterfaceInstance::instance().getLatestData().dash_input_state.BUTTON_2;
 
         VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
 

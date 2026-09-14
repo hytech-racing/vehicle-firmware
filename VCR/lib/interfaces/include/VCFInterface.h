@@ -58,13 +58,13 @@ public:
 
     void resetSteeringHeartbeat();
 
-    void receivePedalsCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
+    void receivePedalsCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receiveSteeringCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveSteeringCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receiveDashboardCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveDashboardCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receiveFrontSuspensionCANMessage(const CAN_message_t &msg, unsigned long curr_millis);
+    void receiveFrontSuspensionCANMsg(const CAN_message_t &msg, unsigned long curr_millis);
 
     VCFCANInterfaceData_s getLatestData() const;
 

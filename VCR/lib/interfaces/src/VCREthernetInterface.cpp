@@ -2,7 +2,7 @@
 #include "hytech_msgs_version.h"
 
 
-void VCREthernetInterface::init_ethernet_device()
+void VCREthernetInterface::initEthernetDevice()
 {
     EthernetIPDefsInstance::create();
     Ethernet.begin(EthernetIPDefsInstance::instance().vcr_ip,
@@ -13,22 +13,22 @@ void VCREthernetInterface::init_ethernet_device()
     _vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
 }
 
-hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface &adc_interface,
-                                                        DrivetrainDynamicReport_s &drivetrain_data,
-                                                        const VCFInterface &vcf_interface,
-                                                        const VehicleStateMachine &vehicle_state_machine,
-                                                        const DrivetrainSystem &drivetrain_system,
-                                                        const InverterInterface &fl_inverter,
-                                                        const InverterInterface &fr_inverter,
-                                                        const InverterInterface &rl_inverter,
-                                                        const InverterInterface &rr_inverter,
-                                                        const VCRControls &vcr_controls
+hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface &adc_interface,
+                                                            DrivetrainDynamicReport_s &drivetrain_data,
+                                                            const VCFInterface &vcf_interface,
+                                                            const VehicleStateMachine &vehicle_state_machine,
+                                                            const DrivetrainSystem &drivetrain_system,
+                                                            const InverterInterface &fl_inverter,
+                                                            const InverterInterface &fr_inverter,
+                                                            const InverterInterface &rl_inverter,
+                                                            const InverterInterface &rr_inverter,
+                                                            const VCRControls &vcr_controls
 )
 {
 	auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCRData_s out;
 
-    //has_data
+    // has_data
     out.has_current_sensor_data = true;
     out.has_drivetrain_data = true;
 
@@ -55,11 +55,11 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     out.rear_suspot_data.RR_sus_pot_analog = static_cast<uint32_t>(adc_interface.get_RR_sus_pot().conversion);
 
     // ShutdownSensingData_s
-    out.vcr_shutdown_data.i_shutdown_in = false; // shared_state.interface_data.shutdown_sensing_data.i_shutdown_in;
-    out.vcr_shutdown_data.j_bspd_relay = false; // shared_state.interface_data.shutdown_sensing_data.j_bspd_relay;
+    out.vcr_shutdown_data.i_shutdown_in = false;    // shared_state.interface_data.shutdown_sensing_data.i_shutdown_in;
+    out.vcr_shutdown_data.j_bspd_relay = false;     // shared_state.interface_data.shutdown_sensing_data.j_bspd_relay;
     out.vcr_shutdown_data.k_watchdog_relay = false; // shared_state.interface_data.shutdown_sensing_data.k_watchdog_relay;
-    out.vcr_shutdown_data.l_bms_relay = false; // shared_state.interface_data.shutdown_sensing_data.l_bms_relay;
-    out.vcr_shutdown_data.m_imd_relay = false; // shared_state.interface_data.shutdown_sensing_data.m_imd_relay;
+    out.vcr_shutdown_data.l_bms_relay = false;      // shared_state.interface_data.shutdown_sensing_data.l_bms_relay;
+    out.vcr_shutdown_data.m_imd_relay = false;      // shared_state.interface_data.shutdown_sensing_data.m_imd_relay;
 
     IOExpanderInterfaceInstance::instance().read();
 
@@ -86,7 +86,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     copy_inverter_data(rr_inverter.get_all_inverter_data(), out.inverter_data.RR);
     out.inverter_data.has_RR = true;
 
-    //CurrentSensorData_s
+    // CurrentSensorData_s
     out.current_sensor_data.twentyfour_volt_sensor = adc_interface.get_glv().conversion;
     out.current_sensor_data.current_sensor_unfiltered = adc_interface.get_bspd_current().conversion;
     out.current_sensor_data.current_refererence_unfiltered = adc_interface.get_bspd_reference_current().conversion;
@@ -97,12 +97,12 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     //DrivetrainDynamicReport_s
     out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measuredInverterFLPackVoltage;
 
-    copy_veh_vec_members(drivetrain_data.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
-    copy_veh_vec_members(drivetrain_data.measuredTorques, out.drivetrain_data.measuredTorques);
-    copy_veh_vec_members(drivetrain_data.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
-    copy_veh_vec_members(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
+    _copyVehVecMembers(drivetrain_data.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
+    _copyVehVecMembers(drivetrain_data.measuredTorques, out.drivetrain_data.measuredTorques);
+    _copyVehVecMembers(drivetrain_data.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
+    _copyVehVecMembers(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
 
-    //TorqueControllerMuxStatus
+    // TorqueControllerMuxStatus
     out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.get_tc_mux_status().active_error;
     out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e) vcr_controls.get_tc_mux_status().active_controller_mode;
     out.tcmux_status.active_torque_limit_enum = (hytech_msgs_TorqueLimit_e) vcr_controls.get_tc_mux_status().active_torque_limit_enum;
@@ -132,21 +132,21 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     out.status.drivetrain_state = static_cast<hytech_msgs_DrivetrainState_e>(drivetrain_system.get_current_state());
 
     out.status.drivebrain_controller_timing_failure = vcr_controls.drivebrain_timing_failure();
-    out.status.drivebrain_is_in_control = vcr_controls.drivebrain_is_in_control();
+    out.status.drivebrain_is_in_control = vcr_controls.isDrivebrainInControll();
 
-    out.status.pedals_heartbeat_ok = vcf_interface.get_latest_data().stamped_pedals.heartbeat_ok;
+    out.status.pedals_heartbeat_ok = vcf_interface.getLatestData().stamped_pedals.heartbeat_ok;
 
     return out;
 }
 
-void VCREthernetInterface::receive_pb_msg_db(const hytech_msgs_MCUCommandData &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receiveDrivebrainPBMsg(const hytech_msgs_MCUCommandData &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
 {
     //TODO: Finish this function. This function could parse the message and put it into shared_state, but depending
     //      on where things are defined, it might be cleaner for this function to simply return the new data. I do
     //      not know yet. Definitely worth asking Ben.
 }
 
-void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receiveVCFPBMsg(const hytech_msgs_VCFData_s &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
 {
     // //DashInputState_s
     // shared_state.interface_data.dash_input_state.data_btn_is_pressed = msg_in.dash_input_state.data_btn_is_pressed;
@@ -160,7 +160,7 @@ void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_i
     // shared_state.interface_data.dash_input_state.start_btn_is_pressed = msg_in.dash_input_state.start_btn_is_pressed;
 }
 
-void VCREthernetInterface::copy_inverter_data(const InverterData_s &original, hytech_msgs_InverterData_s &destination)
+void VCREthernetInterface::_copyInverterData(const InverterData_s &original, hytech_msgs_InverterData_s &destination)
 {
     destination.control_mode = static_cast<uint32_t>(original.control_mode);
     destination.target_iq_apk = original.target_iq_apk;
@@ -187,7 +187,7 @@ void VCREthernetInterface::copy_inverter_data(const InverterData_s &original, hy
     destination.can_map_version = original.can_map_version;
 }
 
-void VCREthernetInterface::copy_inverter_limits(const InverterLimits_s &original, hytech_msgs_InverterLimits_s &destination)
+void VCREthernetInterface::_copyInverterLimits(const InverterLimits_s &original, hytech_msgs_InverterLimits_s &destination)
 {
     destination.max_ac_current_apk = original.max_ac_current_apk;
     destination.available_max_ac_current_apk = original.available_max_ac_current_apk;
