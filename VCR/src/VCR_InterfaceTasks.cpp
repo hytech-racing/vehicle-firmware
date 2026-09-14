@@ -210,44 +210,44 @@ HT_TASK::TaskResponse enqueueFlowmeterCANDataTask(const unsigned long& sysMicros
   return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_controls_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
-{
-    VCRControlsInstance::instance().send_controls_can_messages();
-    return HT_TASK::TaskResponse::YIELD;
-}
-
-HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueCoolantTempCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     DrivebrainInterfaceInstance::instance().handle_enqueue_coolant_temp_CAN_data(ADCInterfaceInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_inverter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueControlsCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    fl_inverter_interface.send_INV_CONTROL_WORD();
-    fl_inverter_interface.send_INV_SETPOINT_COMMAND();
+    VCRControlsInstance::instance().send_controls_can_messages();
+    return HT_TASK::TaskResponse::YIELD;
+}
 
-    fr_inverter_interface.send_INV_CONTROL_WORD();
+HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    fl_inverter_interface.send_DRIVE_ENABLE();
+    fl_inverter_interface.send();
+
+    fr_inverter_interface.send_DRIVE_ENABLE();
     fr_inverter_interface.send_INV_SETPOINT_COMMAND();
 
-    rl_inverter_interface.send_INV_CONTROL_WORD();
+    rl_inverter_interface.send_DRIVE_ENABLE();
     rl_inverter_interface.send_INV_SETPOINT_COMMAND();
 
-    rr_inverter_interface.send_INV_CONTROL_WORD();
+    rr_inverter_interface.send_DRIVE_ENABLE();
     rr_inverter_interface.send_INV_SETPOINT_COMMAND();
 
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFInterfaceInstance::instance().enqueue_vehicle_state_message(VehicleStateMachineInstance::instance().get_state(),
                                                                 DrivetrainInstance::instance().get_current_state(),
-                                                                VCRControlsInstance::instance().drivebrain_is_in_control());
+                                                                VCRControlsInstance::instance().isDrivebrainInControll());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
     VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);

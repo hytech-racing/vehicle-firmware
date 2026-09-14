@@ -13,6 +13,7 @@
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
 
+
 struct VCFCANInterfaceData_s
 {
     StampedPedalsSystemData_s stamped_pedals;
@@ -28,57 +29,62 @@ public:
 
     VCFInterface() = delete;
 
-    VCFInterface(unsigned long init_millis, unsigned long max_heartbeat_interval_ms) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
+    VCFInterface(unsigned long init_millis,
+                unsigned long max_heartbeat_interval_ms
+    ) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
     {
         _curr_data.stamped_pedals.last_recv_millis = 0;
         _curr_data.stamped_steering.last_recv_millis = 0;
         _curr_data.stamped_pedals.heartbeat_ok = false;
         _curr_data.stamped_steering.heartbeat_ok = false;
+        _is_pedals_heartbeat_init = false;
+        _is_steering_heartbeat_init = false;
     };
 
-    bool is_start_button_pressed() { return _curr_data.dash_input_state.start_btn_is_pressed; }
+    /// NOTE: Start button is RTD
+    bool isStartButtonPressed() { return _curr_data.dash_input_state.start_btn_is_pressed; }
 
-    bool is_brake_pressed() {return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
+    bool isBrakePressed() {return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
 
-    bool is_drivetrain_reset_pressed() {return _curr_data.dash_input_state.mc_reset_btn_is_pressed; }
+    bool isRecalibratePedalsButtonPressed() {return _curr_data.dash_input_state.preset_btn_is_pressed; }
 
-    bool is_recalibrate_pedals_button_pressed() {return _curr_data.dash_input_state.preset_btn_is_pressed; }
+    bool isRecalibrateSteeringButtonPressed() {return _curr_data.dash_input_state.data_btn_is_pressed; }
 
-    bool is_recalibrate_steering_button_pressed() {return _curr_data.dash_input_state.data_btn_is_pressed; }
+    bool isPedalsHeartbeatNotOk() {return !_curr_data.stamped_pedals.heartbeat_ok; }
 
-    bool is_pedals_heartbeat_not_ok() {return !_curr_data.stamped_pedals.heartbeat_ok; }
+    bool isSteeringHeartbeatNotOk() {return !_curr_data.stamped_steering.heartbeat_ok; }
 
-    bool is_steering_heartbeat_not_ok() {return !_curr_data.stamped_steering.heartbeat_ok; }
+    void resetPedalsHeartbeat();
 
-    void reset_pedals_heartbeat();
+    void resetSteeringHeartbeat();
 
-    void reset_steering_heartbeat();
+    void receivePedalsCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveSteeringCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_steering_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveDashboardCANMessage(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_dashboard_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveFrontSuspensionCANMessage(const CAN_message_t &msg, unsigned long curr_millis);
 
-    void receive_front_suspension_message(const CAN_message_t &msg, unsigned long curr_millis);
+    VCFCANInterfaceData_s getLatestData() const;
 
-    VCFCANInterfaceData_s get_latest_data() const;
-
-    void send_buzzer_start_message();
-
+    /**
+     * @brief 4 methods below set various fields insid the DASHBOARD_BUZZER_CONTROL_t messages
+     * @note TODO: Rename this message
+    */
+    void sendBuzzerStartCANMessage();
     void send_recalibrate_pedals_message();
-
-    void send_recalibrate_steering_message();
-
+    void enqueueRecalibrateSteeringCANMessage();
     void enqueue_torque_mode_LED_message(TorqueLimit_e torque_mode);
 
-    void enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
+    void enqueueVehicleStateCANMessage(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
 
 private:
 
     mutable VCFCANInterfaceData_s _curr_data;
     unsigned long _max_heartbeat_interval_ms;
-    mutable bool _first_received_message_heartbeat_init = false;
+    mutable bool _is_pedals_heartbeat_init;
+    mutable bool _is_steering_heartbeat_init;
 
 };
 

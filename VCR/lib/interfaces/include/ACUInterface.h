@@ -13,7 +13,7 @@ struct ACUCANInterfaceData_s
 {
     bool is_bms_ok;
     bool is_imd_ok;
-    uint64_t last_msg_recieved_millis;
+    uint64_t last_msg_received_millis;
 
     float em_current;
     float em_voltage;
@@ -33,7 +33,7 @@ public:
     {
         _curr_data.is_bms_ok = false;
         _curr_data.is_imd_ok = false;
-        _curr_data.last_msg_recieved_millis = 0;
+        _curr_data.last_msg_received_millis = 0;
     };
 
     /**
@@ -59,7 +59,7 @@ public:
 
     uint64_t getLastReceivedMsgMillis()
     {
-        return _curr_data.last_msg_recieved_millis;
+        return _curr_data.last_msg_received_millis;
     }
 
     bool hasReceivedFirstACUHeartbeat()

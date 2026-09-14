@@ -13,7 +13,7 @@ const uint32_t DELAY = 10;
 
 void on_recv(const CAN_message_t &msg)
 {
-    Serial.print("recieved");
+    Serial.print("receieved");
     Serial.println("msg recvd");
     Serial.print("MB: "); Serial.print(msg.mb);
     Serial.print("  ID: 0x"); Serial.print(msg.id, HEX);

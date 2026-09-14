@@ -72,46 +72,36 @@ void initializeAllInterfaces();
 */
 ::HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
+/* -------------------- CAN TASKS -------------------- */
+::HT_TASK::TaskResponse enqueueSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueFlowmeterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueCoolantTempCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
 /**
- * @brief Task calls another method to enqueue suspension CAN data to be sent on TELEM CAN
+ * @brief Task calls method to enqueue DRIVEBRAIN_LATENCY_STATUSES and DRIVEBRAIN_LATENCY_TIMES messages
+ */
+::HT_TASK::TaskResponse enqueueControlsCANDataTask(const unsigned long& sysMicro, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ *
 */
-::HT_TASK::TaskResponse enqueueSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * @brief Task calls another method to enqueue flowmeter CAN data to be sent on TELEM CAN
+ * @brief Task calls method to enqueue CAR_STATES message
+ * @note This message is mainly used by Dashboard
 */
-::HT_TASK::TaskResponse enqueueFlowmeterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT
+::HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
- * Handles sending controls info for drivebrain (latencies and stuff)
- */
-::HT_TASK::TaskResponse enqueue_controls_CAN_data(const unsigned long& sysMicro, const HT_TASK::TaskInfo& taskInfo);
-
-/**
- * Handles sending of coolant temperature data
+ * @brief Task calls method to clear the TX buffers for TELEM, INVERTER, and RAUX
 */
-::HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-/**
- * Enqueues all inverter CAN data. This will add all inverter data to the CAN queue, and then
- * the send_all_data task will empty the queue.
- */
-::HT_TASK::TaskResponse enqueue_inverter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
 
-/**
- * Enqueues all data needed for dashboard.
- */
-::HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
-
-/**
- * Sends all CAN data from the TX buffers of both telem and inverter CAN lines.
- */
-::HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
-
-/**
- * Task for sending all ethernet data
- */
+/* -------------------- ETHERNET TASKS -------------------- */
 ::HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized VCR)
+
 
 ::HT_TASK::TaskResponse debugPrintTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
