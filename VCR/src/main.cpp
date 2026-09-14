@@ -26,12 +26,12 @@ HT_TASK::Task adc_0_sample_task(HT_TASK::DUMMY_FUNCTION, run_read_adc0_task, VCR
 HT_TASK::Task enqueue_controls_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_controls_CAN_data, VCRConstants::CONTROLS_PRIORITY, VCRConstants::CONTROLS_CAN_PERIOD_US);
 HT_TASK::Task enqueue_coolant_temp_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_coolant_temp_CAN_data, VCRConstants::COOLANT_TEMP_SEND_PRIORITY, VCRConstants::COOLANT_TEMP_SEND_PERIOD_US);
 HT_TASK::Task enqueue_dashboard_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_dashboard_CAN_data, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
-HT_TASK::Task run_enable_motor_cooling(HT_TASK::DUMMY_FUNCTION, enable_motor_cooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
-HT_TASK::Task run_enable_inverter_cooling(HT_TASK::DUMMY_FUNCTION, enable_inverter_cooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
-HT_TASK::Task update_brakelight_task(HT_TASK::DUMMY_FUNCTION, run_update_brakelight_task, VCRConstants::UPDATE_BRAKELIGHT_PRIORITY, VCRConstants::UPDATE_BRAKELIGHT_PERIOD_US);
-HT_TASK::Task adc_1_sample_task(HT_TASK::DUMMY_FUNCTION, run_read_adc1_task, VCRConstants::ADC1_PRIORITY, VCRConstants::ADC1_SAMPLE_PERIOD_US);
-HT_TASK::Task IOExpander_read_task(HT_TASK::DUMMY_FUNCTION, read_ioexpander, VCRConstants::IOEXPANDER_PRIORITY, VCRConstants::IOEXPANDER_SAMPLE_PERIOD_US);
-HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, debug_print, VCRConstants::DEBUG_PRIORITY, VCRConstants::DEBUG_PERIOD_US);
+HT_TASK::Task run_enable_motor_cooling(HT_TASK::DUMMY_FUNCTION, enableMotorCoolingTask, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
+HT_TASK::Task run_enable_inverter_cooling(HT_TASK::DUMMY_FUNCTION, enableInverterCoolingTask, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
+HT_TASK::Task update_brakelight_task(HT_TASK::DUMMY_FUNCTION, updateBrakelightTask, VCRConstants::UPDATE_BRAKELIGHT_PRIORITY, VCRConstants::UPDATE_BRAKELIGHT_PERIOD_US);
+HT_TASK::Task adc_1_sample_task(HT_TASK::DUMMY_FUNCTION, readADC1Task, VCRConstants::ADC1_PRIORITY, VCRConstants::ADC1_SAMPLE_PERIOD_US);
+HT_TASK::Task IOExpander_read_task(HT_TASK::DUMMY_FUNCTION, readIOExpanderTask, VCRConstants::IOEXPANDER_PRIORITY, VCRConstants::IOEXPANDER_SAMPLE_PERIOD_US);
+HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, debugPrintTask, VCRConstants::DEBUG_PRIORITY, VCRConstants::DEBUG_PERIOD_US);
 
 void setup()
 {

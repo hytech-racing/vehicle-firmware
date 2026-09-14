@@ -130,42 +130,42 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         {
             case INV2_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
+                interfaces.fr_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
             case INV2_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
+                interfaces.fr_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
             case INV2_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
+                interfaces.fr_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
             case INV2_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
+                interfaces.fr_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
             case INV2_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                interfaces.fr_inverter_interface.receive_FOC_CURRENTS(msg, millis);
                 break;
             }
             case INV2_STATUS_GENERAL_IO_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                interfaces.fr_inverter_interface.receive_GENERAL_IO(msg, millis);
                 break;
             }
             case INV2_STATUS_AC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                interfaces.fr_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
                 break;
             }
             case INV2_STATUS_DC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
+                interfaces.fr_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }
@@ -175,42 +175,42 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         {
             case INV3_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
+                interfaces.rl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
             case INV3_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
+                interfaces.rl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
             case INV3_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
+                interfaces.rl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
             case INV3_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
+                interfaces.rl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
             case INV3_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                interfaces.rl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
                 break;
             }
             case INV3_STATUS_GENERAL_IO_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                interfaces.rl_inverter_interface.receive_GENERAL_IO(msg, millis);
                 break;
             }
             case INV3_STATUS_AC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                interfaces.rl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
                 break;
             }
             case INV3_STATUS_DC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
+                interfaces.rl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }
@@ -220,42 +220,42 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         {
             case INV4_STATUS_GENERAL_CONTROL_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
+                interfaces.rr_inverter_interface.receive_GENERAL_CONTROL(msg, millis);
                 break;
             }
             case INV4_STATUS_GENERAL_ELEC_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_ELEC(msg, millis);
+                interfaces.rr_inverter_interface.receive_GENERAL_ELEC(msg, millis);
                 break;
             }
             case INV4_STATUS_ACTIVE_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
+                interfaces.rr_inverter_interface.receive_ACTIVE_CURRENT(msg, millis);
                 break;
             }
             case INV4_STATUS_TEMP_AND_FAULT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
+                interfaces.rr_inverter_interface.receive_TEMP_AND_FAULT(msg, millis);
                 break;
             }
             case INV4_STATUS_FOC_CURRENTS_CANID:
             {
-                interfaces.fl_inverter_interface.receive_FOC_CURRENTS(msg, millis);
+                interfaces.rr_inverter_interface.receive_FOC_CURRENTS(msg, millis);
                 break;
             }
             case INV4_STATUS_GENERAL_IO_CANID:
             {
-                interfaces.fl_inverter_interface.receive_GENERAL_IO(msg, millis);
+                interfaces.rr_inverter_interface.receive_GENERAL_IO(msg, millis);
                 break;
             }
             case INV4_STATUS_AC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
+                interfaces.rr_inverter_interface.receive_AC_CONFIG_CURRENT(msg, millis);
                 break;
             }
             case INV4_STATUS_DC_CONFIG_CURRENT_CANID:
             {
-                interfaces.fl_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
+                interfaces.rr_inverter_interface.receive_DC_CONFIG_CURRENT(msg, millis);
                 break;
             }
         }

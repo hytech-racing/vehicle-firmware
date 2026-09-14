@@ -117,7 +117,7 @@ void initialize_all_interfaces()
 
     /* ---------- Ethernet Interface ---------- */
     VCREthernetInterfaceInstance::create();
-    VCREthernetInterfaceInstance::instance().init_ethernet_device();
+    VCREthernetInterfaceInstance::instance().initEthernetDevice();
 
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
@@ -151,8 +151,8 @@ HT_TASK::TaskResponse runReadADC1Task(const unsigned long& sysMicros, const HT_T
 
 HT_TASK::TaskResponse updateACUHeartbeat(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis());
-    digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.heartbeat_ok);
+    ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().getLatestData(sys_time::hal_millis());
+    digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.is_heartbeat_ok);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -169,9 +169,9 @@ HT_TASK::TaskResponse readIOExpander(const unsigned long& sysMicros, const HT_TA
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse run_update_brakelight_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse updateBrakelightTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    digitalWrite(VCRInterfaces::BRAKELIGHT_CONTROL_PIN, VCFInterfaceInstance::instance().is_brake_pressed());
+    digitalWrite(VCRInterfaces::BRAKELIGHT_CONTROL_PIN, VCFInterfaceInstance::instance().isBrakePressed());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -179,8 +179,8 @@ HT_TASK::TaskResponse enableMotorCoolingTask(const unsigned long& sysMicros, con
 {
     VehicleState_e vehicle_state = VehicleStateMachineInstance::instance().get_state(); //NOLINT will alway be populated so its ok
     bool enable_state = vehicle_state == VehicleState_e::READY_TO_DRIVE ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_3;
+                        VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
+                        VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_3;
     digitalWrite(VCRInterfaces::MOTOR_COOLING_CONTROL_PIN, enable_state ? HIGH : LOW);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -191,8 +191,8 @@ HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, 
     bool enable_state = vehicle_state == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE ||
                         vehicle_state == VehicleState_e::WANTING_READY_TO_DRIVE ||
                         vehicle_state == VehicleState_e::READY_TO_DRIVE ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_5;
+                        VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
+                        VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_5;
     digitalWrite(VCRInterfaces::INVERTER_COOLING_CONTROL_PIN, enable_state ? HIGH : LOW);
 
     return HT_TASK::TaskResponse::YIELD;
@@ -200,19 +200,19 @@ HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, 
 
 HT_TASK::TaskResponse enqueueSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo )
 {
-    DrivebrainInterfaceInstance::instance().handle_enqueue_suspension_CAN_data(ADCInterfaceInstance::instance());
+    DrivebrainInterfaceInstance::instance().handleEnqueueSuspensionCANData(ADCInterfaceInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse enqueueFlowmeterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-  DrivebrainInterfaceInstance::instance().handle_enqueue_flowmeter_CAN_data(FlowmeterInterfaceInstance::instance(), millis());
+  DrivebrainInterfaceInstance::instance().handleEnqueueFlowmeterCANData(FlowmeterInterfaceInstance::instance(), millis());
   return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse enqueueCoolantTempCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    DrivebrainInterfaceInstance::instance().handle_enqueue_coolant_temp_CAN_data(ADCInterfaceInstance::instance());
+    DrivebrainInterfaceInstance::instance().handleEnqueueCoolantTempCANData(ADCInterfaceInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -258,7 +258,7 @@ HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const
 
 HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    DrivebrainInterfaceInstance::instance().handle_send_ethernet_data(
+    DrivebrainInterfaceInstance::instance().handleSendEthernetData(
         VCREthernetInterfaceInstance::instance().makeVCRDataPBMsg(ADCInterfaceInstance::instance(),
                                                                 vcr_data.system_data.drivetrain_data,
                                                                 VCFInterfaceInstance::instance(),
@@ -299,10 +299,10 @@ namespace async_tasks
     {
         VCRInterfaceData_s out;
 
-        auto vcf_data = can_interfaces.vcf_interface.get_latest_data();
-        auto acu_data = can_interfaces.acu_interface.get_latest_data(sys_time::hal_millis());
-        auto drivebrain_telem_data = can_interfaces.db_interface.get_latest_telem_drivebrain_command();
-        auto drivebrain_auxillary_data = can_interfaces.db_interface.get_latest_auxillary_drivebrain_command();
+        auto vcf_data = can_interfaces.vcf_interface.getLatestData();
+        auto acu_data = can_interfaces.acu_interface.getLatestData(sys_time::hal_millis());
+        auto drivebrain_telem_data = can_interfaces.db_interface.getLatestDrivebrainCommandTELEM();
+        auto drivebrain_raux_data = can_interfaces.db_interface.getLatestDrivebrainCommandRAUX();
 
         auto fl_inv_mechanics = can_interfaces.fl_inverter_interface.get_motor_mechanics();
         auto fr_inv_mechanics = can_interfaces.fr_inverter_interface.get_motor_mechanics();
@@ -319,30 +319,30 @@ namespace async_tasks
         out.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed;
         out.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed;
 
-        ret.inverter_data.FL.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
-        ret.inverter_data.FR.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
-        ret.inverter_data.RL.dc_bus_voltage = rl_inv_status.dc_bus_voltage;
-        ret.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
+        out.inverter_data.FL.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
+        out.inverter_data.FR.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
+        out.inverter_data.RL.dc_bus_voltage = rl_inv_status.dc_bus_voltage;
+        out.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
 
-    // Telemetry: full data + limits per corner, now that InverterInterface exposes them
-    ret.inverter_telemetry.FL = can_interfaces.fl_inverter_interface.get_telemetry_data();
-    ret.inverter_telemetry.FR = can_interfaces.fr_inverter_interface.get_telemetry_data();
-    ret.inverter_telemetry.RL = can_interfaces.rl_inverter_interface.get_telemetry_data();
-    ret.inverter_telemetry.RR = can_interfaces.rr_inverter_interface.get_telemetry_data();
+        // Telemetry: full data + limits per corner, now that InverterInterface exposes them
+        out.inverter_telemetry.FL = can_interfaces.fl_inverter_interface.get_telemetry_data();
+        out.inverter_telemetry.FR = can_interfaces.fr_inverter_interface.get_telemetry_data();
+        out.inverter_telemetry.RL = can_interfaces.rl_inverter_interface.get_telemetry_data();
+        out.inverter_telemetry.RR = can_interfaces.rr_inverter_interface.get_telemetry_data();
 
-    ret.inverter_limits.FL = can_interfaces.fl_inverter_interface.get_limits_data();
-    ret.inverter_limits.FR = can_interfaces.fr_inverter_interface.get_limits_data();
-    ret.inverter_limits.RL = can_interfaces.rl_inverter_interface.get_limits_data();
-    ret.inverter_limits.RR = can_interfaces.rr_inverter_interface.get_limits_data();
+        out.inverter_limits.FL = can_interfaces.fl_inverter_interface.get_limits_data();
+        out.inverter_limits.FR = can_interfaces.fr_inverter_interface.get_limits_data();
+        out.inverter_limits.RL = can_interfaces.rl_inverter_interface.get_limits_data();
+        out.inverter_limits.RR = can_interfaces.rr_inverter_interface.get_limits_data();
 
-    ret.recvd_pedals_data = vcf_data.stamped_pedals;
-    ret.front_loadcell_data = vcf_data.front_loadcell_data;
-    ret.front_suspot_data = vcf_data.front_suspot_data;
-    ret.dash_input_state = vcf_data.dash_input_state;
-    ret.latest_drivebrain_telem_command = drivebrain_telem_data;
-    ret.latest_drivebrain_auxillary_command = drivebrain_auxillary_data;
+        out.recvd_pedals_data = vcf_data.stamped_pedals;
+        out.front_loadcell_data = vcf_data.front_loadcell_data;
+        out.front_suspot_data = vcf_data.front_suspot_data;
+        out.dash_input_state = vcf_data.dash_input_state;
+        out.latest_drivebrain_telem_command = drivebrain_telem_data;
+        out.latest_drivebrain_auxillary_command = drivebrain_raux_data;
 
-    return ret;
+        return out;
     }
     HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
