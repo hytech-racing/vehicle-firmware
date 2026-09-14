@@ -85,9 +85,6 @@ void initialize_all_systems()
     DrivetrainInstance::create(inverter_functs, set_ef_pin_active);
 }
 
-/**
- * TODO: Understand asyn better, but not sure ticking state machine needs to/should go there.
- */
 HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
     VehicleStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());

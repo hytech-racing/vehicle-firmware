@@ -79,15 +79,15 @@ using VCRCANInterfaceInstance = etl::singleton<VCRCANInterface_s>;
 
 namespace VCRCANInterfaceImpl
 {
-    void on_auxillary_can_receive(const CAN_message_t &msg);
+    void onRAUXCANReceive(const CAN_message_t &msg);
 
-    void on_inverter_can_receive(const CAN_message_t &msg);
+    void onINVERTERCANReceive(const CAN_message_t &msg);
 
-    void on_telem_can_receive(const CAN_message_t &msg);
+    void onTELEMCANReceive(const CAN_message_t &msg);
 
-    void vcr_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type);
+    void receieveIDSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type);
 
-    void send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
+    void sendAllCANMsgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
 }; // namespace VCRCANInterfaceImpl
 
 #endif // VCRCANINTERFACEIMPL_H
