@@ -101,6 +101,12 @@ struct StampedVehVec : TimestampedData_s
     veh_vec<T> veh_vec_data;
 };
 
+template <typename T>
+struct StampedValue : TimestampedData_s
+{
+    T data;
+};
+
 struct FWVersionInfo
 {
     std::array<char, 9> fw_version_hash = {"deadbeef"};
@@ -538,20 +544,21 @@ struct DrivetrainCommand_s
 };
 
 /**
- * @brief Per-corner-timestamped version of DrivetrainCommand_s.
- * @note The whole command is stamped as one unit. Used wherever a command arrives from an external source with its own
- *       timing and needs a staleness check before being trusted.
- * @note get_command() strips the timestamp and hands back the plain DrivetrainCommand_s once freshness has been confirmed.
+ * @brief Per-field-timestamped version of DrivetrainCommand_s.
+ * @note control_mode, desired_torques, and desired_speeds are each stamped independently
+ *       since one field can be fresh while another is stale
+ * @note getCommand() strips the timestamps and hands back the plain DrivetrainCommand_s
+ *       Freshness must be confirmed by the caller BEFORE calling this
 */
 struct StampedDrivetrainCommand_s
 {
-    DrivetrainControlMode_e control_mode = DrivetrainControlMode_e::TORQUE;
+    StampedValue<DrivetrainControlMode_e> control_mode{{}, DrivetrainControlMode_e::TORQUE};
     StampedVehVec<torque_nm> desired_torques;
     StampedVehVec<speed_rpm> desired_speeds;
 
-    DrivetrainCommand_s get_command()
+    DrivetrainCommand_s getCommand()
     {
-        return { .control_mode = control_mode,
+        return { .control_mode = control_mode.data,
                 .desired_torques = desired_torques.veh_vec_data,
                 .desired_speeds = desired_speeds.veh_vec_data
         };

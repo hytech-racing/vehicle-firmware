@@ -5,7 +5,8 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s &vcr_data, 
 {
     DrivetrainCommand_s out = { .control_mode = DrivetrainControlMode_e::TORQUE,
                                 .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
-                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
+                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
+    };
 
     const PedalsSystemData_s &pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
 

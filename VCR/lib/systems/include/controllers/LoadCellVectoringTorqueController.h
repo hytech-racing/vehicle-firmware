@@ -10,11 +10,6 @@
 
 namespace loadcell_vectoring_tc_default_params
 {
-    constexpr float FRONT_REGEN_LIMIT = 13.0f;
-    constexpr float REAR_REGEN_LIMIT = 3.5f;
-    constexpr size_t MAX_LOADCELL_ERROR_COUNT = 25;
-    constexpr DrivetrainControlMode_e LOADCELL_CONTROLLER_MODE = DrivetrainControlMode_e::TORQUE;
-
     /**
      * @param REGEN_BIAS is a fraction (0.0 to 1.0)
      *
@@ -22,7 +17,10 @@ namespace loadcell_vectoring_tc_default_params
      *   0.5 = AWD (balanced)
      *   1.0 = RWD (all torque to rear)
     */
-    constexpr float REGEN_BIAS = 0.15f;    // front-biased under regen/braking
+    constexpr float REGEN_BIAS = 0.15f;    // front-biased under regen/braking, more torque to fronts
+
+    constexpr size_t MAX_LOADCELL_ERROR_COUNT = 25;
+    constexpr DrivetrainControlMode_e LOADCELL_CONTROLLER_MODE = DrivetrainControlMode_e::TORQUE;
 
     // TODO: Where deez values from
     constexpr float FL_LOADCELL_SCALE = 0.138796f;
@@ -56,8 +54,6 @@ struct LoadcellVectoringTCParams_s
 {
     LoadcellVectoringOffsets_s offsets;
     LoadcellVectoringTCScales_s scales;
-    float front_regen_limit;
-    float rear_regen_limit;
     size_t max_loadcell_error_count;
     DrivetrainControlMode_e control_mode;
     speed_rpm motor_max_rpm;
@@ -75,7 +71,7 @@ public:
      *        and corresponds to Mode 1. Accel torque is distributed per-wheel
      *        by measured normal force (load-cell-based vectoring). Regen
      *        torque uses a fixed front/rear bias only (no vectoring).
-     */
+    */
     explicit LoadCellVectoringTorqueController(LoadcellVectoringTCParams_s params)
         : _params(params)
     {}
@@ -95,8 +91,6 @@ public:
                 .rl_loadcell_scale = loadcell_vectoring_tc_default_params::RL_LOADCELL_SCALE,
                 .rr_loadcell_scale = loadcell_vectoring_tc_default_params::RR_LOADCELL_SCALE
             },
-            .front_regen_limit = loadcell_vectoring_tc_default_params::FRONT_REGEN_LIMIT,
-            .rear_regen_limit = loadcell_vectoring_tc_default_params::REAR_REGEN_LIMIT,
             .max_loadcell_error_count = loadcell_vectoring_tc_default_params::MAX_LOADCELL_ERROR_COUNT,
             .control_mode = loadcell_vectoring_tc_default_params::LOADCELL_CONTROLLER_MODE,
             .motor_max_rpm = dti_motor_params::MOTOR_MAX_RPM,

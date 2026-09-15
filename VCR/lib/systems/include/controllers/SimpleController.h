@@ -19,8 +19,8 @@ namespace simple_tc_default_params
      *
      * @param REGEN_BIAS is a fraction (0.0 to 1.0). Works the same as ACCEL_BIAS, just for regen
     */
-    constexpr float ACCEL_BIAS = 0.65f;   // rear-biased under acceleration
-    constexpr float REGEN_BIAS = 0.15f;    // front-biased under regen/braking
+    constexpr float ACCEL_BIAS = 0.65f;  // rear-biased under acceleration, more torque to rears
+    constexpr float REGEN_BIAS = 0.15f;  // front-biased under regen/braking, more torque to fronts
 
     /// @note Set to SPEED to command speed instead of torque.
     constexpr DrivetrainControlMode_e SIMPLE_CONTROLLER_MODE = DrivetrainControlMode_e::TORQUE;
@@ -42,8 +42,9 @@ public:
 
     /**
      * @brief This is our Simple Torque Controller (TC) which corresponds to Mode 0
-     *        This TC has tunable F/R torque bias, as well as accel/regen torque bias (tuned independently)
-     *        Left/right split is always symmetric within each axle. Can command either torque or speed
+     * @note 1) This TC has tunable front/rear torque bias during both acceleration and regen (tuned independently)
+     *       2) Left/right split for fronts and rears is always symmetric.
+     *       3) Can choose to command either torque or speed
     */
     explicit SimpleTorqueController(SimpleTCParams_s params)
         : _params(params)

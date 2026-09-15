@@ -5,7 +5,8 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
 {
     DrivetrainCommand_s out = { .control_mode = _params.control_mode,
                                 .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
-                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
+                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
+    };
 
     const PedalsSystemData_s &pedals_data = state.interface_data.recvd_pedals_data.pedals_data;
 
@@ -63,10 +64,10 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
             float rears_speed_share = total_speed_request * rear_speed_fraction;
             float fronts_speed_share = total_speed_request * front_speed_fraction;
 
-            out.desired_speeds.FL = fronts_speed_share / 2.0f;
-            out.desired_speeds.FR = fronts_speed_share / 2.0f;
-            out.desired_speeds.RL = rears_speed_share / 2.0f;
-            out.desired_speeds.RR = rears_speed_share / 2.0f;
+            out.desired_speeds.FL = std::min(0.0f, fronts_speed_share / 2.0f);
+            out.desired_speeds.FR = std::min(0.0f, fronts_speed_share / 2.0f);
+            out.desired_speeds.RL = std::min(0.0f, rears_speed_share / 2.0f);
+            out.desired_speeds.RR = std::min(0.0f, rears_speed_share / 2.0f);
         }
         else
         {
@@ -82,10 +83,10 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
             float rears_speed_share = total_speed_request * rear_speed_fraction;
             float fronts_speed_share = total_speed_request * front_speed_fraction;
 
-            out.desired_speeds.FL = fronts_speed_share / 2.0f;
-            out.desired_speeds.FR = fronts_speed_share / 2.0f;
-            out.desired_speeds.RL = rears_speed_share / 2.0f;
-            out.desired_speeds.RR = rears_speed_share / 2.0f;
+            out.desired_speeds.FL = std::max(0.0f, fronts_speed_share / 2.0f);
+            out.desired_speeds.FR = std::max(0.0f, fronts_speed_share / 2.0f);
+            out.desired_speeds.RL = std::max(0.0f, rears_speed_share / 2.0f);
+            out.desired_speeds.RR = std::max(0.0f, rears_speed_share / 2.0f);
         }
     }
 

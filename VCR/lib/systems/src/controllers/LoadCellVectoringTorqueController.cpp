@@ -5,7 +5,8 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
 {
     DrivetrainCommand_s out = { .control_mode = _params.control_mode,
                                 .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
-                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
+                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
+    };
 
     const PedalsSystemData_s &pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
     const FrontLoadCellData_s &front_loadcell_data = vcr_data.interface_data.front_loadcell_data;
@@ -40,6 +41,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
     float sum_normal_force = loadcell_data.FL + loadcell_data.FR + loadcell_data.RL + loadcell_data.RR;
 
     /// TODO: guard against sum_normal_force being ~0, negative, or otherwise unreasonable
+    if (sum_normal_force <= 0)
+    {
+        return out;
+    }
 
     float accel_request = pedals_data.accel_percent - pedals_data.brake_percent;
 
@@ -57,10 +62,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
             */
             float total_torque_request = accel_request * _params.motor_max_torque_nm * 4.0f;
 
-            out.desired_torques.FL = total_torque_request * loadcell_data.FL / sum_normal_force;
-            out.desired_torques.FR = total_torque_request * loadcell_data.FR / sum_normal_force;
-            out.desired_torques.RL = total_torque_request * loadcell_data.RL / sum_normal_force;
-            out.desired_torques.RR = total_torque_request * loadcell_data.RR / sum_normal_force;
+            out.desired_torques.FL = std::min(0.0f, total_torque_request * loadcell_data.FL / sum_normal_force);
+            out.desired_torques.FR = std::min(0.0f, total_torque_request * loadcell_data.FR / sum_normal_force);
+            out.desired_torques.RL = std::min(0.0f, total_torque_request * loadcell_data.RL / sum_normal_force);
+            out.desired_torques.RR = std::min(0.0f, total_torque_request * loadcell_data.RR / sum_normal_force);
         }
         else
         {
@@ -78,10 +83,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
             float rears_torque_share = total_torque_request * rear_torque_fraction;
             float fronts_torque_share = total_torque_request * front_torque_fraction;
 
-            out.desired_torques.FL = std::max(-_params.front_regen_limit, std::min(0.0f, fronts_torque_share / 2.0f));
-            out.desired_torques.FR = std::max(-_params.front_regen_limit, std::min(0.0f, fronts_torque_share / 2.0f));
-            out.desired_torques.RL = std::max(-_params.rear_regen_limit, std::min(0.0f, rears_torque_share / 2.0f));
-            out.desired_torques.RR = std::max(-_params.rear_regen_limit, std::min(0.0f, rears_torque_share / 2.0f));
+            out.desired_torques.FL = std::max(0.0f, fronts_torque_share / 2.0f);
+            out.desired_torques.FR = std::max(0.0f, fronts_torque_share / 2.0f);
+            out.desired_torques.RL = std::max(0.0f, rears_torque_share / 2.0f);
+            out.desired_torques.RR = std::max(0.0f, rears_torque_share / 2.0f);
         }
     }
     else   // SPEED
