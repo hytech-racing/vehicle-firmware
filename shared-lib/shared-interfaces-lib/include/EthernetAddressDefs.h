@@ -25,6 +25,7 @@ struct EthernetIPDefs_s {
     const uint16_t ACUCoreData_port = 7777;
     const uint16_t ACUAllData_port = 7766;
     const uint16_t DBData_port = 8888;
+    const uint16_t CCUData_port = 6666; // idk this
 };
 
 using EthernetIPDefsInstance = etl::singleton<EthernetIPDefs_s>;

@@ -13,35 +13,17 @@
 
 using namespace qindesign::network;
 
+class CCUEthernetInterface {
+    public:
+    CCUEthernetInterface();
 
-/**
- * @brief Output values from CCU to ACU.
- */
-struct CCUOutput_s
-{
-    float current_setpoint;
-    bool allow_balance;
-};
+    void init_ethernet_device();
 
-namespace CCUEthernetInterface
-{
-    void recieve_pb_msg_acu_all_data(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
-};
+    void receive_pb_msg_acu_all_data(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
+    
+    private:
+    EthernetUDP _ccu_data_recv_socket;
 
-// class CCUEthernettInterface
-// {
-// public:
-//     void init_ethernet_device();
-
-//     void handle_recv_ethernet_acu_all_data(const hytech_msgs_ACUAllData &data);
-
-//     void handle_recv_ethernet_acu_all_data(const hytech_msgs_ACUAllData &data);
-
-// private:
-//     /* Ethernet Sockets */
-//     EthernetUDP _acu_core_data_recv_socket;
-//     EthernetUDP _acu_all_data_recv_socket;
-// }
-
+}
 
 #endif
