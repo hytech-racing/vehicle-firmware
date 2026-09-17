@@ -121,6 +121,7 @@ namespace VCRSystems
 {
     constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 60;
     constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40; // milliseconds
+    constexpr uint16_t CONTROL_MODE_MISTMATCH_THRESHOLD_MS = 10;
 }
 
 namespace VCRConstants

@@ -13,6 +13,7 @@ struct ACUCANInterfaceData_s
 {
     bool is_bms_ok;
     bool is_imd_ok;
+    bool is_latch_ok;
     uint64_t last_msg_received_millis;
 
     float em_current;
@@ -55,6 +56,11 @@ public:
     bool isBMSOk()
     {
         return _curr_data.is_bms_ok;
+    }
+
+    bool isVehicleLatched()
+    {
+        return _curr_data.is_latch_ok;
     }
 
     uint64_t getLastReceivedMsgMillis()

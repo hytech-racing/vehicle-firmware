@@ -9,6 +9,7 @@ void ACUInterface::receiveACUOKMessage(const CAN_message_t &msg, unsigned long c
 
     _curr_data.is_imd_ok = acu_msg.imd_ok;
     _curr_data.is_bms_ok = acu_msg.bms_ok;
+    _curr_data.is_latch_ok = acu_msg.latch_ok;
 
     if (_curr_data.last_msg_received_millis == 0)
     {

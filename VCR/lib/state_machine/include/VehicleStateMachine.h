@@ -15,46 +15,42 @@ class VehicleStateMachine
 public:
 
     VehicleStateMachine(
-        etl::delegate<bool()> check_hv_over_threshold,
-        etl::delegate<bool()> is_start_button_pressed,
-        etl::delegate<bool()> is_brake_pressed,
-        etl::delegate<bool()> check_drivetrain_error_ocurred,
-        etl::delegate<bool()> check_drivetrain_ready,
-        etl::delegate<void()> start_buzzer,
-        etl::delegate<void()> recalibrate_pedals,
-        etl::delegate<void(bool, bool)> command_drivetrain,
-        etl::delegate<bool()> check_pedals_timeout,
-        etl::delegate<void()> reset_pedals_timeout,
-        etl::delegate<bool()> is_inverter_reset_button_pressed,
-        etl::delegate<bool()> is_calibrate_pedals_button_pressed,
-        etl::delegate<void()> reset_inverter_error,
-        etl::delegate<void()> recalibrate_steering,
-        etl::delegate<bool()> is_calibrate_steering_button_pressed,
-        etl::delegate<bool()> check_steering_timeout,
-        etl::delegate<void()> reset_steering_timeout
+        etl::delegate<void()> setMotorsIdle,
+        etl::delegate<bool()> isVehicleLatched,
+        etl::delegate<bool()> isRTDPressed,
+        etl::delegate<void()> startBuzzer,
+        etl::delegate<bool()> isBrakePressed,
+        etl::delegate<bool()> isPedalsTimedOut,
+        etl::delegate<void()> isSteeringTimedOut,
+        etl::delegate<void()> resetPedalsHeartbeat,
+        etl::delegate<void()> resetSteeringHeartbeat,
+        etl::delegate<void()> sendRecalibratePedalsMessage,
+        etl::delegate<void()> sendRecalibrateSteeringMessage,
+        etl::delegate<bool()> isPedalsRecalibratePressed,
+        etl::delegate<bool()> isSteeringRecalibratePressed,
+        etl::delegate<bool()> isDrivetrainFaulted,
+        etl::delegate<bool()> isDrivetrainNotConnected
     ) :
-        _check_hv_over_threshold(check_hv_over_threshold),
-        _is_start_button_pressed(is_start_button_pressed),
-        _is_brake_pressed(is_brake_pressed),
-        _check_drivetrain_error_ocurred(check_drivetrain_error_ocurred),
-        _check_drivetrain_ready(check_drivetrain_ready),
-        _start_buzzer(start_buzzer),
-        _send_recalibrate_pedals_message(recalibrate_pedals),
-        _command_drivetrain(command_drivetrain),
-        _check_pedals_timeout(check_pedals_timeout),
-        _reset_pedals_timeout(reset_pedals_timeout),
-        _is_inverter_reset_button_pressed(is_inverter_reset_button_pressed),
-        _is_calibrate_pedals_button_pressed(is_calibrate_pedals_button_pressed),
-        _reset_inverter_error(reset_inverter_error),
-        _send_recalibrate_steering_message(recalibrate_steering),
-        _is_calibrate_steering_button_pressed(is_calibrate_steering_button_pressed),
-        _check_steering_timeout(check_steering_timeout),
-        _reset_steering_timeout(reset_steering_timeout)
+        _setMotorsIdle(setMotorsIdle),
+        _isVehicleLatched(isVehicleLatched),
+        _isRTDPressed(isRTDPressed),
+        _startBuzzer(startBuzzer),
+        _isBrakePressed(isBrakePressed),
+        _isPedalsTimedOut(isPedalsTimedOut),
+        _isSteeringTimedOut(isSteeringTimedOut),
+        _resetPedalsHeartbeat(resetPedalsHeartbeat),
+        _resetSteeringHeartbeat(resetSteeringHeartbeat),
+        _isPedalsRecalibratePressed(isPedalsRecalibratePressed),
+        _isSteeringRecalibratePressed(isSteeringRecalibratePressed),
+        _sendRecalibratePedalsMessage(sendRecalibratePedalsMessage),
+        _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
+        _isDrivetrainFaulted(isDrivetrainFaulted),
+        _isDrivetrainNotConnected(isDrivetrainNotConnected)
     {
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
 
-    VehicleState_e tick_state_machine(unsigned long curr_time_millis);
+    VehicleState_e tickStateMachine(unsigned long curr_time_millis);
 
     VehicleState_e get_state() const { return _current_state; }
 
@@ -72,32 +68,30 @@ private:
      */
     uint32_t _last_entered_steering_waiting_state_ms = 0;
 
-    void _set_state(VehicleState_e new_state, unsigned long current_time_millis);
+    void _setState(VehicleState_e new_state, unsigned long current_time_millis);
 
-    void _handle_entry_logic(VehicleState_e prev_state, unsigned long current_time_millis);
+    void _handleEntryLogic(VehicleState_e prev_state, unsigned long current_time_millis);
 
-    void _handle_exit_logic(VehicleState_e new_state, unsigned long current_time_millis);
+    void _handleExitLogic(VehicleState_e new_state, unsigned long current_time_millis);
 
     /**
      * Lambdas necessary for state machine to work.
      */
-    etl::delegate<bool()> _check_hv_over_threshold;
-    etl::delegate<bool()> _is_start_button_pressed;
-    etl::delegate<bool()> _is_brake_pressed;
-    etl::delegate<bool()> _check_drivetrain_error_ocurred;
-    etl::delegate<bool()> _check_drivetrain_ready;
-    etl::delegate<void()> _start_buzzer;
-    etl::delegate<void()> _send_recalibrate_pedals_message;
-    etl::delegate<void(bool, bool)> _command_drivetrain; // Passes in true/false depending on whether we're in RTD or not.
-    etl::delegate<bool()> _check_pedals_timeout;
-    etl::delegate<void()> _reset_pedals_timeout;
-    etl::delegate<bool()> _is_inverter_reset_button_pressed;
-    etl::delegate<bool()> _is_calibrate_pedals_button_pressed;
-    etl::delegate<void()> _reset_inverter_error;
-    etl::delegate<void()> _send_recalibrate_steering_message;
-    etl::delegate<bool()> _is_calibrate_steering_button_pressed;
-    etl::delegate<bool()> _check_steering_timeout;
-    etl::delegate<void()> _reset_steering_timeout;
+    etl::delegate<void()> _setMotorsIdle;
+    etl::delegate<bool()> _isVehicleLatched;
+    etl::delegate<bool()> _isRTDPressed;
+    etl::delegate<void()> _startBuzzer;
+    etl::delegate<bool()> _isBrakePressed;
+    etl::delegate<bool()> _isPedalsTimedOut;
+    etl::delegate<bool()> _isSteeringTimedOut;
+    etl::delegate<void()> _resetPedalsHeartbeat;
+    etl::delegate<void()> _resetSteeringHeartbeat;
+    etl::delegate<bool()> _isPedalsRecalibratePressed;
+    etl::delegate<bool()> _isSteeringRecalibratePressed;
+    etl::delegate<void()> _sendRecalibratePedalsMessage;
+    etl::delegate<void()> _sendRecalibrateSteeringMessage;
+    etl::delegate<bool()> _isDrivetrainFaulted;
+    etl::delegate<bool()> _isDrivetrainNotConnected;
 
 };
 

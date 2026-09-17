@@ -342,7 +342,7 @@ void InverterInterface::send_DRIVE_ENABLE()
 
 /* ---------- InverterFuncts_s-facing API ---------- */
 
-void InverterInterface::set_motors_torque(float torque_nm)
+void InverterInterface::set_motors_torque(torque_nm torque_nm)
 {
     float requested_current_apk = _torque_to_current(torque_nm);
 

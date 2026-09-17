@@ -1,76 +1,97 @@
 #include "VehicleStateMachine.h"
 
 
-VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_millis)
+VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_millis)
 {
     switch (_current_state)
     {
         case VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE:
         {
-            if (_is_inverter_reset_button_pressed() && _check_drivetrain_error_ocurred())
-            {
-                _reset_inverter_error();
-            }
+            /**
+             * @brief Serves as the startup/default state: LV on and/or TSMS on
+             * @note TRACTIVE_SYSTEM_NOT_ACTIVE just means that we have not LATCHED
+             *
+             * ERROR MODES :
+             *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
+             *  - If DTSM in in FAULTED -> VSM will stay in current state since FAULTED is not a fatal issue
+            */
 
-            if (_check_hv_over_threshold())
+            // Error mode(s) checking
+            if (_isDrivetrainNotConnected())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                _setState(VehicleState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_is_calibrate_pedals_button_pressed())
+            if (_isDrivetrainFaulted())
             {
-                _set_state(VehicleState_e::WANTING_RECALIBRATE_PEDALS, current_millis);
+                // If we are faulted, then we will not allow any recalibration
+                break;
             }
 
-            if (_is_calibrate_steering_button_pressed())
+            // Check for latch state change
+            if (_isVehicleLatched())
             {
-                _set_state(VehicleState_e::WANTING_RECALIBRATE_STEERING, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                break;
             }
 
-            _command_drivetrain(false, false);
+            // Check for recalibration state changes
+            if (_isPedalsRecalibratePressed())
+            {
+                _setState(VehicleState_e::WANTING_RECALIBRATE_PEDALS, current_millis);
+                break;
+            }
+
+            if (_isSteeringRecalibratePressed())
+            {
+                _setState(VehicleState_e::WANTING_RECALIBRATE_STEERING, current_millis);
+                break;
+            }
+
+            // Set drivetrain idle for safety
+            _setMotorsIdle();
+            _command_drivetrain(false, false); // what does this do?
 
             break;
         }
         case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
         {
-            if (_is_inverter_reset_button_pressed() && _check_drivetrain_error_ocurred())
-            {
-                _reset_inverter_error();
-            }
+            /**
+             * @brief State when vehicle is LATCHED
+             * @note TRACTIVE_SYSTEM_NOT_ACTIVE just means that we have not LATCHED
+             * @note We will not allow steering or pedals recalibration in this state since they should happen rarely, and
+             *       only when car is not moving/we are settin up the car pre-race
+             *
+             * ERROR MODES :
+             *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
+             *  - If DTSM in in FAULTED -> VSM will stay in current state since FAULTED is not a fatal issue
+             *  - If vehicle becomes unlatched, return to TRACTIVE_SYSTEM_NOT_ACTIVE
+            */
 
-            _command_drivetrain(false, false);
-
-            if (!_check_hv_over_threshold())
+            // Error mode(s) checking
+            if (_isDrivetrainNotConnected())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+                _setState(VehicleState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_is_start_button_pressed() && _is_brake_pressed())
+            if (_isDrivetrainFaulted())
             {
-                _set_state(VehicleState_e::WANTING_READY_TO_DRIVE, current_millis);
+                // If we are faulted, then we will not allow any recalibration
                 break;
             }
 
-            break;
-        }
-        case VehicleState_e::WANTING_READY_TO_DRIVE:
-        {
-            _command_drivetrain(true, false);
+            if (!_isVehicleLatched())
+            {
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+                break;
+            }
 
-            if (!_check_hv_over_threshold())
+            // Check for RTD state change
+            if (_isRTDPressed() && _isBrakePressed() && _isDrivetrainFaulted())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
-                break;
-            }
-            if (_check_drivetrain_error_ocurred()) {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
-                break;
-            }
-            if (_check_drivetrain_ready())
-            {
-                _set_state(VehicleState_e::READY_TO_DRIVE, current_millis);
+                _setState(VehicleState_e::READY_TO_DRIVE, current_millis);
                 break;
             }
 
@@ -78,94 +99,139 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
         }
         case VehicleState_e::READY_TO_DRIVE:
         {
+            /**
+             * @brief Vehicle can move at this state (LATCHED and RTD pressed)
+             * @note We will not allow steering or pedals recalibration in this state since they should happen rarely, and
+             *       only when car is not moving/we are settin up the car pre-race
+             *
+             * ERROR MODES :
+             *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
+             *  - If DTSM in in FAULTED -> Only lose RTD, stay latched (not fatal issue)
+             *  - If vehicle becomes unlatched, return to TRACTIVE_SYSTEM_NOT_ACTIVE
+             *  - If pedals heartbeat timesout/misses -> Only lose RTD, stay latched (not HV issue)
+             *  - If steering heartbeat timesout/misses -> Only lose RTD, stay latched (not HV issue)
+            */
+
             _command_drivetrain(true, true);
 
-            if (!_check_hv_over_threshold())
+            // Error mode(s) checking
+            if (_isDrivetrainNotConnected())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+                _setState(VehicleState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_check_drivetrain_error_ocurred())
+            if (_isDrivetrainFaulted())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
                 break;
             }
 
-            if (_check_pedals_timeout())
+            if (!_isVehicleLatched())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
                 break;
             }
 
-            if (_check_steering_timeout())
+            if (_isPedalsTimedOut())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+                break;
+            }
+
+            if (_isSteeringTimedOut())
+            {
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             }
 
             break;
         }
         case VehicleState_e::WANTING_RECALIBRATE_PEDALS:
         {
+            /**
+             * @brief State is used to ensure that pedals recalibration is wanted, not just accidental
+             * @note This serves as software debounce protection
+             * @note We will only allow recalibration during TRACTIVE_SYSTEM_NOT_ACTIVE, thus we can just return there
+             *
+             * ERROR MODES :
+             *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
+            */
+
+            // Error mode(s) checking
+            if (_isDrivetrainNotConnected())
+            {
+                _setState(VehicleState_e::ERROR, current_millis);
+                break;
+            }
+
+            // Accidental press
+            if (!_isPedalsRecalibratePressed())
+            {
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            }
+
+            // Actual press + debounce
+            if (_isPedalsRecalibratePressed() && (current_millis - _last_entered_pedals_waiting_state_ms > 3000))
+            {
+                _setState(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
+            }
+
             _command_drivetrain(false, false);
-
-            if (!_is_calibrate_pedals_button_pressed())
-            {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
-            }
-
-            if (_is_calibrate_pedals_button_pressed() && (current_millis - _last_entered_pedals_waiting_state_ms > 3000))
-            {
-                _set_state(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
-            }
-
             break;
         }
         case VehicleState_e::WANTING_RECALIBRATE_STEERING:
         {
+            /**
+             *
+            */
+
             _command_drivetrain(false, false);
 
-            if (!_is_calibrate_steering_button_pressed())
+            if (!_isSteeringRecalibratePressed())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
             }
 
-            if (_is_calibrate_steering_button_pressed() && (current_millis - _last_entered_steering_waiting_state_ms > 3000))
+            if (_isSteeringRecalibratePressed() && (current_millis - _last_entered_steering_waiting_state_ms > 3000))
             {
-                _set_state(VehicleState_e::RECALIBRATING_STEERING, current_millis);
+                _setState(VehicleState_e::RECALIBRATING_STEERING, current_millis);
             }
 
             break;
-        }
-        case VehicleState_e::RECALIBRATING_STEERING:
-         {
-            _command_drivetrain(false, false);
-
-            if (!_is_calibrate_steering_button_pressed())
-            {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
-            }
-
-            if (_is_calibrate_steering_button_pressed())
-            {
-                _send_recalibrate_steering_message();
-            }
-
-            break;
-
         }
         case VehicleState_e::RECALIBRATING_PEDALS:
         {
             _command_drivetrain(false, false);
 
-            if (!_is_calibrate_pedals_button_pressed())
+            if (!_isPedalsRecalibratePressed())
             {
-                _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
             }
 
-            if (_is_calibrate_pedals_button_pressed())
+            if (_isPedalsRecalibratePressed())
             {
-                _send_recalibrate_pedals_message();
+                _sendRecalibratePedalsMessage();
+            }
+
+            break;
+        }
+                case VehicleState_e::RECALIBRATING_STEERING:
+         {
+            /**
+             * @note Set motors idle for safety
+             * @note Only leave the
+            */
+
+            _command_drivetrain(false, false);
+
+            if (!_isSteeringRecalibratePressed())
+            {
+                _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            }
+
+            if (_isSteeringRecalibratePressed())
+            {
+                _sendRecalibrateSteeringMessage();
             }
 
             break;
@@ -178,33 +244,17 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
     return _current_state;
 }
 
-void VehicleStateMachine::_set_state(VehicleState_e new_state, unsigned long curr_millis)
+void VehicleStateMachine::_setState(VehicleState_e new_state, unsigned long curr_millis)
 {
-    _handle_exit_logic(_current_state, curr_millis);
+    _handleExitLogic(_current_state, curr_millis);
     _current_state = new_state;
-    _handle_entry_logic(_current_state, curr_millis);
+    _handleEntryLogic(_current_state, curr_millis);
 }
 
-void VehicleStateMachine::_handle_exit_logic(VehicleState_e prev_state, unsigned long curr_millis)
+void VehicleStateMachine::_handleExitLogic(VehicleState_e prev_state, unsigned long curr_millis)
 {
     switch (prev_state)
     {
-        case VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE:
-        {
-            break;
-        }
-        case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
-        {
-            break;
-        }
-        case VehicleState_e::WANTING_READY_TO_DRIVE:
-        {
-            break;
-        }
-        case VehicleState_e::READY_TO_DRIVE:
-        {
-            break;
-        }
         case VehicleState_e::WANTING_RECALIBRATE_PEDALS:
         {
             _last_entered_pedals_waiting_state_ms = 0;
@@ -225,34 +275,23 @@ void VehicleStateMachine::_handle_exit_logic(VehicleState_e prev_state, unsigned
             _last_entered_steering_waiting_state_ms = 0;
             break;
         }
+        case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
+        case VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE:
+        case VehicleState_e::READY_TO_DRIVE:
         default:
-        {
             break;
-        }
     }
 }
 
-void VehicleStateMachine::_handle_entry_logic(VehicleState_e new_state, unsigned long curr_millis)
+void VehicleStateMachine::_handleEntryLogic(VehicleState_e new_state, unsigned long curr_millis)
 {
     switch (new_state)
     {
-        case VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE:
-        {
-            break;
-        }
-        case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
-        {
-            break;
-        }
-        case VehicleState_e::WANTING_READY_TO_DRIVE:
-        {
-            break;
-        }
         case VehicleState_e::READY_TO_DRIVE:
         {
-            _start_buzzer();
-            _reset_pedals_timeout();
-            _reset_steering_timeout();
+            _startBuzzer();
+            _resetPedalsHeartbeat();
+            _resetSteeringHeartbeat();
             break;
         }
         case VehicleState_e::WANTING_RECALIBRATE_PEDALS:
@@ -260,23 +299,17 @@ void VehicleStateMachine::_handle_entry_logic(VehicleState_e new_state, unsigned
             _last_entered_pedals_waiting_state_ms = curr_millis;
             break;
         }
-        case VehicleState_e::RECALIBRATING_PEDALS:
-        {
-            break;
-        }
         case VehicleState_e::WANTING_RECALIBRATE_STEERING:
         {
             _last_entered_steering_waiting_state_ms = curr_millis;
             break;
         }
+        case VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE:
+        case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
         case VehicleState_e::RECALIBRATING_STEERING:
-        {
-            break;
-        }
+        case VehicleState_e::RECALIBRATING_PEDALS:
         default:
-        {
             break;
-        }
     }
 }
 

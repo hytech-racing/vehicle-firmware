@@ -10,6 +10,8 @@
 #include "shared_types.h"
 
 
+/// NOTE: More structs and data is defined in SharedFirmwareTypes
+
 /**
  * @brief When user calls evaluate_drivetrain(), this is part of the returned status.
  * @note Enum indicates whether the most recent command was actually successful or invalid given the drivetrain's current state.
@@ -53,13 +55,13 @@ struct DrivetrainStatus_s
  */
 struct InverterInterfaceFuncts_s
 {
-    etl::delegate<void(float torque_nm)> set_motors_torque;
-    etl::delegate<void(float speed_rpm)> set_motors_speed;
-    etl::delegate<void()> set_motors_idle;
-    etl::delegate<void(bool)> request_enable;
-    etl::delegate<bool(DrivetrainControlMode_e)> is_reported_mode_matching_dt;
-    etl::delegate<InverterStatus_s()> get_status;
-    etl::delegate<MotorMechanics_s()> get_motor_mechanics;
+    etl::delegate<void(torque_nm)> setMotorsTorque;
+    etl::delegate<void(speed_rpm)> setMotorsSpeed;
+    etl::delegate<void()> setMotorsIdle;
+    etl::delegate<void(bool)> requestEnable;
+    etl::delegate<bool(DrivetrainControlMode_e)> isReportedModeMatchingDT;
+    etl::delegate<InverterStatus_s()> getInverterStatus;
+    etl::delegate<MotorMechanics_s()> getMotorMechanics;
 };
 
 /**
@@ -95,13 +97,14 @@ public:
     DrivetrainStatus_s evaluate_drivetrain(DrivetrainCommand_s command, unsigned long current_millis);
 
     /* GETTERS */
-    DrivetrainState_e get_current_state() const;
-    DrivetrainStatus_s get_status() const;
-    const char* get_state_name() const;
+    DrivetrainState_e getCurrentState() const;
+    DrivetrainStatus_s getStatus() const;
+    const char* getStateName() const;
 
 
 private:
 
+    uint16_t _control_mode_mismatch_threshold_ms;
     DrivetrainState_e _current_state;
     unsigned long _last_state_changed_time = 0;
     DrivetrainStatus_s _status;
@@ -109,12 +112,11 @@ private:
 
     DrivetrainControlMode_e _last_commanded_control_mode = DrivetrainControlMode_e::TORQUE;
     unsigned long _last_control_mode_change_millis = 0;
-    uint16_t _control_mode_mismatch_threshold_ms;
 
     /**
-     * @brief Check if we are latched essentially.
-     * @note Checks DC bus voltage (input voltage, x4) reported by the inverters is within expected thresholds.
-     *       Will also check that the reported input voltage is not deviating from the reported pack voltage by ACU.
+     * @brief Check if we are latched essentially
+     * @note Checks DC bus voltage (input voltage, x4) reported by the inverters is within expected thresholds
+     *       Will also check that the reported input voltage is not deviating from the reported pack voltage by ACU
     */
     etl::delegate<bool()> _is_hv_status_ok;
 
@@ -126,17 +128,17 @@ private:
      * @note Runs exit logic for the current state, updates _current_state, runs entry logic for new_state,
      * and records the transition time (_last_state_changed_time)
     */
-    void _set_state(DrivetrainState_e new_state, unsigned long current_millis);
+    void _setState(DrivetrainState_e new_state, unsigned long current_millis);
 
     /**
      * @brief Runs once, on leaving prev_state, before the new state is entered
     */
-    void _handle_exit_logic(DrivetrainState_e prev_state, unsigned long current_millis);
+    void _handleExitLogic(DrivetrainState_e prev_state, unsigned long current_millis);
 
     /**
      * @brief Runs once, on entering new_state
     */
-    void _handle_entry_logic(DrivetrainState_e new_state, unsigned long current_millis);
+    void _handleEntryLogic(DrivetrainState_e new_state, unsigned long current_millis);
 
     /**
      * @brief Method evaluates transition conditions for the current state and calls _set_state if a transition is warranted.
@@ -151,25 +153,26 @@ private:
      *        Connection in this case is defined as we are continously receiving CAN messages.
      * @return true if all inverters are connected, false otherwise
     */
-    bool _are_all_inverters_connected();
+    etl::delegate<bool()> _are_all_inverters_connected;
+    bool _areAllInvertersConnected();
 
     /**
      * @brief Method checks if any of the 4 inverters (FL, FR, RL, RR) have a fault code
      * @return true if any inverter has a fault code, false otherwise
     */
-    bool _is_any_inverter_faulted();
+    bool _isAnyInverterFaulted();
 
     /**
      * @brief Method will check the drive enable flag per motor/inverter
      * @return True if all inverters are in the drive_enabled state, false otherwise
     */
-    bool _is_drive_enabled();
+    bool _isDriveEnabled();
 
     /**
      * @brief Method will check the current Drivetrain mode is the same as the current mode reported by the inverters
      * @return True if they match, false otherwise
     */
-    bool DrivetrainSystem::is_control_mode_mismatched(unsigned long current_millis) const;
+    bool _isControlModeMismatched(unsigned long current_millis) const;
 
     /**
      * @brief Method will set the drive enable flag per motor/inverter.
@@ -177,17 +180,17 @@ private:
      *        This should happen automatically, but since it is untested, we will just add this redundancy feature now.
      * @param state is the state the flag will be set to
     */
-    void _set_drive_enable_(bool state);
+    void _setDriveEnable(bool state);
 
     /**
      * @brief Applies this tick's torque command to each corner by calling set_motors_torque for every inverter
     */
-    void _set_drivetrain_torque(DrivetrainCommand_s command, unsigned long current_millis);
+    void _setMotorsTorque(DrivetrainCommand_s command, unsigned long current_millis);
 
     /**
      * @brief Applies this tick's speed command to each corner by calling set_motors_speed for every inverter
     */
-    void _set_drivetrain_speed(DrivetrainCommand_s command, unsigned long current_millis);
+    void _setMotorsSpeed(DrivetrainCommand_s command, unsigned long current_millis);
 
 };
 

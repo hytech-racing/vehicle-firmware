@@ -1,6 +1,7 @@
 #ifndef VCR_SYSTEMTASKS_H
 #define VCR_SYSTEMTASKS_H
 
+#include "SharedFirmwareTypes.h"
 #include "VCR_Constants.h"
 #include "VCR_Inverters.h"
 #include "controls.h"
@@ -23,23 +24,25 @@
 void initialize_all_systems();
 
 /* Delegate Functions */
-extern ::etl::delegate<bool()> hv_over_threshold;
-extern ::etl::delegate<bool()> start_button_pressed;
-extern ::etl::delegate<bool()> brake_pressed;
-extern ::etl::delegate<bool()> drivetrain_error_present;
-extern ::etl::delegate<bool()> drivetrain_ready;
-extern ::etl::delegate<void()> send_buzzer_start_message;
-extern ::etl::delegate<void()> send_recalibrate_pedals_message;
-extern ::etl::delegate<void()> handle_drivetrain_command;
-extern ::etl::delegate<bool()> pedals_heartbeat_not_ok;
-extern ::etl::delegate<void()> reset_pedals_heartbeat;
-extern ::etl::delegate<bool()> drivetrain_reset_pressed;
-extern ::etl::delegate<bool()> recalibrate_pedals_button_pressed;
-extern ::etl::delegate<void()> reset_dt_error;
-extern ::etl::delegate<void()> send_recalibrate_steering_message;
-extern ::etl::delegate<bool()> recalibrate_steering_button_pressed;
-extern ::etl::delegate<bool()> steering_heartbeat_not_ok;
-extern ::etl::delegate<void()> reset_steering_heartbeat;
+extern ::etl::delegate<void(torque_nm)> setMotorsTorque;
+extern ::etl::delegate<void(speed_rpm)> setMotorsSpeedl;
+extern ::etl::delegate<void(speed_rpm)> setMotorsIdle;
+
+
+extern ::etl::delegate<bool()> isVehicleLatched;
+extern ::etl::delegate<bool()> isRTDPressed;
+extern ::etl::delegate<void()> startBuzzer;
+extern ::etl::delegate<bool()> isBrakePressed;
+extern ::etl::delegate<bool()> isPedalsTimedOut;
+extern ::etl::delegate<bool()> isSteeringTimedOut;
+extern ::etl::delegate<void()> resetPedalsHeartbeat;
+extern ::etl::delegate<void()> resetSteeringHeartbeat;
+extern ::etl::delegate<bool()> isPedalsRecalibratePressed;
+extern ::etl::delegate<bool()> isSteeringRecalibratePressed;
+extern ::etl::delegate<void()> sendRecalibratePedalsMessage;
+extern ::etl::delegate<void()> sendRecalibrateSteeringMessage;
+extern ::etl::delegate<bool()> isDrivetrainFaulted;
+extern ::etl::delegate<bool()> isDrivetrainNotConnected;
 
 
 #endif // __VCR_SYSTEMTASKS_H__

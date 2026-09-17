@@ -127,7 +127,7 @@ VCFCANInterfaceData_s VCFInterface::getLatestData() const
     return _curr_data;
 }
 
-void VCFInterface::sendBuzzerStartCANMessage()
+void VCFInterface::sendStartBuzzerCANMessage()
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
 
@@ -141,7 +141,7 @@ void VCFInterface::sendBuzzerStartCANMessage()
     );
 }
 
-void VCFInterface::send_recalibrate_pedals_message()
+void VCFInterface::enqueuePedalsRecalibrateCANMessage()
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
     ctrl.dash_buzzer_flag = false;
@@ -154,7 +154,7 @@ void VCFInterface::send_recalibrate_pedals_message()
     );
 }
 
-void VCFInterface::enqueueRecalibrateSteeringCANMessage()
+void VCFInterface::enqueueSteeringRecalibrateCANMessage()
 {
     DASHBOARD_BUZZER_CONTROL_t msg_out = {};
     msg_out.dash_buzzer_flag = false;

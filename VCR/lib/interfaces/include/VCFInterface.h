@@ -46,9 +46,9 @@ public:
 
     bool isBrakePressed() {return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
 
-    bool isRecalibratePedalsButtonPressed() {return _curr_data.dash_input_state.preset_btn_is_pressed; }
+    bool isPedalsRecalibratePressed() {return _curr_data.dash_input_state.preset_btn_is_pressed; }
 
-    bool isRecalibrateSteeringButtonPressed() {return _curr_data.dash_input_state.data_btn_is_pressed; }
+    bool isSteeringRecalibratePressed() {return _curr_data.dash_input_state.data_btn_is_pressed; }
 
     bool isPedalsHeartbeatNotOk() {return !_curr_data.stamped_pedals.heartbeat_ok; }
 
@@ -72,9 +72,9 @@ public:
      * @brief 4 methods below set various fields insid the DASHBOARD_BUZZER_CONTROL_t messages
      * @note TODO: Rename this message
     */
-    void sendBuzzerStartCANMessage();
-    void send_recalibrate_pedals_message();
-    void enqueueRecalibrateSteeringCANMessage();
+    void sendStartBuzzerCANMessage();
+    void enqueuePedalsRecalibrateCANMessage();
+    void enqueueSteeringRecalibrateCANMessage();
     void enqueue_torque_mode_LED_message(TorqueLimit_e torque_mode);
 
     void enqueueVehicleStateCANMessage(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);

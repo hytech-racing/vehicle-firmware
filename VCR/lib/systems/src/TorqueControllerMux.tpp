@@ -1,26 +1,27 @@
 #include "TorqueControllerMux.hpp"
 
 
-template <uint8_t num_controllers>
+template <size_t num_controllers>
 DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(ControllerMode_e requested_controller_mode,
                                                                                TorqueLimit_e requested_torque_limit,
                                                                                const VCRData_s &input_state
 )
 {
 
-    const DrivetrainCommand_s EMPTY_COMMAND = {.torque_setpoints = {0.0f, 0.0f, 0.0f, 0.0f}};
+    const DrivetrainCommand_s EMPTY_COMMAND = {
+        .desired_torques = {0.0, 0.0, 0.0, 0.0}
+        .desired_speeds = {0.0, 0.0, 0.0, 0.0}
+    };
 
-    /**
-     * Want to make sure we are not requesting a controller that doesn't exist. The only controller modes that we using
-     * are modes 0, 1, and 4. There is an argument for slip launch.
-    */
-    bool is_requested_mode_supported = (requested_controller_mode == ControllerMode_e::MODE_0) ||
-                                    (requested_controller_mode == ControllerMode_e::MODE_1) ||
-                                    (requested_controller_mode == ControllerMode_e::MODE_4);
+
+    bool is_requested_mode_supported = (requested_controller_mode == ControllerMode_e::MODE_0)
+                                    || (requested_controller_mode == ControllerMode_e::MODE_1)
+                                    || (requested_controller_mode == ControllerMode_e::MODE_3)
+                                    || (requested_controller_mode == ControllerMode_e::MODE_4);
 
     if (!is_requested_mode_supported)
     {
-        _active_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS;
+        _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS;
         return EMPTY_COMMAND;
     }
 
@@ -108,7 +109,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
         // Applied power limit when accelerating
         if (current_output.desired_speeds.FL != 0.0f || current_output.desired_speeds.FR != 0.0f || current_output.desired_speeds.RL != 0.0f || current_output.desired_speeds.RR != 0.0f)
         {
-            current_output = _apply_power_limit(current_output, input_state.system_data.drivetrain_data, _max_power_limit, _torque_limit_map[requested_torque_limit]);
+            current_output = _applyPowerLimit(current_output, input_state.system_data.drivetrain_data, _max_power_limit, _torque_limit_map[requested_torque_limit]);
         }
 
         // std::cout << "output torques after pw " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
@@ -127,7 +128,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
     return current_output;
 }
 
-template <uint8_t num_controllers>
+template <size_t num_controllers>
 bool TorqueControllerMux<num_controllers>::_canSwitchController(DrivetrainDynamicReport_s active_drivetrain_data,
                                                                 DrivetrainCommand_s previous_controller_command,
                                                                 DrivetrainCommand_s desired_controller_out
@@ -147,96 +148,149 @@ bool TorqueControllerMux<num_controllers>::_canSwitchController(DrivetrainDynami
 
         if (is_speed_preventing_mode_change)
         {
-            _active_status.active_error = TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH;
+            _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH;
             return false;
         }
 
         if (is_torque_delta_preventing_mode_change)
         {
-            _active_status.active_error = TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH;
+            _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH;
             return false;
         }
     }
 
-    _active_status.active_error = TorqueControllerMuxError_e::NO_ERROR;
+    _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::NO_ERROR;
     return true;
 }
 
-
-template <uint8_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(const DrivetrainCommand_s& desired_controller_out, float max_torque_limit)
+template <size_t num_controllers>
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(const DrivetrainCommand_s& desired_controller_out, float max_avg_torque_limit)
 {
-    // get the average torque accross all 4 wheels
-    float avg_torque = 0;
-    auto desired_torques_array = desired_controller_out.desired_torques.as_array();
+    DrivetrainCommand_s command_out = desired_controller_out;
+
+    float avg_torque = 0.0f;
+    auto desired_torques_array = command_out.desired_torques.as_array();
 
     for (size_t i = 0; i < desired_torques_array.size(); i++)
     {
-        avg_torque += abs(desired_torques_array[i]);
+        avg_torque += std::abs(desired_torques_array[i]);
     }
 
     avg_torque /= _params.num_motors;
 
-    // if this is greather than the torque limit, scale down
-    if (avg_torque > max_torque_limit)
+    if (avg_torque > max_avg_torque_limit)
     {
-        // get the scale of avg torque above max torque
-        float scale = avg_torque / max_torque_limit;
-        // divide by scale to lower avg below max torque
-        desired_controller_out.desired_torques.FL = desired_controller_out.desired_torques.FL / scale;
-        desired_controller_out.desired_torques.FR = desired_controller_out.desired_torques.FR / scale;
-        desired_controller_out.desired_torques.RL = desired_controller_out.desired_torques.RL / scale;
-        desired_controller_out.desired_torques.RR = desired_controller_out.desired_torques.RR / scale;
+        float scale = avg_torque / max_avg_torque_limit;
+
+        command_out.desired_torques.FL = out.desired_torques.FL / scale;
+        command_out.desired_torques.FR = out.desired_torques.FR / scale;
+        command_out.desired_torques.RL = out.desired_torques.RL / scale;
+        command_out.desired_torques.RR = out.desired_torques.RR / scale;
     }
 
-    return desired_controller_out;
+    return command_out;
 }
 
-/*
-    Apply power limit such that the mechanical power of all wheels never
-    exceeds the preset mechanical power limit. Scales all wheels down to
-    preserve functionality of torque controllers
-*/
 template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_power_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain, float power_limit, float max_torque)
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyPowerLimit(const DrivetrainCommand_s &desired_controller_out,
+                                                                        const DrivetrainDynamicReport_s &dynamic_report,
+                                                                        float mech_power_limit,
+                                                                        float max_torque,
+                                                                        float max_speed_rpm
+)
 {
-    DrivetrainCommand_s out = command;
-    float net_torque_mag = 0;
-    float net_power = 0;
-
-    // uhh why not just put these all on one line? readability?
-    net_torque_mag += out.torque_limits.FL;
-    net_torque_mag += out.torque_limits.FR;
-    net_torque_mag += out.torque_limits.RL;
-    net_torque_mag += out.torque_limits.RR;
-
-    net_power += (out.torque_limits.FL * (drivetrain.measuredSpeeds.FL * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.FR * (drivetrain.measuredSpeeds.FR * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.RL * (drivetrain.measuredSpeeds.RL * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.RR * (drivetrain.measuredSpeeds.RR * RPM_TO_RAD_PER_SECOND));
-    // only evaluate power limit if current power exceeds it
-    auto scale_torque_limit = [](float desired_wheel_torque, float current_wheel_rpm, float net_torque_mag, float power_limit, float max_torque) -> float
-    {
-        float res = desired_wheel_torque;
-
-        float desired_wheel_torque_percentage = fabs(desired_wheel_torque / net_torque_mag);
-        float corner_power = (desired_wheel_torque_percentage * power_limit);
-
-        // power / omega (motor rad/s) to get torque per wheel
-        res = fabs(corner_power / (current_wheel_rpm * RPM_TO_RAD_PER_SECOND));
-        res = std::max(0.0f, std::min(res, max_torque)); // ensure torque limit is above zero and below max torque(?)
-
-        return res;
+    DrivetrainCommand_s command_out = {
+        .control_mode = desired_controller_out.control_mode,
+        .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
+        .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
     };
 
-    if (net_power > power_limit)
+
+    if (desired_controller_out.control_mode == DrivetrainControlMode_e::TORQUE)
     {
-        out.torque_limits.FL  = scale_torque_limit(out.torque_limits.FL , drivetrain.measuredSpeeds.FL , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.FR  = scale_torque_limit(out.torque_limits.FR , drivetrain.measuredSpeeds.FR , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.RL  = scale_torque_limit(out.torque_limits.RL , drivetrain.measuredSpeeds.RL , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.RR  = scale_torque_limit(out.torque_limits.RR , drivetrain.measuredSpeeds.RR , net_torque_mag, power_limit, max_torque);
+        command_out = desired_controller_out;
+
+        // Net desired mechanical power (T * omega) using DESIRED torque and MEASURED speed.
+        float net_power_mag = command_out.desired_torques.FL * (dynamic_report.measured_speeds.FL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                            + command_out.desired_torques.FR * (dynamic_report.measured_speeds.FR * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                            + command_out.desired_torques.RL * (dynamic_report.measured_speeds.RL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                            + command_out.desired_torques.RR * (dynamic_report.measured_speeds.RR * physical_motor_scales::RPM_TO_RAD_PER_SECOND);
+
+        auto scale_desired_torques = [](float desired_wheel_torque, float current_wheel_rpm, float net_power_mag, float power_limit, float max_torque_val) -> float
+        {
+            if (fabs(net_power_mag) < 1e-3f) // 1e-3f is an arbitary number
+            {
+                return 0.0;   // avoid divide-by-zero, fail safe since this should never happen
+            }
+
+            float current_wheel_omega = current_wheel_rpm * physical_motor_scales::RPM_TO_RAD_PER_SECOND;
+            float current_wheel_power = fabs(desired_wheel_torque * current_wheel_omega);
+
+            float desired_wheel_power_percentage = current_wheel_power / fabs(net_power_mag);
+            float corner_power = desired_wheel_power_percentage * power_limit;
+
+            float result = fabs(corner_power / current_wheel_omega);
+            result = std::max(0.0f, std::min(result, max_torque_val));
+
+            return result;
+        };
+
+        if (fabs(net_power_mag) > mech_power_limit)
+        {
+            command_out.desired_torques.FL = scale_desired_torques(command_out.desired_torques.FL, dynamic_report.measured_speeds.FL, net_power_mag, mech_power_limit, max_torque);
+            command_out.desired_torques.FL = scale_desired_torques(command_out.desired_torques.FR, dynamic_report.measured_speeds.FR, net_power_mag, mech_power_limit, max_torque);
+            command_out.desired_torques.FL = scale_desired_torques(command_out.desired_torques.RL, dynamic_report.measured_speeds.RL, net_power_mag, mech_power_limit, max_torque);
+            command_out.desired_torques.FL = scale_desired_torques(command_out.desired_torques.RR, dynamic_report.measured_speeds.RR, net_power_mag, mech_power_limit, max_torque);
+        }
+
+        return command_out;
     }
-    return out;
+    else if (desired_controller_out.control_mode == DrivetrainControlMode_e::SPEED)
+    {
+        command_out = desired_controller_out;
+
+        // use MEASURED torque and MEASURED speed to compute actual current mechanical power
+        float net_measured_power = dynamic_report.measured_torques.FL * (dynamic_report.measured_speeds.FL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                                + dynamic_report.measured_torques.FR * (dynamic_report.measured_speeds.FR * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                                + dynamic_report.measured_torques.RL * (dynamic_report.measured_speeds.RL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                                + dynamic_report.measured_torques.RR * (dynamic_report.measured_speeds.RR * physical_motor_scales::RPM_TO_RAD_PER_SECOND);
+
+        /**
+         * @warning his is an approximation, not exact like the torque-mode correction. It assumes measured torque stays roughly constant as the speed target changes.
+         *          which isn't true since DTI's internal speed loop will re-derive torque at the new target.
+        */
+        auto scale_desired_speeds = [](float desired_wheel_speed_rpm, float measured_wheel_torque, float net_power_mag, float power_limit, float max_speed_val) -> float
+        {
+            if (fabs(net_power_mag) < 1e-3f || fabs(measured_wheel_torque) < 0.1f)
+            {
+                return 0.0;   // no meaningful torque/power to base a correction on, fail safe
+            }
+
+            float current_wheel_power = fabs(measured_wheel_torque * desired_wheel_speed_rpm * physical_motor_scales::RPM_TO_RAD_PER_SECOND);
+
+            float desired_wheel_power_percentage = current_wheel_power / fabs(net_power_mag);
+            float corner_power = desired_wheel_power_percentage * power_limit;
+
+            float corrected_omega = corner_power / fabs(measured_wheel_torque);
+            float result = corrected_omega / physical_motor_scales::RPM_TO_RAD_PER_SECOND;
+            result = std::max(0.0f, std::min(result, max_speed_val));
+
+            return (desired_wheel_speed_rpm < 0.0f) ? -result : result;
+        };
+
+        if (fabs(net_measured_power) > mech_power_limit)
+        {
+            command_out.desired_speeds.FL = scale_desired_speeds(command_out.desired_speeds.FL, dynamic_report.measured_torques.FL, net_measured_power, mech_power_limit, max_speed_rpm);
+            command_out.desired_speeds.FR = scale_desired_speeds(command_out.desired_speeds.FR, dynamic_report.measured_torques.FR, net_measured_power, mech_power_limit, max_speed_rpm);
+            command_out.desired_speeds.RL = scale_desired_speeds(command_out.desired_speeds.RL, dynamic_report.measured_torques.RL, net_measured_power, mech_power_limit, max_speed_rpm);
+            command_out.desired_speeds.RR = scale_desired_speeds(command_out.desired_speeds.RR, dynamic_report.measured_torques.RR, net_measured_power, mech_power_limit, max_speed_rpm);
+        }
+
+        return command_out;
+    }
+
+    // Fail safe, idle command
+    return command_out;
 }
 
 template <std::size_t num_controllers>

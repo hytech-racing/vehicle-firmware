@@ -36,7 +36,7 @@ struct TCMuxParams_s
 /**
  * @param num_controllers the number of controllers that can be switched between. Defaults to 5 if using TCMuxType.
 */
-template <uint8_t num_controllers> class TorqueControllerMux
+template <size_t num_controllers> class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 
@@ -49,14 +49,15 @@ public:
      * @param controller_evals the array of controller evaluation functions that are being muxed between
      * @param mux_bypass_limits the array of aligned bools for determining if the limits should be  applied to the controller outputs defaults to TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE
     */
-    explicit TorqueControllerMux(std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
-                                std::array<bool, num_controllers> mux_bypass_limits,
-                                TCMuxParams_s params = {
-                                    .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
-                                    .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
-                                    .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
-                                    .num_motors = 4;
-                                }
+    explicit TorqueControllerMux(
+        std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
+        std::array<bool, num_controllers> mux_bypass_limits,
+        TCMuxParams_s params = {
+            .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
+            .max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
+            .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
+            .num_motors = 4
+        }
     ) : _controller_evals(controller_evals),
         _mux_bypass_limits(mux_bypass_limits),
         _params(params)
@@ -88,7 +89,7 @@ private:
 
     TCMuxParams_s _params;
     DrivetrainCommand_s _prev_command = {};
-    TorqueControllerMuxStatus_s _active_status = {};
+    TorqueControllerMuxStatus_s _curr_tc_mux_status = {};
 
     /**
      * @brief Checks whether it's currently safe to switch to a different torque controller
@@ -103,33 +104,30 @@ private:
                             DrivetrainCommand_s desired_controller_out
     );
 
-
-    /// @brief Ensure torque is at most at the specified limit. If exceeding, then limit it in the
-    /// returned DrivetrainCommand_s
-    /// @param const DrivetrainCommand_s &command is a DrivetrainCommand_s, which provides torque
-    /// info
-    /// @param float max_torque this is the maximum average torque the wheels are allowed to
-    /// experience before it is limited.
-    /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
-    /// method
     /**
-     * @brief 
+     * @brief Apply torque limit such that the average torque requested cannot exceed the limit. If exceeding,
+     *        then scale it down accordingly (preserve torque ratios)
+     * @param desired_controller_out is a DrivetrainCommand_s requesting some torque/speed
+     * @param max_avg_torque_limit is maximum average torque the wheels are allowed to experience
+     * @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand method
     */
-    DrivetrainCommand_s _applyTorqueLimit(const DrivetrainCommand_s &command, float max_torque);
+    DrivetrainCommand_s _applyTorqueLimit(const DrivetrainCommand_s &desired_controller_out, float max_avg_torque_limit);
 
-    /// @brief Apply power limit (watts) such that the mechanical power of all wheels never exceeds
-    /// the preset mechanical power limit. Scales all wheels down to preserve functionality of
-    /// torque controllers
-    /// @param const DrivetrainCommand_s &command provides torque info, which is used to calculate
-    /// mechanical power
-    /// @param const DrivetrainDynamicReport_s &drivetrain provides RPMS, which are used to
-    /// calculate radians / s
-    /// @param float max_torque is used to indirectly specifiy the max power
-    /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
-    /// method
-    DrivetrainCommand_s _apply_power_limit(const DrivetrainCommand_s &command,
-                                          const DrivetrainDynamicReport_s &drivetrain,
-                                          float power_limit, float max_torque
+    /**
+     * @brief Apply power limit (watts) such that the mechanical power of all wheels never exceeds the preset mechanical power limit.
+     *        If exceeding, then scale it down accordingly (preserve torque ratios)
+     * @param desired_controller_out is a DrivetrainCommand_s requesting some torque/speed
+     * @param dynamic_report is a DrivetrainDynamicReport_s which provides the active RPMs
+     * @param mech_power_limit is the mechanical power limit (watts)
+     * @param max_torque is used to indirectly specifiy the max power
+     * @param max_speed_rpm is used to indirectly specifiy the max power (not really)
+     * @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand method
+    */
+    DrivetrainCommand_s _applyPowerLimit(const DrivetrainCommand_s &desired_controller_out,
+                                        const DrivetrainDynamicReport_s &dynamic_report,
+                                        float power_limit_watts,
+                                        float max_torque,
+                                        float 
     );
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit

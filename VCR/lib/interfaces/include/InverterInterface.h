@@ -1,6 +1,10 @@
 #ifndef INVERTERINTERFACE_H
 #define INVERTERINTERFACE_H
 
+/* ETL Library */
+#include <etl/delegate.h>
+#include <etl/singleton.h>
+
 /* External Includes */
 #include <algorithm>
 #include "shared_types.h"
@@ -360,24 +364,24 @@ public:
      * @param torque_nm is signed!
      * @note Current value is stored in _control_inputs. Based on sign, store ac or ac brake current.
     */
-    void set_motors_torque(float torque_nm);
+    void setMotorsTorque(float torque_nm);
 
     /**
      * @brief Method sets the rpm produced by the motors by converting to ERPM
      * @param speed_rpm is signed!
      * @note ERPM value is stored in _control_inputs. The ERPM command accepts both positive and negative values
     */
-    void set_motors_speed(float speed_rpm);
+    void setMotorsSpeed(float speed_rpm);
 
     /**
      * @brief Method sets the torque/speed produced by the motors to 0
     */
-    void set_motors_idle();
+    void setMotorsIdle();
 
     /**
      * @brief Method changes the state of _enable_requested
      */
-    void request_enable(bool enable);
+    void requestEnable(bool enable);
 
     /**
      * @brief Method check whether this inverter currently reports it is in a torque or speed control mode
@@ -385,29 +389,29 @@ public:
      *       into just TORQUE
      * @return True if the Drivetrain mode matches what the inverter is reporting, false otherwise
     */
-    bool is_reported_mode_matching_dt(DrivetrainControlMode_e expected_mode) const;
+    bool isReportedModeMatchingDT(DrivetrainControlMode_e expected_mode) const;
 
-    InverterStatus_s get_status() const;
-    MotorMechanics_s get_motor_mechanics() const;
+    InverterStatus_s getStatus() const;
+    MotorMechanics_s getMotorMechanics() const;
 
     /**
      * @brief Builds InverterData_s, which is the telemetry-facing snapshot of live inverter data
     */
-    InverterData_s get_telemetry_data() const;
+    InverterData_s getTelemetryData() const;
 
     /**
      * @brief Builds InverterLimits_s, which is the telemetry-facing snapshot of live inverter limits configured
      * @note current-limit configuration and limit-active statuses
     */
-    InverterLimits_s get_limits_data() const;
+    InverterLimits_s getLimitsData() const;
 
     /* ---------- DTI-specific diagnostics ---------- */
-    DTIFaultCode_e get_fault_code() const;
-    const StatusGeneralIOMsg_s& get_io_status() const;
-    const StatusGeneralControlMsg_s& get_control_status() const;
-    const InverterStatusMessages_s& get_all_inverter_data() const;
+    DTIFaultCode_e getFaultCode() const;
+    const StatusGeneralIOMsg_s& getIOStatus() const;
+    const StatusGeneralControlMsg_s& getControlStatus() const;
+    const InverterStatusMessages_s& geAllInverterData() const;
 
-    uint8_t get_node_id() const { return _node_id; }
+    uint8_t getNodeID() const { return _node_id; }
 
 private:
 
@@ -451,5 +455,6 @@ private:
     */
     uint16_t _pack_dti_can_id(uint8_t packet_id) const;
 };
+using InverterInterfaceInstance = etl::singleton<InverterInterface>;
 
 #endif // INVERTERINTERFACE_H
