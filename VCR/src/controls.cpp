@@ -31,9 +31,9 @@ void VCRControls::handle_drivetrain_command(bool wanting_ready_to_drive, bool re
     }
 }
 
-bool VCRControls::drivebrain_is_in_control() const
+bool VCRControls::isDrivebrainInControll() const
 {
-    auto status = _tc_mux.get_tc_mux_status();
+    auto status = _tc_mux.getTCMuxStatus();
     return (!_mode4.get_timing_failure_status()) && (status.active_controller_mode==ControllerMode_e::MODE_4);
 }
 
@@ -44,14 +44,14 @@ bool VCRControls::drivebrain_timing_failure() const
 
 void VCRControls::send_controls_can_messages()
 {
-    MessageLatencyInfo_s aux_latency_info = _mode4.get_aux_latency_data();
-    MessageLatencyInfo_s telem_latency_info = _mode4.get_telem_latency_data();
+    MessageLatencyInfo_s aux_latency_info = _mode4.getRAUXLatencyInfo();
+    MessageLatencyInfo_s telem_latency_info = _mode4.getTELEMLatencyInfo();
 
     // Enqueue timing faults
     DRIVEBRAIN_LATENCY_STATUSES_t status_msg;
 
-    status_msg.db_aux_timing_fault = aux_latency_info.timing_failure;
-    status_msg.db_telem_timing_fault = telem_latency_info.timing_failure;
+    status_msg.db_aux_timing_fault = aux_latency_info.has_timing_failure;
+    status_msg.db_telem_timing_fault = telem_latency_info.has_timing_failure;
 
     CAN_util::enqueue_msg(&status_msg,
                         &Pack_DRIVEBRAIN_LATENCY_STATUSES_hytech,

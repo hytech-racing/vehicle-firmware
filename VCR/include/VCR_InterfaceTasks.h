@@ -96,11 +96,11 @@ void initializeAllInterfaces();
 /**
  * @brief Task calls method to clear the TX buffers for TELEM, INVERTER, and RAUX
 */
-::HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse sendAllCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
 /* -------------------- ETHERNET TASKS -------------------- */
-::HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized VCR)
+::HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized VCR)
 
 
 ::HT_TASK::TaskResponse debugPrintTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);

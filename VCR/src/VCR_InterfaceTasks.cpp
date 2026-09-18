@@ -136,14 +136,14 @@ void initialize_all_interfaces()
     handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
 }
 
-HT_TASK::TaskResponse runReadADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ADCInterfaceInstance::instance().tick_adc0();
     ADCInterfaceInstance::instance().update_filtered_values(VCRInterfaces::LOADCELL_IIR_FILTER_ALPHA);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse runReadADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ADCInterfaceInstance::instance().tick_adc1();
     return HT_TASK::TaskResponse::YIELD;
@@ -156,13 +156,13 @@ HT_TASK::TaskResponse updateACUHeartbeat(const unsigned long& sysMicros, const H
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     WatchdogInterfaceInstance::instance().update_watchdog_state(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse readIOExpander(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse readIOExpanderTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     IOExpanderInterfaceInstance::instance().updatePortAData();
     IOExpanderInterfaceInstance::instance().updatePortBData();
@@ -189,7 +189,6 @@ HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, 
 {
     VehicleState_e vehicle_state = VehicleStateMachineInstance::instance().get_state(); //NOLINT will alway be populated so its ok
     bool enable_state = vehicle_state == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE ||
-                        vehicle_state == VehicleState_e::WANTING_READY_TO_DRIVE ||
                         vehicle_state == VehicleState_e::READY_TO_DRIVE ||
                         VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
                         VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_5;
@@ -250,13 +249,13 @@ HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMic
 
 HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer, &VCRCANInterfaceInstance::instance().REAR_AUX_CAN);
+    VCRCANInterfaceImpl::sendAllCANMsgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
+    VCRCANInterfaceImpl::sendAllCANMsgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);
+    VCRCANInterfaceImpl::sendAllCANMsgs(VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer, &VCRCANInterfaceInstance::instance().REAR_AUX_CAN);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     DrivebrainInterfaceInstance::instance().handleSendEthernetData(
         VCREthernetInterfaceInstance::instance().makeVCRDataPBMsg(ADCInterfaceInstance::instance(),

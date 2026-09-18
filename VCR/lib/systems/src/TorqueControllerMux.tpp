@@ -9,10 +9,10 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
 {
 
     const DrivetrainCommand_s EMPTY_COMMAND = {
-        .desired_torques = {0.0, 0.0, 0.0, 0.0}
-        .desired_speeds = {0.0, 0.0, 0.0, 0.0}
+        .control_mode = DrivetrainControlMode_e::TORQUE
+        .desired_torques = {{0.0, 0.0, 0.0, 0.0}}
+        .desired_speeds = {{0.0, 0.0, 0.0, 0.0}}
     };
-
 
     bool is_requested_mode_supported = (requested_controller_mode == ControllerMode_e::MODE_0)
                                     || (requested_controller_mode == ControllerMode_e::MODE_1)
@@ -26,7 +26,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
     }
 
     /**
-     * Here we are going to track...
+     * @note Here we are going to track...
      *  1) Which mode is the driver/dashboard currently requesting
      *  2) What mode the mux is actually running right now
      *
@@ -34,10 +34,9 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
      *  1) Want to double check both the active and requested mode's slots in _controller_evals actually
      *     holds a bound function before calling either.
      *  2) We need to perform safety checks before switching modes, so we need to keep track of requested and current mode.
-     *
     */
     int requested_mode_index = static_cast<int>(requested_controller_mode);
-    int active_mode_index = static_cast<int>(_active_status.active_controller_mode);
+    int active_mode_index = static_cast<int>(_curr_tc_mux_status.active_controller_mode);
 
     /**
      * @brief Defensive guard against a construction-time mistake.
@@ -64,7 +63,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
      */
     if ((!_controller_evals[active_mode_index]) || (!_controller_evals[requested_mode_index]))
     {
-        _active_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER;
+        _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER;
         return EMPTY_COMMAND;
     }
 
@@ -74,58 +73,66 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::getDrivetrainCommand(C
 
     // std::cout << "output torques " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
 
-    bool is_mode_change_requested = requested_controller_mode != _active_status.active_controller_mode;
+    bool is_mode_change_requested = requested_controller_mode != _curr_tc_mux_status.active_controller_mode;
 
     if (is_mode_change_requested)
     {
-        DrivetrainCommand_s proposed_output = _controller_evals[requested_mode_index](input_state, sys_time::hal_millis());
+        DrivetrainCommand_s desired_command_out = _controller_evals[requested_mode_index](input_state, sys_time::hal_millis());
 
         bool can_switch_controller = _canSwitchController(input_state.system_data.drivetrain_data,
                                                         active_mode_output,
-                                                        proposed_output
+                                                        desired_command_out
         );
 
         if (can_switch_controller)
         {
-            _active_status.active_controller_mode = requested_controller_mode;
+            _curr_tc_mux_status.active_controller_mode = requested_controller_mode;
             active_mode_index = requested_mode_index;
-            active_mode_output = proposed_output;
+            active_mode_output = desired_command_out;
         }
     }
 
-    if (!_mux_bypass_limits[active_controller_mode_index])
+    if (!_mux_bypass_limits[active_mode_index])
     {
-        _active_status.active_torque_limit_enum = requested_torque_limit;
+        _curr_tc_mux_status.active_torque_limit_enum = requested_torque_limit;
 
         // Occurs when the desired speed is 0 (braking) and we want to allow regen -- need to apply limits so that the pack voltage doesn't spike too high
-        if (current_output.desired_speeds.FL == 0.0f && current_output.desired_speeds.FR == 0.0f && current_output.desired_speeds.RL == 0.0f && current_output.desired_speeds.RR == 0.0f)
+        if (active_mode_output.desired_speeds.FL == 0.0f &&
+            active_mode_output.desired_speeds.FR == 0.0f &&
+            active_mode_output.desired_speeds.RL == 0.0f &&
+            active_mode_output.desired_speeds.RR == 0.0f
+        )
         {
-            current_output = _apply_regen_limit(current_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
+            active_mode_output = _applyRegenLimit(active_mode_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
         }
 
-        current_output = _apply_torque_limit(current_output, _torque_limit_map[requested_torque_limit]);
-        _active_status.active_torque_limit_value = _torque_limit_map[requested_torque_limit];
+        active_mode_output = _applyTorqueLimit(active_mode_output, _torque_limit_map[requested_torque_limit]);
+        _curr_tc_mux_status.active_torque_limit_value = _torque_limit_map[requested_torque_limit];
 
         // Applied power limit when accelerating
-        if (current_output.desired_speeds.FL != 0.0f || current_output.desired_speeds.FR != 0.0f || current_output.desired_speeds.RL != 0.0f || current_output.desired_speeds.RR != 0.0f)
+        if (active_mode_output.desired_speeds.FL != 0.0f ||
+            active_mode_output.desired_speeds.FR != 0.0f ||
+            active_mode_output.desired_speeds.RL != 0.0f ||
+            active_mode_output.desired_speeds.RR != 0.0f
+        )
         {
-            current_output = _applyPowerLimit(current_output, input_state.system_data.drivetrain_data, _max_power_limit, _torque_limit_map[requested_torque_limit]);
+            active_mode_output = _applyPowerLimit(current_output, input_state.system_data.drivetrain_data, _params.max_power_limit_watts, _torque_limit_map[requested_torque_limit]);
         }
 
         // std::cout << "output torques after pw " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
-        current_output = _apply_positive_speed_limit(current_output);
+        _curr_tc_mux_status = _applyPositiveSpeedLimit(current_output);
         _active_status.output_is_bypassing_limits = false;
     }
     else
     {
         // any mode other than mode 0 = no torque, regen, or power limiting
-        _active_status.active_torque_limit_enum = TorqueLimit_e::TCMUX_FULL_TORQUE;
-        _active_status.active_torque_limit_value= PhysicalParameters::AMK_MAX_TORQUE;
-        _active_status.output_is_bypassing_limits = true;
+        _curr_tc_mux_status.active_torque_limit_enum = TorqueLimit_e::TCMUX_FULL_TORQUE;
+        _curr_tc_mux_status.active_torque_limit_value= dti_motor_params::MOTOR_MAX_TORQUE_NM;
+        _curr_tc_mux_status.output_is_bypassing_limits = true;
     }
 
     // std::cout << "output torques before return " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
-    return current_output;
+    return active_mode_output;
 }
 
 template <size_t num_controllers>
@@ -182,10 +189,10 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(cons
     {
         float scale = avg_torque / max_avg_torque_limit;
 
-        command_out.desired_torques.FL = out.desired_torques.FL / scale;
-        command_out.desired_torques.FR = out.desired_torques.FR / scale;
-        command_out.desired_torques.RL = out.desired_torques.RL / scale;
-        command_out.desired_torques.RR = out.desired_torques.RR / scale;
+        command_out.desired_torques.FL = command_out.desired_torques.FL / scale;
+        command_out.desired_torques.FR = command_out.desired_torques.FR / scale;
+        command_out.desired_torques.RL = command_out.desired_torques.RL / scale;
+        command_out.desired_torques.RR = command_out.desired_torques.RR / scale;
     }
 
     return command_out;
@@ -294,40 +301,50 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyPowerLimit(const
 }
 
 template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain_data, const ACUCoreData_s acu_data)
+DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(const DrivetrainCommand_s &desired_controller_out,
+                                                                        const DrivetrainDynamicReport_s &dynamic_report,
+                                                                        const ACUCoreData_s acu_data
+)
 {
-    DrivetrainCommand_s out = command;
+    DrivetrainCommand_s command_out = desired_controller_out;
+
+    // EV.3.3.3: "powertrain must not regenerate energy when vehicle speed is between 0 and 5 km/hr"
     const float no_regen_limit_kph = 10.0;
-    const float full_regen_limit_kph = 5.0; // per rules EV.3.3.3
+    const float full_regen_limit_kph = 5.0;
 
-    const float start_regen_voltage_limit = 520.0;
-    const float max_regen_voltage_limit = 530.0;
+    // Based on DCIR
+    const volt start_regen_voltage_limit = 520.0;
+    const volt max_regen_voltage_limit = 530.0;
 
-    const float start_regen_power_limit = 30000.0f;
-    const float max_regen_power_limit = 50000.0f;
+    // Mechanical power limit
+    const watt start_regen_power_limit_watt = 30000.0f;
+    const watt max_regen_power_limit_watt = 50000.0f;
+
+    // Current motor and inverter behavior
+    DrivetrainDynamicReport_s dt_dynamic_data = dynamic_report;
+    auto current_speeds = dt_dynamic_data.measured_speeds.as_array();
+    auto current_inverter_voltage = dt_dynamic_data.measured_hv_bus_voltage.as_array();
+    auto command_speeds = desired_controller_out.desired_speeds.as_array();
 
     float max_wheel_speed = 0.0;
-    float torque_scale_down = 0.0;
-    bool all_wheels_regen_flag = true; // true when all wheels are targeting speeds below the current wheel speed
+    volt max_inverter_voltage = 0.0;
+    bool are_all_wheels_regen = true; // true when all wheels are targeting speeds below the current wheel speed
 
-    DrivetrainDynamicReport_s dt_data = drivetrain_data;
-    auto speeds = dt_data.measuredSpeeds.as_array();
-    auto command_speeds = out.desired_speeds.as_array();
-    for (size_t i = 0; i < _num_motors; i++)
+    for (size_t i = 0; i < _params.num_motors; i++)
     {
-        max_wheel_speed = std::max(max_wheel_speed, static_cast<float>(fabs(speeds[i]) * RPM_TO_KILOMETERS_PER_HOUR));
-        all_wheels_regen_flag &= (command_speeds[i] < static_cast<float>(fabs(speeds[i])) || command_speeds[i] == 0);
+        max_wheel_speed = std::max(max_wheel_speed, static_cast<float>(fabs(current_speeds[i]) * physical_motor_scales::RPM_TO_KILOMETERS_PER_HOUR));
+        max_inverter_voltage = std::max(max_inverter_voltage, current_inverter_voltage[i]);
+        are_all_wheels_regen &= (command_speeds[i] < static_cast<float>(fabs(current_speeds[i])) || command_speeds[i] == 0);
     }
 
-    // begin limiting regen at no_regen_limit_kph and completely limit regen at full_regen_limit_kph
-    // linearly interpolate the scale factor between no_regen_limit_kph and full_regen_limit_kph
-    torque_scale_down = std::min(1.0f, std::max(0.0f, (max_wheel_speed - full_regen_limit_kph) / (no_regen_limit_kph - full_regen_limit_kph)));
+    // begin limiting regen at no_regen_limit_kph and completely limit regen at full_regen_limit_kph; using linear ramp
+    float torque_scale_down = torque_scale_down = std::min(1.0f, std::max(0.0f, (max_wheel_speed - full_regen_limit_kph) / (no_regen_limit_kph - full_regen_limit_kph)));
 
-    // limit torque based on overvoltage so that cells do not
-    float over_voltage_protection_scale = std::min(1.0f, std::max(0.1f, (dt_data.measuredInverterFLPackVoltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
+    // limit torque based on overvoltage so that cells do not limit; using linear ramp
+    float over_voltage_protection_scale = std::min(1.0f, std::max(0.1f, (max_inverter_voltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
     torque_scale_down *= (1.0f - over_voltage_protection_scale);
 
-    // regen power limit
+    // regen power limit (what was wrong with this??)
     // if (acu_data.tractive_system_current < 0) // we don't want to apply the regen power limit until we observe a negative
     // {
     //     float electrical_power = acu_data.max_measured_ts_out_voltage * (-1.0f * acu_data.tractive_system_current);
@@ -336,13 +353,13 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(con
     // }
 
     // over voltage, rules regen limit
-    if (all_wheels_regen_flag)
+    if (are_all_wheels_regen)
     {
-        out.torque_limits.FL *= torque_scale_down;
-        out.torque_limits.FR *= torque_scale_down;
-        out.torque_limits.RL *= torque_scale_down;
-        out.torque_limits.RR *= torque_scale_down;
+        command_out.desired_torques.FL *= torque_scale_down;
+        command_out.desired_torques.FR *= torque_scale_down;
+        command_out.desired_torques.RL *= torque_scale_down;
+        command_out.desired_torques.RR *= torque_scale_down;
     }
 
-    return out;
+    return command_out;
 }

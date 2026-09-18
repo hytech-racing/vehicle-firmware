@@ -82,7 +82,7 @@ private:
     std::array<bool, num_controllers> _mux_bypass_limits;
 
     std::unordered_map<TorqueLimit_e, float> _torque_limit_map = {
-        {TorqueLimit_e::TCMUX_FULL_TORQUE, PhysicalParameters::AMK_MAX_TORQUE},
+        {TorqueLimit_e::TCMUX_FULL_TORQUE, dti_motor_params::MOTOR_MAX_TORQUE_NM},
         {TorqueLimit_e::TCMUX_MID_TORQUE, 15.0f},
         {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}
     };
@@ -127,7 +127,7 @@ private:
                                         const DrivetrainDynamicReport_s &dynamic_report,
                                         float power_limit_watts,
                                         float max_torque,
-                                        float 
+                                        float max_speed_rpm
     );
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit
@@ -136,8 +136,8 @@ private:
     /// @param const DrivetrainDynamicReport_s &drivetrain_data provides RPMs
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_regen_limit(const DrivetrainCommand_s &command,
-                                          const DrivetrainDynamicReport_s &drivetrain_data,
+    DrivetrainCommand_s _applyRegenLimit(const DrivetrainCommand_s &desired_controller_out,
+                                          const DrivetrainDynamicReport_s &dynamic_report,
                                           const ACUCoreData_s acu_data
     );
 
