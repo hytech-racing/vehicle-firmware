@@ -33,9 +33,9 @@ public:
 
     void read() override;
 
-    bool get_bit_port_a(uint8_t bit) override;
+    bool getBitPortA(uint8_t bit) override;
 
-    bool get_bit_port_b(uint8_t bit) override;
+    bool getBitPortB(uint8_t bit) override;
 
     /**
      * @brief Method updates data pertaining to port A

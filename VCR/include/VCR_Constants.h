@@ -10,6 +10,7 @@ using time_us = uint32_t;
 
 namespace VCRInterfaces
 {
+    constexpr int SERIAL_BAUDRATE = 115200;
     constexpr int ANALOG_RESOLUTION = 12;
 
     /* Misc. Pin Definitions */
@@ -119,7 +120,7 @@ namespace VCRInterfaces
 
 namespace VCRSystems
 {
-    constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 60;
+    constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 36;
     constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40; // milliseconds
     constexpr uint16_t CONTROL_MODE_MISTMATCH_THRESHOLD_MS = 10;
 }

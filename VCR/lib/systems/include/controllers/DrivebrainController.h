@@ -60,7 +60,7 @@ public:
 
     /// @brief getter for the current status of whether or not the controller has had a timing failure during operation
     /// @return bool of status
-    bool get_timing_failure_status() const { return !_should_run_controller; }
+    bool hasTimingFailure() const { return !_should_run_controller; }
 
 private:
 
@@ -71,7 +71,7 @@ private:
     MessageLatencyInfo_s _telem_latency_info = { false, 0 };
     SimpleTorqueController _emergency_control {{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
 
-    
+
 
     /**
      * @brief Method check if there is a "timing failure", which means message are too latent or have not been received

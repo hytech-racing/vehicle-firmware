@@ -342,7 +342,7 @@ void InverterInterface::send_DRIVE_ENABLE()
 
 /* ---------- InverterFuncts_s-facing API ---------- */
 
-void InverterInterface::set_motors_torque(torque_nm torque_nm)
+void InverterInterface::setMotorTorque(torque_nm torque_nm)
 {
     float requested_current_apk = _torque_to_current(torque_nm);
 
@@ -356,25 +356,25 @@ void InverterInterface::set_motors_torque(torque_nm torque_nm)
     }
 }
 
-void InverterInterface::set_motors_speed(float speed_rpm)
+void InverterInterface::setMotorSpeed(float speed_rpm)
 {
     float requested_speed_erpm = _rpm_to_erpm(speed_rpm);
     _control_inputs.pending_speed_erpm = requested_speed_erpm;
 }
 
-void InverterInterface::set_motors_idle()
+void InverterInterface::setMotorIdle()
 {
     _control_inputs.pending_ac_current_apk = 0;
     _control_inputs.pending_ac_brake_current_amp = 0;
     _control_inputs.pending_speed_erpm = 0;
 }
 
-void InverterInterface::request_enable(bool enable)
+void InverterInterface::requestEnable(bool enable)
 {
     _enable_requested = enable;
 }
 
-bool InverterInterface::is_reported_mode_matching_dt(DrivetrainControlMode_e expected_mode) const
+bool InverterInterface::isReportedModeMatchingDT(DrivetrainControlMode_e expected_mode) const
 {
     DTIControlMode_e reported_mode = _feedback_data.general_control_msg.control_mode;
 
@@ -386,7 +386,7 @@ bool InverterInterface::is_reported_mode_matching_dt(DrivetrainControlMode_e exp
     return (reported_mode == DTIControlMode_e::MODE_SPEED);
 }
 
-InverterStatus_s InverterInterface::get_status() const
+InverterStatus_s InverterInterface::getStatus() const
 {
     InverterStatus_s status{};
     status.is_inverter_connected = (sys_time::hal_millis() - _last_recv_millis) < _dti_params.connection_timeout_ms;
@@ -397,7 +397,7 @@ InverterStatus_s InverterInterface::get_status() const
     return status;
 }
 
-MotorMechanics_s InverterInterface::get_motor_mechanics() const
+MotorMechanics_s InverterInterface::getMotorMechanics() const
 {
     float id_actual = _feedback_data.foc_current_msg.id_apk;
     float iq_actual = _feedback_data.foc_current_msg.iq_apk;
@@ -414,30 +414,7 @@ MotorMechanics_s InverterInterface::get_motor_mechanics() const
     return mm;
 }
 
-
-/* ---------- DTI-specific diagnostics ---------- */
-
-DTIFaultCode_e InverterInterface::get_fault_code() const
-{
-    return _feedback_data.temp_and_fault_msg.fault_code;
-}
-
-const StatusGeneralIOMsg_s& InverterInterface::get_io_status() const
-{
-    return _feedback_data.general_io_msg;
-}
-
-const StatusGeneralControlMsg_s& InverterInterface::get_control_status() const
-{
-    return _feedback_data.general_control_msg;
-}
-
-const InverterStatusMessages_s& InverterInterface::get_all_inverter_data() const
-{
-    return _feedback_data;
-}
-
-InverterData_s InverterInterface::get_telemetry_data() const
+InverterData_s InverterInterface::getTelemetryData() const
 {
     InverterData_s data{};
 
@@ -474,7 +451,7 @@ InverterData_s InverterInterface::get_telemetry_data() const
     return data;
 }
 
-InverterLimits_s InverterInterface::get_limits_data() const
+InverterLimits_s InverterInterface::getLimitsData() const
 {
     InverterLimits_s limits{};
 
@@ -506,6 +483,27 @@ InverterLimits_s InverterInterface::get_limits_data() const
     return limits;
 }
 
+/* ---------- DTI-specific diagnostics ---------- */
+
+DTIFaultCode_e InverterInterface::getFaultCode() const
+{
+    return _feedback_data.temp_and_fault_msg.fault_code;
+}
+
+const StatusGeneralIOMsg_s& InverterInterface::getIOStatus() const
+{
+    return _feedback_data.general_io_msg;
+}
+
+const StatusGeneralControlMsg_s& InverterInterface::getControlStatus() const
+{
+    return _feedback_data.general_control_msg;
+}
+
+const InverterStatusMessages_s& InverterInterface::geAllInverterData() const
+{
+    return _feedback_data;
+}
 
 /* ---------- Private helpers ---------- */
 

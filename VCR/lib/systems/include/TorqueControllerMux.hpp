@@ -11,7 +11,7 @@
 #include "PhysicalParameters.h"
 
 /**
- * @brief Torque Controller (TC) Mux handles these things:
+ * @note Torque Controller (TC) Mux handles these things:
  *
  *   1) Swapping between controller outputs
  *   2) Turning on and off running of controllers
@@ -46,8 +46,9 @@ public:
 
     /**
      * @brief Constructor for the TC Mux
-     * @param controller_evals the array of controller evaluation functions that are being muxed between
-     * @param mux_bypass_limits the array of aligned bools for determining if the limits should be  applied to the controller outputs defaults to TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE
+     * @param controller_evals an array of size num_controllers, holds the various controllers "evaluate" methods
+     * @param mux_bypass_limits an array of size num_controllers, holds bools for determining if the limit methods should be
+     *                          applied to the controller outputs
     */
     explicit TorqueControllerMux(
         std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
@@ -63,17 +64,27 @@ public:
         _params(params)
     {};
 
-    const TorqueControllerMuxStatus_s &getTCMuxStatus() const { return _active_status; }
+    const TorqueControllerMuxStatus_s &getTCMuxStatus() const { return _curr_tc_mux_status; }
 
-    /// @brief function that evaluates the mux, controllers and gets the active command
-    /// @param requested_controller_type the requested controller type from the dial state
-    /// @param controller_command_torque_limit the torque limit state enum set by dashboard
-    /// @param input_state the active state of the car
-    /// @return the active DrivetrainCommand_s to be sent to the drivetrain to command increases and
-    /// decreases in torque
-    DrivetrainCommand_s getDrivetrainCommand(ControllerMode_e requested_controller_type,
-                                               TorqueLimit_e controller_command_torque_limit,
-                                               const VCRData_s &input_state
+    /**
+     * @brief Main entry point of the TC Mux
+     * @note Evaluates the active controller for this tick, and if a different mode has been requested,
+     *       evaluates that mode's controller too and checks whether it's safe to switch to it right now.
+     *       If the switch is approved, it becomes the new active mode. Also, unless the resulting active
+     *       mode has limits bypassed, limiting is applied
+     * @param requested_controller_type the controller mode requested by the driver/dashboard
+     * @param torque_limit_map_val the torque budget selected on the dashboard
+     * @param input_state the current state of the car
+     * @return the DrivetrainCommand_s to send to the drivetrain this tick. Returns an
+     *         EMPTY_COMMAND (zero torque/speed) if requested_controller_type is unsupported,
+     *         or if either the active or requested controller's slot in controller_evals is
+     *         unbound
+     *
+     * TODO: Consider changing name, evaluateTXMux might be confusing
+    */
+    DrivetrainCommand_s evaluateTCMux(ControllerMode_e requested_controller_type,
+                                    TorqueLimit_e torque_limit_map_val,
+                                    const VCRData_s &input_state
     );
 
 private:
@@ -81,9 +92,10 @@ private:
     std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
     std::array<bool, num_controllers> _mux_bypass_limits;
 
+    /// @note unorderd maps -> C++ hash table
     std::unordered_map<TorqueLimit_e, float> _torque_limit_map = {
         {TorqueLimit_e::TCMUX_FULL_TORQUE, dti_motor_params::MOTOR_MAX_TORQUE_NM},
-        {TorqueLimit_e::TCMUX_MID_TORQUE, 15.0f},
+        {TorqueLimit_e::TCMUX_MID_TORQUE, 15.0f}, // about half
         {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}
     };
 
@@ -94,14 +106,15 @@ private:
     /**
      * @brief Checks whether it's currently safe to switch to a different torque controller
      *        A switch is only considered safe near a complete stop
-     * @note Per driver feedback, we don't hard-block switching unless completely stationary.
-     *       Instead we allow it below a speed/torque-delta threshold. This is acceptable for
-     *       safety since we have reasonably slow, safe cutoffs
+     * @note Per driver feedback, we don't hard-block switching unless completely stationary. Instead we allow it below a
+     *       speed/torque-delta threshold. This is acceptable for safety since we have reasonably slow, safe cutoffs
+     * @param active_mode_evaluate_output is the DrivetrainCommand_s which is returned/evaulated by current controller/mode
+     * @param requested_mode_evaluate_output is the DrivetrainCommand_s which is returned/evaulated by requested controller/mode
      * @return true if the switch is safe to perform, false otherwise
     */
     bool _canSwitchController(DrivetrainDynamicReport_s active_drivetrain_data,
-                            DrivetrainCommand_s previous_controller_command,
-                            DrivetrainCommand_s desired_controller_out
+                            DrivetrainCommand_s active_mode_evaluate_output,
+                            DrivetrainCommand_s requested_mode_evaluate_output
     );
 
     /**
@@ -114,6 +127,11 @@ private:
     DrivetrainCommand_s _applyTorqueLimit(const DrivetrainCommand_s &desired_controller_out, float max_avg_torque_limit);
 
     /**
+     * @brief
+    */
+    DrivetrainCommand_s _applySpeedLimit(const DrivetrainCommand_s &desired_controller_out, float max_avg_torque_limit);
+
+    /**
      * @brief Apply power limit (watts) such that the mechanical power of all wheels never exceeds the preset mechanical power limit.
      *        If exceeding, then scale it down accordingly (preserve torque ratios)
      * @param desired_controller_out is a DrivetrainCommand_s requesting some torque/speed
@@ -123,12 +141,23 @@ private:
      * @param max_speed_rpm is used to indirectly specifiy the max power (not really)
      * @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand method
     */
-    DrivetrainCommand_s _applyPowerLimit(const DrivetrainCommand_s &desired_controller_out,
-                                        const DrivetrainDynamicReport_s &dynamic_report,
-                                        float power_limit_watts,
-                                        float max_torque,
-                                        float max_speed_rpm
+    DrivetrainCommand_s _applyTorqueControlPowerLimit(const DrivetrainCommand_s &desired_controller_out,
+                                                    const DrivetrainDynamicReport_s &dynamic_report,
+                                                    float power_limit_watts,
+                                                    float max_torque_nm
     );
+
+    /**
+     * @brief Works the same as _applyTorqueControlPowerLimit, just used when we are controlling motors using speed instead of torque
+     * @warning This is an approximation, not exact like the torque-mode correction. It assumes measured torque stays roughly constant as the speed target changes
+     *          which isn't true since DTI's internal speed loop will re-derive torque at the new target
+    */
+    DrivetrainCommand_s _applySpeedControlPowerLimit(const DrivetrainCommand_s &desired_controller_out,
+                                                    const DrivetrainDynamicReport_s &dynamic_report,
+                                                    float power_limit_watts,
+                                                    float max_speed_rpm
+    );
+
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit
     /// regen at fullRegenLimitKPH (hardcoded in func)

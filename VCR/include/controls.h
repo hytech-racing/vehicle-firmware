@@ -48,23 +48,31 @@ public:
     DrivetrainCommand_s _debug_dt_command = {};
 
     /**
-     * Primary function in VCRControls. After the drivetrain state machine determines that
-     * the drivetrain must be commanded, it invokes this function, which will find the
-     * function from the tc_mux and invoke the correct one on the drivetrain system.
-     */
-    void handleDrivetrainCommand(bool wanting_ready_to_drive, bool ready_to_drive);
+     * @brief Primary function in VCRControls, allowing us to command the drivetrain based on vehicle state
+     * @note After the drivetrain state machine determines that the drivetrain must be commanded, it invokes
+     *       this function, which will find the function from the tc_mux and invoke the correct one on the drivetrain system.
+    */
+    void handleDrivetrainCommand(bool ready_to_drive, unsigned long curr_millis);
 
+    /**
+     * @note Drivebrain is considered in control if there is no latency/timing failure and if we are running mode 4
+     * @return True if in control, false otherwise
+    */
     bool isDrivebrainInControll() const;
 
-    bool drivebrain_timing_failure() const;
+    /**
+     * @note Timing failure is determined based on whether or not we _should_run_controller, which is dictated by latency failure
+     * @return True if there is a timing failure/should not run controller, false otherwise
+    */
+    bool drivebrainHasTimingFailure() const;
 
-    void send_controls_can_messages();
+    void enqueueLatencyCANData();
 
     /**
      * Function to cycle to the next torque limit (low, mid, max). The button input must
      * be handled elsewhere.
-     */
-    void cycle_torque_limit()
+    */
+    void cycleTorqueLimit()
     {
         size_t torque_limit_int = static_cast<size_t>(_torque_limit);
         size_t new_torque_limit = (torque_limit_int + 1) % (static_cast<size_t>(TorqueLimit_e::NUM_TCMUX_TORQUE_LIMITS));

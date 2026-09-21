@@ -7,7 +7,7 @@
 
 /* External Includes */
 #include <algorithm>
-#include "shared_types.h"
+#include "SharedFirmwareTypes.h"
 #include <FlexCAN_T4.h>
 #include "CANInterface.h"
 #include "hytech.h"
@@ -364,19 +364,19 @@ public:
      * @param torque_nm is signed!
      * @note Current value is stored in _control_inputs. Based on sign, store ac or ac brake current.
     */
-    void setMotorsTorque(float torque_nm);
+    void setMotorTorque(float torque_nm);
 
     /**
      * @brief Method sets the rpm produced by the motors by converting to ERPM
      * @param speed_rpm is signed!
      * @note ERPM value is stored in _control_inputs. The ERPM command accepts both positive and negative values
     */
-    void setMotorsSpeed(float speed_rpm);
+    void setMotorSpeed(float speed_rpm);
 
     /**
      * @brief Method sets the torque/speed produced by the motors to 0
     */
-    void setMotorsIdle();
+    void setMotorIdle();
 
     /**
      * @brief Method changes the state of _enable_requested

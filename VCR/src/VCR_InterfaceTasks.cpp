@@ -1,16 +1,18 @@
 #include "VCR_InterfaceTasks.h"
 
 
-void initialize_all_interfaces()
+void initializeAllInterfaces()
 {
-    SPI.begin();
+    Serial.begin(VCRInterfaces::SERIAL_BAUDRATE);
     analogReadResolution(VCRInterfaces::ANALOG_RESOLUTION);
+
+    SPI.begin();
 
     /* ---------- Pin Setup ----------*/
     // Should these be in a specific interface?
     pinMode(VCRInterfaces::MOTOR_COOLING_CONTROL_PIN, OUTPUT);
     pinMode(VCRInterfaces::INVERTER_COOLING_CONTROL_PIN, OUTPUT);
-    pinMode(VCRInterfaces::INVERTER_ENABLE_PIN, OUTPUT);
+    // pinMode(VCRInterfaces::INVERTER_ENABLE_PIN, OUTPUT); do we have this pin now?
     pinMode(VCRInterfaces::BRAKELIGHT_CONTROL_PIN, OUTPUT);
 
     /* ---------- Watchdog Interface ---------- */
@@ -129,11 +131,11 @@ void initialize_all_interfaces()
                                 VCFInterfaceInstance::instance()
     );
 
-    VCRCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::vcr_recv_switch>());
+    VCRCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::receieveIDSwitch>());
 
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_inverter_can_receive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_telem_can_receive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
+    handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::onINVERTERCANReceive);
+    handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::onTELEMCANReceive);
+    handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::onRAUXCANReceive);
 }
 
 HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
@@ -217,23 +219,27 @@ HT_TASK::TaskResponse enqueueCoolantTempCANDataTask(const unsigned long& sysMicr
 
 HT_TASK::TaskResponse enqueueControlsCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    VCRControlsInstance::instance().send_controls_can_messages();
+    VCRControlsInstance::instance().enqueueLatencyCANData();
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     fl_inverter_interface.send_DRIVE_ENABLE();
-    fl_inverter_interface.send();
+    fl_inverter_interface.send_AC_CURRENT();
+    fl_inverter_interface.send_BRAKE_CURRENT();
 
     fr_inverter_interface.send_DRIVE_ENABLE();
-    fr_inverter_interface.send_INV_SETPOINT_COMMAND();
+    fr_inverter_interface.send_AC_CURRENT();
+    fr_inverter_interface.send_BRAKE_CURRENT();
 
     rl_inverter_interface.send_DRIVE_ENABLE();
-    rl_inverter_interface.send_INV_SETPOINT_COMMAND();
+    rl_inverter_interface.send_AC_CURRENT();
+    rl_inverter_interface.send_BRAKE_CURRENT();
 
     rr_inverter_interface.send_DRIVE_ENABLE();
-    rr_inverter_interface.send_INV_SETPOINT_COMMAND();
+    rr_inverter_interface.send_AC_CURRENT();
+    rr_inverter_interface.send_BRAKE_CURRENT();
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -241,7 +247,7 @@ HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros,
 HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFInterfaceInstance::instance().enqueueVehicleStateCANMessage(VehicleStateMachineInstance::instance().get_state(),
-                                                                DrivetrainInstance::instance().get_current_state(),
+                                                                DrivetrainInstance::instance().getCurrentState(),
                                                                 VCRControlsInstance::instance().isDrivebrainInControll()
     );
     return HT_TASK::TaskResponse::YIELD;
@@ -303,15 +309,15 @@ namespace async_tasks
         auto drivebrain_telem_data = can_interfaces.db_interface.getLatestDrivebrainCommandTELEM();
         auto drivebrain_raux_data = can_interfaces.db_interface.getLatestDrivebrainCommandRAUX();
 
-        auto fl_inv_mechanics = can_interfaces.fl_inverter_interface.get_motor_mechanics();
-        auto fr_inv_mechanics = can_interfaces.fr_inverter_interface.get_motor_mechanics();
-        auto rl_inv_mechanics = can_interfaces.rl_inverter_interface.get_motor_mechanics();
-        auto rr_inv_mechanics = can_interfaces.rr_inverter_interface.get_motor_mechanics();
+        auto fl_inv_mechanics = can_interfaces.fl_inverter_interface.getMotorMechanics();
+        auto fr_inv_mechanics = can_interfaces.fr_inverter_interface.getMotorMechanics();
+        auto rl_inv_mechanics = can_interfaces.rl_inverter_interface.getMotorMechanics();
+        auto rr_inv_mechanics = can_interfaces.rr_inverter_interface.getMotorMechanics();
 
-        auto fl_inv_status = can_interfaces.fl_inverter_interface.get_status();
-        auto fr_inv_status = can_interfaces.fr_inverter_interface.get_status();
-        auto rl_inv_status = can_interfaces.rl_inverter_interface.get_status();
-        auto rr_inv_status = can_interfaces.rr_inverter_interface.get_status();
+        auto fl_inv_status = can_interfaces.fl_inverter_interface.getStatus();
+        auto fr_inv_status = can_interfaces.fr_inverter_interface.getStatus();
+        auto rl_inv_status = can_interfaces.rl_inverter_interface.getStatus();
+        auto rr_inv_status = can_interfaces.rr_inverter_interface.getStatus();
 
         out.inverter_data.FL. = fl_inv_mechanics.actual_speed;
         out.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed;
@@ -324,15 +330,15 @@ namespace async_tasks
         out.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
 
         // Telemetry: full data + limits per corner, now that InverterInterface exposes them
-        out.inverter_telemetry.FL = can_interfaces.fl_inverter_interface.get_telemetry_data();
-        out.inverter_telemetry.FR = can_interfaces.fr_inverter_interface.get_telemetry_data();
-        out.inverter_telemetry.RL = can_interfaces.rl_inverter_interface.get_telemetry_data();
-        out.inverter_telemetry.RR = can_interfaces.rr_inverter_interface.get_telemetry_data();
+        out.inverter_telemetry.FL = can_interfaces.fl_inverter_interface.getTelemetryData();
+        out.inverter_telemetry.FR = can_interfaces.fr_inverter_interface.getTelemetryData();
+        out.inverter_telemetry.RL = can_interfaces.rl_inverter_interface.getTelemetryData();
+        out.inverter_telemetry.RR = can_interfaces.rr_inverter_interface.getTelemetryData();
 
-        out.inverter_limits.FL = can_interfaces.fl_inverter_interface.get_limits_data();
-        out.inverter_limits.FR = can_interfaces.fr_inverter_interface.get_limits_data();
-        out.inverter_limits.RL = can_interfaces.rl_inverter_interface.get_limits_data();
-        out.inverter_limits.RR = can_interfaces.rr_inverter_interface.get_limits_data();
+        out.inverter_limits.FL = can_interfaces.fl_inverter_interface.getLimitsData();
+        out.inverter_limits.FR = can_interfaces.fr_inverter_interface.getLimitsData();
+        out.inverter_limits.RL = can_interfaces.rl_inverter_interface.getLimitsData();
+        out.inverter_limits.RR = can_interfaces.rr_inverter_interface.getLimitsData();
 
         out.recvd_pedals_data = vcf_data.stamped_pedals;
         out.front_loadcell_data = vcf_data.front_loadcell_data;
@@ -362,13 +368,13 @@ namespace async_tasks
 
         if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2)
         {
-            VCRControlsInstance::instance().cycle_torque_limit();
+            VCRControlsInstance::instance().cycleTorqueLimit();
             VCFInterfaceInstance::instance().enqueue_torque_mode_LED_message(VCRControlsInstance::instance().get_current_torque_limit());
         }
 
         vcr_data.system_data.tc_mux_status = VCRControlsInstance::instance().get_tc_mux_status();
-        vcr_data.system_data.vehicle_state_machine_state = VehicleStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
-        vcr_data.system_data.drivetrain_state_machine_state = DrivetrainInstance::instance().get_current_state();
+        vcr_data.system_data.vehicle_state_machine_state = VehicleStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
+        vcr_data.system_data.drivetrain_state_machine_state = DrivetrainInstance::instance().getCurrentState();
         vcr_data.interface_data = new_interface_data;
         vcr_data.system_data.db_cntrl_status.drivebrain_is_in_control = VCRControlsInstance::instance().isDrivebrainInControll();
         vcr_data.system_data.db_cntrl_status.drivebrain_controller_timing_failure = VCRControlsInstance::instance().drivebrain_timing_failure();

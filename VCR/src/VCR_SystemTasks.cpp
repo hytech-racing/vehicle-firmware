@@ -4,43 +4,35 @@ void initialize_all_systems()
 {
 
     /* Delegate Function Definitions For Drivetrain System State Machine */
-    etl::delegate<void(torque_nm)> setMotorsTorque =
-        etl::delegate<void(torque_nm)>::create<InverterInterface, &InverterInterface::setMotorsTorque>(InverterInterfaceInstance::instance()
-    );
+    etl::delegate<void(torque_nm)> setMotorTorque =
+        etl::delegate<void(torque_nm)>::create<InverterInterface, &InverterInterface::setMotorTorque>(InverterInterfaceInstance::instance());
 
-    etl::delegate<void(speed_rpm)> setMotorsSpeed =
-        etl::delegate<void(speed_rpm)>::create<InverterInterface, &InverterInterface::setMotorsSpeed>(InverterInterfaceInstance::instance()
-    );
+    etl::delegate<void(speed_rpm)> setMotorSpeed =
+        etl::delegate<void(speed_rpm)>::create<InverterInterface, &InverterInterface::setMotorSpeed>(InverterInterfaceInstance::instance());
 
-    etl::delegate<void(speed_rpm)> setMotorsIdle =
-        etl::delegate<void()>::create<InverterInterface, &InverterInterface::setMotorsIdle>(InverterInterfaceInstance::instance()
-    );
+    etl::delegate<void(speed_rpm)> setMotorIdle =
+        etl::delegate<void()>::create<InverterInterface, &InverterInterface::setMotorIdle>(InverterInterfaceInstance::instance());
 
     etl::delegate<void(bool)> requestEnable =
-        etl::delegate<void(bool)>::create<InverterInterface, &InverterInterface::requestEnable>(InverterInterfaceInstance::instance()
-    );
+        etl::delegate<void(bool)>::create<InverterInterface, &InverterInterface::requestEnable>(InverterInterfaceInstance::instance());
 
     etl::delegate<bool(DrivetrainControlMode_e)> isReportedModeMatchingDT =
-        etl::delegate<bool(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::isReportedModeMatchingDT>(InverterInterfaceInstance::instance()
-    );
+        etl::delegate<bool(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::isReportedModeMatchingDT>(InverterInterfaceInstance::instance());
 
     etl::delegate<InverterStatus_s()> getInverterStatus =
-        etl::delegate<InverterStatus_s()>::create<InverterInterface, &InverterInterface::getStatus>(InverterInterfaceInstance::instance()
-    );
+        etl::delegate<InverterStatus_s()>::create<InverterInterface, &InverterInterface::getStatus>(InverterInterfaceInstance::instance());
 
     etl::delegate<MotorMechanics_s()> getMotorMechanics =
-        etl::delegate<MotorMechanics_s()>::create<InverterInterface, &InverterInterface::getMotorMechanics>(InverterInterfaceInstance::instance()
-    );
+        etl::delegate<MotorMechanics_s()>::create<InverterInterface, &InverterInterface::getMotorMechanics>(InverterInterfaceInstance::instance());
 
     /// TODO:
     etl::delegate<bool()> is_hv_status_ok =
-        etl::delegate<bool()>::create([]() -> bool { return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::NOT_CONNECTED; }
-    );
+        etl::delegate<bool()>::create([]() -> bool { return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::NOT_CONNECTED; });
 
     InverterInterfaceFuncts_s inverter_functs = {
-        setMotorsTorque,
-        setMotorsSpeed,
-        setMotorsIdle,
+        setMotorTorque,
+        setMotorSpeed,
+        setMotorIdle,
         requestEnable,
         isReportedModeMatchingDT,
         getInverterStatus,
@@ -55,33 +47,11 @@ void initialize_all_systems()
 
 
     /* Delegate Function Definitions For Vehicle State Machine */
-    etl::delegate<void(bool)> set_ef_pin_active = etl::delegate<void(bool)>::create(
-        [](bool set_active) { digitalWrite(VCRInterfaces::INVERTER_ENABLE_PIN, static_cast<int>(set_active)); });
-
-    etl::delegate<bool()> drivetrain_error_present =
-        etl::delegate<bool()>::create<DrivetrainSystem, &DrivetrainSystem::drivetrain_error_present>(DrivetrainInstance::instance());
-
-    etl::delegate<bool()> drivetrain_ready =
-        etl::delegate<bool()>::create<DrivetrainSystem, &DrivetrainSystem::drivetrain_ready>(DrivetrainInstance::instance());
-
-    etl::delegate<void(bool, bool)> handle_drivetrain_command =
-        etl::delegate<void(bool, bool)>::create<VCRControls, &VCRControls::handle_drivetrain_command>(VCRControlsInstance::instance());
-
-    etl::delegate<bool()> drivetrain_reset_pressed =
-        etl::delegate<bool()>::create<VCFInterface, &VCFInterface::is_drivetrain_reset_pressed>(VCFInterfaceInstance::instance());
-
-    etl::delegate<bool()> recalibrate_pedals_button_pressed =
-        etl::delegate<bool()>::create<VCFInterface, &VCFInterface::is_recalibrate_pedals_button_pressed>(VCFInterfaceInstance::instance());
-
-    etl::delegate<void()> reset_dt_error =
-        etl::delegate<void()>::create<DrivetrainSystem, &DrivetrainSystem::reset_dt_error>(DrivetrainInstance::instance());
-
-
-    // Set motors enable taken from above
-
     etl::delegate<bool()> isVehicleLatched =
-        etl::delegate<bool()>::create<ACUInterface, &ACUInterface::isVehicleLatched>(ACUInterfaceInstance::instance()
-    );
+        etl::delegate<bool()>::create([]() -> bool { return vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
+                                                            vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
+                                                            vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
+                                                            vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE; });
 
     etl::delegate<bool()> isRTDPressed =
         etl::delegate<bool()>::create<VCFInterface, &VCFInterface::isStartButtonPressed>(VCFInterfaceInstance::instance());
@@ -144,7 +114,10 @@ void initialize_all_systems()
     VCRControlsInstance::create(&DrivetrainInstance::instance(), VCRSystems::MAX_ALLOWED_DB_LATENCY_MS);
 
     /* ---------- Drivetrain System ---------- */
-    DrivetrainInstance::create(inverter_functs, set_ef_pin_active);
+    DrivetrainInstance::create(VCRSystems::CONTROL_MODE_MISTMATCH_THRESHOLD_MS,
+                                inverter_interfaces_functs,
+                                is_hv_status_ok()
+    );
 }
 
 HT_TASK::TaskResponse tickStateMachine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
