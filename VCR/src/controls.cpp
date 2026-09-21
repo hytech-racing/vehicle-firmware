@@ -16,10 +16,12 @@ void VCRControls::handleDrivetrainCommand(bool ready_to_drive, unsigned long cur
         }
         else
         {
-            // DrivetrainInit_s dt_command = {
-            //     .init_drivetrain = UNINITIALIZED
-            // };
-            // drivetrain_status = _dt_system->evaluate_drivetrain(dt_command);
+            
+
+            DrivetrainInit_s dt_command = {
+                .init_drivetrain = UNINITIALIZED
+            };
+            drivetrain_status = _dt_system->evaluate_drivetrain(dt_command);
         }
     }
 }
@@ -29,7 +31,6 @@ bool VCRControls::isDrivebrainInControll() const
     auto status = _tc_mux.getTCMuxStatus();
     return (!_mode4.hasTimingFailure()) && (status.active_controller_mode == ControllerMode_e::MODE_4);
 }
-
 
 void VCRControls::enqueueLatencyCANData()
 {

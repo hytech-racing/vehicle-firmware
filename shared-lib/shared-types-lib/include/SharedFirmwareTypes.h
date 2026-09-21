@@ -393,15 +393,6 @@ struct EnergyMeterData_s
     float em_voltage; // Voltage, in volts, from the EM.
 };
 
-/// @brief Defines modes of torque limit to be processed in torque limit map for exact values.
-enum class TorqueLimit_e
-{
-    TCMUX_FULL_TORQUE,
-    TCMUX_MID_TORQUE,
-    TCMUX_LOW_TORQUE,
-    NUM_TCMUX_TORQUE_LIMITS
-};
-
 /// @brief Defines errors for TC Mux to use to maintain system safety
 enum class TorqueControllerMuxError_e
 {
@@ -418,7 +409,6 @@ struct TorqueControllerMuxStatus_s
     TorqueControllerMuxError_e active_error;
     ControllerMode_e active_controller_mode;
     ControllerMode_e prev_controller_mode;
-    TorqueLimit_e active_torque_limit_enum;
     float active_torque_limit_value;
     bool output_is_bypassing_limits;
 };

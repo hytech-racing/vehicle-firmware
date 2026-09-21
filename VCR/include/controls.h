@@ -65,7 +65,6 @@ public:
 
     TorqueLimit_e getCurrentTorqueLimit() { return _torque_limit; }
 
-
     /**
      * @brief This is a wrapper for TC Mux's method getTCMuxStatus()
      * @note We wrap TorqueControllerMux's getter because it is not a singleton. _tc_mux only exists as a private member
