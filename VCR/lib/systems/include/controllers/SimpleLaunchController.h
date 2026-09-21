@@ -96,7 +96,7 @@ public:
 
     DrivetrainCommand_s evaluate(const VCRData_s &vcr_data, uint32_t curr_millis);
 
-    LaunchStates_e get_launch_state() { return _launch_state; }
+    LaunchStates_e get_launch_state() const { return _launch_state; }
 
 private:
 

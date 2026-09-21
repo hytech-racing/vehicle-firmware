@@ -54,9 +54,9 @@ public:
     /// @return torque controller output that gets passed through the TC MUX
     DrivetrainCommand_s evaluate(const VCRData_s &curr_state, unsigned long curr_millis);
 
-    MessageLatencyInfo_s getRAUXLatencyInfo() { return _raux_latency_info; }
+    MessageLatencyInfo_s getRAUXLatencyInfo() const  { return _raux_latency_info; }
 
-    MessageLatencyInfo_s getTELEMLatencyInfo() { return _telem_latency_info; }
+    MessageLatencyInfo_s getTELEMLatencyInfo() const { return _telem_latency_info; }
 
     /// @brief getter for the current status of whether or not the controller has had a timing failure during operation
     /// @return bool of status

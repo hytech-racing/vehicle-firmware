@@ -61,35 +61,29 @@ public:
     */
     bool isDrivebrainInControll() const;
 
-    /**
-     * @note Timing failure is determined based on whether or not we _should_run_controller, which is dictated by latency failure
-     * @return True if there is a timing failure/should not run controller, false otherwise
-    */
-    bool drivebrainHasTimingFailure() const;
-
     void enqueueLatencyCANData();
-
-    /**
-     * @brief Method to cycle to the next torque limit (low, mid, max).
-     * @note The button input is handled in interface tasks
-     *
-     * TODO: Evalute whether or not we should even keep a torque control button. If we really need to limit torque, I don't see how there is an issue just flashing
-     *       This seems like a wasted button since we only have low, mid, and max anyways
-    */
-    void cycleTorqueLimit()
-    {
-        size_t torque_limit_int = static_cast<size_t>(_torque_limit);
-        size_t new_torque_limit = (torque_limit_int + 1) % (static_cast<size_t>(TorqueLimit_e::NUM_TCMUX_TORQUE_LIMITS));
-        _torque_limit = static_cast<TorqueLimit_e>(new_torque_limit);
-    }
 
     TorqueLimit_e getCurrentTorqueLimit() { return _torque_limit; }
 
+
     /**
+     * @brief This is a wrapper for TC Mux's method getTCMuxStatus()
      * @note We wrap TorqueControllerMux's getter because it is not a singleton. _tc_mux only exists as a private member
      *       owned by VCRControls, so there is no global instance to call getTCMuxStatus() on directly from outside this class
     */
     TorqueControllerMuxStatus_s getTCMuxStatus() const { return _tc_mux.getTCMuxStatus(); }
+
+    /* ---------- Wrapper Methods For Controllers ---------- */
+    /**
+     * @note Controllers (_mode0, _mode1, _mode3, _mode4) are plain private members of
+     *       VCRControls, not singletons. To limit access, each passthrough below exposes exactly
+     *       one specific, read-only piece of information that outside code would need. Prohibit
+     *       access to calling "evaluate" for any controller
+    */
+    LaunchStates_e getLaunchState() const { return _mode3.get_launch_state(); };
+    bool getHasTimingFailure() const { return _mode4.hasTimingFailure(); };
+    MessageLatencyInfo_s getRAUXLatencyInfo() const { return _mode4.getRAUXLatencyInfo(); };
+    MessageLatencyInfo_s getTELEMLatencyInfo() const { return _mode4.getTELEMLatencyInfo(); };
 
 private:
 

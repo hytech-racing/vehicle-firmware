@@ -30,10 +30,6 @@ bool VCRControls::isDrivebrainInControll() const
     return (!_mode4.hasTimingFailure()) && (status.active_controller_mode == ControllerMode_e::MODE_4);
 }
 
-bool VCRControls::drivebrainHasTimingFailure() const
-{
-    return _mode4.hasTimingFailure();
-}
 
 void VCRControls::enqueueLatencyCANData()
 {
