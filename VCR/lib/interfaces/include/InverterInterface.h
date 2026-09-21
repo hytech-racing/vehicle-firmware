@@ -80,36 +80,6 @@ namespace dti_node_ids
     constexpr uint8_t RR = 4;
 }
 
-/* ---------- Enums (declared before structs that reference them) ---------- */
-
-enum class DTIControlMode_e : uint8_t
-{
-    NONE_0             = 0,   // NOT USED per manual
-    MODE_SPEED         = 1,
-    MODE_CURRENT       = 2,
-    MODE_CURRENT_BRAKE = 3,
-    MODE_POSITION      = 4,
-    NONE_5             = 5,   // NOT USED
-    NONE_6             = 6,   // NOT USED
-    MODE_NONE          = 7,
-};
-
-enum class DTIFaultCode_e : uint8_t
-{
-    NO_FAULTS            = 0x00,
-    OVERVOLTAGE          = 0x01,
-    UNDERVOLTAGE         = 0x02,
-    DRV_ERROR            = 0x03,   // transistor/transistor drive error
-    ABS_OVERCURRENT      = 0x04,   // AC current higher than set absolute maximum
-    CONTROLLER_OVERTEMP  = 0x05,
-    MOTOR_OVERTEMP       = 0x06,
-    SENSOR_WIRE_FAULT    = 0x07,   // sensor differential signal fault
-    SENSOR_GENERAL_FAULT = 0x08,   // error processing sensor signals
-    CAN_COMMAND_ERROR    = 0x09,   // received message had a parameter out of boundaries
-    ANALOG_INPUT_ERROR   = 0x0A,   // redundant output out of range
-};
-
-
 /* ---------- Status messages (inverter -> VCR) ---------- */
 
 struct StatusGeneralControlMsg_s    // 0x1F

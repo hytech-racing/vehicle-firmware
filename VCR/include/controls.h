@@ -20,6 +20,7 @@
 #include "controllers/SimpleLaunchController.h"
 #include "controllers/DrivebrainController.h"
 
+
 class VCRControls
 {
 public:
@@ -28,12 +29,12 @@ public:
 
     /**
      * @brief Explicit constructor that passes in a pointer to an already-instantiated DrivetrainSystem
-     * @param max_allowed_db_latency_ms The maximum allowed latency between commands from the DriveBrain before
-     *                                  considering the connection invalid
+     * @param max_allowed_db_latency_ms The maximum allowed latency between commands from drivebrain before considering the connection invalid
     */
     explicit VCRControls(DrivetrainSystem *dt_system,
                         uint32_t max_allowed_db_latency_ms
-    ) : _mode4(max_allowed_db_latency_ms),
+    ) :
+        _mode4(max_allowed_db_latency_ms),
         _tc_mux({
             [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode0.evaluate(state, curr_millis); },
             [this](const VCRData_s &state, unsigned long curr_millis) -> DrivetrainCommand_s { return _mode1.evaluate(state, curr_millis); },
@@ -69,8 +70,11 @@ public:
     void enqueueLatencyCANData();
 
     /**
-     * Function to cycle to the next torque limit (low, mid, max). The button input must
-     * be handled elsewhere.
+     * @brief Method to cycle to the next torque limit (low, mid, max).
+     * @note The button input is handled in interface tasks
+     *
+     * TODO: Evalute whether or not we should even keep a torque control button. If we really need to limit torque, I don't see how there is an issue just flashing
+     *       This seems like a wasted button since we only have low, mid, and max anyways
     */
     void cycleTorqueLimit()
     {
@@ -79,11 +83,13 @@ public:
         _torque_limit = static_cast<TorqueLimit_e>(new_torque_limit);
     }
 
-    TorqueLimit_e get_current_torque_limit() { return _torque_limit; }
+    TorqueLimit_e getCurrentTorqueLimit() { return _torque_limit; }
 
-    SimpleLaunchController& get_launch_controller() { return _mode3; }
-
-    TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.getTCMuxStatus(); }
+    /**
+     * @note We wrap TorqueControllerMux's getter because it is not a singleton. _tc_mux only exists as a private member
+     *       owned by VCRControls, so there is no global instance to call getTCMuxStatus() on directly from outside this class
+    */
+    TorqueControllerMuxStatus_s getTCMuxStatus() const { return _tc_mux.getTCMuxStatus(); }
 
 private:
 

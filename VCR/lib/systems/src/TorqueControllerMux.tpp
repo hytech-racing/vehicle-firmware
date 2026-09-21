@@ -93,8 +93,16 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::evaluateTCMux(Controll
             active_mode_evaluate_output = _applyRegenLimit(active_mode_evaluate_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
         }
 
-        active_mode_evaluate_output = _applyTorqueLimit(active_mode_evaluate_output, _torque_limit_map[torque_limit_map_val]);
-        _curr_tc_mux_status.active_torque_limit_value = _torque_limit_map[torque_limit_map_val];
+        if (active_mode_evaluate_output.control_mode == DrivetrainControlMode_e::TORQUE)
+        {
+            active_mode_evaluate_output = _applyTorqueLimit(active_mode_evaluate_output, _torque_limit_map[torque_limit_map_val]);
+            _curr_tc_mux_status.active_torque_limit_value = _torque_limit_map[torque_limit_map_val];
+        }
+        else if (active_mode_evaluate_output.control_mode == DrivetrainControlMode_e::SPEED) // this prolly needs to be fixed lmao
+        {
+            active_mode_evaluate_output = _applySpeedLimit(active_mode_evaluate_output, _torque_limit_map[torque_limit_map_val]);
+            _curr_tc_mux_status.active_torque_limit_value = _torque_limit_map[torque_limit_map_val];
+        }
 
         // Apply power limit when accelerating
         if (active_mode_evaluate_output.desired_speeds.FL != 0.0f ||
@@ -103,7 +111,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::evaluateTCMux(Controll
             active_mode_evaluate_output.desired_speeds.RR != 0.0f
         )
         {
-            active_mode_evaluate_output = _applyPowerLimit(active_mode_evaluate_output, input_state.system_data.drivetrain_data, _params.max_power_limit_watts, _torque_limit_map[torque_limit_map_val], dti_motor_params::MOTOR_MAX_RPM);
+            active_mode_evaluate_output = _applyTorqueControlPowerLimit(active_mode_evaluate_output, input_state.system_data.drivetrain_data, _params.max_power_limit_watts, _torque_limit_map[torque_limit_map_val]);
         }
 
         _curr_tc_mux_status.output_is_bypassing_limits = false;
@@ -157,10 +165,10 @@ bool TorqueControllerMux<num_controllers>::_canSwitchController(DrivetrainDynami
 template <size_t num_controllers>
 DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(const DrivetrainCommand_s& dt_command, float max_avg_torque_limit)
 {
-    DrivetrainCommand_s command_out = dt_command;
+    DrivetrainCommand_s command_output = dt_command;
 
     float avg_torque = 0.0f;
-    auto desired_torques_array = command_out.desired_torques.as_array();
+    auto desired_torques_array = command_output.desired_torques.as_array();
 
     for (size_t i = 0; i < desired_torques_array.size(); i++)
     {
@@ -173,13 +181,13 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueLimit(cons
     {
         float scale = avg_torque / max_avg_torque_limit;
 
-        command_out.desired_torques.FL = command_out.desired_torques.FL / scale;
-        command_out.desired_torques.FR = command_out.desired_torques.FR / scale;
-        command_out.desired_torques.RL = command_out.desired_torques.RL / scale;
-        command_out.desired_torques.RR = command_out.desired_torques.RR / scale;
+        command_output.desired_torques.FL = command_output.desired_torques.FL / scale;
+        command_output.desired_torques.FR = command_output.desired_torques.FR / scale;
+        command_output.desired_torques.RL = command_output.desired_torques.RL / scale;
+        command_output.desired_torques.RR = command_output.desired_torques.RR / scale;
     }
 
-    return command_out;
+    return command_output;
 }
 
 template <std::size_t num_controllers>
@@ -192,10 +200,10 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyTorqueControlPow
     DrivetrainCommand_s command_output = dt_command;
 
     // Net desired mechanical power (T * omega) using DESIRED torque and MEASURED speed.
-    float net_power_mag = command_out.desired_torques.FL * (dynamic_report.measured_speeds.FL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
-                        + command_out.desired_torques.FR * (dynamic_report.measured_speeds.FR * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
-                        + command_out.desired_torques.RL * (dynamic_report.measured_speeds.RL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
-                        + command_out.desired_torques.RR * (dynamic_report.measured_speeds.RR * physical_motor_scales::RPM_TO_RAD_PER_SECOND);
+    float net_power_mag = command_output.desired_torques.FL * (dynamic_report.measured_speeds.FL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                        + command_output.desired_torques.FR * (dynamic_report.measured_speeds.FR * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                        + command_output.desired_torques.RL * (dynamic_report.measured_speeds.RL * physical_motor_scales::RPM_TO_RAD_PER_SECOND)
+                        + command_output.desired_torques.RR * (dynamic_report.measured_speeds.RR * physical_motor_scales::RPM_TO_RAD_PER_SECOND);
 
     auto scale_desired_torques = [](float desired_wheel_torque, float current_wheel_rpm, float net_power_mag, float power_limit, float max_torque_val) -> float
     {
@@ -282,7 +290,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(const
                                                                         const ACUCoreData_s acu_data
 )
 {
-    DrivetrainCommand_s command_out = desired_controller_out;
+    DrivetrainCommand_s command_output = desired_controller_out;
 
     // EV.3.3.3: "powertrain must not regenerate energy when vehicle speed is between 0 and 5 km/hr"
     const float no_regen_limit_kph = 10.0;
@@ -331,11 +339,11 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(const
     // over voltage, rules regen limit
     if (are_all_wheels_regen)
     {
-        command_out.desired_torques.FL *= torque_scale_down;
-        command_out.desired_torques.FR *= torque_scale_down;
-        command_out.desired_torques.RL *= torque_scale_down;
-        command_out.desired_torques.RR *= torque_scale_down;
+        command_output.desired_torques.FL *= torque_scale_down;
+        command_output.desired_torques.FR *= torque_scale_down;
+        command_output.desired_torques.RL *= torque_scale_down;
+        command_output.desired_torques.RR *= torque_scale_down;
     }
 
-    return command_out;
+    return command_output;
 }

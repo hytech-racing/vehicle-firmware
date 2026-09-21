@@ -10,16 +10,16 @@ void VCRControls::handleDrivetrainCommand(bool ready_to_drive, unsigned long cur
 
         if (ready_to_drive)
         {
-            auto dt_command = _tc_mux.getDrivetrainCommand(mode, _torque_limit, vcr_data);
+            auto dt_command = _tc_mux.evaluateTCMux(mode, _torque_limit, vcr_data);
             _debug_dt_command = dt_command;
             drivetrain_status = _dt_system->evaluate_drivetrain(dt_command, curr_millis);
         }
         else
         {
-            DrivetrainInit_s dt_command = {
-                .init_drivetrain = UNINITIALIZED
-            };
-            drivetrain_status = _dt_system->evaluate_drivetrain(dt_command);
+            // DrivetrainInit_s dt_command = {
+            //     .init_drivetrain = UNINITIALIZED
+            // };
+            // drivetrain_status = _dt_system->evaluate_drivetrain(dt_command);
         }
     }
 }

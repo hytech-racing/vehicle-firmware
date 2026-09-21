@@ -34,35 +34,24 @@ struct TCMuxParams_s
 };
 
 /**
+ * @note We will choose not to use singleton structure here and force TC mux creation to be controlled by VCRControls which is the
+ *      "highest" layer of control overseeing TC Mux. We will probhit direct access to the mux.
  * @param num_controllers the number of controllers that can be switched between. Defaults to 5 if using TCMuxType.
 */
 template <size_t num_controllers> class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 
+    /**
+     * @note We will choose not use singleton structure and have VCRControls as the highest layer of control overseeing torque decisions
+     *       As a safeguard, we will not allow it to be independently constructible: it exists only as VCRControls's private implementation
+     *       detail. "friend" + a private constructor make this compiler-enforced
+     */
+    friend class VCRControls;
+
 public:
 
     TorqueControllerMux() = delete;
-
-    /**
-     * @brief Constructor for the TC Mux
-     * @param controller_evals an array of size num_controllers, holds the various controllers "evaluate" methods
-     * @param mux_bypass_limits an array of size num_controllers, holds bools for determining if the limit methods should be
-     *                          applied to the controller outputs
-    */
-    explicit TorqueControllerMux(
-        std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
-        std::array<bool, num_controllers> mux_bypass_limits,
-        TCMuxParams_s params = {
-            .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
-            .max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
-            .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
-            .num_motors = 4
-        }
-    ) : _controller_evals(controller_evals),
-        _mux_bypass_limits(mux_bypass_limits),
-        _params(params)
-    {};
 
     const TorqueControllerMuxStatus_s &getTCMuxStatus() const { return _curr_tc_mux_status; }
 
@@ -88,6 +77,26 @@ public:
     );
 
 private:
+
+    /**
+     * @brief Private constructor for the TC Mux
+     * @param controller_evals an array of size num_controllers, holds the various controllers "evaluate" methods
+     * @param mux_bypass_limits an array of size num_controllers, holds bools for determining if the limit methods should be
+     *                          applied to the controller outputs
+    */
+    explicit TorqueControllerMux(
+        std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
+        std::array<bool, num_controllers> mux_bypass_limits,
+        TCMuxParams_s params = {
+            .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
+            .max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
+            .max_power_limit_watts = tc_mux_default_params::MAX_POWER_LIMIT_WATTS,
+            .num_motors = 4
+        }
+    ) : _controller_evals(controller_evals),
+        _mux_bypass_limits(mux_bypass_limits),
+        _params(params)
+    {};
 
     std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
     std::array<bool, num_controllers> _mux_bypass_limits;

@@ -226,20 +226,20 @@ HT_TASK::TaskResponse enqueueControlsCANDataTask(const unsigned long& sysMicros,
 HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     fl_inverter_interface.send_DRIVE_ENABLE();
-    fl_inverter_interface.send_AC_CURRENT();
-    fl_inverter_interface.send_BRAKE_CURRENT();
+    // fl_inverter_interface.send_AC_CURRENT();
+    // fl_inverter_interface.send_BRAKE_CURRENT();
 
     fr_inverter_interface.send_DRIVE_ENABLE();
-    fr_inverter_interface.send_AC_CURRENT();
-    fr_inverter_interface.send_BRAKE_CURRENT();
+    // fr_inverter_interface.send_AC_CURRENT();
+    // fr_inverter_interface.send_BRAKE_CURRENT();
 
     rl_inverter_interface.send_DRIVE_ENABLE();
-    rl_inverter_interface.send_AC_CURRENT();
-    rl_inverter_interface.send_BRAKE_CURRENT();
+    // rl_inverter_interface.send_AC_CURRENT();
+    // rl_inverter_interface.send_BRAKE_CURRENT();
 
     rr_inverter_interface.send_DRIVE_ENABLE();
-    rr_inverter_interface.send_AC_CURRENT();
-    rr_inverter_interface.send_BRAKE_CURRENT();
+    // rr_inverter_interface.send_AC_CURRENT();
+    // rr_inverter_interface.send_BRAKE_CURRENT();
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -319,26 +319,26 @@ namespace async_tasks
         auto rl_inv_status = can_interfaces.rl_inverter_interface.getStatus();
         auto rr_inv_status = can_interfaces.rr_inverter_interface.getStatus();
 
-        out.inverter_data.FL. = fl_inv_mechanics.actual_speed;
-        out.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed;
-        out.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed;
-        out.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed;
-
-        out.inverter_data.FL.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
-        out.inverter_data.FR.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
-        out.inverter_data.RL.dc_bus_voltage = rl_inv_status.dc_bus_voltage;
-        out.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
-
         // Telemetry: full data + limits per corner, now that InverterInterface exposes them
-        out.inverter_telemetry.FL = can_interfaces.fl_inverter_interface.getTelemetryData();
-        out.inverter_telemetry.FR = can_interfaces.fr_inverter_interface.getTelemetryData();
-        out.inverter_telemetry.RL = can_interfaces.rl_inverter_interface.getTelemetryData();
-        out.inverter_telemetry.RR = can_interfaces.rr_inverter_interface.getTelemetryData();
+        out.inverter_data.FL = can_interfaces.fl_inverter_interface.getTelemetryData();
+        out.inverter_data.FR = can_interfaces.fr_inverter_interface.getTelemetryData();
+        out.inverter_data.RL = can_interfaces.rl_inverter_interface.getTelemetryData();
+        out.inverter_data.RR = can_interfaces.rr_inverter_interface.getTelemetryData();
 
         out.inverter_limits.FL = can_interfaces.fl_inverter_interface.getLimitsData();
         out.inverter_limits.FR = can_interfaces.fr_inverter_interface.getLimitsData();
         out.inverter_limits.RL = can_interfaces.rl_inverter_interface.getLimitsData();
         out.inverter_limits.RR = can_interfaces.rr_inverter_interface.getLimitsData();
+
+        out.inverter_data.FL.speed_rpm = fl_inv_mechanics.actual_speed_rpm;
+        out.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed_rpm;
+        out.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed_rpm;
+        out.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed_rpm;
+
+        out.inverter_data.FL.input_voltage = fl_inv_status.dc_bus_voltage;
+        out.inverter_data.FR.input_voltage = fr_inv_status.dc_bus_voltage;
+        out.inverter_data.RL.input_voltage = rl_inv_status.dc_bus_voltage;
+        out.inverter_data.RR.input_voltage = rr_inv_status.dc_bus_voltage;
 
         out.recvd_pedals_data = vcf_data.stamped_pedals;
         out.front_loadcell_data = vcf_data.front_loadcell_data;
@@ -349,6 +349,7 @@ namespace async_tasks
 
         return out;
     }
+
     HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
         handleCANReceive();
@@ -364,12 +365,15 @@ namespace async_tasks
             new_interface_data.inverter_data.RR.speed_rpm
         };
 
-        vcr_data.system_data.drivetrain_data.measuredInverterFLPackVoltage = new_interface_data.inverter_data.FL.dc_bus_voltage;
+        vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FL = new_interface_data.inverter_data.FL.input_voltage;
+        vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FR = new_interface_data.inverter_data.FR.input_voltage;
+        vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RL = new_interface_data.inverter_data.RL.input_voltage;
+        vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RR = new_interface_data.inverter_data.RR.input_voltage;
 
-        if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2)
+        if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2) // bruh wth is button 2
         {
             VCRControlsInstance::instance().cycleTorqueLimit();
-            VCFInterfaceInstance::instance().enqueue_torque_mode_LED_message(VCRControlsInstance::instance().get_current_torque_limit());
+            VCFInterfaceInstance::instance().enqueue_torque_mode_LED_message(VCRControlsInstance::instance().getCurrentTorqueLimit());
         }
 
         vcr_data.system_data.tc_mux_status = VCRControlsInstance::instance().get_tc_mux_status();
@@ -377,7 +381,7 @@ namespace async_tasks
         vcr_data.system_data.drivetrain_state_machine_state = DrivetrainInstance::instance().getCurrentState();
         vcr_data.interface_data = new_interface_data;
         vcr_data.system_data.db_cntrl_status.drivebrain_is_in_control = VCRControlsInstance::instance().isDrivebrainInControll();
-        vcr_data.system_data.db_cntrl_status.drivebrain_controller_timing_failure = VCRControlsInstance::instance().drivebrain_timing_failure();
+        vcr_data.system_data.db_cntrl_status.drivebrain_controller_timing_failure = VCRControlsInstance::instance().drivebrainHasTimingFailure();
 
         return HT_TASK::TaskResponse::YIELD;
     }

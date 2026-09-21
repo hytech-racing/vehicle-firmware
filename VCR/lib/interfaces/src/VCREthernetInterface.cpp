@@ -103,11 +103,11 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     _copyVehVecMembers(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
 
     // TorqueControllerMuxStatus
-    out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.get_tc_mux_status().active_error;
-    out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e) vcr_controls.get_tc_mux_status().active_controller_mode;
-    out.tcmux_status.active_torque_limit_enum = (hytech_msgs_TorqueLimit_e) vcr_controls.get_tc_mux_status().active_torque_limit_enum;
-    out.tcmux_status.active_torque_limit_value = vcr_controls.get_tc_mux_status().active_torque_limit_value;
-    out.tcmux_status.output_is_bypassing_limits = vcr_controls.get_tc_mux_status().output_is_bypassing_limits;
+    out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.getTCMuxStatus().active_error;
+    out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e) vcr_controls.getTCMuxStatus().active_controller_mode;
+    out.tcmux_status.active_torque_limit_enum = (hytech_msgs_TorqueLimit_e) vcr_controls.getTCMuxStatus().active_torque_limit_enum;
+    out.tcmux_status.active_torque_limit_value = vcr_controls.getTCMuxStatus().active_torque_limit_value;
+    out.tcmux_status.output_is_bypassing_limits = vcr_controls.getTCMuxStatus().output_is_bypassing_limits;
 
     // Buzzer
     out.buzzer_is_active = adc_interface.get_glv().conversion;

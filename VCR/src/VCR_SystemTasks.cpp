@@ -3,6 +3,8 @@
 void initialize_all_systems()
 {
 
+    veh_vec<InverterInterfaceFuncts_s> inverter_interfaces_functs = makeInverterFuncts();
+
     /* Delegate Function Definitions For Drivetrain System State Machine */
     etl::delegate<void(torque_nm)> setMotorTorque =
         etl::delegate<void(torque_nm)>::create<InverterInterface, &InverterInterface::setMotorTorque>(InverterInterfaceInstance::instance());
@@ -115,8 +117,8 @@ void initialize_all_systems()
 
     /* ---------- Drivetrain System ---------- */
     DrivetrainInstance::create(VCRSystems::CONTROL_MODE_MISTMATCH_THRESHOLD_MS,
-                                inverter_interfaces_functs,
-                                is_hv_status_ok()
+                                        inverter_interfaces_functs,
+                                        is_hv_status_ok()
     );
 }
 
