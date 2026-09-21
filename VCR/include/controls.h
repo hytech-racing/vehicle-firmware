@@ -63,8 +63,6 @@ public:
 
     void enqueueLatencyCANData();
 
-    TorqueLimit_e getCurrentTorqueLimit() { return _torque_limit; }
-
     /**
      * @brief This is a wrapper for TC Mux's method getTCMuxStatus()
      * @note We wrap TorqueControllerMux's getter because it is not a singleton. _tc_mux only exists as a private member
@@ -91,7 +89,6 @@ private:
     SimpleLaunchController _mode3;
     DrivebrainController _mode4;
     TCMuxType _tc_mux;
-    TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_FULL_TORQUE;
     DrivetrainSystem *_dt_system = nullptr;
 
 };

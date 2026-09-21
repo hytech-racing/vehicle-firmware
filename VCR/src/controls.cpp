@@ -8,21 +8,9 @@ void VCRControls::handleDrivetrainCommand(bool ready_to_drive, unsigned long cur
         ControllerMode_e mode = vcr_data.interface_data.dash_input_state.dial_state;
         DrivetrainStatus_s drivetrain_status;
 
-        if (ready_to_drive)
-        {
-            auto dt_command = _tc_mux.evaluateTCMux(mode, _torque_limit, vcr_data);
-            _debug_dt_command = dt_command;
-            drivetrain_status = _dt_system->evaluate_drivetrain(dt_command, curr_millis);
-        }
-        else
-        {
-            
-
-            DrivetrainInit_s dt_command = {
-                .init_drivetrain = UNINITIALIZED
-            };
-            drivetrain_status = _dt_system->evaluate_drivetrain(dt_command);
-        }
+        auto dt_command = _tc_mux.evaluateTCMux(mode, vcr_data);
+        _debug_dt_command = dt_command;
+        drivetrain_status = _dt_system->evaluate_drivetrain(dt_command, curr_millis);
     }
 }
 
