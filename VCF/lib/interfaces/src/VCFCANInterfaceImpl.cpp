@@ -60,6 +60,26 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
             interfaces.vcr_interface.receive_inverter_status_4(msg);
             break;
         }
+        case INV1_DYNAMICS_CANID:
+        {
+            interfaces.vcr_interface.receiveINV1Dynamics(msg);
+            break;
+        }
+        case INV2_DYNAMICS_CANID:
+        {
+            interfaces.vcr_interface.receiveINV2Dynamics(msg);
+            break;
+        }
+        case INV3_DYNAMICS_CANID:
+        {
+            interfaces.vcr_interface.receiveINV3Dynamics(msg);
+            break;
+        }
+        case INV4_DYNAMICS_CANID:
+        {
+            interfaces.vcr_interface.receiveINV4Dynamics(msg);
+            break;
+        }
         case FL_BRAKE_ROTOR_SENSOR_TEMP_CANID:
         case FL_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
         case FL_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:

@@ -97,6 +97,9 @@ void initialize_all_interfaces()
     DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); //NOLINT
     DashboardInterfaceInstance::instance().init();
 
+    /* Odometer Interface */
+    OdometerInterfaceInstance::create();
+
     /* Orbis Interface */
     OrbisInterfaceInstance::create(&Serial2);
 
@@ -179,6 +182,14 @@ HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }
+
+HT_TASK::TaskResponse run_odometer(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    VehicleState_e curr_vehicle_state = VCRInterfaceInstance::instance().get_vehicle_state();
+    veh_vec<speed_rpm> curr_wheel_rpms = VCRInterfaceInstance::instance().getWheelsData().actual_speed;
+    OdometerInterfaceInstance::instance().updateOdometer(curr_wheel_rpms, curr_vehicle_state);
+    return HT_TASK::TaskResponse::YIELD;
+}
 
 HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
