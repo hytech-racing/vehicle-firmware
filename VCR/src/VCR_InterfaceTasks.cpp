@@ -354,8 +354,6 @@ namespace async_tasks
     {
         handleCANReceive();
 
-        bool torque_mode_cycle_button_was_pressed = VCFInterfaceInstance::instance().getLatestData().dash_input_state.BUTTON_2;
-
         VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
 
         vcr_data.system_data.drivetrain_data.measured_speeds = {
@@ -370,18 +368,12 @@ namespace async_tasks
         vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RL = new_interface_data.inverter_data.RL.input_voltage;
         vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RR = new_interface_data.inverter_data.RR.input_voltage;
 
-        if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2) // bruh wth is button 2
-        {
-            VCRControlsInstance::instance().cycleTorqueLimit();
-            VCFInterfaceInstance::instance().enqueue_torque_mode_LED_message(VCRControlsInstance::instance().getCurrentTorqueLimit());
-        }
-
-        vcr_data.system_data.tc_mux_status = VCRControlsInstance::instance().get_tc_mux_status();
+        vcr_data.system_data.tc_mux_status = VCRControlsInstance::instance().getTCMuxStatus();
         vcr_data.system_data.vehicle_state_machine_state = VehicleStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
         vcr_data.system_data.drivetrain_state_machine_state = DrivetrainInstance::instance().getCurrentState();
         vcr_data.interface_data = new_interface_data;
         vcr_data.system_data.db_cntrl_status.drivebrain_is_in_control = VCRControlsInstance::instance().isDrivebrainInControll();
-        vcr_data.system_data.db_cntrl_status.drivebrain_controller_timing_failure = VCRControlsInstance::instance().drivebrainHasTimingFailure();
+        vcr_data.system_data.db_cntrl_status.drivebrain_controller_timing_failure = VCRControlsInstance::instance().getHasTimingFailure();
 
         return HT_TASK::TaskResponse::YIELD;
     }

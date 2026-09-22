@@ -21,15 +21,16 @@ public:
         etl::delegate<void()> startBuzzer,
         etl::delegate<bool()> isBrakePressed,
         etl::delegate<bool()> isPedalsTimedOut,
-        etl::delegate<void()> isSteeringTimedOut,
+        etl::delegate<bool()> isSteeringTimedOut,
         etl::delegate<void()> resetPedalsHeartbeat,
         etl::delegate<void()> resetSteeringHeartbeat,
-        etl::delegate<void()> sendRecalibratePedalsMessage,
-        etl::delegate<void()> sendRecalibrateSteeringMessage,
         etl::delegate<bool()> isPedalsRecalibratePressed,
         etl::delegate<bool()> isSteeringRecalibratePressed,
+        etl::delegate<void()> sendRecalibratePedalsMessage,
+        etl::delegate<void()> sendRecalibrateSteeringMessage,
         etl::delegate<bool()> isDrivetrainFaulted,
-        etl::delegate<bool()> isDrivetrainNotConnected
+        etl::delegate<bool()> isDrivetrainNotConnected,
+        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand
     ) :
         _setMotorsIdle(setMotorsIdle),
         _isVehicleLatched(isVehicleLatched),
@@ -45,7 +46,8 @@ public:
         _sendRecalibratePedalsMessage(sendRecalibratePedalsMessage),
         _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
         _isDrivetrainFaulted(isDrivetrainFaulted),
-        _isDrivetrainNotConnected(isDrivetrainNotConnected)
+        _isDrivetrainNotConnected(isDrivetrainNotConnected),
+        _handleDrivetrainCommand(handleDrivetrainCommand)
     {
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
@@ -92,7 +94,7 @@ private:
     etl::delegate<void()> _sendRecalibrateSteeringMessage;
     etl::delegate<bool()> _isDrivetrainFaulted;
     etl::delegate<bool()> _isDrivetrainNotConnected;
-
+    etl::delegate<void(bool, unsigned long)> _handleDrivetrainCommand;
 };
 
 using VehicleStateMachineInstance = etl::singleton<VehicleStateMachine>;

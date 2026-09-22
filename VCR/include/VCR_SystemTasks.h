@@ -24,9 +24,9 @@
 void initialize_all_systems();
 
 /* Delegate Functions */
-extern ::etl::delegate<void(torque_nm)> setMotorsTorque;
-extern ::etl::delegate<void(speed_rpm)> setMotorsSpeedl;
-extern ::etl::delegate<void(speed_rpm)> setMotorsIdle;
+extern ::etl::delegate<void(torque_nm)> setMotorTorque;
+extern ::etl::delegate<void(speed_rpm)> setMotorSpeedl;
+extern ::etl::delegate<void()> setMotorIdle;
 
 
 extern ::etl::delegate<bool()> isVehicleLatched;
@@ -43,6 +43,7 @@ extern ::etl::delegate<void()> sendRecalibratePedalsMessage;
 extern ::etl::delegate<void()> sendRecalibrateSteeringMessage;
 extern ::etl::delegate<bool()> isDrivetrainFaulted;
 extern ::etl::delegate<bool()> isDrivetrainNotConnected;
+extern ::etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand;
 
 
 #endif // __VCR_SYSTEMTASKS_H__

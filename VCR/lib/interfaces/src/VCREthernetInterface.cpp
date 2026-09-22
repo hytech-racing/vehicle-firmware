@@ -105,7 +105,6 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     // TorqueControllerMuxStatus
     out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.getTCMuxStatus().active_error;
     out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e) vcr_controls.getTCMuxStatus().active_controller_mode;
-    out.tcmux_status.active_torque_limit_enum = (hytech_msgs_TorqueLimit_e) vcr_controls.getTCMuxStatus().active_torque_limit_enum;
     out.tcmux_status.active_torque_limit_value = vcr_controls.getTCMuxStatus().active_torque_limit_value;
     out.tcmux_status.output_is_bypassing_limits = vcr_controls.getTCMuxStatus().output_is_bypassing_limits;
 
@@ -129,9 +128,9 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     // VCR Status
     // const char* state_label = "UNKNOWN";
     out.status.vehicle_state = static_cast<hytech_msgs_VehicleState_e>(vehicle_state_machine.get_state());
-    out.status.drivetrain_state = static_cast<hytech_msgs_DrivetrainState_e>(drivetrain_system.get_current_state());
+    out.status.drivetrain_state = static_cast<hytech_msgs_DrivetrainState_e>(drivetrain_system.getCurrentState());
 
-    out.status.drivebrain_controller_timing_failure = vcr_controls.drivebrain_timing_failure();
+    out.status.drivebrain_controller_timing_failure = vcr_controls.getHasTimingFailure();
     out.status.drivebrain_is_in_control = vcr_controls.isDrivebrainInControll();
 
     out.status.pedals_heartbeat_ok = vcf_interface.getLatestData().stamped_pedals.heartbeat_ok;

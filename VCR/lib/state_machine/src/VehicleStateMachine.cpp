@@ -51,7 +51,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
 
             // Set drivetrain idle for safety
             _setMotorsIdle();
-            _command_drivetrain(false); // what does this do?
+            _handleDrivetrainCommand(false, current_millis); // what does this do?
 
             break;
         }
@@ -112,7 +112,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
              *  - If steering heartbeat timesout/misses -> Only lose RTD, stay latched (not HV issue)
             */
 
-            _command_drivetrain(true);
+            _handleDrivetrainCommand(true, current_millis);
 
             // Error mode(s) checking
             if (_isDrivetrainNotConnected())
@@ -176,7 +176,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
                 _setState(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
             }
 
-            _command_drivetrain(false);
+            _handleDrivetrainCommand(false, current_millis);
             break;
         }
         case VehicleState_e::WANTING_RECALIBRATE_STEERING:
@@ -185,7 +185,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
              *
             */
 
-            _command_drivetrain(false);
+            _handleDrivetrainCommand(false, current_millis);
 
             if (!_isSteeringRecalibratePressed())
             {
@@ -201,7 +201,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
         }
         case VehicleState_e::RECALIBRATING_PEDALS:
         {
-            _command_drivetrain(false);
+            _handleDrivetrainCommand(false, current_millis);
 
             if (!_isPedalsRecalibratePressed())
             {
@@ -222,7 +222,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
              * @note Only leave the
             */
 
-            _command_drivetrain(false);
+            _handleDrivetrainCommand(false, current_millis);
 
             if (!_isSteeringRecalibratePressed())
             {
