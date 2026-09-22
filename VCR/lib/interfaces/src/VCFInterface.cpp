@@ -127,54 +127,15 @@ VCFCANInterfaceData_s VCFInterface::getLatestData() const
     return _curr_data;
 }
 
-void VCFInterface::sendStartBuzzerCANMessage()
+void VCFInterface::enqueueDashboardStatesCANMessage(bool buzzer_flag, bool is_pedals_calibration_state, bool is_steering_calibration_state)
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
 
-    ctrl.dash_buzzer_flag = true;
-    ctrl.in_pedal_calibration_state = false;
-    ctrl.in_steering_calibration_state = false;
-    ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
+    ctrl.dash_buzzer_flag = buzzer_flag;
+    ctrl.in_pedal_calibration_state = is_pedals_calibration_state;
+    ctrl.in_steering_calibration_state = is_steering_calibration_state;
+
     CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_hytech,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
-}
-
-void VCFInterface::enqueuePedalsRecalibrateCANMessage()
-{
-    DASHBOARD_BUZZER_CONTROL_t ctrl = {};
-    ctrl.dash_buzzer_flag = false;
-    ctrl.in_pedal_calibration_state = true;
-    ctrl.in_steering_calibration_state = false;
-    ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_hytech,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
-}
-
-void VCFInterface::enqueueSteeringRecalibrateCANMessage()
-{
-    DASHBOARD_BUZZER_CONTROL_t msg_out = {};
-    msg_out.dash_buzzer_flag = false;
-    msg_out.in_pedal_calibration_state = false;
-    msg_out.in_steering_calibration_state = true;
-    msg_out.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_hytech,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
-}
-
-void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
-{
-    DASHBOARD_BUZZER_CONTROL_t msg_out = {};
-    msg_out.dash_buzzer_flag = false;
-    msg_out.in_pedal_calibration_state = false;
-    msg_out.in_steering_calibration_state = false;
-    msg_out.torque_limit_enum_value = (uint8_t) torque_limit;
-    CAN_util::enqueue_msg(&msg_out,
                         &Pack_DASHBOARD_BUZZER_CONTROL_hytech,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer
     );

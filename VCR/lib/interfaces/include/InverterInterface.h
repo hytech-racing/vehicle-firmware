@@ -379,7 +379,7 @@ public:
     DTIFaultCode_e getFaultCode() const;
     const StatusGeneralIOMsg_s& getIOStatus() const;
     const StatusGeneralControlMsg_s& getControlStatus() const;
-    const InverterStatusMessages_s& geAllInverterData() const;
+    const InverterStatusMessages_s& getAllInverterData() const;
 
     uint8_t getNodeID() const { return _node_id; }
 

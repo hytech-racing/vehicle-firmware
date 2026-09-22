@@ -72,10 +72,7 @@ public:
      * @brief 4 methods below set various fields insid the DASHBOARD_BUZZER_CONTROL_t messages
      * @note TODO: Rename this message
     */
-    void sendStartBuzzerCANMessage();
-    void enqueuePedalsRecalibrateCANMessage();
-    void enqueueSteeringRecalibrateCANMessage();
-    void enqueue_torque_mode_LED_message(TorqueLimit_e torque_mode);
+    void enqueueDashboardStatesCANMessage(bool buzzer_flag, bool is_pedals_calibration_state, bool is_steering_calibration_state);
 
     void enqueueVehicleStateCANMessage(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
 

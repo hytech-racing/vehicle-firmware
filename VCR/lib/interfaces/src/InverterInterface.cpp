@@ -500,7 +500,7 @@ const StatusGeneralControlMsg_s& InverterInterface::getControlStatus() const
     return _feedback_data.general_control_msg;
 }
 
-const InverterStatusMessages_s& InverterInterface::geAllInverterData() const
+const InverterStatusMessages_s& InverterInterface::getAllInverterData() const
 {
     return _feedback_data;
 }

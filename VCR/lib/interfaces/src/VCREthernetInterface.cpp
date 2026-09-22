@@ -63,27 +63,27 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
 
     IOExpanderInterfaceInstance::instance().read();
 
-    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_a(0);       // GPA0 = BSPD_OK_SENSE
-    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(3);   // GPB3 = VCR_OK_SENSE
-    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(1);        // GPB1 = BMS_OK_SENSE
-    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(2);        // GPB2 = IMD_OK_SENSE
+    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);       // GPA0 = BSPD_OK_SENSE
+    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3);   // GPB3 = VCR_OK_SENSE
+    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);        // GPB1 = BMS_OK_SENSE
+    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);        // GPB2 = IMD_OK_SENSE
 
     // VCREthernetLinkData_s
-    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(4);        // GPB4 = ACU_LINK_SENSE
+    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4);        // GPB4 = ACU_LINK_SENSE
     // out.ethernet_is_linked.debug_link = shared_state.interface_data.ethernet_is_linked.debug_link;   // TODO: fix this still
-    out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(4); // GPA4 = DB_LINK_SENSE
-    out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(5);     // GPB5 = TEENSY_LINK_SENSE
-    out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(5);   // GPA5 = Ubiquiti_LINK_SENSE
-    out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(6);        // GPB6 = VCF_LINK_SENSE
+    out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().getBitPortA(4); // GPA4 = DB_LINK_SENSE
+    out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().getBitPortB(5);     // GPB5 = TEENSY_LINK_SENSE
+    out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().getBitPortA(5);   // GPA5 = Ubiquiti_LINK_SENSE
+    out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);        // GPB6 = VCF_LINK_SENSE
 
     // veh_vec<InverterData>
-    copy_inverter_data(fl_inverter.get_all_inverter_data(), out.inverter_data.FL);
+    copy_inverter_data(fl_inverter.getAllInverterData(), out.inverter_data.FL);
     out.inverter_data.has_FL = true;
-    copy_inverter_data(fr_inverter.get_all_inverter_data(), out.inverter_data.FR);
+    copy_inverter_data(fr_inverter.getTelemetryData(), out.inverter_data.FR);
     out.inverter_data.has_FR = true;
-    copy_inverter_data(rl_inverter.get_all_inverter_data(), out.inverter_data.RL);
+    copy_inverter_data(rl_inverter.getTelemetryData(), out.inverter_data.RL);
     out.inverter_data.has_RL = true;
-    copy_inverter_data(rr_inverter.get_all_inverter_data(), out.inverter_data.RR);
+    copy_inverter_data(rr_inverter.getTelemetryData(), out.inverter_data.RR);
     out.inverter_data.has_RR = true;
 
     // CurrentSensorData_s
