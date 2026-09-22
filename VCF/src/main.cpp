@@ -18,6 +18,7 @@ HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &run_kick_watchdog, VC
 HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PERIOD_US, VCFConstants::ASYNC_MAIN_PRIORITY);
 HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &run_read_adc0_task, VCFConstants::PEDALS_SAMPLE_PERIOD_US, VCFConstants::PEDALS_SAMPLE_PRIORITY);
 HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &run_read_adc1_task, VCFConstants::LOADCELL_SAMPLE_PERIOD_US, VCFConstants::LOADCELL_SAMPLE_PRIORITY);
+HT_TASK::Task update_odometer(HT_TASK::DUMMY_FUNCTION, &run_odometer, VCFConstants::ODOMETER_UPDATE_PERIOD_US, VCFConstants::ODOMETER_UPDATE_PRIORITY);
 HT_TASK::Task pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueue_pedals_data, VCFConstants::PEDALS_SEND_PERIOD_US, VCFConstants::PEDALS_SEND_PRIORITY);
 HT_TASK::Task steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueue_steering_data, VCFConstants::STEERING_SEND_PERIOD_US, VCFConstants::STEERING_SEND_PRIORITY);
 HT_TASK::Task front_suspension_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueue_front_suspension_data, VCFConstants::LOADCELL_SEND_PERIOD_US, VCFConstants::LOADCELL_SEND_PRIORITY);
@@ -58,6 +59,7 @@ void setup()
     HT_SCHED::Scheduler::getInstance().schedule(pedals_calibration_task);
     HT_SCHED::Scheduler::getInstance().schedule(steering_calibration_task);
     HT_SCHED::Scheduler::getInstance().schedule(ethernet_send_task);
+    HT_SCHED::Scheduler::getInstance().schedule(update_odometer);
 
     HT_SCHED::Scheduler::getInstance().schedule(debug_state_print_task);
 }

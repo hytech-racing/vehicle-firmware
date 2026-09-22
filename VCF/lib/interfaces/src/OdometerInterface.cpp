@@ -1,6 +1,6 @@
 #include "OdometerInterface.h"
 
-void OdometerInterface::updateOdometer(veh_vec<float> wheel_rpms, VehicleState_e state)
+void OdometerInterface::updateOdometer(veh_vec<speed_rpm> wheel_rpms, VehicleState_e state)
 {
     unsigned long curr_millis = millis();
 

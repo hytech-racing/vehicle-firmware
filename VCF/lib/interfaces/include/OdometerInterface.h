@@ -48,7 +48,7 @@ public:
      * @note Only updates the distance (km) we have traveled if in RTD, only write to EEPROM every 5 minutes
      *       (plus an immediate flush the moment RTD ends, to minimize data loss)
     */
-    void updateOdometer(veh_vec<float> wheel_rpms, VehicleState_e state);
+    void updateOdometer(veh_vec<speed_rpm> wheel_rpms, VehicleState_e state);
 
 private:
 

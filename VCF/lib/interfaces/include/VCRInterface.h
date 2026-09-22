@@ -12,7 +12,6 @@
 
 /* Local System Includes */
 #include "BuzzerController.h"
-
 struct InverterErrorFlags_s
 {
     veh_vec<bool> error;
@@ -21,6 +20,15 @@ struct InverterErrorFlags_s
 struct InverterBusVolts_s
 {
     veh_vec<int> voltage;
+};
+
+struct MotorMechanics_s
+{
+    mutable bool new_data : 1;
+    unsigned long last_recv_millis = 0;
+    veh_vec<watts> actual_power;
+    veh_vec<torque_nm> actual_torque;
+    veh_vec<speed_rpm>actual_speed;
 };
 
 class VCRInterface
@@ -38,6 +46,14 @@ public:
     void receive_inverter_status_3(const CAN_message_t &can_msg);
 
     void receive_inverter_status_4(const CAN_message_t &can_msg);
+
+    void receiveINV1Dynamics(const CAN_message_t &can_msg);
+
+    void receiveINV2Dynamics(const CAN_message_t &can_msg);
+
+    void receiveINV3Dynamics(const CAN_message_t &can_msg);
+
+    void receiveINV4Dynamics(const CAN_message_t &can_msg);
 
     /* State Observation + Control */
     bool is_in_pedals_calibration_state() { return _is_in_pedals_calibration_state; }
@@ -61,6 +77,8 @@ public:
 
     bool get_inverter_error() ;
 
+    MotorMechanics_s getWheelsData() { return _wheels_data; };
+
 private:
 
     bool _is_in_pedals_calibration_state = false;
@@ -70,6 +88,7 @@ private:
     DrivetrainState_e _drivetrain_state_value;
     TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_LOW_TORQUE;
     InverterBusVolts_s _bus_voltages;
+    MotorMechanics_s _wheels_data;
 
     // Creates object that reflects the inverter error status...the object holds the error flags for each inverter,
     // the getter above returns True if there's an error in any of the 4

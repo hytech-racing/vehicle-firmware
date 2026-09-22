@@ -12,6 +12,7 @@
 #include "ADCInterface.h"
 #include "BrakeRotorTempInterface.h"
 #include "DashboardInterface.h"
+#include "OdometerInterface.h"
 #include "OrbisInterface.h"
 #include "SystemTimeInterface.h"
 #include "VCFCANInterfaceImpl.h"
@@ -42,6 +43,8 @@ void initialize_all_interfaces();
 
 
 ::HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+::HT_TASK::TaskResponse run_odometer(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * The buzzer_control task will control the buzzer control pin. This function

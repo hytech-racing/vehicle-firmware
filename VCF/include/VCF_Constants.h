@@ -203,6 +203,9 @@ namespace VCFConstants
     constexpr uint8_t NEOPIXEL_UPDATE_PRIORITY = 14;
     constexpr time_us NEOPIXEL_UPDATE_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
+    constexpr uint8_t ODOMETER_UPDATE_PRIORITY = 14;
+    constexpr time_us ODOMETER_UPDATE_PERIOD_US = 100000; // 100 000 us = 10 Hz
+
     constexpr uint8_t PEDALS_RECALIBRATION_PRIORITY = 20;
     constexpr time_us PEDALS_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
