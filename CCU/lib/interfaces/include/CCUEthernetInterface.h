@@ -23,7 +23,8 @@ class CCUEthernetInterface {
     
     private:
     EthernetUDP _ccu_data_recv_socket;
-
 }
+
+using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterfaceInstance>;
 
 #endif

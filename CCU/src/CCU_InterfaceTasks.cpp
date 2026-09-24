@@ -72,8 +72,8 @@ void initialize_all_interfaces()
     );
     WatchdogInterfaceInstance::instance().init();
 
-    // CCUEthernetInterface::create();
-    // CCUEthernetInterface::instance().init_ethernet_device();
+    CCUEthernetInterface::create();
+    CCUEthernetInterface::instance().init_ethernet_device();
 
      /* CAN Interfaces  */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
@@ -129,7 +129,7 @@ HT_TASK::TaskResponse run_send_ethernet(const unsigned long& sysMicros, const HT
 
 HT_TASK::TaskResponse run_receive_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-
+    CCUEthernetInterfaceInstance::instance().receive_pb_msg_acu_all_data();
     return HT_TASK::TaskResponse::YIELD;
 }
 

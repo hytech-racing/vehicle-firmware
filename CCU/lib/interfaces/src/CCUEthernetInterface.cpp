@@ -2,7 +2,7 @@
 #include "MainChargeSystem.h"
 
 
-void CCUEthernetInterface::init_ethernet_interface() {
+void CCUEthernetInterface::init_ethernet_device() {
     EthernetIPDefsInstance::create();
     Ethernet.begin(EthernetIPDefsInstance::instance().ccu_ip,
                 EthernetIPDefsInstance::instance().car_subnet,
