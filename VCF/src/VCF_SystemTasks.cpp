@@ -5,7 +5,7 @@ void initialize_all_systems()
 {
     /* Neopixel Controller */
     NeopixelControllerInstance::create(VCFSystems::NEOPIXEL_COUNT, VCFSystems::NEOPIXEL_CONTROL_PIN);
-    NeopixelControllerInstance::instance().init_neopixels();
+    NeopixelControllerInstance::instance().init();
 
     /* Pedals System */
     PedalsParams accel_params = {
@@ -61,7 +61,6 @@ void initialize_all_systems()
     steering_params.span_signal_digital = steering_params.max_steering_signal_digital - steering_params.min_steering_signal_digital;
     steering_params.digital_midpoint = (steering_params.min_steering_signal_digital + steering_params.max_steering_signal_digital) / 2;
     SteeringSystemInstance::create(steering_params); // NOLINT thinks steering params is not initialized
-
 }
 
 HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
@@ -70,7 +69,7 @@ HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMic
     //          that are defined in the PedalsParam struct.
     PedalsSystemInstance::instance().update_observed_pedal_limits(PedalsSystemInstance::instance().get_pedals_sensor_data());
 
-    if (VCRInterfaceInstance::instance().is_in_pedals_calibration_state())
+    if (VCRInterfaceInstance::instance().arePedalsCalibrating())
     {
         // PedalsSystemInstance::instance().recalibrate_min_max(VCFData_sInstance::instance().interface_data.pedal_sensor_data);
         PedalsSystemInstance::instance().recalibrate_min_max(PedalsSystemInstance::instance().get_pedals_sensor_data());
@@ -116,7 +115,7 @@ HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysM
     SteeringSystemInstance::instance().update_observed_steering_limits(analog_raw, digital_raw);
 
 
-    if (VCRInterfaceInstance::instance().is_in_steering_calibration_state())
+    if (VCRInterfaceInstance::instance().isSteeringCalibrating())
     {
         SteeringSystemInstance::instance().recalibrate_steering_digital();
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_analog);
@@ -154,6 +153,6 @@ HT_TASK::TaskResponse enqueue_steering_data(const unsigned long& sysMicros, cons
 
 HT_TASK::TaskResponse update_neopixels_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    NeopixelControllerInstance::instance().refresh_neopixels(PedalsSystemInstance::instance().get_pedals_system_data(), CANInterfacesInstance::instance());
+    NeopixelControllerInstance::instance().refreshNeopixels(PedalsSystemInstance::instance().get_pedals_system_data(), CANInterfacesInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }

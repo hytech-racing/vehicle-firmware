@@ -27,37 +27,37 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
         }
         case BMS_VOLTAGES_CANID:
         {
-            interfaces.acu_interface.receive_ACU_voltages(msg);
+            interfaces.acu_interface.receiveACUVoltages(msg);
             break;
         }
         case ACU_OK_CANID:
         {
-            interfaces.dash_interface.receive_ACU_OK(msg);
+            interfaces.dash_interface.receiveACUOKCANMsg(msg);
             break;
         }
         case CAR_STATES_CANID:
         {
-            interfaces.vcr_interface.receive_car_states_data(msg);
+            interfaces.vcr_interface.recieveCarStatesCANMsg(msg);
             break;
         }
         case INV1_STATUS_CANID:
         {
-            interfaces.vcr_interface.receive_inverter_status_1(msg);
+            interfaces.vcr_interface.receiveINV1StatusCANMsg(msg);
             break;
         }
         case INV2_STATUS_CANID:
         {
-            interfaces.vcr_interface.receive_inverter_status_2(msg);
+            interfaces.vcr_interface.receiveINV2StatusCANMsg(msg);
             break;
         }
         case INV3_STATUS_CANID:
         {
-            interfaces.vcr_interface.receive_inverter_status_3(msg);
+            interfaces.vcr_interface.receiveINV3StatusCANMsg(msg);
             break;
         }
         case INV4_STATUS_CANID:
         {
-            interfaces.vcr_interface.receive_inverter_status_4(msg);
+            interfaces.vcr_interface.receiveINV4StatusCANMsg(msg);
             break;
         }
         case FL_BRAKE_ROTOR_SENSOR_TEMP_CANID:
@@ -71,7 +71,7 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
         case FR_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
         case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
         {
-            interfaces.brake_rotor_temp_interface.receive_brake_rotor_temp_data(msg);
+            interfaces.brake_rotor_temp_interface.receiveBrakeRotorTempCANMsgs(msg);
             break;
         }
         default:

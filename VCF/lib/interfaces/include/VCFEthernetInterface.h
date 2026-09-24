@@ -26,7 +26,7 @@ public:
 
     VCFEthernetInterface() = default;
 
-    void init_ethernet_device();
+    void initEthernetDevice();
 
     /**
      * Function to transform our struct from shared_data_types into the protoc struct hytech_msgs_VCFData_s.
@@ -50,9 +50,9 @@ public:
      *
      * @post After this function completes, shared_state will contain the updated buzzer control.
      */
-    void receive_pb_msg_vcr(const hytech_msgs_VCRData_s &msg_in, VCFData_s &shared_state, unsigned long curr_millis);
+    void receiveVCRETHMsg(const hytech_msgs_VCRData_s &msg_in, VCFData_s &shared_state, unsigned long curr_millis);
 
-    void handle_send_ethernet_vcf_data(const hytech_msgs_VCFData_s &data);
+    void handleSendVCFETHData(const hytech_msgs_VCFData_s &data);
 
 private:
 

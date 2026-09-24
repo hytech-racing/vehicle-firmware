@@ -9,6 +9,7 @@ using pin = uint8_t;
 using degree  = float;
 using time_us = uint32_t;
 
+
 namespace VCFInterfaces
 {
     /* Serial */

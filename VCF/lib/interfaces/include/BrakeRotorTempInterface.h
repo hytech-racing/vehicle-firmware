@@ -28,8 +28,8 @@ struct BrakeTempSensorData_s
 };
 
 /**
- * Interface to receive messages from the Izze Racing IRTS-60deg-v3 sensor
- */
+ * @brief Interface to receive messages from the Izze Racing IRTS-60deg-v3 sensor
+*/
 class BrakeRotorTempInterface
 {
 public:
@@ -38,23 +38,27 @@ public:
     BrakeRotorTempInterface() {}
 
     /**
-     * Retrieves the latest data that has been sent from the sensors
+     * @brief Retrieves the latest data that has been sent from the sensors
      * @return the latest temp data
-     */
-    BrakeTempSensorData_s get_brake_rotor_temp_data() const;
+    */
+    BrakeTempSensorData_s getBrakeRotorTempData() const;
 
     /**
-     * CAN receive function to parse the new CAN msg and update internal state
-     * Called by VCF's recv switch
+     * @brief CAN receive function to parse the new CAN msg and update internal state
      * @param msg the CAN msg to parse
-     */
-    void receive_brake_rotor_temp_data(const CAN_message_t &msg);
+    */
+    void receiveBrakeRotorTempCANMsgs(const CAN_message_t &msg);
 
 private:
 
     BrakeTempSensorData_s _temp_data;
 
-    void _update_calculated_values(bool FR);
+    /**
+     * @brief Helper method to update the calculated values of max and avg temps for each sensor after new data is received
+     *        Will only update for the specified sensor
+     * @param sensor corresponds to which sensor was updated. FL = 0, FR = 1
+     */
+    void _updateCalculatedValues(bool sensor);
 };
 
 using BrakeRotorTempInterfaceInstance = etl::singleton<BrakeRotorTempInterface>;

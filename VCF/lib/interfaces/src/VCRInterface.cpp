@@ -20,7 +20,7 @@ void VCRInterface::receive_dash_control_data(const CAN_message_t &can_msg)
     }
 }
 
-void VCRInterface::receive_car_states_data(const CAN_message_t &can_msg)
+void VCRInterface::recieveCarStatesCANMsg(const CAN_message_t &can_msg)
 {
     CAR_STATES_t unpacked_msg;
     Unpack_CAR_STATES_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT
@@ -29,7 +29,7 @@ void VCRInterface::receive_car_states_data(const CAN_message_t &can_msg)
     _is_db_in_ctrl = unpacked_msg.drivebrain_in_control;
 }
 
-void VCRInterface::receive_inverter_status_1(const CAN_message_t &can_msg)
+void VCRInterface::receiveINV1StatusCANMsg(const CAN_message_t &can_msg)
 {
     INV1_STATUS_t unpacked_msg;
     Unpack_INV1_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT
@@ -37,7 +37,7 @@ void VCRInterface::receive_inverter_status_1(const CAN_message_t &can_msg)
     _bus_voltages.voltage.FL = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_2(const CAN_message_t &can_msg)
+void VCRInterface::receiveINV2StatusCANMsg(const CAN_message_t &can_msg)
 {
     INV2_STATUS_t unpacked_msg;
     Unpack_INV2_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT
@@ -45,7 +45,7 @@ void VCRInterface::receive_inverter_status_2(const CAN_message_t &can_msg)
     _bus_voltages.voltage.FR = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_3(const CAN_message_t &can_msg)
+void VCRInterface::receiveINV3StatusCANMsg(const CAN_message_t &can_msg)
 {
     INV3_STATUS_t unpacked_msg;
     Unpack_INV3_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT
@@ -53,7 +53,7 @@ void VCRInterface::receive_inverter_status_3(const CAN_message_t &can_msg)
     _bus_voltages.voltage.RL = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_4(const CAN_message_t &can_msg)
+void VCRInterface::receiveINV4StatusCANMsg(const CAN_message_t &can_msg)
 {
     INV4_STATUS_t unpacked_msg;
     Unpack_INV4_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT
@@ -61,7 +61,10 @@ void VCRInterface::receive_inverter_status_4(const CAN_message_t &can_msg)
     _bus_voltages.voltage.RR = unpacked_msg.dc_bus_voltage;
 }
 
-bool VCRInterface::get_inverter_error()
+bool VCRInterface::isInverterErrored()
 {
-    return _inv_error_status.error.FL || _inv_error_status.error.FR || _inv_error_status.error.RL || _inv_error_status.error.RR;
+    return _inv_error_status.error.FL ||
+        _inv_error_status.error.FR ||
+        _inv_error_status.error.RL ||
+        _inv_error_status.error.RR;
 }

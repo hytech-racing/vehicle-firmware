@@ -69,37 +69,26 @@ class NeopixelController
 {
 public:
 
-#ifdef ARDUINO
     NeopixelController(uint32_t neopixel_count,
                     uint32_t neopixel_pin
     ) : _neopixels(neopixel_count, neopixel_pin, NEO_GRBW + NEO_KHZ800),
         _current_brightness(64),
         _neopixel_count(neopixel_count)
     {};
-#else
-    NeopixelController(uint32_t neopixel_count, uint32_t neopixel_pin)
-        : _current_brightness(64),
-          _neopixel_count(neopixel_count)
-    {};
-#endif
 
-    void init_neopixels();
+    void init();
 
-    void dim_neopixels();
+    void dimNeopixels();
 
-    void set_neopixel(uint16_t id, uint32_t c);
+    void setNeopixel(uint16_t id, uint32_t c);
 
-    #ifdef ARDUINO
-    void refresh_neopixels(const PedalsSystemData_s &pedals_data, CANInterfaces_s &interfaces);
-    #endif
+    void refreshNeopixels(const PedalsSystemData_s &pedals_data, CANInterfaces_s &interfaces);
 
-    void set_neopixel_color(LED_ID_e led, LED_color_e color);
+    void setNeopixelColor(LED_ID_e led, LED_color_e color);
 
 private:
 
-#ifdef ARDUINO
     Adafruit_NeoPixel _neopixels;
-#endif
     uint8_t _current_brightness;
     uint8_t _neopixel_count;
     const uint8_t _hv_threshold_voltage = 60;

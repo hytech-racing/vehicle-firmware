@@ -51,11 +51,11 @@ public:
     void init();
 
     /**
-     * Get/update watchdog state
+     * @brief Get/update watchdog state
      * @param curr_millis time of VCF time
      * @post IF reach interval, _watchdog_time updated and state switched
     */
-    bool update_watchdog_state(unsigned long curr_millis);
+    bool updateWatchdogState(unsigned long curr_millis);
 
 private:
 

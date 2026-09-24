@@ -24,24 +24,24 @@
 
 
 /**
- * Init Functions - to be called in setup@
+ * @brief Create instances of all interfaces and call necessary init methods
  */
-void initialize_all_interfaces();
+void initializeAllInterfaces();
 
 /**
  * The read_adc0 task will command the ADCInterface to sample, convert, and store
  * data from all eight channels of adc0.
- */
-::HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+*/
+::HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * The read_adc0 task will command the ADCInterface to sample, convert, and store
  * data from all eight channels of adc1.
- */
-::HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+*/
+::HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
-::HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * The buzzer_control task will control the buzzer control pin. This function

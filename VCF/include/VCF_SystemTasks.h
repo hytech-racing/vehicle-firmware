@@ -9,7 +9,7 @@
 /* Local System Includes */
 #include "BuzzerController.h"
 #include "EEPROMUtilities.h"
-#include "IOExpanderUtilities.h"
+#include "MCP23017.h"
 #include "NeopixelController.h"
 #include "PedalsSystem.h"
 #include "SteeringSystem.h"

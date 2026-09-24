@@ -29,37 +29,37 @@ public:
 
     void receive_dash_control_data(const CAN_message_t &can_msg);
 
-    void receive_car_states_data(const CAN_message_t &can_msg);
+    void recieveCarStatesCANMsg(const CAN_message_t &can_msg);
 
-    void receive_inverter_status_1(const CAN_message_t &can_msg);
+    void receiveINV1StatusCANMsg(const CAN_message_t &can_msg);
 
-    void receive_inverter_status_2(const CAN_message_t &can_msg);
+    void receiveINV2StatusCANMsg(const CAN_message_t &can_msg);
 
-    void receive_inverter_status_3(const CAN_message_t &can_msg);
+    void receiveINV3StatusCANMsg(const CAN_message_t &can_msg);
 
-    void receive_inverter_status_4(const CAN_message_t &can_msg);
+    void receiveINV4StatusCANMsg(const CAN_message_t &can_msg);
 
     /* State Observation + Control */
-    bool is_in_pedals_calibration_state() { return _is_in_pedals_calibration_state; }
+    bool arePedalsCalibrating() { return _is_in_pedals_calibration_state; }
 
-    bool is_in_steering_calibration_state() { return _is_in_steering_calibration_state; } //steering and pedals calibration states are the same, so we can use the same variable for both
+    bool isSteeringCalibrating() { return _is_in_steering_calibration_state; } //steering and pedals calibration states are the same, so we can use the same variable for both
 
-    void disable_calibration_state() {_is_in_pedals_calibration_state = false;}
+    void disablePedalsCalibration() {_is_in_pedals_calibration_state = false;}
 
-    void disable_steering_calibration_state() {_is_in_steering_calibration_state = false;}
+    void disableSteeringCalibration() {_is_in_steering_calibration_state = false;}
 
     /* Getters */
-    VehicleState_e get_vehicle_state() const { return _vehicle_state_value; }
+    VehicleState_e getVehicleState() const { return _vehicle_state_value; }
 
-    DrivetrainState_e get_drivetrain_state() const { return _drivetrain_state_value; }
+    DrivetrainState_e getDrivetrainState() const { return _drivetrain_state_value; }
 
-    InverterBusVolts_s get_dc_bus_voltage() const { return _bus_voltages; }
+    InverterBusVolts_s getDCBusVoltages() const { return _bus_voltages; }
 
-    TorqueLimit_e get_torque_limit_mode() const { return _torque_limit; }
+    TorqueLimit_e getTorqueLimitMode() const { return _torque_limit; }
 
-    bool get_db_in_ctrl() const { return _is_db_in_ctrl; }
+    bool isDrivebrainInControl() const { return _is_db_in_ctrl; }
 
-    bool get_inverter_error() ;
+    bool isInverterErrored();
 
 private:
 

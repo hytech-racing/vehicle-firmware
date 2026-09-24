@@ -1,12 +1,12 @@
 #include "ADCInterface.h"
 
 
-void ADCInterface::tick_adc0()
+void ADCInterface::tickADC0()
 {
     _adc0.tick();
 }
 
-void ADCInterface::tick_adc1()
+void ADCInterface::tickADC1()
 {
     _adc1.tick();
 }
@@ -75,127 +75,127 @@ std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface:
 
 /* -------------------- ADC 0 Functions -------------------- */
 
-AnalogConversion_s ADCInterface::pedal_reference() {
+AnalogConversion_s ADCInterface::getPedalReference() {
     return _adc0.data.conversions[_adc_parameters.channels.pedal_ref_channel];
 }
 
-AnalogConversion_s ADCInterface::get_steering_degrees_cw()
+AnalogConversion_s ADCInterface::getSteeringDegreesCW()
 {
     return _adc0.data.conversions[_adc_parameters.channels.steering_cw_channel];
 }
 
-AnalogConversion_s ADCInterface::get_steering_degrees_ccw()
+AnalogConversion_s ADCInterface::getSteeringDegreesCCW()
 {
     return _adc0.data.conversions[_adc_parameters.channels.steering_ccw_channel];
 }
 
-AnalogConversion_s ADCInterface::get_acceleration_1()
+AnalogConversion_s ADCInterface::getAcceleration1()
 {
     return _adc0.data.conversions[_adc_parameters.channels.accel_1_channel];
 }
 
-AnalogConversion_s ADCInterface::get_acceleration_2()
+AnalogConversion_s ADCInterface::getAcceleration2()
 {
     return _adc0.data.conversions[_adc_parameters.channels.accel_2_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_1()
+AnalogConversion_s ADCInterface::getBrake1()
 {
     return _adc0.data.conversions[_adc_parameters.channels.brake_1_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_2()
+AnalogConversion_s ADCInterface::getBrake2()
 {
     return _adc0.data.conversions[_adc_parameters.channels.brake_2_channel];
 }
 
 /* -------------------- ADC 1 Functions -------------------- */
 
-AnalogConversion_s ADCInterface::shdn_h()
+AnalogConversion_s ADCInterface::getShutdownH()
 {
     return _adc1.data.conversions[_adc_parameters.channels.shdn_h_channel];
 }
 
-AnalogConversion_s ADCInterface::shdn_d()
+AnalogConversion_s ADCInterface::getShutdownD()
 {
     return _adc1.data.conversions[_adc_parameters.channels.shdn_d_channel];
 }
 
-AnalogConversion_s ADCInterface::get_FL_load_cell()
+AnalogConversion_s ADCInterface::getFLLoadcell()
 {
     return _adc1.data.conversions[_adc_parameters.channels.fl_loadcell_channel];
 }
 
-AnalogConversion_s ADCInterface::get_FR_load_cell()
+AnalogConversion_s ADCInterface::getFRLoadcell()
 {
     return _adc1.data.conversions[_adc_parameters.channels.fr_loadcell_channel];
 }
 
-AnalogConversion_s ADCInterface::get_FL_sus_pot()
+AnalogConversion_s ADCInterface::getFLSuspot()
 {
     return _adc1.data.conversions[_adc_parameters.channels.fl_suspot_channel];
 }
 
-AnalogConversion_s ADCInterface::get_FR_sus_pot()
+AnalogConversion_s ADCInterface::getFRSuspot()
 {
     return _adc1.data.conversions[_adc_parameters.channels.fr_suspot_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_pressure_front()
+AnalogConversion_s ADCInterface::getBrakePressureFront()
 {
     return _adc1.data.conversions[_adc_parameters.channels.brake_pressure_front_channel];
 }
 
-AnalogConversion_s ADCInterface::get_brake_pressure_rear()
+AnalogConversion_s ADCInterface::getBrakePressureRear()
 {
     return _adc1.data.conversions[_adc_parameters.channels.brake_pressure_rear_channel];
 }
 
-void ADCInterface::update_filtered_values(float alpha)
+void ADCInterface::updateFilteredCalues(float alpha)
 {
-    _FL_load_cell_filtered = _apply_iir_filter(
+    _FL_load_cell_filtered = _applyIIRFilter(
         alpha,
         _FL_load_cell_filtered,
-        get_FL_load_cell().conversion
+        getFLLoadcell().conversion
     );
-    _FR_load_cell_filtered = _apply_iir_filter(
+    _FR_load_cell_filtered = _applyIIRFilter(
         alpha,
         _FR_load_cell_filtered,
-        get_FR_load_cell().conversion
+        getFRLoadcell().conversion
     );
-    _FL_sus_pot_filtered = _apply_iir_filter(
+    _FL_sus_pot_filtered = _applyIIRFilter(
         alpha,
         _FL_sus_pot_filtered,
-        get_FL_sus_pot().conversion
+        getFLSuspot().conversion
     );
-    _FR_sus_pot_filtered = _apply_iir_filter(
+    _FR_sus_pot_filtered = _applyIIRFilter(
         alpha,
         _FR_sus_pot_filtered,
-        get_FR_sus_pot().conversion
+        getFRSuspot().conversion
     );
 }
 
-float ADCInterface::get_filtered_FL_load_cell()
+float ADCInterface::getFilteredFLLoadcell()
 {
     return _FL_load_cell_filtered;
 }
 
-float ADCInterface::get_filtered_FR_load_cell()
+float ADCInterface::getFilteredFRLoadcell()
 {
     return _FR_load_cell_filtered;
 }
 
-float ADCInterface::get_filtered_FL_sus_pot()
+float ADCInterface::getFilteredFLSuspot()
 {
     return _FL_sus_pot_filtered;
 }
 
-float ADCInterface::get_filtered_FR_sus_pot()
+float ADCInterface::getFilteredFRSuspot()
 {
     return _FR_sus_pot_filtered;
 }
 
-float ADCInterface::_apply_iir_filter(float alpha, float prev_value, float new_value)
+float ADCInterface::_applyIIRFilter(float alpha, float prev_value, float new_value)
 {
     return (alpha * new_value) + (1 - alpha) * (prev_value);
 }

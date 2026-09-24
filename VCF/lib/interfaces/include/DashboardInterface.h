@@ -5,7 +5,6 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <MCP23017.h>
 #include <Wire.h>
 #include "SharedFirmwareTypes.h"
 #include "hytech.h"
@@ -15,7 +14,7 @@
 #include "SystemTimeInterface.h"
 
 /* Local System Includes */
-#include "IOExpanderUtilities.h"
+#include "MCP23017Interface.h"
 
 
 struct DashboardGPIOs_s
@@ -36,42 +35,50 @@ public:
                     uint8_t io_expander_addr,
                     TwoWire &i2c_bus
     ) : _dashboard_gpios(gpio),
-        _io_expander(MCP23017(io_expander_addr, i2c_bus)),
-        _i2c_bus(i2c_bus)
+        _i2c_bus(i2c_bus),
+        _io_expander(_i2c_bus,
+                    IOExpanderParams_s {
+                        .i2c_address = io_expander_addr,
+                        .port_a = { .directions = 0b00000000, .pullups = 0xFF, .inverted = 0b00000000 },
+                        .port_b = { .directions = 0b01111111, .pullups = 0b00000000, .inverted = 0xFF },
+                    }
+        )
     {};
 
     /**
      * @brief Initializes GPIO pins and IO expander.
-     */
+    */
     void init();
 
     /**
      * @brief Syncs stored outputs with last read outputs.
-     */
-    void sync_dashboard_stored_state();
+    */
+    void syncDashboardStoredState();
 
-    bool bms_ok = true;
-    bool imd_ok = true;
-    void receive_ACU_OK(const CAN_message_t &can_msg);
+    void receiveACUOKCANMsg(const CAN_message_t &can_msg);
 
-    void set_dial_state(ControllerMode_e mode);
+    void setDialState(ControllerMode_e mode);
 
-    void read_ioexpander();
+    void readIOExpander();
 
     DashInputState_s get_dashboard_outputs();
 
     DashInputState_s get_dashboard_stored_state();
 
+    bool isIMDOk() const { return _imd_ok; };
+
+    bool isBMSOk() const { return _bms_ok; };
+
 private:
 
+    bool _bms_ok = true;
+    bool _imd_ok = true;
     DashboardGPIOs_s _dashboard_gpios;
     DashInputState_s _dashboard_outputs; // curr state, what the buttons are doing right now
     DashInputState_s _dashboard_stored_state; // previous state, what the buttons were doing last tick
-    MCP23017 _io_expander;
     TwoWire &_i2c_bus;
+    MCP23017Interface _io_expander; // must be declared after _i2c_bus (init order follows declaration order)
     unsigned long _dash_created_millis;
-
-    void _init_io_expander();
 
 };
 

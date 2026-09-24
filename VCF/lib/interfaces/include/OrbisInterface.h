@@ -86,19 +86,19 @@ public:
 
     OrbisInterface(HardwareSerial* serial);
 
-    OrbisErrorFlags_s get_orbis_detailed_errors() const { return _orbis_errors; }
+    OrbisErrorFlags_s getDetailedErrors() const { return _orbis_errors; }
 
-    bool perform_self_calibration();
+    bool selfCalibration();
 
-    void set_encoder_offset();
+    void setOffset();
 
-    void save_configuration();
+    void saveConfiguration();
 
-    void factory_reset();
+    void factoryReset();
 
     void sample();
 
-    SteeringEncoderReading_s get_last_reading() { return _last_reading;}
+    SteeringEncoderReading_s getLastReading() { return _last_reading;}
 
 private:
 
@@ -106,11 +106,11 @@ private:
     SteeringEncoderReading_s _last_reading; // Most recently sampled encoder reading.
     OrbisErrorFlags_s _orbis_errors;
 
-    void _decode_errors(uint8_t general, uint8_t detailed);
+    void _decodeErrors(uint8_t general, uint8_t detailed);
 
-    void _send_unlock_sequence();
+    void _sendUnlockSequence();
 
-    void _flush_serial_buffer();
+    void _flushSerialBuffer();
 
 };
 
