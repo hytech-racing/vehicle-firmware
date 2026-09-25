@@ -12,7 +12,7 @@ void WatchdogInterface::init()
     digitalWrite(_watchdog_parameters.pinout.teensy_sw_shdn_pin, LOW);
 }
 
-bool WatchdogInterface::update_watchdog_state(uint32_t curr_millis)
+bool WatchdogInterface::updateWatchdogState(uint32_t curr_millis)
 {
     if ((curr_millis - _watchdog_time) > _watchdog_parameters.watchdog_kick_interval_ms)
     {
@@ -24,12 +24,12 @@ bool WatchdogInterface::update_watchdog_state(uint32_t curr_millis)
     return _watchdog_state;
 }
 
-void WatchdogInterface::set_sw_shdn_pin_low()
+void WatchdogInterface::setSWShutdownPinLow()
 {
     digitalWrite(_watchdog_parameters.pinout.teensy_sw_shdn_pin, LOW);
 }
 
-void WatchdogInterface::set_sw_shdn_pin_high()
+void WatchdogInterface::setSWShutdownPinHigh()
 {
     digitalWrite(_watchdog_parameters.pinout.teensy_sw_shdn_pin, HIGH);
 }

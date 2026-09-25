@@ -6,6 +6,7 @@
 #include <etl/delegate.h>
 
 /* External Includes */
+#include "hytech.h"
 #include <FlexCAN_T4.h>
 
 
@@ -21,9 +22,9 @@ public:
 
     EnergyMeterInterface()= default;
 
-    void receive_energy_meter_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveEMMeasurmentCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    EMData_s get_latest_em_data() {return _em_data;};
+    EMData_s getLatestEMData() {return _em_data;};
 
 private:
 

@@ -3,49 +3,49 @@
 
 void DisplayInterface::init()
 {
-    Display.begin();
-    Display.setRotation(3);
-    Display.setTextSize(2);
-    Display.fillScreen(ILI9341_BLACK);
+    _display.begin();
+    _display.setRotation(3);
+    _display.setTextSize(2);
+    _display.fillScreen(ILI9341_BLACK);
 }
 
-void DisplayInterface::display_data(unsigned long current_millis, bool is_120_switched)
+void DisplayInterface::displayData(unsigned long current_millis, bool is_120_switched)
 {
-    Display.fillScreen(ILI9341_BLACK);
-    Display.setCursor(0,0);
-    Display.setRotation(3);
+    _display.fillScreen(ILI9341_BLACK);
+    _display.setCursor(0,0);
+    _display.setRotation(3);
 
     switch (_display_view)
     {
         case DisplayView_e::VIEW_CHARGE_STATUS:
         {
-            Display.setTextSize(2);
-            Display.print("Set to "); Display.print(is_120_switched ? "120" : "240"); Display.println("V Charging");
-            Display.print("CCU SM: "); Display.println(ChargerStateMachineInstance::instance().get_state_name());
-            Display.print("Cell Voltage max: ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().high_voltage, 3);
-            Display.print("Cell Voltage min: ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().low_voltage, 3);
-            Display.print("Cell Voltage avg: ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().average_voltage, 3);
-            Display.print("Cell Voltage delta: ");
-            Display.println((ACUInterfaceInstance::instance().get_latest_data().high_voltage - ACUInterfaceInstance::instance().get_latest_data().low_voltage), 3);
-            Display.print("Total pack Volts: ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().pack_voltage, 3);
-            Display.print("Max Board Temp (C): ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().max_board_temp, 3);
-            Display.print("Max Cell Temp (C): ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().max_cell_temp, 3);
-            Display.print("Min Cell Temp (C): ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().min_cell_temp, 3);
-            Display.print("Avg Cell Temp (C): ");
-            Display.println((ACUInterfaceInstance::instance().get_latest_data().max_cell_temp + ACUInterfaceInstance::instance().get_latest_data().min_cell_temp)/2, 3);
-            Display.print("Current Scalar: ");
-            Display.print(RotaryEncoderInterfaceInstance::instance().get_value()); Display.println("%");
-            Display.print("EM current (A): ");
-            Display.println(EnergyMeterInterfaceInstance::instance().get_latest_em_data().current_amps, 3);
-            Display.print("State of Charge (%): ");
-            Display.println(ACUInterfaceInstance::instance().get_latest_data().SoC, 2);
+            _display.setTextSize(2);
+            _display.print("Set to "); _display.print(is_120_switched ? "120" : "240"); _display.println("V Charging");
+            _display.print("CCU SM: "); _display.println(ChargerStateMachineInstance::instance().getStateName());
+            _display.print("Cell Voltage max: ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().high_voltage, 3);
+            _display.print("Cell Voltage min: ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().low_voltage, 3);
+            _display.print("Cell Voltage avg: ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().average_voltage, 3);
+            _display.print("Cell Voltage delta: ");
+            _display.println((ACUInterfaceInstance::instance().getLatestData().high_voltage - ACUInterfaceInstance::instance().getLatestData().low_voltage), 3);
+            _display.print("Total pack Volts: ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().pack_voltage, 3);
+            _display.print("Max Board Temp (C): ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().max_board_temp, 3);
+            _display.print("Max Cell Temp (C): ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().max_cell_temp, 3);
+            _display.print("Min Cell Temp (C): ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().min_cell_temp, 3);
+            _display.print("Avg Cell Temp (C): ");
+            _display.println((ACUInterfaceInstance::instance().getLatestData().max_cell_temp + ACUInterfaceInstance::instance().getLatestData().min_cell_temp)/2, 3);
+            _display.print("Current Scalar: ");
+            _display.print(RotaryEncoderInterfaceInstance::instance().getValue()); _display.println("%");
+            _display.print("EM current (A): ");
+            _display.println(EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps, 3);
+            _display.print("State of Charge (%): ");
+            _display.println(ACUInterfaceInstance::instance().getLatestData().SoC, 2);
 
             break;
         }
@@ -55,16 +55,16 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
             auto dc_output_V = ((charger_data.output_dc_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.output_dc_voltage_low) / default_display_params::DATA_SCALAR;
             auto ac_input_V = ((charger_data.input_ac_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.input_ac_voltage_low) / default_display_params::DATA_SCALAR;
             auto current_output_A = ((charger_data.output_current_high << default_display_params::BYTE_SHIFT) | charger_data.output_current_low) / default_display_params::DATA_SCALAR;
-            Display.setTextSize(2);
+            _display.setTextSize(2);
 
-            Display.print("Charger Output Current (A): ");
-            Display.println(current_output_A, 2);
-            Display.print("Charger DC Output Voltage (V): ");
-            Display.println(dc_output_V, 2);
-            Display.print("Charger AC Input Voltage (V): ");
-            Display.println(ac_input_V, 2);
-            Display.print("EM current (A): ");
-            Display.println(EnergyMeterInterfaceInstance::instance().get_latest_em_data().current_amps, 3);
+            _display.print("Charger Output Current (A): ");
+            _display.println(current_output_A, 2);
+            _display.print("Charger DC Output Voltage (V): ");
+            _display.println(dc_output_V, 2);
+            _display.print("Charger AC Input Voltage (V): ");
+            _display.println(ac_input_V, 2);
+            _display.print("EM current (A): ");
+            _display.println(EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps, 3);
 
             break;
         }
@@ -75,8 +75,8 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                 break;
             }
 
-            auto cell_voltages = ACUInterfaceInstance::instance().get_latest_data().cell_voltages;
-            Display.setTextSize(1);
+            auto cell_voltages = ACUInterfaceInstance::instance().getLatestData().cell_voltages;
+            _display.setTextSize(1);
 
             constexpr size_t cells_per_row = 3;
             constexpr size_t rows_per_page = 14;
@@ -97,27 +97,27 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                     idx -= total_cells;
                 }
 
-                Display.print("C");
-                Display.print(idx);
-                Display.print(":");
+                _display.print("C");
+                _display.print(idx);
+                _display.print(":");
 
                 if (cell_voltages[idx].has_value())
                 {
-                    Display.print(cell_voltages[idx].value(), 3);
+                    _display.print(cell_voltages[idx].value(), 3);
                 }
                 else
                 {
-                    Display.print("-.--");
+                    _display.print("-.--");
                 }
 
                 if ((i + 1) % cells_per_row == 0)
                 {
-                    Display.println();
-                    Display.println();
+                    _display.println();
+                    _display.println();
                 }
                 else
                 {
-                    Display.print("  ");
+                    _display.print("  ");
                 }
             }
 
@@ -137,8 +137,8 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                 break;
             }
 
-            auto board_temps = ACUInterfaceInstance::instance().get_latest_data().board_temps;
-            Display.setTextSize(1);
+            auto board_temps = ACUInterfaceInstance::instance().getLatestData().board_temps;
+            _display.setTextSize(1);
 
             constexpr size_t board_temps_per_row = 3;
 
@@ -148,27 +148,27 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                 {
                     size_t bt_index = (row * board_temps_per_row) + i;
 
-                    Display.print("BT");
-                    Display.print(bt_index);
-                    Display.print(":");
+                    _display.print("BT");
+                    _display.print(bt_index);
+                    _display.print(":");
 
                     if (*board_temps[bt_index])
                     {
-                        Display.print(*board_temps[bt_index], 3);
+                        _display.print(*board_temps[bt_index], 3);
                     }
                     else
                     {
-                        Display.print("--.-");
+                        _display.print("--.-");
                     }
 
                     if ((i + 1) % board_temps_per_row == 0)
                     {
-                        Display.println();
-                        Display.println();
+                        _display.println();
+                        _display.println();
                     }
                     else
                     {
-                        Display.print("  ");
+                        _display.print("  ");
                     }
                 }
             }
@@ -182,8 +182,8 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                 break;
             }
 
-            auto cell_temps = ACUInterfaceInstance::instance().get_latest_data().cell_temps;
-            Display.setTextSize(1);
+            auto cell_temps = ACUInterfaceInstance::instance().getLatestData().cell_temps;
+            _display.setTextSize(1);
 
             constexpr size_t temps_per_row = 3;
             constexpr size_t rows_per_page = 14;
@@ -204,27 +204,27 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
                     ct_idx -= total_cell_temps;
                 }
 
-                Display.print("CT");
-                Display.print(ct_idx);
-                Display.print(":");
+                _display.print("CT");
+                _display.print(ct_idx);
+                _display.print(":");
 
                 if (cell_temps[ct_idx].has_value())
                 {
-                    Display.print(cell_temps[ct_idx].value(), 3);
+                    _display.print(cell_temps[ct_idx].value(), 3);
                 }
                 else
                 {
-                    Display.print("-.--");
+                    _display.print("-.--");
                 }
 
                 if ((i + 1) % temps_per_row == 0)
                 {
-                    Display.println();
-                    Display.println();
+                    _display.println();
+                    _display.println();
                 }
                 else
                 {
-                    Display.print("  ");
+                    _display.print("  ");
                 }
             }
 
@@ -244,7 +244,7 @@ void DisplayInterface::display_data(unsigned long current_millis, bool is_120_sw
     }
 }
 
-void DisplayInterface::refresh_display_data(unsigned long curr_millis)
+void DisplayInterface::refreshDisplayData(unsigned long curr_millis)
 {
     if ((curr_millis - _display_time) >= _config.display_update_interval_ms)
     {
@@ -255,22 +255,22 @@ void DisplayInterface::refresh_display_data(unsigned long curr_millis)
 void DisplayInterface::update(unsigned long current_millis)
 {
     _cycle_display_view_button.update(current_millis);
-    handle_button_events(current_millis);
+    _handleButtonEvents(current_millis);
 }
 
-void DisplayInterface::handle_button_events(unsigned long current_millis)
+void DisplayInterface::_handleButtonEvents(unsigned long current_millis)
 {
-    if (_cycle_display_view_button.get_hold_duration_ms(current_millis) > _config.cycle_button_hold_time_reset_ms)
+    if (_cycle_display_view_button.getHoldDurationMs(current_millis) > _config.cycle_button_hold_time_reset_ms)
     {
         _display_view = DisplayView_e::VIEW_CHARGE_STATUS;
     }
-    else if (_cycle_display_view_button.is_pressed())
+    else if (_cycle_display_view_button.isPressed())
     {
-        cycle_view();
+        _cycleView();
     }
 }
 
-void DisplayInterface::cycle_view()
+void DisplayInterface::_cycleView()
 {
     _display_view = static_cast<DisplayView_e>((static_cast<size_t>(_display_view) + 1) % static_cast<size_t>(DisplayView_e::NUM_VIEWS));
 }

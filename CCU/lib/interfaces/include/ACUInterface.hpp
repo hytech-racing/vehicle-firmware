@@ -61,7 +61,9 @@ class ACUInterface
 {
 public:
 
-    ACUInterface(unsigned long init_ms, unsigned long max_heartbeat_interval_ms) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
+    ACUInterface(unsigned long init_ms,
+                unsigned long max_heartbeat_interval_ms
+    ) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
     {
         _curr_data.last_recv_status_ms = 0;
         _curr_data.heartbeat_ok = false; // start out false
@@ -76,56 +78,56 @@ public:
         _curr_data.max_board_temp = 0;
     };
 
-    bool is_acu_heartbeat_not_ok() {return !_curr_data.heartbeat_ok; }
+    bool isACUHeartbeatNotOK() {return !_curr_data.heartbeat_ok; }
 
-    void reset_acu_heartbeat();
+    void resetACUHeartbeat();
 
-    void set_is_charging_enabled(bool state);
+    void setIsChargingEnabled(bool state);
 
     /**
      * @brief Unpacks a BMS status CAN message, updates ACU state, tracks the receive timestamp, and
      *        initializes heartbeat on the first message
-     */
-    void receive_status_message(const CAN_message_t& msg, unsigned long curr_millis);
+    */
+    void receiveBMSStatusCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
      * @brief Unpacks a BMS voltages CAN message and updates the current average, low, high, and pack
      *        voltage readings
-     */
-    void receive_voltages_message(const CAN_message_t& msg, unsigned long curr_millis); //BMS_VOLTAGES and BMS_DETAILED_VOLTAGES
+    */
+    void receiveBMSVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis); //BMS_VOLTAGES and BMS_DETAILED_VOLTAGES
 
     /**
-     * @brief
+     * @brief Unpacks a BMS detailed voltages CAN message and updates cell voltage readings based on group and IC ID's
     */
-    void receive_detailed_voltages_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveBMSDetailedVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
      * @brief Unpacks a BMS temp CAN message and updates the max board temp, min + max cell temps
-     */
-    void receive_onboard_temps_message(const CAN_message_t& msg, unsigned long curr_millis);
+    */
+    void receiveBMSTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
-     * @brief
-     */
-    void receive_detailed_temps_message(const CAN_message_t& msg, unsigned long curr_millis);
+     * @brief Unpacks a BMS detailed temp CAN message and updates the cell temps based on group and IC ID's
+    */
+    void receiveBMSDetailedTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
      * @brief Unpacks a detailed BMS board temp CAN message and stores the converted temp readings into the board temps
-     *        array at the index corresponding to the IC ID.
-     */
-    void receive_onboard_detailed_temps(const CAN_message_t& msg, unsigned long curr_millis);
+     *        array at the index corresponding to the IC ID
+    */
+    void receiveBMSBoardTemps(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
      * @brief Unpacks a state of charge CAN message and updates the current SoC reading
-     */
-    void receive_state_of_charge(const CAN_message_t& msg, unsigned long curr_millis);
+    */
+    void receiveStateOfChargeCANMSG(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
      * @brief Packages the current charging_enabled state into a CCU status CAN message and enqueues it on the ACU CAN bus
      */
-    void enqueue_ccu_status_data();
+    void enqueueCCUStatusCANMsg();
 
-    ACUInterfaceData_s get_latest_data() { return _curr_data; };
+    ACUInterfaceData_s getLatestData() { return _curr_data; };
 
 private:
 

@@ -15,17 +15,17 @@ HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 /* read_dial, send_ethernet, and receieve_ethernet are not being used */
-HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &run_kick_watchdog, CCUConstants::KICK_WATCHDOG_PRIORITY, CCUConstants::KICK_WATCHDOG_PERIOD);
-HT_TASK::Task run_sample_can_data(HT_TASK::DUMMY_FUNCTION, &sample_can_data, CCUConstants::SAMPLE_CAN_DATA_PRIORITY, CCUConstants::SAMPLE_CAN_DATA_PERIOD);
-HT_TASK::Task tick_state_machine_task(HT_TASK::DUMMY_FUNCTION, &tick_state_machine, CCUConstants::TICK_STATE_MACHINE_PRIORITY, CCUConstants::TICK_STATE_MACHINE_PERIOD);
-HT_TASK::Task calculate_charge_current_task(HT_TASK::DUMMY_FUNCTION, &calculate_charge_current, CCUConstants::TICK_STATE_MACHINE_PRIORITY, CCUConstants::TICK_STATE_MACHINE_PERIOD);
-HT_TASK::Task queue_ACU_CAN(HT_TASK::DUMMY_FUNCTION, &handle_enqueue_acu_can_data, CCUConstants::ENQUEUE_ACU_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_ACU_CAN_DATA_PERIOD);
-HT_TASK::Task queue_Charger_CAN(HT_TASK::DUMMY_FUNCTION, &handle_enqueue_charger_can_data, CCUConstants::ENQUEUE_CHARGER_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_CHARGER_CAN_DATA_PERIOD);
-HT_TASK::Task send_all_data(HT_TASK::DUMMY_FUNCTION, &handle_send_all_data, CCUConstants::SEND_ALL_DATA_PRIORITY, CCUConstants::SEND_ALL_DATA_PERIOD);
-HT_TASK::Task receive_ethernet(HT_TASK::DUMMY_FUNCTION, &run_receive_ethernet, CCUConstants::RECIEVE_ETHERNET_PRIORITY, CCUConstants::ETHERNET_PERIOD);
-HT_TASK::Task send_ethernet(HT_TASK::DUMMY_FUNCTION, &run_send_ethernet, CCUConstants::SEND_ETHERNET_PRIORITY, CCUConstants::ETHERNET_PERIOD);
-HT_TASK::Task read_encoder_task(HT_TASK::DUMMY_FUNCTION, &run_read_encoder_task, CCUConstants::READ_DIAL_PRIORITY, CCUConstants::DIAL_PERIOD);
-HT_TASK::Task update_display_task(HT_TASK::DUMMY_FUNCTION, &run_update_display_task, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
+HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, CCUConstants::KICK_WATCHDOG_PRIORITY, CCUConstants::KICK_WATCHDOG_PERIOD);
+HT_TASK::Task run_sample_can_data(HT_TASK::DUMMY_FUNCTION, &sampleCANTask, CCUConstants::SAMPLE_CAN_DATA_PRIORITY, CCUConstants::SAMPLE_CAN_DATA_PERIOD);
+HT_TASK::Task tick_state_machine_task(HT_TASK::DUMMY_FUNCTION, &tickStateMachineTask, CCUConstants::TICK_STATE_MACHINE_PRIORITY, CCUConstants::TICK_STATE_MACHINE_PERIOD);
+HT_TASK::Task calculate_charge_current_task(HT_TASK::DUMMY_FUNCTION, &calculateChargeCurrentTask, CCUConstants::TICK_STATE_MACHINE_PRIORITY, CCUConstants::TICK_STATE_MACHINE_PERIOD);
+HT_TASK::Task queue_ACU_CAN(HT_TASK::DUMMY_FUNCTION, &enqueueACUCANDataTask, CCUConstants::ENQUEUE_ACU_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_ACU_CAN_DATA_PERIOD);
+HT_TASK::Task queue_Charger_CAN(HT_TASK::DUMMY_FUNCTION, &enqueueChargerCANdataTask, CCUConstants::ENQUEUE_CHARGER_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_CHARGER_CAN_DATA_PERIOD);
+HT_TASK::Task send_all_data(HT_TASK::DUMMY_FUNCTION, &clearAllCANBuffersTask, CCUConstants::SEND_ALL_DATA_PRIORITY, CCUConstants::SEND_ALL_DATA_PERIOD);
+HT_TASK::Task receive_ethernet(HT_TASK::DUMMY_FUNCTION, &receiveETHTask, CCUConstants::RECIEVE_ETHERNET_PRIORITY, CCUConstants::ETHERNET_PERIOD);
+HT_TASK::Task send_ethernet(HT_TASK::DUMMY_FUNCTION, &sendETHTask, CCUConstants::SEND_ETHERNET_PRIORITY, CCUConstants::ETHERNET_PERIOD);
+HT_TASK::Task read_encoder_task(HT_TASK::DUMMY_FUNCTION, &readEncoderTask, CCUConstants::READ_DIAL_PRIORITY, CCUConstants::DIAL_PERIOD);
+HT_TASK::Task update_display_task(HT_TASK::DUMMY_FUNCTION, &updateDisplayTask, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
 HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debug_prints, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
 
 void setup()
@@ -35,8 +35,8 @@ void setup()
 
     qn::Ethernet.begin();
 
-    initialize_all_interfaces();
-    initialize_all_systems();
+    initializeAllInterfaces();
+    initializeAllSystems();
 
     scheduler.setTimingFunction(micros);
     scheduler.schedule(kick_watchdog_task);

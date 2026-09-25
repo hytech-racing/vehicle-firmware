@@ -1,5 +1,5 @@
-#ifndef BUTTONINTERFACE_H
-#define BUTTONINTERFACE_H
+#ifndef BUTTONINTERFACE
+#define BUTTONINTERFACE
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -43,13 +43,13 @@ public:
 
     void update(unsigned long current_millis);
 
-    bool is_pressed();
+    bool isPressed();
 
-    bool is_released();
+    bool isReleased();
 
-    bool is_held();
+    bool isHeld();
 
-    unsigned long get_hold_duration_ms(unsigned long current_millis);
+    unsigned long getHoldDurationMs(unsigned long current_millis);
 
 private:
 

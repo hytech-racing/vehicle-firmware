@@ -28,87 +28,87 @@ class ChargerStateMachine
 public:
 
     ChargerStateMachine(
-        etl::delegate<bool()> is_120_conditions_ok,
-        etl::delegate<bool()> is_120_switched,
-        etl::delegate<bool()> is_240_switched,
-        etl::delegate<bool()> is_shdn_D_high,
-        etl::delegate<bool()> is_240_conditions_ok,
-        etl::delegate<bool()> is_state_B2_ready,
-        etl::delegate<bool()> is_state_C2_ready,
-        etl::delegate<bool()> reset_error_requested,
-        etl::delegate<void()> set_sw_shdn_high,
-        etl::delegate<void()> set_sw_shdn_low,
-        etl::delegate<void()> set_start_charge_high,
-        etl::delegate<void()> set_start_charge_low,
-        etl::delegate<void()> reset_startup_time_ms,
+        etl::delegate<bool()> is120ConditionsOK,
+        etl::delegate<bool()> is120Switched,
+        etl::delegate<bool()> is240Switched,
+        etl::delegate<bool()> isShutdownDHigh,
+        etl::delegate<bool()> is240ConditionsOK,
+        etl::delegate<bool()> isStateB2Ready,
+        etl::delegate<bool()> isStateC2Ready,
+        etl::delegate<bool()> resetErrorRequested,
+        etl::delegate<void()> setSWShutdownHigh,
+        etl::delegate<void()> setSWShutdownLow,
+        etl::delegate<void()> setStartChargeHigh,
+        etl::delegate<void()> setStartChargeLow,
+        etl::delegate<void()> resetStartupTimeMs,
         uint32_t current_millis
     ) :
         _current_state(ChargerState_e::STARTUP),
         _last_state_changed_time(current_millis),
-        _is_120_conditions_ok(is_120_conditions_ok),
-        _is_120_switched(is_120_switched),
-        _is_240_switched(is_240_switched),
-        _is_shdn_D_high(is_shdn_D_high),
-        _is_240_conditions_ok(is_240_conditions_ok),
-        _is_state_B2_ready(is_state_B2_ready),
-        _is_state_C2_ready(is_state_C2_ready),
-        _reset_error_requested(reset_error_requested),
-        _set_sw_shdn_high(set_sw_shdn_high),
-        _set_sw_shdn_low(set_sw_shdn_low),
-        _set_start_charge_high(set_start_charge_high),
-        _set_start_charge_low(set_start_charge_low),
-        _reset_startup_time_ms(reset_startup_time_ms)
+        _is120ConditionsOK(is120ConditionsOK),
+        _is120Switched(is120Switched),
+        _is240Switched(is240Switched),
+        _isShutdownDHigh(isShutdownDHigh),
+        _is240ConditionsOK(is240ConditionsOK),
+        _isStateB2Ready(isStateB2Ready),
+        _isStateC2Ready(isStateC2Ready),
+        _resetErrorRequested(resetErrorRequested),
+        _setSWShutdownHigh(setSWShutdownHigh),
+        _setSWShutdownLow(setSWShutdownLow),
+        _setStartChargeHigh(setStartChargeHigh),
+        _setStartChargeLow(setStartChargeLow),
+        _resetStartupTimeMs(resetStartupTimeMs)
     {};
 
-    ChargerState_e tick_state_machine(unsigned long current_millis);
+    ChargerState_e tickStateMachine(unsigned long current_millis);
 
     /**
      * @return current CCU state
     */
-    ChargerState_e get_state() { return _current_state; }
+    ChargerState_e getState() { return _current_state; }
 
     /**
      * @return string for printing out the state
     */
-    const char* get_state_name();
+    const char* getStateName();
 
 private:
 
     const unsigned long state_transition_delay_ms = 2500UL; // ms
 
-    void _set_state(ChargerState_e new_state, unsigned long current_millis);
+    void _setState(ChargerState_e new_state, unsigned long current_millis);
 
     /**
      * The function run upon the entry of the charger into a new state.
      * @param new_state The state in which we are entering.
      */
-    void _handle_entry_logic(ChargerState_e new_state, unsigned long current_millis);
+    void _handleEntryLogic(ChargerState_e new_state, unsigned long current_millis);
 
     /**
      * The function run upon the exit of a state.
      * @param prev_state the state in which we are leaving.
      */
-    void _handle_exit_logic(ChargerState_e prev_state, unsigned long current_millis);
+    void _handleExitLogic(ChargerState_e prev_state, unsigned long current_millis);
 
     ChargerState_e _current_state;
     unsigned long _last_state_changed_time; // time of last state change
 
     // Lamdas for state machine abstraction, functions defined in main
-    etl::delegate<bool()> _is_120_conditions_ok;
-    etl::delegate<bool()> _is_120_switched;
-    etl::delegate<bool()> _is_240_switched;
-    etl::delegate<bool()> _is_shdn_D_high;
-    etl::delegate<bool()> _is_240_conditions_ok;
-    etl::delegate<bool()> _is_state_B2_ready;
-    etl::delegate<bool()> _is_state_C2_ready;
-    etl::delegate<bool()> _reset_error_requested;
+    etl::delegate<bool()> _is120ConditionsOK;
+    etl::delegate<bool()> _is120Switched;
+    etl::delegate<bool()> _is240Switched;
+    etl::delegate<bool()> _isShutdownDHigh;
+    etl::delegate<bool()> _is240ConditionsOK;
+    etl::delegate<bool()> _isStateB2Ready;
+    etl::delegate<bool()> _isStateC2Ready;
+    etl::delegate<bool()> _resetErrorRequested;
 
     /// @brief setters
-    etl::delegate<void()> _set_sw_shdn_high;
-    etl::delegate<void()> _set_sw_shdn_low;
-    etl::delegate<void()> _set_start_charge_high;
-    etl::delegate<void()> _set_start_charge_low;
-    etl::delegate<void()> _reset_startup_time_ms;
+    etl::delegate<void()> _setSWShutdownHigh;
+    etl::delegate<void()> _setSWShutdownLow;
+    etl::delegate<void()> _setStartChargeHigh;
+    etl::delegate<void()> _setStartChargeLow;
+    etl::delegate<void()> _resetStartupTimeMs;
 
 };
 

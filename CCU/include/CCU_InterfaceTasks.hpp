@@ -27,31 +27,31 @@
 
 /**
  * @brief Creates an instance of all interfaces. Init functions are called if necessary.
- */
-void initialize_all_interfaces();
+*/
+void initializeAllInterfaces();
 
 /**
  * @brief This task will fetch the watchdog state from WatchdogSystem and write it to the watchdog pin.
- */
-::HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+*/
+::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_update_display_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updateDisplayTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_toggle_display_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse toggleDisplayTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_read_encoder_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse readEncoderTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse handle_enqueue_acu_can_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueACUCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse handle_enqueue_charger_can_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueChargerCANdataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_send_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse sendETHTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_receive_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse receiveETHTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse sample_can_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse sampleCANTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse handle_send_all_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse clearAllCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 

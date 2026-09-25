@@ -74,7 +74,7 @@ public:
                         .last_display_timestamp = 0,
                         .sliding_window_display_interval_ms = default_display_params::SLIDING_WINDOW_DISPLAY_INTERVAL_MS
                     }
-    ) : Display(
+    ) : _display(
             pinout.teensy_lcd_cs_pin,
             pinout.teensy_lcd_dc_pin,
             pinout.teensy_lcd_mosi_pin,
@@ -91,25 +91,24 @@ public:
 
     void init();
 
-    void display_data(unsigned long current_millis, bool is_120_switched);
+    void displayData(unsigned long current_millis, bool is_120_switched);
 
-    void refresh_display_data(unsigned long curr_millis);
+    void refreshDisplayData(unsigned long curr_millis);
 
     void update(unsigned long current_millis);
 
-    void handle_button_events(unsigned long current_millis);
-
-    void cycle_view();
-
-    Adafruit_ILI9341 Display;
-
 private:
 
+    Adafruit_ILI9341 _display;
     DisplayPinout_s _pinout;
     DisplayConfig_s _config;
     unsigned long _display_time;
     ButtonInterface _cycle_display_view_button;
     DisplayView_e _display_view;
+
+    void _handleButtonEvents(unsigned long current_millis);
+
+    void _cycleView();
 
 };
 

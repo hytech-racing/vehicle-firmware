@@ -10,10 +10,10 @@ void MainChargeSystem::init(unsigned long init_millis)
 void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis)
 {
     // Get battery data from ACU
-    const auto& acu_data = ACUInterfaceInstance::instance().get_latest_data();
+    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
     float max_cell_voltage = acu_data.high_voltage; // the highest voltage in any of the cells
     float total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
-    auto current_state = ChargerStateMachineInstance::instance().get_state();
+    auto current_state = ChargerStateMachineInstance::instance().getState();
 
     // Check safety conditions first
     if (!_is_safety_conditions_valid())
@@ -45,18 +45,18 @@ bool MainChargeSystem::_is_safety_conditions_valid()
     bool is_acu_shutdown_low = false;
     bool is_ccu_shutdown_low = false;
 
-    is_shutdown_low = !ADCInterfaceInstance::instance().read_shdn_F_voltage();
+    is_shutdown_low = !ADCInterfaceInstance::instance().isShutdownFHigh();
 
     /**
      * Check ACU state: acu_state comes from the bms_status message. If shutdown is low on ACU (HVP is unplugged), acu_state = 3.
      * If acu_state = 2, we should/are safe to be charging
      * ACU States for Reference: STARTUP = 0, ACTIVE = 1, CHARGING = 2, FAULTED = 3, WELDED = 4, WELDCHECK = 5
      */
-    is_acu_shutdown_low = ACUInterfaceInstance::instance().get_latest_data().acu_state != ACUState_e::CHARGING; //NOLINT
+    is_acu_shutdown_low = ACUInterfaceInstance::instance().getLatestData().acu_state != ACUState_e::CHARGING; //NOLINT
 
     // Check for error state from state machine
-    is_ccu_shutdown_low = !(ChargerStateMachineInstance::instance().get_state() == ChargerState_e::CHARGING_120 ||
-                                ChargerStateMachineInstance::instance().get_state() == ChargerState_e::CHARGING_240);
+    is_ccu_shutdown_low = !(ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_120 ||
+                            ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_240);
 
     if (is_shutdown_low || is_acu_shutdown_low || is_ccu_shutdown_low)
     {
@@ -70,7 +70,7 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
 {
     float limited_current = requested_current;
 
-    const auto& acu_data = ACUInterfaceInstance::instance().get_latest_data();
+    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
     float curr_max_cell_temp = acu_data.max_cell_temp;
     float curr_max_board_temp = acu_data.max_board_temp;
 

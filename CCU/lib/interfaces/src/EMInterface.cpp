@@ -1,10 +1,7 @@
 #include "EMInterface.hpp"
 
-/* External Dependencies */
-#include "hytech.h"
 
-
-void EnergyMeterInterface::receive_energy_meter_message(const CAN_message_t& msg, unsigned long curr_millis)
+void EnergyMeterInterface::receiveEMMeasurmentCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     EM_MEASUREMENT_t em_measurement = {};
     Unpack_EM_MEASUREMENT_hytech(&em_measurement, &msg.buf[0], msg.len);
