@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "ButtonInterface.h"
+#include "ButtonInterface.hpp"
 
 using pin = uint8_t;
 

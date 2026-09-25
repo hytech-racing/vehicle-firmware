@@ -9,11 +9,11 @@
 #include <Adafruit_ILI9341.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ButtonInterface.h"
-#include "ChargerStateMachine.h"
-#include "EMInterface.h"
-#include "RotaryEncoderInterface.h"
+#include "ACUInterface.hpp"
+#include "ButtonInterface.hpp"
+#include "ChargerStateMachine.hpp"
+#include "EMInterface.hpp"
+#include "RotaryEncoderInterface.hpp"
 
 using pin = uint8_t;
 

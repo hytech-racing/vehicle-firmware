@@ -1,4 +1,4 @@
-#include "Level2Interface.h"
+#include "Level2Interface.hpp"
 
 
 void Level2Interface::init()
@@ -25,7 +25,7 @@ bool Level2Interface::_is_pwm_duty_cycle_valid()
     _readings.control_pwm_duty_cycle = (static_cast<float>(highTime) / static_cast<float>(highTime + lowTime)) * 100.0f;
 
     // Check if in valid range (9.5% to 96.5%)
-    return (_readings.control_pwm_duty_cycle > _config.min_valid_pwm_duty_cycle_percent && 
+    return (_readings.control_pwm_duty_cycle > _config.min_valid_pwm_duty_cycle_percent &&
             _readings.control_pwm_duty_cycle < _config.max_valid_pwm_duty_cycle_percent);
 }
 

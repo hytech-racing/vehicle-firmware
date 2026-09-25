@@ -1,21 +1,21 @@
-#ifndef CCU_SYSTEMTASKS_H
-#define CCU_SYSTEMTASKS_H
+#ifndef CCU_SYSTEMTASKS
+#define CCU_SYSTEMTASKS
 
-#include "CCU_Constants.h"
+#include "CCU_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
-#include "Level2Interface.h"
-#include "RotaryEncoderInterface.h"
+#include "Level2Interface.hpp"
+#include "RotaryEncoderInterface.hpp"
 #include "SystemTimeInterface.h"
-#include "WatchdogInterface.h"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "Level2System.h"
-#include "MainChargeSystem.h"
-#include "ChargerStateMachine.h"
+#include "Level2System.hpp"
+#include "MainChargeSystem.hpp"
+#include "ChargerStateMachine.hpp"
 
 /**
  * @brief Creates an instance of all systems.

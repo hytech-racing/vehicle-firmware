@@ -12,9 +12,9 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes  */
-#include "ACUInterface.h"
-#include "ChargerInterface.h"
-#include "EMInterface.h"
+#include "ACUInterface.hpp"
+#include "ChargerInterface.hpp"
+#include "EMInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);

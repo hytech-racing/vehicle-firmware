@@ -1,28 +1,28 @@
-#ifndef CCU_INTERFACETASKS_H
-#define CCU_INTERFACETASKS_H
+#ifndef CCU_INTERFACETASKS
+#define CCU_INTERFACETASKS
 
-#include "CCU_Constants.h"
+#include "CCU_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 #include "CANInterface.h"
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ButtonInterface.h"
-#include "CCUCANInterfaceImpl.h"
-#include "CCUEthernetInterface.h"
-#include "ChargerInterface.h"
-#include "DisplayInterface.h"
-#include "Level2Interface.h"
-#include "RotaryEncoderInterface.h"
+#include "ACUInterface.hpp"
+#include "ButtonInterface.hpp"
+#include "CCUCANInterfaceImpl.hpp"
+#include "CCUEthernetInterface.hpp"
+#include "ChargerInterface.hpp"
+#include "DisplayInterface.hpp"
+#include "Level2Interface.hpp"
+#include "RotaryEncoderInterface.hpp"
 #include "SystemTimeInterface.h"
-#include "WatchdogInterface.h"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "Level2System.h"
-#include "MainChargeSystem.h"
-#include "ChargerStateMachine.h"
+#include "Level2System.hpp"
+#include "MainChargeSystem.hpp"
+#include "ChargerStateMachine.hpp"
 
 
 /**

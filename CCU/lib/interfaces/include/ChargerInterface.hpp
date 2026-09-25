@@ -12,7 +12,7 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
+#include "ACUInterface.hpp"
 
 
 struct ChargerData_s

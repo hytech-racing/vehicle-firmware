@@ -1,4 +1,4 @@
-#include "EMInterface.h"
+#include "EMInterface.hpp"
 
 /* External Dependencies */
 #include "hytech.h"

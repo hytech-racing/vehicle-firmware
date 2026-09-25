@@ -1,6 +1,6 @@
-#include "CCU_Constants.h"
-#include "CCU_InterfaceTasks.h"
-#include "CCU_SystemTasks.h"
+#include "CCU_Constants.hpp"
+#include "CCU_InterfaceTasks.hpp"
+#include "CCU_SystemTasks.hpp"
 
 /* Schedular Dependencies */
 #include "ht_sched.hpp"

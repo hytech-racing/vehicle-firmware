@@ -1,13 +1,13 @@
-#ifndef CHARGERSTATEMACHINE_H
-#define CHARGERSTATEMACHINE_H
+#ifndef CHARGER_STATE_MACHINE
+#define CHARGER_STATE_MACHINE
 
 /* ETL Library */
-#include "etl/singleton.h"
+#include <etl/singleton.h>
 #include <etl/delegate.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ChargerInterface.h"
+#include "ACUInterface.hpp"
+#include "ChargerInterface.hpp"
 
 enum class ChargerState_e
 {

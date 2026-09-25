@@ -1,5 +1,5 @@
-#include "ACUInterface.h"
-#include "CCUCANInterfaceImpl.h" // this needs to fixed at some point
+#include "ACUInterface.hpp"
+#include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
 
 
 void ACUInterface::reset_acu_heartbeat()

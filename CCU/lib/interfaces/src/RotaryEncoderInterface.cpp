@@ -1,4 +1,4 @@
-#include "RotaryEncoderInterface.h"
+#include "RotaryEncoderInterface.hpp"
 
 
 RotaryEncoderInterface* RotaryEncoderInterface::_active_instance = nullptr;
