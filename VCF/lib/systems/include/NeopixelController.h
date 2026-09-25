@@ -10,16 +10,13 @@
 /* ETL Library Includes */
 #include <etl/singleton.h>
 
-/* External Includes — hardware-only, not available on native/test builds */
-#ifdef ARDUINO
+
 #include <Adafruit_NeoPixel.h>
-#endif
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#ifdef ARDUINO
 #include "VCFCANInterfaceImpl.h"
-#endif
+
 
 
 struct MinCellMonitoringThresholds_s

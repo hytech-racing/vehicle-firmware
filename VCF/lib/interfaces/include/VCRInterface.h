@@ -11,7 +11,7 @@
 #include <FlexCAN_T4.h>
 
 /* Local System Includes */
-#include "BuzzerController.h"
+#include "BuzzerController.hpp"
 
 struct InverterErrorFlags_s
 {

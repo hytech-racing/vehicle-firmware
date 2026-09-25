@@ -1,46 +1,66 @@
-#include "SteeringSystem.h"
+#include "SteeringSystem.hpp"
 
 
-void SteeringSystem::recalibrate_steering_digital()
+void SteeringSystem::recalibrateSteering()
 {
-    _params.min_steering_signal_analog = _min_observed_analog;
-    _params.max_steering_signal_analog = _max_observed_analog;
-    _params.min_steering_signal_digital = _min_observed_digital;
-    _params.max_steering_signal_digital = _max_observed_digital;
+    /// @note Pull in whatever min/max raw values have been accumulated since the last calibration pass
+    _params.analog_calibration.min_signal_raw = _params.analog_observed_extremes.min_observed_raw_counts;
+    _params.analog_calibration.max_signal_raw = _params.analog_observed_extremes.max_observed_raw_counts;
+    _params.digital_calibration.min_signal_raw = _params.digital_observed_extremes.min_observed_raw_counts;
+    _params.digital_calibration.max_signal_raw = _params.digital_observed_extremes.max_observed_raw_counts;
 
-    // Swap  min & max in the params if sensor is flipped
-    if (_params.min_steering_signal_digital > _params.max_steering_signal_digital)
+    /**
+     * @note Some sensors will report a decreasing raw value as steering angle increases (mounting/wiring dependent)
+     *       If min ended up greater than max, the sensor is running "backwards" relative to our convention, so
+     *       swap them to keep min < max for all downstream math
+    */
+    if (_params.digital_calibration.min_signal_raw > _params.digital_calibration.max_signal_raw)
     {
-        std::swap(_params.min_steering_signal_digital, _params.max_steering_signal_digital);
+        std::swap(_params.digital_calibration.min_signal_raw, _params.digital_calibration.max_signal_raw);
     }
-    if (_params.min_steering_signal_analog > _params.max_steering_signal_analog)
+    if (_params.analog_calibration.min_signal_raw > _params.analog_calibration.max_signal_raw)
     {
-        std::swap(_params.min_steering_signal_analog, _params.max_steering_signal_analog);
+        std::swap(_params.analog_calibration.min_signal_raw, _params.analog_calibration.max_signal_raw);
     }
 
-    _params.span_signal_analog  = _params.max_steering_signal_analog - _params.min_steering_signal_analog;
-    _params.span_signal_digital = _params.max_steering_signal_digital-_params.min_steering_signal_digital;
+    // Full sweep of each sensor's raw range
+    _params.analog_calibration.span_raw  = _params.analog_calibration.max_signal_raw - _params.analog_calibration.min_signal_raw;
+    _params.digital_calibration.span_raw = _params.digital_calibration.max_signal_raw - _params.digital_calibration.min_signal_raw;
 
-    _params.analog_tol_deg  = static_cast<float>(_params.span_signal_analog) * _params.analog_tolerance * _params.deg_per_count_analog;
-    _params.digital_tol_deg = static_cast<float>(_params.span_signal_digital) *_params.digital_tolerance * _params.deg_per_count_digital;
+    // Midpoint raw value for each sensor; used later to convert a raw reading into a signed +/- offset from center
+    _params.analog_calibration.midpoint_raw  = (_params.analog_calibration.max_signal_raw + _params.analog_calibration.min_signal_raw) / 2;
+    _params.digital_calibration.midpoint_raw = (_params.digital_calibration.max_signal_raw + _params.digital_calibration.min_signal_raw) / 2;
 
-    _params.analog_midpoint  = (_params.max_steering_signal_analog + _params.min_steering_signal_analog) / 2;
-    _params.digital_midpoint = (_params.max_steering_signal_digital + _params.min_steering_signal_digital) / 2;
+    // Convert each sensor's tolerance from a fraction of its span (e.g. 0.005 = 0.5%)
+    // into an absolute raw-count margin, so it can be applied directly to min/max below.
+    _params.analog_tolerance_margin_raw  = static_cast<float>(_params.analog_calibration.span_raw) * _params.analog_tolerance_fraction;
+    _params.digital_tolerance_margin_raw = static_cast<float>(_params.digital_calibration.span_raw) * _params.digital_tolerance_fraction;
 
-    _params.analog_min_with_margins  = static_cast<int32_t>(_params.min_steering_signal_analog - _params.analog_tol_deg); // NOLINT
-    _params.analog_max_with_margins  = static_cast<int32_t>(_params.max_steering_signal_analog + _params.analog_tol_deg); // NOLINT
-    _params.digital_min_with_margins = static_cast<int32_t>(_params.min_steering_signal_digital - _params.digital_tol_deg); // NOLINT
-    _params.digital_max_with_margins = static_cast<int32_t>(_params.max_steering_signal_digital + _params.digital_tol_deg); // NOLINT
 
-    if (_max_observed_analog > _min_observed_analog && _params.span_signal_analog > 2500) // NOLINT with 360 deg analog sensor, typical span is about 2000
+    // Expand each sensor's calibrated min/max by its tolerance margin to get the final
+    // implausibility boundaries — a reading outside [min_with_margin, max_with_margin]
+    // is flagged out-of-range (see _evaluate_steering_oor_analog/_digital()).
+    _params.analog_margins.min_with_margin_raw  = static_cast<int32_t>(_params.analog_calibration.min_signal_raw - _params.analog_tolerance_margin_raw); // NOLINT
+    _params.analog_margins.max_with_margin_raw  = static_cast<int32_t>(_params.analog_calibration.max_signal_raw + _params.analog_tolerance_margin_raw); // NOLINT
+    _params.digital_margins.min_with_margin_raw = static_cast<int32_t>(_params.digital_calibration.min_signal_raw - _params.digital_tolerance_margin_raw); // NOLINT
+    _params.digital_margins.max_with_margin_raw = static_cast<int32_t>(_params.digital_calibration.max_signal_raw + _params.digital_tolerance_margin_raw); // NOLINT
+
+    // Guard against stale calibration: if the observed span is implausibly wide for this
+    // sensor type, the min/max are probably still holding values from a previous run
+    // (e.g. steering wheel was in a different position at power-on) rather than reflecting
+    // a real full-range sweep. Reset the accumulators so the next update_observed_steering_limits()
+    // calls start building a fresh range instead of calibrating against garbage.
+    if (_params.analog_observed_data.max_observed_value > _params.analog_observed_data.min_observed_value
+        && _params.analog_calibration.span_raw > 2500) // NOLINT with 360 deg analog sensor, typical span is about 2000
     {
-        _min_observed_analog = UINT32_MAX; // after calculating params, if the range is marginally greater than half the steering wheel adc, likely the min and max are clinging to a prior run that is not applicable, meaning we will need to reset the boundaries.
-        _max_observed_analog = 0;
+        _params.analog_observed_data.min_observed_value = UINT32_MAX;
+        _params.analog_observed_data.max_observed_value = 0;
     }
-    if (_max_observed_digital > _min_observed_digital && _params.span_signal_digital > 9000) // NOLINT with digital sensor, typical span is about 9000
+    if (_params.digital_observed_data.max_observed_value > _params.digital_observed_data.min_observed_value
+        && _params.digital_calibration.span_raw > 9000) // NOLINT with digital sensor, typical span is about 9000
     {
-        _min_observed_digital = UINT32_MAX;
-        _max_observed_digital = 0;
+        _params.digital_observed_data.min_observed_value = UINT32_MAX;
+        _params.digital_observed_data.max_observed_value = 0;
     }
 }
 
@@ -62,12 +82,12 @@ void SteeringSystem::evaluate_steering(const uint32_t analog_raw, const Steering
     _analog_angle_unfiltered = _convert_analog_sensor(analog_raw);
 
     // Conversion from raw ADC to degrees
-    _system_data.digital_steering_angle = _convert_digital_sensor(digital_raw);
+    _system_data.digital_steering_angle = _convertDigitalSensor(digital_raw);
 
     uint32_t dt = 0;
     if (current_millis - _prev_timestamp >= 2)
     {
-        dt = current_millis - _prev_timestamp; //current_millis is seperate data input  
+        dt = current_millis - _prev_timestamp; //current_millis is seperate data input
     }
 
     if (!_first_run) // Check that we not on the first run which would mean no previous data
@@ -173,27 +193,31 @@ void SteeringSystem::update_observed_steering_limits(const uint32_t analog_raw, 
     }
 }
 
-float SteeringSystem::_convert_digital_sensor(const uint32_t digital_raw)
+float SteeringSystem::_convertDigitalSensor(const uint32_t digital_raw)
 {
-    const int32_t offset =  _params.digital_midpoint-static_cast<int32_t>(digital_raw); //NOLINT
-    return static_cast<float>(offset) * _params.deg_per_count_digital; // bc diital sensor is flipped
+    const uint32_t offset = _params.digital_calibration.midpoint_raw - digital_raw; //NOLINT
+    return static_cast<float>(offset) * _params.deg_per_count_digital; // bc digital sensor is flipped
 }
 
 float SteeringSystem::_convert_analog_sensor(const uint32_t analog_raw)
 {
     // Get the raw value
-    const int32_t offset = static_cast<int32_t>(analog_raw) - _params.analog_midpoint; //NOLINT
+    const int32_t offset = static_cast<int32_t>(analog_raw) - _params.analog_calibration.midpoint_raw; //NOLINT
     return static_cast<float>(offset) * _params.deg_per_count_analog;
 }
 
-bool SteeringSystem::_evaluate_steering_oor_analog(const uint32_t steering_analog_raw) // RAW
+bool SteeringSystem::_evaluateAnalogSteeringOOR(const uint32_t steering_analog_raw) // RAW
 {
-    return (static_cast<int32_t>(steering_analog_raw) < _params.analog_min_with_margins || static_cast<int32_t>(steering_analog_raw) > _params.analog_max_with_margins);
+    return (static_cast<int32_t>(steering_analog_raw) < _params.analog_margins.min_with_margin_raw ||
+            static_cast<int32_t>(steering_analog_raw) > _params.analog_margins.max_with_margin_raw
+    );
 }
 
-bool SteeringSystem::_evaluate_steering_oor_digital(const uint32_t steering_digital_raw) // RAW
+bool SteeringSystem::_evaluateDigitalSteeringOOR(const uint32_t steering_digital_raw) // RAW
 {
-    return (static_cast<int32_t>(steering_digital_raw) < _params.digital_min_with_margins || static_cast<int32_t>(steering_digital_raw) > _params.digital_max_with_margins);
+    return (static_cast<int32_t>(steering_digital_raw) < _params.digital_margins.min_with_margin_raw ||
+            static_cast<int32_t>(steering_digital_raw) > _params.digital_margins.max_with_margin_raw
+    );
 }
 
 bool SteeringSystem::_evaluate_steering_dtheta_exceeded(float steering_velocity_deg_s)

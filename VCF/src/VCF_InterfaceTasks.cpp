@@ -130,7 +130,6 @@ HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK
         .brake_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake1().conversion),
         .brake_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake2().conversion)
     });
-
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -197,21 +196,12 @@ HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, co
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_CAN_send(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
-{
-    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
-    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer, &VCFCANInterfaceInstance::instance().FRONT_AUX_CAN);
-
-    return HT_TASK::TaskResponse::YIELD;
-}
-
-HT_TASK::TaskResponse send_dash_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     CANInterfaces_s can_interfaces = CANInterfacesInstance::instance();
     DashInputState_s dash_outputs = can_interfaces.dash_interface.get_dashboard_outputs();
 
     DASH_INPUT_t msg_out;
-
     msg_out.dim_button = dash_outputs.btn_dim_read_is_pressed;
     msg_out.preset_button = dash_outputs.preset_btn_is_pressed;
     msg_out.mode_button = 0; // dont exist but i dont wanna bother changing can msgs
@@ -222,22 +212,26 @@ HT_TASK::TaskResponse send_dash_data(const unsigned long& sysMicros, const HT_TA
     msg_out.right_shifter_button = dash_outputs.BUTTON_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().get_dashboard_outputs().dial_state);
-
     CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_hytech, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
-
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_front_suspension_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FRONT_SUSPENSION_t msg_out;
-
     msg_out.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
     msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
     msg_out.fr_shock_pot_ro = HYTECH_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
     msg_out.fl_shock_pot_ro = HYTECH_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
-
     CAN_util::enqueue_msg(&msg_out, &Pack_FRONT_SUSPENSION_hytech, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
+    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer, &VCFCANInterfaceInstance::instance().FRONT_AUX_CAN);
+
     return HT_TASK::TaskResponse::YIELD;
 }
 

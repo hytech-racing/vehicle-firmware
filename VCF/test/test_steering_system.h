@@ -1,6 +1,6 @@
 #define STEERING_SYSTEM_TEST
 #include <gtest/gtest.h>
-#include "SteeringSystem.h"
+#include "SteeringSystem.hpp"
 
 SteeringParams_s gen_default_params()
 {

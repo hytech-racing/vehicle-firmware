@@ -15,7 +15,7 @@
 #include "DashboardInterface.h"
 #include "PedalsSystem.h"
 #include "BrakeRotorTempInterface.h"
-#include "SteeringSystem.h"
+#include "SteeringSystem.hpp"
 
 using namespace qindesign::network;
 

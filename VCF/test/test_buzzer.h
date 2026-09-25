@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "BuzzerController.h"
+#include "BuzzerController.hpp"
 
 int base = 2500; // arbitrary number greater than 2000
 
