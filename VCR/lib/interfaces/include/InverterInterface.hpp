@@ -1,5 +1,5 @@
-#ifndef INVERTERINTERFACE_H
-#define INVERTERINTERFACE_H
+#ifndef INVERTER_INTERFACE
+#define INVERTER_INTERFACE
 
 /* ETL Library */
 #include <etl/delegate.h>
@@ -13,7 +13,7 @@
 #include "hytech.h"
 
 /* Local System Includes */
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 
 /**
  * GENERAL INFORMATION

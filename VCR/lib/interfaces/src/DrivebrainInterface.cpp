@@ -1,5 +1,5 @@
-#include "DrivebrainInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "DrivebrainInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 
 void DrivebrainInterface::receiveDrivebrainSpeedCommandTELEM(const CAN_message_t &msg, unsigned long curr_millis)

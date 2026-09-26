@@ -1,4 +1,4 @@
-#include "VCRCANInterfaceImpl.h"
+#include "VCRCANInterfaceImpl.hpp"
 
 
 void VCRCANInterfaceImpl::onRAUXCANReceive(const CAN_message_t &msg)

@@ -1,10 +1,10 @@
 #ifndef VCR_INTERFACETASKS
 #define VCR_INTERFACETASKS
 
-#include "controls.h"
-#include "VCR_Constants.h"
-#include "VCR_Globals.h"
-#include "VCR_Inverters.h"
+#include "controls.hpp"
+#include "VCR_Constants.hpp"
+#include "VCR_Globals.hpp"
+#include "VCR_Inverters.hpp"
 
 /* External Includes */
 #include <Logger.h>
@@ -12,18 +12,18 @@
 #include "CANInterface.h"
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ADCInterface.h"
-#include "DrivebrainInterface.h"
-#include "FlowmeterInterface.h"
-#include "MCP23017Interface.h"
+#include "ACUInterface.hpp"
+#include "ADCInterface.hpp"
+#include "DrivebrainInterface.hpp"
+#include "FlowmeterInterface.hpp"
+#include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
-#include "VCRCANInterfaceImpl.h"
-#include "VCREthernetInterface.h"
-#include "WatchdogInterface.h"
+#include "VCRCANInterfaceImpl.hpp"
+#include "VCREthernetInterface.hpp"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "VehicleStateMachine.h"
+#include "VehicleStateMachine.hpp"
 
 
 void initializeAllInterfaces();

@@ -1,7 +1,7 @@
 #ifndef CONTROLS_IMPL
 #define CONTROLS_IMPL
 
-#include "VCR_Globals.h"
+#include "VCR_Globals.hpp"
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -10,15 +10,15 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "VCRCANInterfaceImpl.h"
+#include "VCRCANInterfaceImpl.hpp"
 
 /* Local System Includes */
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 #include "TorqueControllerMux.hpp"
-#include "controllers/SimpleController.h"
-#include "controllers/LoadCellVectoringTorqueController.h"
-#include "controllers/SimpleLaunchController.h"
-#include "controllers/DrivebrainController.h"
+#include "controllers/SimpleController.hpp"
+#include "controllers/LoadCellVectoringTorqueController.hpp"
+#include "controllers/SimpleLaunchController.hpp"
+#include "controllers/DrivebrainController.hpp"
 
 
 class VCRControls

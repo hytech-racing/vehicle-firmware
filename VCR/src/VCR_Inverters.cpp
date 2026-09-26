@@ -1,4 +1,4 @@
-#include "VCR_Inverters.h"
+#include "VCR_Inverters.hpp"
 
 
 InverterInterface fl_inverter_interface(1);

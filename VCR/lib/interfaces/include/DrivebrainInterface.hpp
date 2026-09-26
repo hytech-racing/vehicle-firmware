@@ -1,5 +1,5 @@
-#ifndef DRIVEBRAININTERFACE_H
-#define DRIVEBRAININTERFACE_H
+#ifndef DRIVEBRAIN_INTERFACE
+#define DRIVEBRAIN_INTERFACE
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -16,8 +16,8 @@
 #include <cstdint>
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
-#include "FlowmeterInterface.h"
+#include "ADCInterface.hpp"
+#include "FlowmeterInterface.hpp"
 
 
 class DrivebrainInterface

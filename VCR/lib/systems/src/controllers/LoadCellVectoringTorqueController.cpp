@@ -1,4 +1,4 @@
-#include "controllers/LoadCellVectoringTorqueController.h"
+#include "controllers/LoadCellVectoringTorqueController.hpp"
 
 
 DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s &vcr_data, unsigned long curr_millis)

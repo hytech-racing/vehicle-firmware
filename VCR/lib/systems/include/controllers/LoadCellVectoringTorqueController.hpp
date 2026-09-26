@@ -5,7 +5,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 
 namespace loadcell_vectoring_tc_default_params

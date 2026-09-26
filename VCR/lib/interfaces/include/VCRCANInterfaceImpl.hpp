@@ -1,5 +1,5 @@
-#ifndef VCRCANINTERFACEIMPL_H
-#define VCRCANINTERFACEIMPL_H
+#ifndef VCRCANINTERFACEIMPL
+#define VCRCANINTERFACEIMPL
 
 /* ETL Library */
 #include <etl/delegate.h>
@@ -11,10 +11,10 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
-#include "DrivebrainInterface.h"
-#include "VCFInterface.h"
-#include "ACUInterface.h"
-#include "InverterInterface.h"
+#include "DrivebrainInterface.hpp"
+#include "VCFInterface.hpp"
+#include "ACUInterface.hpp"
+#include "InverterInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);

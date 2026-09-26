@@ -1,5 +1,5 @@
-#ifndef WATCHDOG_INTERFACE_H
-#define WATCHDOG_INTERFACE_H
+#ifndef WATCHDOG_INTERFACE
+#define WATCHDOG_INTERFACE
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -11,6 +11,7 @@
 #include "SystemTimeInterface.h"
 
 using pin = uint8_t;
+
 
 namespace watchdog_default_parameters
 {

@@ -9,7 +9,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "InverterInterface.h"
+#include "InverterInterface.hpp"
 
 /* Interface and System Data Structs */
 extern VCRData_s vcr_data; // NOLINT

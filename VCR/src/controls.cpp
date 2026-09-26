@@ -1,4 +1,4 @@
-#include "controls.h"
+#include "controls.hpp"
 
 
 void VCRControls::handleDrivetrainCommand(bool ready_to_drive, unsigned long curr_millis)

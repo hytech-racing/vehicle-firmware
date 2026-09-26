@@ -1,5 +1,5 @@
-#ifndef MCP23017_IOEXPANDER_INTERFACE_H
-#define MCP23017_IOEXPANDER_INTERFACE_H
+#ifndef MCP23017_IOEXPANDER_INTERFACE
+#define MCP23017_IOEXPANDER_INTERFACE
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -9,7 +9,7 @@
 #include <MCP23017.h>
 
 /* Local Includes */
-#include "VCR_Globals.h"
+#include "VCR_Globals.hpp"
 
 
 /**

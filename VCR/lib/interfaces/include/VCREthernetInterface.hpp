@@ -1,7 +1,7 @@
-#ifndef VCR_ETHERNET_INTERFACE_H
-#define VCR_ETHERNET_INTERFACE_H
+#ifndef VCR_ETHERNET_INTERFACE
+#define VCR_ETHERNET_INTERFACE
 
-#include "controls.h"
+#include "controls.hpp"
 
 /* External Includes */
 #include <algorithm>
@@ -14,14 +14,14 @@
 #include "device_fw_version.h"
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
-#include "InverterInterface.h"
-#include "MCP23017Interface.h"
-#include "VCFInterface.h"
+#include "ADCInterface.hpp"
+#include "InverterInterface.hpp"
+#include "MCP23017Interface.hpp"
+#include "VCFInterface.hpp"
 
 /* Local System Includes */
-#include "VehicleStateMachine.h"
-#include "DrivetrainSystem.h"
+#include "VehicleStateMachine.hpp"
+#include "DrivetrainSystem.hpp"
 
 using namespace qindesign::network;
 

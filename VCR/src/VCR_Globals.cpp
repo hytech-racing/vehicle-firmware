@@ -1,5 +1,4 @@
-#include "VCR_Globals.h"
-
+#include "VCR_Globals.hpp"
 
 /* From shared-firmware-types */
 #include "SharedFirmwareTypes.h"

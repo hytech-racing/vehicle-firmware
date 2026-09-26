@@ -12,9 +12,9 @@
  *
 */
 
-#include "VCR_Constants.h"
-#include "InverterInterface.h"
-#include "DrivetrainSystem.h"   // only for the InverterFuncts_s return type
+#include "VCR_Constants.hpp"
+#include "InverterInterface.hpp"
+#include "DrivetrainSystem.hpp"   // only for the InverterFuncts_s return type
 
 extern InverterInterface fl_inverter_interface;
 extern InverterInterface fr_inverter_interface;

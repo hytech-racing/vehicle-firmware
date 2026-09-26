@@ -1,5 +1,5 @@
-#ifndef LAUNCH_CONTROLLER_H
-#define LAUNCH_CONTROLLER_H
+#ifndef LAUNCH_CONTROLLER
+#define LAUNCH_CONTROLLER
 
 /* Standard Library */
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include <math.h>
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 
 /**

@@ -1,4 +1,5 @@
-#include "WatchdogInterface.h"
+#include "WatchdogInterface.hpp"
+
 
 void WatchdogInterface::init()
 {

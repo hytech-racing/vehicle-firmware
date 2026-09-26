@@ -1,5 +1,5 @@
-#ifndef ACUINTERFACE_H
-#define ACUINTERFACE_H
+#ifndef ACU_INTERFACE
+#define ACU_INTERFACE
 
 /* ETL Library */
 #include <etl/singleton.h>

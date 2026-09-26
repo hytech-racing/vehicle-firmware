@@ -1,5 +1,5 @@
-#ifndef TORQUECONTROLLERMUX
-#define TORQUECONTROLLERMUX
+#ifndef TORQUE_CONTROLLER_MUX
+#define TORQUE_CONTROLLER_MUX
 
 /* External Includes */
 #include <array>
@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 class VCRControls; // forward declaration for "friend"
 

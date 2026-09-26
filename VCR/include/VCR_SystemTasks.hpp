@@ -2,20 +2,20 @@
 #define VCR_SYSTEMTASKS_H
 
 #include "SharedFirmwareTypes.h"
-#include "VCR_Constants.h"
-#include "VCR_Inverters.h"
-#include "controls.h"
+#include "VCR_Constants.hpp"
+#include "VCR_Inverters.hpp"
+#include "controls.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 
 /* Local System Includes */
-#include "VehicleStateMachine.h"
+#include "VehicleStateMachine.hpp"
 
 /* Local Interface Includes */
-#include "VCFInterface.h"
+#include "VCFInterface.hpp"
 
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 
 
 /**

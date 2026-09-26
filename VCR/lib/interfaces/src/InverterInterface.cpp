@@ -1,5 +1,5 @@
-#include "InverterInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "InverterInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 /**
  * @note All scaling for signals is defined in the datasheet; we will use the coderdbc API for receiving and sending the

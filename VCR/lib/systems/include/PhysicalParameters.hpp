@@ -1,7 +1,5 @@
-#ifndef PHYSICALPARAMETERS
-#define PHYSICALPARAMETERS
-
-//
+#ifndef PHYSICAL_PARAMETERS
+#define PHYSICAL_PARAMETERS
 
 
 namespace dti_motor_params

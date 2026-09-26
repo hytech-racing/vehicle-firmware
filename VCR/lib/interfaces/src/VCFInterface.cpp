@@ -1,5 +1,5 @@
-#include "VCFInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "VCFInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 
 void VCFInterface::receivePedalsCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
