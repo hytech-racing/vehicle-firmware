@@ -12,7 +12,7 @@ void TempSensorInterface::initSensor() {
     HAL_StatusTypeDef hyst_sp_status = HAL_I2C_Mem_Write(&hi2c1,
                                                         _addr,
                                                         TempSensorRegisters_s::T_HYST_SETPOINT,
-                                                        I2c_MEMADD_SIZE_16BIT,
+                                                        I2C_MEMADD_SIZE_16BIT,
                                                         &(_sensor_data.t_hyst_sp),
                                                         sizeof(_sensor_data.t_hyst_sp),
                                                         HAL_MAX_DELAY);
