@@ -1,26 +1,26 @@
-#ifndef CCU_SYSTEMTASKS_H
-#define CCU_SYSTEMTASKS_H
+#ifndef CCU_SYSTEMTASKS
+#define CCU_SYSTEMTASKS
 
-#include "CCU_Constants.h"
+#include "CCU_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
-#include "Level2Interface.h"
-#include "RotaryEncoderInterface.h"
+#include "Level2Interface.hpp"
+#include "RotaryEncoderInterface.hpp"
 #include "SystemTimeInterface.h"
-#include "WatchdogInterface.h"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "Level2System.h"
-#include "MainChargeSystem.h"
-#include "ChargerStateMachine.h"
+#include "Level2System.hpp"
+#include "MainChargeSystem.hpp"
+#include "ChargerStateMachine.hpp"
 
 /**
  * @brief Creates an instance of all systems.
- */
-void initialize_all_systems();
+*/
+void initializeAllSystems();
 
 extern etl::delegate<bool()> is_120_conditions_ok;
 extern etl::delegate<bool()> is_120_switched;
@@ -35,9 +35,9 @@ extern etl::delegate<void()> set_start_charge_high;
 extern etl::delegate<void()> set_start_charge_low;
 extern etl::delegate<void()> reset_startup_time_ms;
 
-::HT_TASK::TaskResponse tick_state_machine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse tickStateMachineTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse calculate_charge_current(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
 #endif

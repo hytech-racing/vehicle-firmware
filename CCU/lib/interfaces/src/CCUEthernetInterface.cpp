@@ -1,4 +1,4 @@
-#include "CCUEthernetInterface.h"
+#include "CCUEthernetInterface.hpp"
 
 
 void CCUEthernetInterface::recieve_pb_msg_acu_all_data(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data)

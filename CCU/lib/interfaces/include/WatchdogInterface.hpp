@@ -46,17 +46,17 @@ public:
      * @param curr_millis time of CCU time
      * @post IF reach interval, _watchdog_time updated and state switched
     */
-    bool update_watchdog_state(uint32_t curr_millis);
+    bool updateWatchdogState(uint32_t curr_millis);
 
     /**
      * Set SW_SHDN pin low
-     */
-    void set_sw_shdn_pin_low();
+    */
+    void setSWShutdownPinLow();
 
     /**
      * Set SW_SHDN pin high
-     */
-    void set_sw_shdn_pin_high();
+    */
+    void setSWShutdownPinHigh();
 
 private:
 
@@ -64,12 +64,12 @@ private:
 
     /**
      * @brief timestamp of the last watchdog kick
-     */
+    */
     uint32_t _watchdog_time = 0;
 
     /**
      * @brief current output level driven on the watchdog kick pin, true = HIGH
-     */
+    */
     bool _watchdog_state = false;
 
 };

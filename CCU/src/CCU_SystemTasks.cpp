@@ -1,7 +1,7 @@
-#include "CCU_SystemTasks.h"
+#include "CCU_SystemTasks.hpp"
 
 
-void initialize_all_systems()
+void initializeAllSystems()
 {
     Level2SystemInstance::create(Level2InterfaceInstance::instance(),
                                 ADCInterfaceInstance::instance(),
@@ -18,75 +18,75 @@ void initialize_all_systems()
 
     /* State Machine Initialization */
     /* Delegate Function Definitions */
-    etl::delegate<bool()> is_120_conditions_ok = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> is120ConditionsOK = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().check_120_conditions(ADCInterfaceInstance::instance()); });
 
-    etl::delegate<bool()> is_120_switched = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> is120Switched = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().is_120_switched(ADCInterfaceInstance::instance()); });
 
-    etl::delegate<bool()> is_240_switched = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> is240Switched = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().is_240_switched(ADCInterfaceInstance::instance()); });
 
-    etl::delegate<bool()> is_shdn_D_high = etl::delegate<bool()>::create([]() -> bool
-                                                                                { return (ADCInterfaceInstance::instance().read_shdn_D_voltage()); });
+    etl::delegate<bool()> isShutdownDHigh = etl::delegate<bool()>::create([]() -> bool
+                                                                                { return (ADCInterfaceInstance::instance().isShutdownDHigh()); });
 
-    etl::delegate<bool()> is_240_conditions_ok = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> is240ConditionsOK = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().check_240_conditions(ADCInterfaceInstance::instance()); });
 
-    etl::delegate<bool()> is_state_B2_ready = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> isStateB2Ready = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().check_state_B2_conditions(ADCInterfaceInstance::instance(), Level2InterfaceInstance::instance()); });
 
-    etl::delegate<bool()> is_state_C2_ready = etl::delegate<bool()>::create([]() -> bool
+    etl::delegate<bool()> isStateC2Ready = etl::delegate<bool()>::create([]() -> bool
                                                                                 { return Level2SystemInstance::instance().check_state_C2_conditions(ADCInterfaceInstance::instance(), Level2InterfaceInstance::instance()); });
 
-    etl::delegate<bool()> reset_error_requested = etl::delegate<bool()>::create([]() -> bool
-                                                                                { return ADCInterfaceInstance::instance().is_reset_errors_button_pressed(sys_time::hal_millis()); });
+    etl::delegate<bool()> resetErrorRequested = etl::delegate<bool()>::create([]() -> bool
+                                                                                { return ADCInterfaceInstance::instance().isResetErrorsButtonPressed(sys_time::hal_millis()); });
 
-    etl::delegate<void()> set_sw_shdn_high = etl::delegate<void()>::create([]() -> void
-                                                                                { WatchdogInterfaceInstance::instance().set_sw_shdn_pin_high(); });
+    etl::delegate<void()> setSWShutdownHigh = etl::delegate<void()>::create([]() -> void
+                                                                                { WatchdogInterfaceInstance::instance().setSWShutdownPinHigh(); });
 
-    etl::delegate<void()> set_sw_shdn_low = etl::delegate<void()>::create([]() -> void
-                                                                                { WatchdogInterfaceInstance::instance().set_sw_shdn_pin_low(); });
+    etl::delegate<void()> setSWShutdownLow = etl::delegate<void()>::create([]() -> void
+                                                                                { WatchdogInterfaceInstance::instance().setSWShutdownPinLow(); });
 
-    etl::delegate<void()> set_start_charge_high = etl::delegate<void()>::create([]() -> void
-                                                                                { Level2InterfaceInstance::instance().set_start_charge(HIGH); });
+    etl::delegate<void()> setStartChargeHigh = etl::delegate<void()>::create([]() -> void
+                                                                                { Level2InterfaceInstance::instance().setStartCharge(HIGH); });
 
-    etl::delegate<void()> set_start_charge_low = etl::delegate<void()>::create([]() -> void
-                                                                                { Level2InterfaceInstance::instance().set_start_charge(LOW); });
+    etl::delegate<void()> setStartChargeLow = etl::delegate<void()>::create([]() -> void
+                                                                                { Level2InterfaceInstance::instance().setStartCharge(LOW); });
 
-    etl::delegate<void()> reset_startup_time_ms = etl::delegate<void()>::create([]() -> void
+    etl::delegate<void()> resetStartupTimeMs = etl::delegate<void()>::create([]() -> void
                                                                                 { MainChargeSystemInstance::instance().init(sys_time::hal_millis()); });
 
-    ChargerStateMachineInstance::create(is_120_conditions_ok,
-                                        is_120_switched,
-                                        is_240_switched,
-                                        is_shdn_D_high,
-                                        is_240_conditions_ok,
-                                        is_state_B2_ready,
-                                        is_state_C2_ready,
-                                        reset_error_requested,
-                                        set_sw_shdn_high,
-                                        set_sw_shdn_low,
-                                        set_start_charge_high,
-                                        set_start_charge_low,
-                                        reset_startup_time_ms,
+    ChargerStateMachineInstance::create(is120ConditionsOK,
+                                        is120Switched,
+                                        is240Switched,
+                                        isShutdownDHigh,
+                                        is240ConditionsOK,
+                                        isStateB2Ready,
+                                        isStateC2Ready,
+                                        resetErrorRequested,
+                                        setSWShutdownHigh,
+                                        setSWShutdownLow,
+                                        setStartChargeHigh,
+                                        setStartChargeLow,
+                                        resetStartupTimeMs,
                                         sys_time::hal_millis()
     );
-    
+
 }
 
 
-HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse tickStateMachineTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
-    ChargerStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
+    ChargerStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse calculate_charge_current(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     MainChargeSystemInstance::instance().calculate_charge_current(CCUConstants::MAX_PACK_VOLTAGE,
                                                                 CCUConstants::MAX_CELL_CUTOFF_VOLTAGE,
-                                                                RotaryEncoderInterfaceInstance::instance().get_value(),
+                                                                RotaryEncoderInterfaceInstance::instance().getValue(),
                                                                 sys_time::hal_millis()
     );
 

@@ -12,7 +12,7 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
+#include "ACUInterface.hpp"
 
 
 struct ChargerData_s
@@ -32,11 +32,9 @@ public:
 
     ChargerInterface(ACUInterface& acu_interface) : _acu_interface(acu_interface) {};
 
-    void receive_charger_data_message(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
+    void receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
 
-    void send_charger_message();
-
-    void enqueue_charging_data(ACUInterface& acu_interface, float calculated_charge_current);
+    void enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current);
 
     ChargerData_s get_latest_charger_data() {return _charger_data;};
 

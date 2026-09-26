@@ -1,7 +1,8 @@
-#include "ChargerStateMachine.h"
+#include "ChargerStateMachine.hpp"
+
 
 // logic for changing states - still need to account for dial_position
-ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_millis)
+ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_millis)
 {
     switch (_current_state) // takes in the _current_state variables and matches it to each case
     {
@@ -11,14 +12,14 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
             {
                 break;
             }
-            if (!_is_120_conditions_ok())
+            if (!_is120ConditionsOK())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
             else
             {
-                _set_state(ChargerState_e::CHECK_SWITCH, current_millis);
+                _setState(ChargerState_e::CHECK_SWITCH, current_millis);
                 break;
             }
         }
@@ -40,21 +41,21 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break; // delay to control the state transitions, cannot state transition too fast
             }
 
-            if (!_is_120_conditions_ok())
+            if (!_is120ConditionsOK())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_is_120_switched())
+            if (_is120Switched())
             {
-                _set_state(ChargerState_e::CHARGE_120_UNLATCHED, current_millis);
+                _setState(ChargerState_e::CHARGE_120_UNLATCHED, current_millis);
                 break;
             }
 
-            if (_is_240_switched())
+            if (_is240Switched())
             {
-                _set_state(ChargerState_e::CHECK_240_B2_OK, current_millis);
+                _setState(ChargerState_e::CHECK_240_B2_OK, current_millis);
                 break;
             }
 
@@ -78,15 +79,15 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
             //     break;
             // }
 
-            if (!_is_120_conditions_ok() || !_is_120_switched())
+            if (!_is120ConditionsOK() || !_is120Switched())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_is_shdn_D_high())
+            if (_isShutdownDHigh())
             {
-                _set_state(ChargerState_e::CHARGING_120, current_millis);
+                _setState(ChargerState_e::CHARGING_120, current_millis);
                 break;
             }
 
@@ -102,9 +103,9 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
              * 2) Someone switches to 240V charging w/o delatching
              */
 
-            if (!_is_120_conditions_ok() || !_is_120_switched())
+            if (!_is120ConditionsOK() || !_is120Switched())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
@@ -126,9 +127,9 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break;
             }
 
-            if (_is_state_B2_ready())
+            if (_isStateB2Ready())
             {
-                _set_state(ChargerState_e::CHECK_240_C2_OK, current_millis);
+                _setState(ChargerState_e::CHECK_240_C2_OK, current_millis);
                 break;
             }
 
@@ -148,16 +149,16 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break;
             }
 
-            if (!_is_240_conditions_ok())
+            if (!_is240ConditionsOK())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
 
-            if (_is_state_C2_ready())
+            if (_isStateC2Ready())
             {
-                _set_state(ChargerState_e::CHARGE_240_UNLATCHED, current_millis);
+                _setState(ChargerState_e::CHARGE_240_UNLATCHED, current_millis);
                 break;
             }
 
@@ -181,15 +182,15 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break;
             }
 
-            if (!_is_state_C2_ready() || !_is_240_conditions_ok())
+            if (!_isStateC2Ready() || !_is240ConditionsOK())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
-            if (_is_shdn_D_high())
+            if (_isShutdownDHigh())
             {
-                _set_state(ChargerState_e::CHARGING_240, current_millis);
+                _setState(ChargerState_e::CHARGING_240, current_millis);
                 break;
             }
 
@@ -209,9 +210,9 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break;
             }
 
-            if (!_is_state_C2_ready() || !_is_240_conditions_ok())
+            if (!_isStateC2Ready() || !_is240ConditionsOK())
             {
-                _set_state(ChargerState_e::ERROR, current_millis);
+                _setState(ChargerState_e::ERROR, current_millis);
                 break;
             }
 
@@ -224,9 +225,9 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
                 break;
             }
 
-            if (_reset_error_requested())
+            if (_resetErrorRequested())
             {
-                _set_state(ChargerState_e::STARTUP, current_millis);
+                _setState(ChargerState_e::STARTUP, current_millis);
                 break;
             }
 
@@ -241,23 +242,23 @@ ChargerState_e ChargerStateMachine::tick_state_machine(unsigned long current_mil
     return _current_state;
 }
 
-void ChargerStateMachine::_set_state(ChargerState_e new_state, unsigned long current_millis)
+void ChargerStateMachine::_setState(ChargerState_e new_state, unsigned long current_millis)
 {
-    _handle_exit_logic(_current_state, current_millis);
+    _handleExitLogic(_current_state, current_millis);
     _current_state = new_state;
-    _handle_entry_logic(_current_state, current_millis);
+    _handleEntryLogic(_current_state, current_millis);
 
     // update any time there is a state change
     _last_state_changed_time = current_millis;
 }
 
-void ChargerStateMachine::_handle_exit_logic(ChargerState_e prev_state, unsigned long current_millis)
+void ChargerStateMachine::_handleExitLogic(ChargerState_e prev_state, unsigned long current_millis)
 {
     switch(prev_state)
     {
         case ChargerState_e::CHECK_240_B2_OK:
         {
-            _set_start_charge_high();
+            _setStartChargeHigh();
             break;
         }
         case ChargerState_e::STARTUP: break;
@@ -273,7 +274,7 @@ void ChargerStateMachine::_handle_exit_logic(ChargerState_e prev_state, unsigned
 }
 
 //make sure each state is reset before you enter it
-void ChargerStateMachine::_handle_entry_logic(ChargerState_e new_state, unsigned long current_millis)
+void ChargerStateMachine::_handleEntryLogic(ChargerState_e new_state, unsigned long current_millis)
 {
     switch(new_state)
     {
@@ -283,23 +284,23 @@ void ChargerStateMachine::_handle_entry_logic(ChargerState_e new_state, unsigned
         }
         case ChargerState_e::CHARGE_120_UNLATCHED:
         {
-            _set_sw_shdn_high();
+            _setSWShutdownHigh();
             break;
         }
         case ChargerState_e::CHARGE_240_UNLATCHED:
         {
-            _set_sw_shdn_high();
+            _setSWShutdownHigh();
             break;
         }
         case ChargerState_e::CHARGING_240:
         {
-            _reset_startup_time_ms();
+            _resetStartupTimeMs();
             break;
         }
         case ChargerState_e::ERROR:
         {
-            _set_sw_shdn_low();
-            _set_start_charge_low();
+            _setSWShutdownLow();
+            _setStartChargeLow();
             break;
         }
         case ChargerState_e::CHECK_SWITCH: break;
@@ -310,7 +311,7 @@ void ChargerStateMachine::_handle_entry_logic(ChargerState_e new_state, unsigned
     }
 }
 
-const char* ChargerStateMachine::get_state_name()
+const char* ChargerStateMachine::getStateName()
 {
     switch (_current_state)
     {

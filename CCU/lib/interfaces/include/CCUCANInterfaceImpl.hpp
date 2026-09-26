@@ -12,9 +12,9 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes  */
-#include "ACUInterface.h"
-#include "ChargerInterface.h"
-#include "EMInterface.h"
+#include "ACUInterface.hpp"
+#include "ChargerInterface.hpp"
+#include "EMInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
@@ -64,16 +64,16 @@ using CCUCANInterfaceInstance = etl::singleton<CCUCANInterface_s>;
 
 namespace CCUCANInterfaceImpl
 {
-    void on_acu_can_receive(const CAN_message_t &msg);
+    void onACUCANReceive(const CAN_message_t &msg);
 
-    void on_charger_can_receive(const CAN_message_t &msg);
+    void onChargerCANReceive(const CAN_message_t &msg);
 
     /**
      * @brief Routes a decoded message to the appropriate interface based on CANID
      */
-    void ccu_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, uint32_t millis, CANInterfaceType_e interface_type);
+    void CCUReceiveIDSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, uint32_t millis, CANInterfaceType_e interface_type);
 
-    void send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
+    void clearAllCANBuffers(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
 };
 
 #endif // CCUCANINTERFACEIMPL
