@@ -11,18 +11,25 @@
 #include <cstddef>
 #include <iterator>
 
+#include "ACUInterface.h"
+
 using namespace qindesign::network;
 
 class CCUEthernetInterface {
     public:
     CCUEthernetInterface();
 
-    void init_ethernet_device();
+    void initEthernetDevice();
 
-    void receive_pb_msg_acu_all_data(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
+    void receiveACUAllData(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
+
+    hytech_msgs_CCUData makeCCUDatamsg();
+
+    void sendCCUDataMsg(const hytech_msgs_CCUData &data);
     
     private:
     EthernetUDP _ccu_data_recv_socket;
+    EthernetUDP _ccu_data_send_socket;
 }
 
 using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterfaceInstance>;

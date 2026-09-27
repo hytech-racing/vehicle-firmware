@@ -123,7 +123,7 @@ public:
     /**
      * @brief Get the current charge system data
      */
-    const ChargeSystemData_s& get_charge_data() const { return _charge_data; }
+    const ChargeSystemData_s& get_charge_data() const { return _charge_data; } // why does this return a reference??
 
 private:
 
