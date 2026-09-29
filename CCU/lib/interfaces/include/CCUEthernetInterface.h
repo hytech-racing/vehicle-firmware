@@ -11,7 +11,13 @@
 #include <cstddef>
 #include <iterator>
 
+/* ETL Library */
+#include <etl/singleton.h>
+
+
 #include "ACUInterface.h"
+#include "ChargerInterface.h"
+#include "MainChargeSystem.h"
 
 using namespace qindesign::network;
 
@@ -23,7 +29,7 @@ class CCUEthernetInterface {
 
     void receiveACUAllData(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
 
-    hytech_msgs_CCUData makeCCUDatamsg();
+    hytech_msgs_CCUData makeCCUDataMsg();
 
     void sendCCUDataMsg(const hytech_msgs_CCUData &data);
     
@@ -32,6 +38,6 @@ class CCUEthernetInterface {
     EthernetUDP _ccu_data_send_socket;
 }
 
-using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterfaceInstance>;
+using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterface>;
 
 #endif

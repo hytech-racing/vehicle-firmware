@@ -24,7 +24,7 @@ void CCUEthernetInterface::sendCCUDataMsg(hytech_msgs_CCUData &data) {
                                                                 &_ccu_data_send_socket, data, hytech_msgs_CCUData_fields);
 }
 
-hytech_msgs_CCUData CCUEthernetInterface::makeCCUDatamsg() {
+hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg() {
     ACUInterfaceData_s latest_acu_data = ACUInterfaceInstance::instance().get_latest_data();
     hytech_msgs_CCUData out;
     out.average_cell_voltage = latest_acu_data.average_voltage;

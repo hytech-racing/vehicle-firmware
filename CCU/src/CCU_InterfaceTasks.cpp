@@ -72,8 +72,9 @@ void initialize_all_interfaces()
     );
     WatchdogInterfaceInstance::instance().init();
 
-    CCUEthernetInterface::create();
-    CCUEthernetInterface::instance().init_ethernet_device();
+    /* Ethernet Interface */
+    CCUEthernetInterfaceInstance::create();
+    CCUEthernetInterfaceInstance::instance().initEthernetDevice();
 
      /* CAN Interfaces  */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
@@ -122,14 +123,14 @@ HT_TASK::TaskResponse handle_enqueue_charger_can_data(const unsigned long& sysMi
 
 HT_TASK::TaskResponse run_send_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-
+    CCUEthernetInterfaceInstance::instance().sendCCUDataMsg(CCUEthernetInterfaceInstance::instance().makeCCUDataMsg());
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
 HT_TASK::TaskResponse run_receive_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    CCUEthernetInterfaceInstance::instance().receive_pb_msg_acu_all_data();
+    // HELP IDK WHAT THE MSG ISSS
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -221,7 +222,7 @@ HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK
     // Serial.print("Rotary Encoder Value: ");
     // Serial.println(RotaryEncoderInterfaceInstance::instance().get_value(), 2);
     // Serial.println();
-
+    
 
     /* ----- ACU Detailed Cell Voltages ----- */
     // for (int c = 0; c < default_acu_params::NUM_CELLS; c++)
