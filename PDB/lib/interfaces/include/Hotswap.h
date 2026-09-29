@@ -62,12 +62,12 @@ private:
 
     void _ReadWord(
         std::uint8_t command,
-        std::uint16_t &data
+        std::uint16_t &stored_data
     );
 
     void _WriteByte(
         std::uint8_t command,
-        std::uint8_t data
+        std::uint8_t send_data
     );
 };
 
