@@ -15,7 +15,7 @@ void Hotswap::Init()
     );
 }
 
-void Hotswap::_ReadWord(
+void Hotswap::_ReadWord( //send command + read bytes
     std::uint8_t command,
     std::uint16_t &stored_data
 )
@@ -24,7 +24,7 @@ void Hotswap::_ReadWord(
 
     HAL_I2C_Mem_Read(
         &hi2c1,
-        address
+        address,
         command,
         I2C_MEMADD_SIZE_8BIT,
         buffer,
@@ -85,12 +85,12 @@ void Hotswap::ReadFault()
     _ReadWord(CMD_DIAGNOSTIC_WORD, _fault_word); 
 }
 
-void _WriteByte(
+void _WriteByte( // send command only
     std::uint8_t command,
     std::uint8_t send_data
 )
 {
-    return HAL_I2C_Mem_Write(
+    HAL_I2C_Mem_Write(
         hi2c1,
         address
         command,

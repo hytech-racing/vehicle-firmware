@@ -14,7 +14,6 @@ public:
     void ReadFault();
 
     void ShutOff();
-    void TurnOn();
     void ClearFaults();
 
 private:
@@ -24,16 +23,13 @@ private:
     static constexpr std::uint8_t CMD_READ_VIN        = 0x88;
     static constexpr std::uint8_t CMD_READ_IIN        = 0x89;
 
-    static constexpr std::uint8_t CMD_DIAGNOSTIC_WORD = 0xE1;
-
     static constexpr std::uint8_t OPERATION_OFF       = 0x00;
-    static constexpr std::uint8_t OPERATION_ON        = 0x80;
 
     static constexpr std::uint32_t I2C_TIMEOUT_MS      = 10;
 
     static constexpr std::uint8_t address = 0x15 << 1;
 
-    Config_s _config;
+    HAL_StatusTypeDef _status;
 
     float _voltage_V = 0.0f;
     float _current_A = 0.0f;
