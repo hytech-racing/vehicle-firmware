@@ -77,13 +77,13 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);        // GPB6 = VCF_LINK_SENSE
 
     // veh_vec<InverterData>
-    copy_inverter_data(fl_inverter.getAllInverterData(), out.inverter_data.FL);
+    _copyInverterData(fl_inverter.getTelemetryData(), out.inverter_data.FL);
     out.inverter_data.has_FL = true;
-    copy_inverter_data(fr_inverter.getTelemetryData(), out.inverter_data.FR);
+    _copyInverterData(fr_inverter.getTelemetryData(), out.inverter_data.FR);
     out.inverter_data.has_FR = true;
-    copy_inverter_data(rl_inverter.getTelemetryData(), out.inverter_data.RL);
+    _copyInverterData(rl_inverter.getTelemetryData(), out.inverter_data.RL);
     out.inverter_data.has_RL = true;
-    copy_inverter_data(rr_inverter.getTelemetryData(), out.inverter_data.RR);
+    _copyInverterData(rr_inverter.getTelemetryData(), out.inverter_data.RR);
     out.inverter_data.has_RR = true;
 
     // CurrentSensorData_s
@@ -95,12 +95,12 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
 
 
     //DrivetrainDynamicReport_s
-    out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measuredInverterFLPackVoltage;
+    out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measured_hv_bus_voltage.FL;
 
-    _copyVehVecMembers(drivetrain_data.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
-    _copyVehVecMembers(drivetrain_data.measuredTorques, out.drivetrain_data.measuredTorques);
-    _copyVehVecMembers(drivetrain_data.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
-    _copyVehVecMembers(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
+    _copyVehVecMembers(drivetrain_data.measured_speeds, out.drivetrain_data.measuredSpeeds);
+    _copyVehVecMembers(drivetrain_data.measured_torques, out.drivetrain_data.measuredTorques);
+    _copyVehVecMembers(drivetrain_data.measured_iq_torque_currents, out.drivetrain_data.measuredTorqueCurrents);
+    _copyVehVecMembers(drivetrain_data.measured_id_magnetizing_currents, out.drivetrain_data.measuredMagnetizingCurrents);
 
     // TorqueControllerMuxStatus
     out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.getTCMuxStatus().active_error;
@@ -117,7 +117,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     out.firmware_version_info.project_on_main_or_master = device_status_t::project_on_main_or_master;
     std::copy(fw_version_hash.begin(), fw_version_hash.end(), out.firmware_version_info.git_hash);
     out.has_msg_versions = true;
-    out.msg_versions.ht_can_version = HT_CAN_LIB_VERSION;
+    out.msg_versions.ht_can_version = HT_CAN_VERSION;
 
     // working with bytes in nanopb
     std::string_view version_view(version);

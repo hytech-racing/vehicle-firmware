@@ -305,9 +305,9 @@ HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, co
 HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     EM_MEASUREMENT_t msg = {};
-    msg.em_current_ro = HYTECH_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
-    msg.em_voltage_ro = HYTECH_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
-    CAN_util::enqueue_msg(&msg, &Pack_EM_MEASUREMENT_hytech, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
+    msg.em_current_ro = HT_CAN_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
+    msg.em_voltage_ro = HT_CAN_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
+    CAN_util::enqueue_msg(&msg, &Pack_EM_MEASUREMENT_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 
     return HT_TASK::TaskResponse::YIELD;
 }

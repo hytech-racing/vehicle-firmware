@@ -4,7 +4,7 @@
 /* External Includes */
 #include <stm32h7xx_hal.h>
 #include <stm32h750xx.h>
-#include "hytech.h"
+#include "ht_can.h"
 
 /* Local Interface Includes */
 #include "ACUInterface.h"

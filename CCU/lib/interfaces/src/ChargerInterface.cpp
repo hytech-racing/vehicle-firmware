@@ -6,7 +6,7 @@ void ChargerInterface::receive_charger_data_message(const CAN_message_t& msg, un
 {
     CHARGER_DATA_t charger_data_msg;
     //charger_data_s charger_data; //NOLINT - needed for initialization
-    Unpack_CHARGER_DATA_hytech(&charger_data_msg, &msg.buf[0], msg.len);
+    Unpack_CHARGER_DATA_ht_can(&charger_data_msg, &msg.buf[0], msg.len);
     _charger_data.output_dc_voltage_high = charger_data_msg.output_dc_voltage_high;
     _charger_data.output_dc_voltage_low = charger_data_msg.output_dc_voltage_low;
     _charger_data.output_current_high = charger_data_msg.output_current_high;
@@ -35,5 +35,5 @@ void ChargerInterface::enqueue_charging_data(ACUInterface& acu_interface, float 
     charger_control.max_charging_voltage_low = 0xB4; //NOLINT (see comment)
     charger_control.max_charging_current_high = 0; // only "low" is being used/harnessed in
     charger_control.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); //NOLINT (this works)
-    CAN_util::enqueue_msg(&charger_control, &Pack_CHARGER_CONTROL_hytech, CCUCANInterfaceInstance::instance().charger_can_tx_buffer);
+    CAN_util::enqueue_msg(&charger_control, &Pack_CHARGER_CONTROL_ht_can, CCUCANInterfaceInstance::instance().charger_can_tx_buffer);
 }

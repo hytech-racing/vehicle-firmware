@@ -6,7 +6,7 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "hytech.h"
+#include "ht_can.h"
 
 /* Local Interface Includes */
 #include "ACUInterface.h"

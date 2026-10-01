@@ -16,16 +16,16 @@
 void InverterInterface::receive_GENERAL_CONTROL(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_GENERAL_CONTROL_t unpacked_msg;
-    Unpack_INV1_STATUS_GENERAL_CONTROL_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_GENERAL_CONTROL_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_CONTROL_hytech,
+                        &Pack_INV1_STATUS_GENERAL_CONTROL_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id);
 
     auto& msg = _feedback_data.general_control_msg;
     msg.control_mode = static_cast<DTIControlMode_e>(unpacked_msg.control_mode);
-    msg.target_iq_apk = HYTECH_target_iq_apk_ro_fromS(unpacked_msg.target_iq_apk_ro);
-    msg.motor_position_deg = HYTECH_motor_position_deg_ro_fromS(unpacked_msg.motor_position_deg_ro);
+    msg.target_iq_apk = HT_CAN_target_iq_apk_ro_fromS(unpacked_msg.target_iq_apk_ro);
+    msg.motor_position_deg = HT_CAN_motor_position_deg_ro_fromS(unpacked_msg.motor_position_deg_ro);
     msg.is_motor_stationary = unpacked_msg.is_motor_stationary;
 
     _last_recv_millis = curr_millis;
@@ -34,16 +34,16 @@ void InverterInterface::receive_GENERAL_CONTROL(const CAN_message_t& can_msg, un
 void InverterInterface::receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_GENERAL_ELEC_t unpacked_msg;
-    Unpack_INV1_STATUS_GENERAL_ELEC_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_GENERAL_ELEC_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_ELEC_hytech,
+                        &Pack_INV1_STATUS_GENERAL_ELEC_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.general_elec_msg;
     msg.erpm = unpacked_msg.erpm;
-    msg.duty_cycle_percent = HYTECH_duty_cycle_percent_ro_fromS(unpacked_msg.duty_cycle_percent_ro);
+    msg.duty_cycle_percent = HT_CAN_duty_cycle_percent_ro_fromS(unpacked_msg.duty_cycle_percent_ro);
     msg.input_voltage = unpacked_msg.input_voltage;
 
     _last_recv_millis = curr_millis;
@@ -52,16 +52,16 @@ void InverterInterface::receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsig
 void InverterInterface::receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_ACTIVE_CURRENT_t unpacked_msg;
-    Unpack_INV1_STATUS_ACTIVE_CURRENT_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_ACTIVE_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_ACTIVE_CURRENT_hytech,
+                        &Pack_INV1_STATUS_ACTIVE_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.active_current_msg;
-    msg.active_ac_current_apk = HYTECH_active_ac_current_apk_ro_fromS(unpacked_msg.active_ac_current_apk_ro);
-    msg.active_dc_current_amp = HYTECH_active_dc_current_amp_ro_fromS(unpacked_msg.active_dc_current_amp_ro);
+    msg.active_ac_current_apk = HT_CAN_active_ac_current_apk_ro_fromS(unpacked_msg.active_ac_current_apk_ro);
+    msg.active_dc_current_amp = HT_CAN_active_dc_current_amp_ro_fromS(unpacked_msg.active_dc_current_amp_ro);
 
     _last_recv_millis = curr_millis;
 }
@@ -69,16 +69,16 @@ void InverterInterface::receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, uns
 void InverterInterface::receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_TEMP_AND_FAULT_t unpacked_msg;
-    Unpack_INV1_STATUS_TEMP_AND_FAULT_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_TEMP_AND_FAULT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_TEMP_AND_FAULT_hytech,
+                        &Pack_INV1_STATUS_TEMP_AND_FAULT_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.temp_and_fault_msg;
-    msg.controller_temp_c = HYTECH_controller_temp_c_ro_fromS(unpacked_msg.controller_temp_c_ro);
-    msg.motor_temp_c = HYTECH_motor_temp_c_ro_fromS(unpacked_msg.motor_temp_c_ro);
+    msg.controller_temp_c = HT_CAN_controller_temp_c_ro_fromS(unpacked_msg.controller_temp_c_ro);
+    msg.motor_temp_c = HT_CAN_motor_temp_c_ro_fromS(unpacked_msg.motor_temp_c_ro);
     msg.fault_code = static_cast<DTIFaultCode_e>(unpacked_msg.fault_code);
 
     _last_recv_millis = curr_millis;
@@ -87,16 +87,16 @@ void InverterInterface::receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, uns
 void InverterInterface::receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_FOC_CURRENTS_t unpacked_msg;
-    Unpack_INV1_STATUS_FOC_CURRENTS_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_FOC_CURRENTS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_FOC_CURRENTS_hytech,
+                        &Pack_INV1_STATUS_FOC_CURRENTS_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.foc_current_msg;
-    msg.id_apk = HYTECH_id_apk_ro_fromS(unpacked_msg.id_apk_ro);
-    msg.iq_apk = HYTECH_iq_apk_ro_fromS(unpacked_msg.iq_apk_ro);
+    msg.id_apk = HT_CAN_id_apk_ro_fromS(unpacked_msg.id_apk_ro);
+    msg.iq_apk = HT_CAN_iq_apk_ro_fromS(unpacked_msg.iq_apk_ro);
 
     _last_recv_millis = curr_millis;
 }
@@ -104,9 +104,9 @@ void InverterInterface::receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsig
 void InverterInterface::receive_GENERAL_IO(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_GENERAL_IO_t unpacked_msg;
-    Unpack_INV1_STATUS_GENERAL_IO_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_GENERAL_IO_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_IO_hytech,
+                        &Pack_INV1_STATUS_GENERAL_IO_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
@@ -142,18 +142,18 @@ void InverterInterface::receive_GENERAL_IO(const CAN_message_t& can_msg, unsigne
 void InverterInterface::receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_AC_CONFIG_CURRENT_t unpacked_msg;
-    Unpack_INV1_STATUS_AC_CONFIG_CURRENT_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_AC_CONFIG_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_AC_CONFIG_CURRENT_hytech,
+                        &Pack_INV1_STATUS_AC_CONFIG_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.ac_config_current_msg;
-    msg.max_ac_current_apk = HYTECH_max_ac_current_apk_ro_fromS(unpacked_msg.max_ac_current_apk_ro);
-    msg.available_max_ac_current_apk = HYTECH_available_max_ac_current_apk_ro_fromS(unpacked_msg.available_max_ac_current_apk_ro);
-    msg.min_ac_current_apk = HYTECH_min_ac_current_apk_ro_fromS(unpacked_msg.min_ac_current_apk_ro);
-    msg.available_min_ac_current_apk = HYTECH_available_min_ac_current_apk_ro_fromS(unpacked_msg.available_min_ac_current_apk_ro);
+    msg.max_ac_current_apk = HT_CAN_max_ac_current_apk_ro_fromS(unpacked_msg.max_ac_current_apk_ro);
+    msg.available_max_ac_current_apk = HT_CAN_available_max_ac_current_apk_ro_fromS(unpacked_msg.available_max_ac_current_apk_ro);
+    msg.min_ac_current_apk = HT_CAN_min_ac_current_apk_ro_fromS(unpacked_msg.min_ac_current_apk_ro);
+    msg.available_min_ac_current_apk = HT_CAN_available_min_ac_current_apk_ro_fromS(unpacked_msg.available_min_ac_current_apk_ro);
 
     _last_recv_millis = curr_millis;
 }
@@ -161,18 +161,18 @@ void InverterInterface::receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
 void InverterInterface::receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     INV1_STATUS_DC_CONFIG_CURRENT_t unpacked_msg;
-    Unpack_INV1_STATUS_DC_CONFIG_CURRENT_hytech(&unpacked_msg, can_msg.buf, can_msg.len);
+    Unpack_INV1_STATUS_DC_CONFIG_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
     CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_DC_CONFIG_CURRENT_hytech,
+                        &Pack_INV1_STATUS_DC_CONFIG_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
                         can_msg.id
     );
 
     auto& msg = _feedback_data.dc_config_current_msg;
-    msg.max_dc_current_amp = HYTECH_max_dc_current_amp_ro_fromS(unpacked_msg.max_dc_current_amp_ro);
-    msg.available_max_dc_current_amp = HYTECH_available_max_dc_current_amp_ro_fromS(unpacked_msg.available_max_dc_current_amp_ro);
-    msg.min_dc_current_amp = HYTECH_min_dc_current_amp_ro_fromS(unpacked_msg.min_dc_current_amp_ro);
-    msg.available_min_dc_current_amp = HYTECH_available_min_dc_current_amp_ro_fromS(unpacked_msg.available_min_dc_current_amp_ro);
+    msg.max_dc_current_amp = HT_CAN_max_dc_current_amp_ro_fromS(unpacked_msg.max_dc_current_amp_ro);
+    msg.available_max_dc_current_amp = HT_CAN_available_max_dc_current_amp_ro_fromS(unpacked_msg.available_max_dc_current_amp_ro);
+    msg.min_dc_current_amp = HT_CAN_min_dc_current_amp_ro_fromS(unpacked_msg.min_dc_current_amp_ro);
+    msg.available_min_dc_current_amp = HT_CAN_available_min_dc_current_amp_ro_fromS(unpacked_msg.available_min_dc_current_amp_ro);
 
     _last_recv_millis = curr_millis;
 }
@@ -185,10 +185,10 @@ void InverterInterface::send_AC_CURRENT(float target_ac_current_apk)
     target_ac_current_apk = std::clamp(target_ac_current_apk, -850.0f, 850.0f);   // signed: sign = torque direction
 
     INV1_SET_AC_CURRENT_t msg_out;
-    msg_out.target_ac_current_apk_ro = HYTECH_target_ac_current_apk_ro_toS(target_ac_current_apk);
+    msg_out.target_ac_current_apk_ro = HT_CAN_target_ac_current_apk_ro_toS(target_ac_current_apk);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_AC_CURRENT_hytech,
+                        &Pack_INV1_SET_AC_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_AC_CURRENT)
     );
@@ -199,10 +199,10 @@ void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
     target_brake_current_apk = std::clamp(target_brake_current_apk, 0.0f, 850.0f);
 
     INV1_SET_BRAKE_CURRENT_t msg_out;
-    msg_out.target_brake_current_apk_ro = HYTECH_target_brake_current_apk_ro_toS(target_brake_current_apk);
+    msg_out.target_brake_current_apk_ro = HT_CAN_target_brake_current_apk_ro_toS(target_brake_current_apk);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_BRAKE_CURRENT_hytech,
+                        &Pack_INV1_SET_BRAKE_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_BRAKE_CURRENT)
     );
@@ -216,7 +216,7 @@ void InverterInterface::send_ERPM(float target_erpm)
     msg_out.target_erpm = target_erpm;
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_ERPM_hytech,
+                        &Pack_INV1_SET_ERPM_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_ERPM)
     );
@@ -227,10 +227,10 @@ void InverterInterface::send_MOTOR_POSITION(float target_motor_position_deg)
     target_motor_position_deg = std::clamp(target_motor_position_deg, 0.0f, 359.0f);
 
     INV1_SET_MOTOR_POSITION_t msg_out;
-    msg_out.target_motor_position_deg_ro = HYTECH_target_motor_position_deg_ro_toS(target_motor_position_deg);
+    msg_out.target_motor_position_deg_ro = HT_CAN_target_motor_position_deg_ro_toS(target_motor_position_deg);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MOTOR_POSITION_hytech,
+                        &Pack_INV1_SET_MOTOR_POSITION_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_MOTOR_POSITION)
     );
@@ -241,10 +241,10 @@ void InverterInterface::send_REL_AC_CURRENT(float target_ac_current_percent)
     target_ac_current_percent = std::clamp(target_ac_current_percent, -100.0f, 100.0f);
 
     INV1_SET_REL_AC_CURRENT_t msg_out;
-    msg_out.target_ac_current_percent_ro = HYTECH_target_ac_current_percent_ro_toS(target_ac_current_percent);
+    msg_out.target_ac_current_percent_ro = HT_CAN_target_ac_current_percent_ro_toS(target_ac_current_percent);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_REL_AC_CURRENT_hytech,
+                        &Pack_INV1_SET_REL_AC_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_RELATIVE_AC_CURRENT)
     );
@@ -255,10 +255,10 @@ void InverterInterface::send_REL_AC_BRAKE_CURRENT(float target_ac_brake_current_
     target_ac_brake_current_percent = std::clamp(target_ac_brake_current_percent, 0.0f, 100.0f);
 
     INV1_SET_REL_AC_BRAKE_CURRENT_t msg_out;
-    msg_out.target_ac_brake_current_percent_ro = HYTECH_target_ac_brake_current_percent_ro_toS(target_ac_brake_current_percent);
+    msg_out.target_ac_brake_current_percent_ro = HT_CAN_target_ac_brake_current_percent_ro_toS(target_ac_brake_current_percent);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_REL_AC_BRAKE_CURRENT_hytech,
+                        &Pack_INV1_SET_REL_AC_BRAKE_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_RELATIVE_AC_BRAKE_CURRENT)
     );
@@ -276,10 +276,10 @@ void InverterInterface::send_MAX_AC_CURRENT(float target_max_ac_current_apk)
     target_max_ac_current_apk = std::clamp(target_max_ac_current_apk, 0.0f, 850.0f);
 
     INV1_SET_MAX_AC_CURRENT_t msg_out;
-    msg_out.max_ac_current_apk_ro = HYTECH_max_ac_current_apk_ro_toS(target_max_ac_current_apk);
+    msg_out.target_max_ac_current_apk_ro = HT_CAN_max_ac_current_apk_ro_toS(target_max_ac_current_apk);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_AC_CURRENT_hytech,
+                        &Pack_INV1_SET_MAX_AC_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_MAX_AC_CURRENT)
     );
@@ -290,24 +290,24 @@ void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_curr
     target_max_ac_brake_current_apk = std::clamp(target_max_ac_brake_current_apk, -850.0f, 0.0f);
 
     INV1_SET_MAX_AC_BRAKE_CURRENT_t msg_out;
-    msg_out.max_ac_brake_current_apk_ro = HYTECH_max_ac_brake_current_apk_ro_toS(target_max_ac_brake_current_apk);
+    msg_out.target_max_ac_brake_current_apk_ro = HT_CAN_target_max_ac_brake_current_apk_ro_toS(target_max_ac_brake_current_apk);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_AC_BRAKE_CURRENT_hytech,
+                        &Pack_INV1_SET_MAX_AC_BRAKE_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_MAX_AC_BRAKE_CURRENT)
     );
 }
 
-void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_apk)
+void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_amp)
 {
-    target_max_dc_current_apk = std::clamp(target_max_dc_current_apk, 0.0f, 850.0f);
+    target_max_dc_current_amp = std::clamp(target_max_dc_current_amp, 0.0f, 850.0f);
 
     INV1_SET_MAX_DC_CURRENT_t msg_out;
-    msg_out.max_dc_current_amp_ro = HYTECH_max_dc_current_amp_ro_toS(target_max_dc_current_apk);
+    msg_out.target_max_dc_current_amp_ro = HT_CAN_max_dc_current_amp_ro_toS(target_max_dc_current_amp);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_DC_CURRENT_hytech,
+                        &Pack_INV1_SET_MAX_DC_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_MAX_DC_CURRENT)
     );
@@ -318,10 +318,10 @@ void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_curr
     target_max_dc_brake_current_apk = std::clamp(target_max_dc_brake_current_apk, -850.0f, 0.0f);
 
     INV1_SET_MAX_DC_BRAKE_CURRENT_t msg_out;
-    msg_out.max_dc_brake_current_amp_ro = HYTECH_max_dc_brake_current_amp_ro_toS(target_max_dc_brake_current_apk);
+    msg_out.target_max_dc_brake_current_amp_ro = HT_CAN_target_max_dc_brake_current_amp_ro_toS(target_max_dc_brake_current_apk);
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_DC_BRAKE_CURRENT_hytech,
+                        &Pack_INV1_SET_MAX_DC_BRAKE_CURRENT_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_MAX_DC_BRAKE_CURRENT)
     );
@@ -330,10 +330,10 @@ void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_curr
 void InverterInterface::send_DRIVE_ENABLE()
 {
     INV1_SET_DRIVE_ENABLE_t msg_out;
-    msg_out.is_drive_enabled = _enable_requested;
+    msg_out.drive_enable_requested = _enable_requested;
 
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_DRIVE_ENABLE_hytech,
+                        &Pack_INV1_SET_DRIVE_ENABLE_ht_can,
                         VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
                         _pack_dti_can_id(dti_command_packet_ids::SET_DRIVE_ENABLE)
     );

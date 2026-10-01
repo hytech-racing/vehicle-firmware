@@ -151,7 +151,7 @@ HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse updateACUHeartbeat(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse updateACUHeartbeatTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().getLatestData(sys_time::hal_millis());
     digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.is_heartbeat_ok);
@@ -253,7 +253,7 @@ HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMic
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse sendAllCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCRCANInterfaceImpl::sendAllCANMsgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
     VCRCANInterfaceImpl::sendAllCANMsgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);

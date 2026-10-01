@@ -5,7 +5,7 @@
 void VCFInterface::receivePedalsCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     PEDALS_SYSTEM_DATA_t pedals_msg;
-    Unpack_PEDALS_SYSTEM_DATA_hytech(&pedals_msg, &msg.buf[0], msg.len);
+    Unpack_PEDALS_SYSTEM_DATA_ht_can(&pedals_msg, &msg.buf[0], msg.len);
 
     _curr_data.stamped_pedals.pedals_data.implausibility_has_exceeded_max_duration =
         pedals_msg.implaus_exceeded_max_duration;
@@ -20,9 +20,9 @@ void VCFInterface::receivePedalsCANMsg(const CAN_message_t &msg, unsigned long c
     _curr_data.stamped_pedals.pedals_data.accel_is_pressed = pedals_msg.accel_pedal_active;
 
     _curr_data.stamped_pedals.pedals_data.accel_percent =
-        HYTECH_accel_pedal_ro_fromS(static_cast<float>(pedals_msg.accel_pedal_ro));
+        HT_CAN_accel_pedal_ro_fromS(static_cast<float>(pedals_msg.accel_pedal_ro));
     _curr_data.stamped_pedals.pedals_data.brake_percent =
-        HYTECH_brake_pedal_ro_fromS(static_cast<float>(pedals_msg.brake_pedal_ro));
+        HT_CAN_brake_pedal_ro_fromS(static_cast<float>(pedals_msg.brake_pedal_ro));
     _curr_data.stamped_pedals.last_recv_millis = curr_millis;
 
     // As long as we're using millis() function, loop overrun not a concern
@@ -38,7 +38,7 @@ void VCFInterface::receivePedalsCANMsg(const CAN_message_t &msg, unsigned long c
 void VCFInterface::receiveSteeringCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     STEERING_DATA_t steering_msg;
-    Unpack_STEERING_DATA_hytech(&steering_msg, &msg.buf[0], msg.len);
+    Unpack_STEERING_DATA_ht_can(&steering_msg, &msg.buf[0], msg.len);
 
     _curr_data.stamped_steering.steering_data.analog_oor_implausibility = steering_msg.steering_analog_oor;
     _curr_data.stamped_steering.steering_data.both_sensors_fail = steering_msg.steering_both_sensors_fail;
@@ -46,7 +46,7 @@ void VCFInterface::receiveSteeringCANMsg(const CAN_message_t &msg, unsigned long
     _curr_data.stamped_steering.steering_data.dtheta_exceeded_analog = steering_msg.steering_dtheta_exceeded_analog;
     _curr_data.stamped_steering.steering_data.dtheta_exceeded_digital = steering_msg.steering_dtheta_exceeded_digital;
     _curr_data.stamped_steering.steering_data.interface_sensor_error = steering_msg.steering_interface_sensor_error;
-    _curr_data.stamped_steering.steering_data.output_steering_angle = HYTECH_steering_output_steering_angle_ro_fromS(steering_msg.steering_output_steering_angle_ro);
+    _curr_data.stamped_steering.steering_data.output_steering_angle = HT_CAN_steering_output_steering_angle_ro_fromS(steering_msg.steering_output_steering_angle_ro);
     _curr_data.stamped_steering.steering_data.analog_raw = steering_msg.steering_analog_raw;
     _curr_data.stamped_steering.steering_data.digital_raw = steering_msg.steering_digital_raw;
 
@@ -61,7 +61,7 @@ void VCFInterface::receiveSteeringCANMsg(const CAN_message_t &msg, unsigned long
 void VCFInterface::receiveDashboardCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     DASH_INPUT_t dash_msg;
-    Unpack_DASH_INPUT_hytech(&dash_msg, &msg.buf[0], msg.len);
+    Unpack_DASH_INPUT_ht_can(&dash_msg, &msg.buf[0], msg.len);
 
     _curr_data.dash_input_state.btn_dim_read_is_pressed = dash_msg.dim_button;
     _curr_data.dash_input_state.preset_btn_is_pressed = dash_msg.preset_button; // pedal recalibration button
@@ -77,12 +77,12 @@ void VCFInterface::receiveDashboardCANMsg(const CAN_message_t &msg, unsigned lon
 void VCFInterface::receiveFrontSuspensionCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     FRONT_SUSPENSION_t front_suspension_msg;
-    Unpack_FRONT_SUSPENSION_hytech(&front_suspension_msg, &msg.buf[0], msg.len);
+    Unpack_FRONT_SUSPENSION_ht_can(&front_suspension_msg, &msg.buf[0], msg.len);
 
     _curr_data.front_loadcell_data.FL_loadcell_analog = front_suspension_msg.fl_load_cell;
-    _curr_data.front_suspot_data.FL_sus_pot_analog = HYTECH_fl_shock_pot_ro_fromS(front_suspension_msg.fl_shock_pot_ro);
+    _curr_data.front_suspot_data.FL_sus_pot_analog = HT_CAN_fl_shock_pot_ro_fromS(front_suspension_msg.fl_shock_pot_ro);
     _curr_data.front_loadcell_data.FR_loadcell_analog = front_suspension_msg.fr_load_cell;
-    _curr_data.front_suspot_data.FR_sus_pot_analog = HYTECH_fr_shock_pot_ro_fromS(front_suspension_msg.fr_shock_pot_ro);
+    _curr_data.front_suspot_data.FR_sus_pot_analog = HT_CAN_fr_shock_pot_ro_fromS(front_suspension_msg.fr_shock_pot_ro);
 
     // only sent over CAN if valid from VCF
     _curr_data.front_loadcell_data.valid_FL_sample = true;
@@ -136,7 +136,7 @@ void VCFInterface::enqueueDashboardStatesCANMessage(bool buzzer_flag, bool is_pe
     ctrl.in_steering_calibration_state = is_steering_calibration_state;
 
     CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_hytech,
+                        &Pack_DASHBOARD_BUZZER_CONTROL_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer
     );
 }
@@ -148,7 +148,7 @@ void VCFInterface::enqueueVehicleStateCANMessage(VehicleState_e vehicle_state, D
     msg_out.drivetrain_state = static_cast<uint8_t>(drivetrain_state);
     msg_out.drivebrain_in_control = is_db_in_ctrl;
     CAN_util::enqueue_msg(&msg_out,
-                        &Pack_CAR_STATES_hytech,
+                        &Pack_CAR_STATES_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer
     );
 }

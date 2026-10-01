@@ -6,7 +6,7 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "hytech.h"
+#include "ht_can.h"
 
 /* Local Interface Includes */
 #include "CANInterface.h"

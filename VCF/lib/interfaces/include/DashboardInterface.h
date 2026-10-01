@@ -8,7 +8,7 @@
 #include <MCP23017.h>
 #include <Wire.h>
 #include "SharedFirmwareTypes.h"
-#include "hytech.h"
+#include "ht_can.h"
 #include "FlexCAN_T4.h"
 
 /* Local Interface Includes */

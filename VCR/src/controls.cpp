@@ -30,7 +30,7 @@ void VCRControls::enqueueLatencyCANData()
     status_msg.db_aux_timing_fault = aux_latency_info.has_timing_failure;
     status_msg.db_telem_timing_fault = telem_latency_info.has_timing_failure;
     CAN_util::enqueue_msg(&status_msg,
-                        &Pack_DRIVEBRAIN_LATENCY_STATUSES_hytech,
+                        &Pack_DRIVEBRAIN_LATENCY_STATUSES_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 
     // Enqueue latency periods
@@ -38,6 +38,6 @@ void VCRControls::enqueueLatencyCANData()
     latency_msg.aux_latency_millis = static_cast<int>(aux_latency_info.worst_period_millis);
     latency_msg.telem_latency_millis = static_cast<int>(telem_latency_info.worst_period_millis);
     CAN_util::enqueue_msg(&latency_msg,
-                        &Pack_DRIVEBRAIN_LATENCY_TIMES_hytech,
+                        &Pack_DRIVEBRAIN_LATENCY_TIMES_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
