@@ -8,10 +8,15 @@ class Hotswap
 {
 public:
     void Init();
+    void Set4retry();
+    void UnmaskFaults();
 
     void ReadCurrent();
     void ReadVoltage();
     void ReadFault();
+
+    void smbaIrqHandler();
+    void pgdIrqHandler();
 
     void ShutOff();
     void ClearFaults();
@@ -19,6 +24,10 @@ public:
 private:
     static constexpr std::uint8_t CMD_OPERATION       = 0x01;
     static constexpr std::uint8_t CMD_CLEAR_FAULTS    = 0x03;
+
+    static constexpr std::uint8_t DEVICE_SETUP1       = 0xCC;
+    static constexpr std::uint8_t RETRY_MASK          = 0xE0;
+    static constexpr std::uint8_t RETRY_4             = 0x80;
 
     static constexpr std::uint8_t CMD_READ_VIN        = 0x88;
     static constexpr std::uint8_t CMD_READ_IIN        = 0x89;
