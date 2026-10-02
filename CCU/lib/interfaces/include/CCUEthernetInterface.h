@@ -17,13 +17,14 @@
 
 #include "ACUInterface.h"
 #include "ChargerInterface.h"
+#include "EMInterface.h"
 #include "MainChargeSystem.h"
 
 using namespace qindesign::network;
 
 class CCUEthernetInterface {
     public:
-    CCUEthernetInterface();
+    CCUEthernetInterface() {};
 
     void initEthernetDevice();
 
@@ -36,7 +37,7 @@ class CCUEthernetInterface {
     private:
     EthernetUDP _ccu_data_recv_socket;
     EthernetUDP _ccu_data_send_socket;
-}
+};
 
 using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterface>;
 
