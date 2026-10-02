@@ -8,7 +8,7 @@ void CCUEthernetInterface::initEthernetDevice() {
                 EthernetIPDefsInstance::instance().car_subnet,
                 EthernetIPDefsInstance::instance().default_gateway
     );
-    _ccu_data_recv_socket.begin(EthernetIPDefsInstance::instance().CCUData_port);
+    _acu_all_data_recv_socket.begin(EthernetIPDefsInstance::instance().ACUAllData_port);
     _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().CCUData_port);
 }
 

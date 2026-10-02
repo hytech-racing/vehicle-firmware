@@ -35,7 +35,7 @@ class CCUEthernetInterface {
     void sendCCUDataMsg(const hytech_msgs_CCUData &data);
     
     private:
-    EthernetUDP _ccu_data_recv_socket;
+    EthernetUDP _acu_all_data_recv_socket;
     EthernetUDP _ccu_data_send_socket;
 };
 
