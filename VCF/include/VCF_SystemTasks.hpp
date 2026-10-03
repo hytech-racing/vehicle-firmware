@@ -16,18 +16,18 @@
 
 /**
  * @brief Creates an instance of all systems.
- */
-void initialize_all_systems();
+*/
+void initializeAllSystems();
 
-::HT_TASK::TaskResponse enqueue_pedals_data(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info);
+::HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info);
 
-::HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse enqueue_steering_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse update_neopixels_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
 #endif

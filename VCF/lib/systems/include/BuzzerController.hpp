@@ -2,7 +2,6 @@
 #define BUZZER_CONTROLLER_HPP
 
 #include <etl/singleton.h>
-#include <Arduino.h>
 
 
 class BuzzerController
@@ -13,11 +12,6 @@ public:
     {
         _last_activation_time_ms = 0;
     }
-
-    /**
-     * @note Just sets the given pin as an OUTPUT pin
-    */
-    void init(int pin);
 
     /**
      * @warning Method itself does not activate the buzzer!

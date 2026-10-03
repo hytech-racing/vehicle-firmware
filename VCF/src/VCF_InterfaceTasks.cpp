@@ -1,5 +1,6 @@
 #include "VCF_InterfaceTasks.hpp"
 
+
 void initializeAllInterfaces()
 {
     SPI.begin();
@@ -183,7 +184,6 @@ HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_
 HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     pinMode(VCFInterfaces::BUZZER_CONTROL_PIN, OUTPUT);
-
     return HT_TASK::TaskResponse::YIELD;
 }
 

@@ -66,7 +66,7 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sys
 HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo); // NOLINT (capitalization of CAN)
 
 
-HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 namespace async_tasks
 {

@@ -6,10 +6,6 @@
 #include "ht_sched.hpp"
 #include "ht_task.hpp"
 
-/* Systems */
-namespace qn = qindesign::network; // setup of qn namespace
-qn::EthernetUDP udp; // setup of qn namespace
-
 /* Scheduler Setup */
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
@@ -18,25 +14,24 @@ HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, VCF
 HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PERIOD_US, VCFConstants::ASYNC_MAIN_PRIORITY);
 HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PERIOD_US, VCFConstants::PEDALS_SAMPLE_PRIORITY);
 HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PERIOD_US, VCFConstants::LOADCELL_SAMPLE_PRIORITY);
-HT_TASK::Task pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueue_pedals_data, VCFConstants::PEDALS_SEND_PERIOD_US, VCFConstants::PEDALS_SEND_PRIORITY);
-HT_TASK::Task steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueue_steering_data, VCFConstants::STEERING_SEND_PERIOD_US, VCFConstants::STEERING_SEND_PRIORITY);
+HT_TASK::Task pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PERIOD_US, VCFConstants::PEDALS_SEND_PRIORITY);
+HT_TASK::Task steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PERIOD_US, VCFConstants::STEERING_SEND_PRIORITY);
 HT_TASK::Task front_suspension_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueFrontSuspensionCANDataTask, VCFConstants::LOADCELL_SEND_PERIOD_US, VCFConstants::LOADCELL_SEND_PRIORITY);
 HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PERIOD_US, VCFConstants::CAN_SEND_PRIORITY);
 HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PERIOD_US, VCFConstants::DASH_SEND_PRIORITY);
 HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PERIOD_US, VCFConstants::DASH_SAMPLE_PRIORITY);
 HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PERIOD_US, VCFConstants::ETHERNET_SEND_PRIORITY);
 HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_WRITE_PERIOD_US, VCFConstants::BUZZER_PRIORITY);
-HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &update_neopixels_task, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US, VCFConstants::NEOPIXEL_UPDATE_PRIORITY);
-HT_TASK::Task pedals_calibration_task(HT_TASK::DUMMY_FUNCTION, &update_pedals_calibration_task, VCFConstants::PEDALS_RECALIBRATION_PERIOD_US, VCFConstants::PEDALS_RECALIBRATION_PRIORITY);
-HT_TASK::Task steering_calibration_task(HT_TASK::DUMMY_FUNCTION, &update_steering_calibration_task, VCFConstants::STEERING_RECALIBRATION_PERIOD_US, VCFConstants::STEERING_RECALIBRATION_PRIORITY);
-HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, &debug_print, VCFConstants::DEBUG_PERIOD_US, VCFConstants::DEBUG_PRIORITY);
+HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &updateNeopixelsTask, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US, VCFConstants::NEOPIXEL_UPDATE_PRIORITY);
+HT_TASK::Task pedals_calibration_task(HT_TASK::DUMMY_FUNCTION, &updatePedalsCalibrationTask, VCFConstants::PEDALS_RECALIBRATION_PERIOD_US, VCFConstants::PEDALS_RECALIBRATION_PRIORITY);
+HT_TASK::Task steering_calibration_task(HT_TASK::DUMMY_FUNCTION, &updateSteeringCalibrationTask, VCFConstants::STEERING_RECALIBRATION_PERIOD_US, VCFConstants::STEERING_RECALIBRATION_PRIORITY);
+HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrints, VCFConstants::DEBUG_PERIOD_US, VCFConstants::DEBUG_PRIORITY);
+
 
 void setup()
 {
-    qn::Ethernet.begin();
-
     initializeAllInterfaces();
-    initialize_all_systems();
+    initializeAllSystems();
 
 
     // Setup scheduler
@@ -101,7 +96,7 @@ namespace async_tasks
     }
 };
 
-HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     /* Pedals Info */
     Serial.println("\n\nPedals Info:");
