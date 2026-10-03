@@ -1,4 +1,4 @@
-#include "BrakeRotorTempInterface.h"
+#include "BrakeRotorTempInterface.hpp"
 
 
 BrakeTempSensorData_s BrakeRotorTempInterface::getBrakeRotorTempData() const

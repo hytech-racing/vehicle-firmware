@@ -1,26 +1,26 @@
 #ifndef VCF_INTERFACETASKS
 #define VCF_INTERFACETASKS
 
-#include "VCF_Constants.h"
+#include "VCF_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 #include "CANInterface.h"
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ADCInterface.h"
-#include "BrakeRotorTempInterface.h"
-#include "DashboardInterface.h"
-#include "OrbisInterface.h"
-#include "SystemTimeInterface.h"
-#include "VCFCANInterfaceImpl.h"
-#include "VCFEthernetInterface.h"
-#include "VCRInterface.h"
-#include "WatchdogInterface.h"
+#include "ACUInterface.hpp"
+#include "ADCInterface.hpp"
+#include "BrakeRotorTempInterface.hpp"
+#include "DashboardInterface.hpp"
+#include "OrbisInterface.hpp"
+#include "SystemTimeInterface.hpp"
+#include "VCFCANInterfaceImpl.hpp"
+#include "VCFEthernetInterface.hpp"
+#include "VCRInterface.hpp"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "NeopixelController.h"
+#include "NeopixelController.hpp"
 
 
 /**

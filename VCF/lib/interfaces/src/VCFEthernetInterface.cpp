@@ -1,4 +1,4 @@
-#include "VCFEthernetInterface.h"
+#include "VCFEthernetInterface.hpp"
 #include "hytech_msgs_version.h"
 
 #define hytech_msgs_VCFData_s_fields &hytech_msgs_VCFData_s_msg

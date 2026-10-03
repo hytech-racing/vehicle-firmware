@@ -1,4 +1,4 @@
-#include "VCF_SystemTasks.h"
+#include "VCF_SystemTasks.hpp"
 
 
 void initialize_all_systems()
@@ -117,7 +117,7 @@ HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysM
 
     if (VCRInterfaceInstance::instance().isSteeringCalibrating())
     {
-        SteeringSystemInstance::instance().recalibrate_steering_digital();
+        SteeringSystemInstance::instance().recalibrateSteering();
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_analog);
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().max_steering_signal_analog);
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_DIGITAL_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_digital);

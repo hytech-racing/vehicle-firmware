@@ -1,17 +1,17 @@
 #ifndef VCF_SYSTEMTASKS
 #define VCF_SYSTEMTASKS
 
-#include "VCF_Constants.h"
+#include "VCF_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 
 /* Local System Includes */
 #include "BuzzerController.hpp"
-#include "EEPROMUtilities.h"
-#include "MCP23017.h"
-#include "NeopixelController.h"
-#include "PedalsSystem.h"
+#include "EEPROMUtilities.hpp"
+#include "MCP23017Interface.hpp"
+#include "NeopixelController.hpp"
+#include "PedalsSystem.hpp"
 #include "SteeringSystem.hpp"
 
 /**

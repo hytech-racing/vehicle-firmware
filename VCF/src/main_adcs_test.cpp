@@ -1,5 +1,5 @@
-#include "ADCInterface.h"
-#include "VCF_Constants.h"
+#include "ADCInterface.hpp"
+#include "VCF_Constants.hpp"
 
 unsigned long const DELAY = 100;
 unsigned long last = millis();

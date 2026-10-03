@@ -1,4 +1,4 @@
-#include "DashboardInterface.h"
+#include "DashboardInterface.hpp"
 
 
 void DashboardInterface::init()

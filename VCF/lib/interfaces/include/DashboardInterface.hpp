@@ -14,7 +14,7 @@
 #include "SystemTimeInterface.h"
 
 /* Local System Includes */
-#include "MCP23017Interface.h"
+#include "MCP23017Interface.hpp"
 
 
 struct DashboardGPIOs_s

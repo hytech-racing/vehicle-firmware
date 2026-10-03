@@ -1,6 +1,6 @@
-#include "VCF_Constants.h"
-#include "VCF_InterfaceTasks.h"
-#include "VCF_SystemTasks.h"
+#include "VCF_Constants.hpp"
+#include "VCF_InterfaceTasks.hpp"
+#include "VCF_SystemTasks.hpp"
 
 /* Schedular Dependencies */
 #include "ht_sched.hpp"

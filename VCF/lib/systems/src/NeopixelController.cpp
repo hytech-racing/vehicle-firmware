@@ -1,4 +1,4 @@
-#include "NeopixelController.h"
+#include "NeopixelController.hpp"
 
 
 void NeopixelController::init()

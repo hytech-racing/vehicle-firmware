@@ -1,5 +1,5 @@
 #include <math.h>
-#include "PedalsSystem.h"
+#include "PedalsSystem.hpp"
 
 
 void PedalsSystem::evaluate_pedals(PedalSensorData_s pedals_data, unsigned long curr_millis)

@@ -15,7 +15,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "VCFCANInterfaceImpl.h"
+#include "VCFCANInterfaceImpl.hpp"
 
 
 
