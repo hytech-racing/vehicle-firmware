@@ -11,7 +11,6 @@ void initialize_all_systems()
     veh_vec<InverterInterfaceFuncts_s> inverter_functs = makeInverterFuncts();
 
     DrivetrainInstance::create(
-        VCRSystems::CONTROL_MODE_MISTMATCH_THRESHOLD_MS,
         inverter_functs,
         is_hv_status_ok
     );

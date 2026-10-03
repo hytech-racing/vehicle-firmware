@@ -13,8 +13,8 @@ static InverterInterfaceFuncts_s makeOneInverterFuncts(InverterInterface& inv)
         .setMotorsSpeed = [&inv](speed_rpm desired_speed_rpm)  { return inv.setMotorSpeed(desired_speed_rpm); },
         .setMotorsIdle = [&inv]() { return inv.setMotorIdle(); },
         .requestEnable = [&inv](bool enable) { return inv.requestEnable(enable); },
-        .isReportedModeMatchingDT = [&inv](DrivetrainControlMode_e expected_mode) { return inv.isReportedModeMatchingDT(expected_mode); },
-        .getInverterStatus = [&inv]() { return inv.getStatus(); },
+        .isReportedModeMatchingDT = [&inv](DrivetrainControlMode_e expected_mode) { return inv.isReportedModeMatchingDTS(expected_mode); },
+        .getInverterStatus = [&inv]() { return inv.getStatus(sys_time::hal_millis()); },
         .getMotorMechanics = [&inv]() { return inv.getMotorMechanics(); }
     };
 }

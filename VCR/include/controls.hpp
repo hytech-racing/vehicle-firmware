@@ -46,14 +46,12 @@ public:
         _dt_system(dt_system)
     {};
 
-    DrivetrainCommand_s _debug_dt_command = {};
-
     /**
      * @brief Primary function in VCRControls, allowing us to command the drivetrain based on vehicle state
      * @note After the drivetrain state machine determines that the drivetrain must be commanded, it invokes
-     *       this function, which will find the function from the tc_mux and invoke the correct one on the drivetrain system.
+     *       this function, which will find the function from the tc_mux and invoke the correct one on the drivetrain system
     */
-    void handleDrivetrainCommand(bool ready_to_drive, unsigned long curr_millis);
+    void handleDrivetrainCommand(unsigned long curr_millis);
 
     /**
      * @note Drivebrain is considered in control if there is no latency/timing failure and if we are running mode 4
@@ -61,21 +59,19 @@ public:
     */
     bool isDrivebrainInControll() const;
 
-    void enqueueLatencyCANData();
+    void enqueueLatencyCANData() const;
 
     /**
-     * @brief This is a wrapper for TC Mux's method getTCMuxStatus()
+     * @brief This is a wrapper for TCMux's method getTCMuxStatus()
      * @note We wrap TorqueControllerMux's getter because it is not a singleton. _tc_mux only exists as a private member
      *       owned by VCRControls, so there is no global instance to call getTCMuxStatus() on directly from outside this class
     */
     TorqueControllerMuxStatus_s getTCMuxStatus() const { return _tc_mux.getTCMuxStatus(); }
 
-    /* ---------- Wrapper Methods For Controllers ---------- */
     /**
      * @note Controllers (_mode0, _mode1, _mode3, _mode4) are plain private members of
-     *       VCRControls, not singletons. To limit access, each passthrough below exposes exactly
-     *       one specific, read-only piece of information that outside code would need. Prohibit
-     *       access to calling "evaluate" for any controller
+     *       VCRControls, not singletons. To limit access, each passthrough below exposes only
+     *       specific information that outside code would need.
     */
     LaunchStates_e getLaunchState() const { return _mode3.get_launch_state(); };
     bool getHasTimingFailure() const { return _mode4.hasTimingFailure(); };
@@ -90,6 +86,7 @@ private:
     DrivebrainController _mode4;
     TCMuxType _tc_mux;
     DrivetrainSystem *_dt_system = nullptr;
+    DrivetrainCommand_s _debug_dt_command = {};
 
 };
 

@@ -1,9 +1,9 @@
 #include "controls.hpp"
 
 
-void VCRControls::handleDrivetrainCommand(bool ready_to_drive, unsigned long curr_millis)
+void VCRControls::handleDrivetrainCommand(unsigned long curr_millis)
 {
-    if (_dt_system != nullptr)
+    if (_dt_system != nullptr) // if drivetrain initalized
     {
         ControllerMode_e mode = vcr_data.interface_data.dash_input_state.dial_state;
         DrivetrainStatus_s drivetrain_status;
@@ -20,7 +20,7 @@ bool VCRControls::isDrivebrainInControll() const
     return (!_mode4.hasTimingFailure()) && (status.active_controller_mode == ControllerMode_e::MODE_4);
 }
 
-void VCRControls::enqueueLatencyCANData()
+void VCRControls::enqueueLatencyCANData() const
 {
     MessageLatencyInfo_s aux_latency_info = _mode4.getRAUXLatencyInfo();
     MessageLatencyInfo_s telem_latency_info = _mode4.getTELEMLatencyInfo();

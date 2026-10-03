@@ -562,6 +562,7 @@ struct DrivetrainCommand_s
     DrivetrainControlMode_e control_mode = DrivetrainControlMode_e::TORQUE;
     veh_vec<torque_nm> desired_torques;
     veh_vec<speed_rpm> desired_speeds;
+    bool is_drive_enable_requested;
 };
 
 /**
