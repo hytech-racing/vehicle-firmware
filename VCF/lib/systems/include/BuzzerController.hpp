@@ -15,7 +15,7 @@ public:
 
     /**
      * @warning Method itself does not activate the buzzer!
-     * @note Method sets _last_activation_time_ms to curr_millis
+     * @note Method only sets _last_activation_time_ms to curr_millis
     */
     void activate(unsigned long curr_millis);
 

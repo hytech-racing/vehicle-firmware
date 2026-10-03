@@ -94,6 +94,9 @@ namespace VCFInterfaces
     /* Watchdog Interface */
     constexpr pin WATCHDOG_KICK_PIN = 36;
     constexpr pin SOFTWARE_OK_PIN = 37; // Watchdog's !MR pin
+
+    /* Neopixel Interface */
+    constexpr int NEOPIXEL_CONTROL_PIN = 33;
 }
 namespace VCFSystems
 {
@@ -101,7 +104,6 @@ namespace VCFSystems
     constexpr uint8_t IO_EXPANDER_ADDR = 0x20;
 
     /* Neopixel Controller */
-    constexpr int NEOPIXEL_CONTROL_PIN = 33;
     constexpr int NEOPIXEL_COUNT = 16;
 
     /* EEPROM addresses */

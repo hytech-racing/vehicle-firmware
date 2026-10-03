@@ -57,7 +57,7 @@ private:
      * @brief Helper method to update the calculated values of max and avg temps for each sensor after new data is received
      *        Will only update for the specified sensor
      * @param sensor corresponds to which sensor was updated. FL = 0, FR = 1
-     */
+    */
     void _updateCalculatedValues(bool sensor);
 };
 

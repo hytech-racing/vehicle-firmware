@@ -98,6 +98,10 @@ void initializeAllInterfaces()
     DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); //NOLINT
     DashboardInterfaceInstance::instance().init();
 
+    /* Neopixel Interface */
+    NeopixelInterfaceInstance::create(VCFSystems::NEOPIXEL_COUNT, VCFInterfaces::NEOPIXEL_CONTROL_PIN);
+    NeopixelInterfaceInstance::instance().init();
+
     /* Orbis Interface */
     OrbisInterfaceInstance::create(&Serial2);
 
@@ -180,21 +184,6 @@ HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }
-
-HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
-{
-    pinMode(VCFInterfaces::BUZZER_CONTROL_PIN, OUTPUT);
-    return HT_TASK::TaskResponse::YIELD;
-}
-
-HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
-{
-
-    bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()); //NOLINT
-
-    digitalWrite(VCFInterfaces::BUZZER_CONTROL_PIN, buzzer_is_active);
-    return HT_TASK::TaskResponse::YIELD;
-}
 
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {

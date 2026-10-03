@@ -12,6 +12,7 @@
 #include "ADCInterface.hpp"
 #include "BrakeRotorTempInterface.hpp"
 #include "DashboardInterface.hpp"
+#include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "VCFCANInterfaceImpl.hpp"
@@ -39,13 +40,6 @@ void initializeAllInterfaces();
 ::HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-
-/**
- * The buzzer_control task will control the buzzer control pin. This function
- * relies on the buzzer_control pin definition in VCF_Constants.h;
- */
-::HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-::HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * The handle_send_VCF_ethernet_data task will send a protobuf message from VCF

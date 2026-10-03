@@ -10,8 +10,9 @@
 #include "hytech.h"
 #include <FlexCAN_T4.h>
 
-/* Local System Includes */
-#include "BuzzerController.hpp"
+/* Internal System Includes */
+#include "BuzzerController.hpp" 
+
 
 struct InverterErrorFlags_s
 {
