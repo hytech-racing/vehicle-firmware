@@ -1,3 +1,5 @@
+#ifndef TESTING_SYSTEMS
+
 #include "NeopixelController.hpp"
 
 
@@ -171,3 +173,5 @@ void NeopixelController::setNeopixelColor(LED_ID_e led, LED_color_e color)
 {
     _neopixels.setPixelColor(led, (uint32_t) color);
 }
+
+#endif // TESTING_SYSTEMS

@@ -18,8 +18,8 @@ public:
     }
 
     void read() override;
-    bool get_bit_port_a(uint8_t bit) override;
-    bool get_bit_port_b(uint8_t bit) override;
+    bool getBitPortA(uint8_t bit) override;
+    bool getBitPortB(uint8_t bit) override;
 
     void writePort(MCP23017Port port, uint8_t value);
 
@@ -27,6 +27,6 @@ private:
 
     MCP23017 _io_expander;
     uint16_t _curr_data = 0;
-    
+
 };
 #endif

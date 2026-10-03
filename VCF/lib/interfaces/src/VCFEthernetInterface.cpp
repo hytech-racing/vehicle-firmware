@@ -61,15 +61,15 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.avg_temp;
 
     // Dash
-    out.dash_input_state.dim_btn_is_pressed = dash_int.get_dashboard_outputs().brightness_ctrl_btn_is_pressed;
-    out.dash_input_state.preset_btn_is_pressed = dash_int.get_dashboard_outputs().preset_btn_is_pressed;
-    out.dash_input_state.mc_reset_btn_is_pressed = dash_int.get_dashboard_outputs().mc_reset_btn_is_pressed;
+    out.dash_input_state.dim_btn_is_pressed = dash_int.getDashboardOutputs().brightness_ctrl_btn_is_pressed;
+    out.dash_input_state.preset_btn_is_pressed = dash_int.getDashboardOutputs().preset_btn_is_pressed;
+    out.dash_input_state.mc_reset_btn_is_pressed = dash_int.getDashboardOutputs().mc_reset_btn_is_pressed;
     out.dash_input_state.mode_btn_is_pressed = 0;
-    out.dash_input_state.start_btn_is_pressed = dash_int.get_dashboard_outputs().start_btn_is_pressed;
-    out.dash_input_state.data_btn_is_pressed = dash_int.get_dashboard_outputs().data_btn_is_pressed;
+    out.dash_input_state.start_btn_is_pressed = dash_int.getDashboardOutputs().start_btn_is_pressed;
+    out.dash_input_state.data_btn_is_pressed = dash_int.getDashboardOutputs().data_btn_is_pressed;
     out.dash_input_state.left_paddle_is_pressed = 0;
-    out.dash_input_state.right_paddle_is_pressed = dash_int.get_dashboard_outputs().BUTTON_2;
-    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e) (dash_int.get_dashboard_outputs().dial_state);
+    out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().BUTTON_2;
+    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e) (dash_int.getDashboardOutputs().dial_state);
 
     // Ethernet link data
     /*** Ethernet link data values initialized to 1 in VCFDataInstance_s ***/
@@ -78,32 +78,32 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.vcf_ethernet_link_data.dash_link = 1;
 
     // Steering System
-    out.steering_system_data.analog_raw = steering_sys.get_steering_system_data().analog_raw;
-    out.steering_system_data.digital_raw = steering_sys.get_steering_system_data().digital_raw;
-    out.steering_system_data.analog_steering_angle = steering_sys.get_steering_system_data().analog_steering_angle;
-    out.steering_system_data.digital_steering_angle = steering_sys.get_steering_system_data().digital_steering_angle;
-    out.steering_system_data.output_steering_angle = steering_sys.get_steering_system_data().output_steering_angle;
-    out.steering_system_data.analog_steering_velocity_deg_s = steering_sys.get_steering_system_data().analog_steering_velocity_deg_s;
-    out.steering_system_data.digital_steering_velocity_deg_s = steering_sys.get_steering_system_data().digital_steering_velocity_deg_s;
-    out.steering_system_data.digital_oor_implausibility = steering_sys.get_steering_system_data().digital_oor_implausibility;
-    out.steering_system_data.analog_oor_implausibility = steering_sys.get_steering_system_data().analog_oor_implausibility;
-    out.steering_system_data.sensor_disagreement_implausibility = steering_sys.get_steering_system_data().sensor_disagreement_implausibility;
-    out.steering_system_data.dtheta_exceeded_analog = steering_sys.get_steering_system_data().dtheta_exceeded_analog;
-    out.steering_system_data.dtheta_exceeded_digital = steering_sys.get_steering_system_data().dtheta_exceeded_digital;
-    out.steering_system_data.both_sensors_fail = steering_sys.get_steering_system_data().both_sensors_fail;
-    out.steering_system_data.interface_sensor_error = steering_sys.get_steering_system_data().interface_sensor_error;
+    out.steering_system_data.analog_raw = steering_sys.getSteeringSystemData().analog_raw;
+    out.steering_system_data.digital_raw = steering_sys.getSteeringSystemData().digital_raw;
+    out.steering_system_data.analog_steering_angle = steering_sys.getSteeringSystemData().analog_steering_angle;
+    out.steering_system_data.digital_steering_angle = steering_sys.getSteeringSystemData().digital_steering_angle;
+    out.steering_system_data.output_steering_angle = steering_sys.getSteeringSystemData().output_steering_angle;
+    out.steering_system_data.analog_steering_velocity_deg_s = steering_sys.getSteeringSystemData().analog_steering_velocity_deg_s;
+    out.steering_system_data.digital_steering_velocity_deg_s = steering_sys.getSteeringSystemData().digital_steering_velocity_deg_s;
+    out.steering_system_data.digital_oor_implausibility = steering_sys.getSteeringSystemData().digital_oor_implausibility;
+    out.steering_system_data.analog_oor_implausibility = steering_sys.getSteeringSystemData().analog_oor_implausibility;
+    out.steering_system_data.sensor_disagreement_implausibility = steering_sys.getSteeringSystemData().sensor_disagreement_implausibility;
+    out.steering_system_data.dtheta_exceeded_analog = steering_sys.getSteeringSystemData().dtheta_exceeded_analog;
+    out.steering_system_data.dtheta_exceeded_digital = steering_sys.getSteeringSystemData().dtheta_exceeded_digital;
+    out.steering_system_data.both_sensors_fail = steering_sys.getSteeringSystemData().both_sensors_fail;
+    out.steering_system_data.interface_sensor_error = steering_sys.getSteeringSystemData().interface_sensor_error;
 
     // Pedals system
-    out.pedals_system_data.accel_is_implausible = pedals_sys.get_pedals_system_data().accel_is_implausible;
-    out.pedals_system_data.brake_is_implausible = pedals_sys.get_pedals_system_data().brake_is_implausible;
-    out.pedals_system_data.brake_is_pressed = pedals_sys.get_pedals_system_data().brake_is_pressed;
-    out.pedals_system_data.accel_is_pressed = pedals_sys.get_pedals_system_data().accel_is_pressed;
-    out.pedals_system_data.mech_brake_is_active = pedals_sys.get_pedals_system_data().mech_brake_is_active;
-    out.pedals_system_data.brake_and_accel_pressed_implausibility_high = pedals_sys.get_pedals_system_data().brake_and_accel_pressed_implausibility_high;
-    out.pedals_system_data.implausibility_has_exceeded_max_duration = pedals_sys.get_pedals_system_data().implausibility_has_exceeded_max_duration;
-    out.pedals_system_data.accel_percent = pedals_sys.get_pedals_system_data().accel_percent;
-    out.pedals_system_data.brake_percent = pedals_sys.get_pedals_system_data().brake_percent;
-    out.pedals_system_data.regen_percent = pedals_sys.get_pedals_system_data().regen_percent;
+    out.pedals_system_data.accel_is_implausible = pedals_sys.getPedalsSystemData().accel_is_implausible;
+    out.pedals_system_data.brake_is_implausible = pedals_sys.getPedalsSystemData().brake_is_implausible;
+    out.pedals_system_data.brake_is_pressed = pedals_sys.getPedalsSystemData().brake_is_pressed;
+    out.pedals_system_data.accel_is_pressed = pedals_sys.getPedalsSystemData().accel_is_pressed;
+    out.pedals_system_data.mech_brake_is_active = pedals_sys.getPedalsSystemData().mech_brake_is_active;
+    out.pedals_system_data.brake_and_accel_pressed_implausibility_high = pedals_sys.getPedalsSystemData().brake_and_accel_pressed_implausibility_high;
+    out.pedals_system_data.implausibility_has_exceeded_max_duration = pedals_sys.getPedalsSystemData().implausibility_has_exceeded_max_duration;
+    out.pedals_system_data.accel_percent = pedals_sys.getPedalsSystemData().accel_percent;
+    out.pedals_system_data.brake_percent = pedals_sys.getPedalsSystemData().brake_percent;
+    out.pedals_system_data.regen_percent = pedals_sys.getPedalsSystemData().regen_percent;
 
     // Shutdown Senses
     out.vcf_shutdown_data.d_inertia_switch_out_read = adc_int.getShutdownD().conversion;

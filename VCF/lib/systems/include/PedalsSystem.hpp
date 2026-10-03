@@ -64,13 +64,13 @@ public:
     uint32_t min_observed_brake_2 = 4095;
     uint32_t max_observed_brake_2 = 0;
 
-    void set_params(const PedalsParams &accelParams, const PedalsParams &brakeParams)
+    void setParams(const PedalsParams &accelParams, const PedalsParams &brakeParams)
     {
         _accel_params = accelParams;
         _brake_params = brakeParams;
     }
 
-    void set_pedals_sensor_data(const PedalSensorData_s &pedal_data)
+    void setPedalsSensorData(const PedalSensorData_s &pedal_data)
     {
         _sensor_data.accel_1 = pedal_data.accel_1;
         _sensor_data.accel_2 = pedal_data.accel_2;
@@ -78,26 +78,26 @@ public:
         _sensor_data.brake_2 = pedal_data.brake_2;
     }
 
-    const PedalsSystemData_s &get_pedals_system_data() { return _system_data; }
+    const PedalsSystemData_s &getPedalsSystemData() { return _system_data; }
 
-    const PedalSensorData_s &get_pedals_sensor_data() { return _sensor_data; }
+    const PedalSensorData_s &getPedalsSensorData() { return _sensor_data; }
 
-    float get_mech_brake_activation_threshold() { return _brake_params.mechanical_activation_percentage; }
+    float getMechBrakeActivationThreshold() { return _brake_params.mechanical_activation_percentage; }
 
     /// @brief Pedal evaluation function that takes in the direct analog values of the pedals and
     ///        returns all of the pedals system data.
-    void evaluate_pedals(PedalSensorData_s pedal_data, unsigned long curr_millis);
+    void evaluatePedals(PedalSensorData_s pedal_data, unsigned long curr_millis);
 
-    PedalsParams get_accel_params() {return _accel_params;}
+    PedalsParams getAccelParams() {return _accel_params;}
 
-    PedalsParams get_brake_params() {return _brake_params;}
+    PedalsParams getBrakeParams() {return _brake_params;}
 
     /**
      * This is a way to force-update the calibrated min/max values.
      * WARNING: This should only be called when driver holds the button!
      * WARNING: This requires both pedals to be near 0% travel!
      */
-    void recalibrate_min_max(const PedalSensorData_s &curr_values);
+    void recalibrateMinMax(const PedalSensorData_s &curr_values);
 
     /**
      * From code startup, the PedalsSystem should constantly update what its observed max/min
@@ -105,7 +105,7 @@ public:
      * to non-volatile memory (EEPROM). This should be called constantly to update the
      * observation.
      */
-    void update_observed_pedal_limits(const PedalSensorData_s &curr_values);
+    void updateObservedPedalLimits(const PedalSensorData_s &curr_values);
 
 private:
 
@@ -115,23 +115,23 @@ private:
     PedalsParams _brake_params {};
     bool _implausibility_occured = false;
     unsigned long _implausibility_start_time;
-    
+
     /// @brief function to determine the percentage of pedal pressed
     /// @param scaled_pedal_1 the value of the first pedal without deadzone removed (analog 0-4095)
     /// @param scaled_pedal_2 the value of the second pedal without deadzone removed (analog 0-4095)
     /// @param params the pedal parameters for this specific pedal
-    float _pedal_percentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams& params);
+    float _pedalPercentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams& params);
 
     /// @brief function to scale the pedal value to a 0-1 value without deadzone for the first pedal
     /// @param pedalval the value of the pedal without deadzone removed (analog 0-4095)
     /// @param max_pedal pedal maximum
     /// @param min_pedal pedal minimum
     /// @return the scaled value of the pedal without deadzone removed (0-1)
-    float _pedals_scaler(int pedal_val, int max_pedal, int min_pedal);
+    float _pedalsScaler(int pedal_val, int max_pedal, int min_pedal);
 
     /// @brief function to determine if the implausibility duration has been exceeded
     /// @param curr_time the current time in milliseconds
-    bool _max_duration_of_implausibility_exceeded(unsigned long curr_time);
+    bool _maxDurationOfImplausibilityExceeded(unsigned long curr_time);
 
     /// @brief
     ///    Evaluate pedal implausibilities_ determines if there is a software implausibility
@@ -149,7 +149,7 @@ private:
     /// @param params
     /// @param max_percent_diff
     /// @return
-    bool _evaluate_pedal_implausibilities(float pedal_1_scaled,
+    bool _evaluatePedalImplausibilities(float pedal_1_scaled,
                                           float pedal_2_scaled,
                                           int pedal_1_analog,
                                           int pedal_2_analog,
@@ -160,7 +160,7 @@ private:
     /// @param pedalData_analog the value of the pedal without deadzone removed
     /// @param min the min value of the pedal -- min sensor value
     /// @param max the max value of the pedal -- max sensor value
-    bool _evaluate_pedal_oor(int pedalData_analog,
+    bool _evaluatePedalOOR(int pedalData_analog,
                            int min,
                            int max);
     /// @brief
@@ -169,7 +169,7 @@ private:
     /// @param max
     /// @param implaus_margin_scale
     /// @return
-    bool _evaluate_min_max_pedal_implausibilities(int pedalData_analog,
+    bool _evaluateMinMaxPedalImplausibilities(int pedalData_analog,
                                                   int min,
                                                   int max,
                                                   float implaus_margin_scale);
@@ -177,7 +177,7 @@ private:
     /// @brief function to remove deadzone from pedal data
     /// @param conversion_input the value of the pedal without deadzone removed
     /// @param deadzone the deadzone value for this specific pedal
-    float _remove_deadzone(float conversion_input, float deadzone);
+    float _removeDeadzone(float conversion_input, float deadzone);
 
 };
 

@@ -27,7 +27,7 @@ class VCRInterface
 {
 public:
 
-    void receive_dash_control_data(const CAN_message_t &can_msg);
+    void receiveDashboardControlData(const CAN_message_t &can_msg);
 
     void recieveCarStatesCANMsg(const CAN_message_t &can_msg);
 

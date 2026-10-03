@@ -13,7 +13,7 @@
 #include "BrakeRotorTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "OrbisInterface.hpp"
-#include "SystemTimeInterface.hpp"
+#include "SystemTimeInterface.h"
 #include "VCFCANInterfaceImpl.hpp"
 #include "VCFEthernetInterface.hpp"
 #include "VCRInterface.hpp"
@@ -54,8 +54,8 @@ void initializeAllInterfaces();
  * constants defined in EthernetAddressDefs.h.
  *
  */
-HT_TASK::TaskResponse init_handle_send_vcf_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-HT_TASK::TaskResponse run_handle_send_vcf_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalization of GPIOs)
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);

@@ -40,27 +40,27 @@ void DashboardInterface::readIOExpander()
     ControllerMode_e new_mode = ControllerMode_e::MODE_0; // default to mode 0
 
     // check for value of dial
-    if (_io_expander.get_bit_port_b(0)) // NOLINT 0 is pos of bit
+    if (_io_expander.getBitPortB(0)) // NOLINT 0 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_0;
     }
-    else if (_io_expander.get_bit_port_b(1)) // NOLINT 1 is pos of bit
+    else if (_io_expander.getBitPortB(1)) // NOLINT 1 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_1;
     }
-    else if (_io_expander.get_bit_port_b(2)) // NOLINT 2 is pos of bit
+    else if (_io_expander.getBitPortB(2)) // NOLINT 2 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_2;
     }
-    else if (_io_expander.get_bit_port_b(3)) // NOLINT 3 is pos of bit
+    else if (_io_expander.getBitPortB(3)) // NOLINT 3 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_3;
     }
-    else if (_io_expander.get_bit_port_b(4)) // NOLINT 4 is pos of bit
+    else if (_io_expander.getBitPortB(4)) // NOLINT 4 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_4;
     }
-    else if (_io_expander.get_bit_port_b(5)) // NOLINT 5 is pos of bit
+    else if (_io_expander.getBitPortB(5)) // NOLINT 5 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_5;
     }
@@ -109,7 +109,7 @@ void DashboardInterface::readIOExpander()
 }
 
 /* Button reads */
-DashInputState_s DashboardInterface::get_dashboard_outputs()
+DashInputState_s DashboardInterface::getDashboardOutputs()
 {
     _dashboard_outputs.brightness_ctrl_btn_is_pressed = !digitalRead(_dashboard_gpios.BRIGHTNESS_CONTROL_PIN);
     _dashboard_outputs.preset_btn_is_pressed = !digitalRead(_dashboard_gpios.PRESET_BUTTON);
@@ -121,7 +121,7 @@ DashInputState_s DashboardInterface::get_dashboard_outputs()
     return _dashboard_outputs;
 }
 
-DashInputState_s DashboardInterface::get_dashboard_stored_state()
+DashInputState_s DashboardInterface::getDashboardStoredState()
 {
     return _dashboard_stored_state;
 }

@@ -12,8 +12,6 @@
 
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
-
-/* Local System Includes */
 #include "MCP23017Interface.hpp"
 
 
@@ -61,9 +59,9 @@ public:
 
     void readIOExpander();
 
-    DashInputState_s get_dashboard_outputs();
+    DashInputState_s getDashboardOutputs();
 
-    DashInputState_s get_dashboard_stored_state();
+    DashInputState_s getDashboardStoredState();
 
     bool isIMDOk() const { return _imd_ok; };
 

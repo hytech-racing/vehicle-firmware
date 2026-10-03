@@ -22,7 +22,7 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
     {
         case DASHBOARD_BUZZER_CONTROL_CANID:
         {
-            interfaces.vcr_interface.receive_dash_control_data(msg);
+            interfaces.vcr_interface.receiveDashboardControlData(msg);
             break;
         }
         case BMS_VOLTAGES_CANID:

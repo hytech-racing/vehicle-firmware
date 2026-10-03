@@ -1,7 +1,7 @@
 #include "VCRInterface.hpp"
 
 
-void VCRInterface::receive_dash_control_data(const CAN_message_t &can_msg)
+void VCRInterface::receiveDashboardControlData(const CAN_message_t &can_msg)
 {
     DASHBOARD_BUZZER_CONTROL_t unpacked_msg;
     Unpack_DASHBOARD_BUZZER_CONTROL_hytech(&unpacked_msg, can_msg.buf, can_msg.len); //NOLINT

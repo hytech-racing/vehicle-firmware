@@ -124,7 +124,7 @@ HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK
 {
     // Updates all eight channels.
     ADCInterfaceInstance::instance().tickADC0();
-    PedalsSystemInstance::instance().set_pedals_sensor_data(PedalSensorData_s {
+    PedalsSystemInstance::instance().setPedalsSensorData(PedalSensorData_s {
         .accel_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration1().conversion),
         .accel_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration2().conversion),
         .brake_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake1().conversion),
@@ -199,7 +199,7 @@ HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, co
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     CANInterfaces_s can_interfaces = CANInterfacesInstance::instance();
-    DashInputState_s dash_outputs = can_interfaces.dash_interface.get_dashboard_outputs();
+    DashInputState_s dash_outputs = can_interfaces.dash_interface.getDashboardOutputs();
 
     DASH_INPUT_t msg_out;
     msg_out.dim_button = dash_outputs.btn_dim_read_is_pressed;
@@ -211,7 +211,7 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     msg_out.left_shifter_button = 0;
     msg_out.right_shifter_button = dash_outputs.BUTTON_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
-    msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().get_dashboard_outputs().dial_state);
+    msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
     CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_hytech, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -235,13 +235,13 @@ HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const 
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse init_handle_send_vcf_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFEthernetInterfaceInstance::instance().initEthernetDevice();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse run_handle_send_vcf_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(ADCInterfaceInstance::instance(),
                                                                                         DashboardInterfaceInstance::instance(),
@@ -268,8 +268,8 @@ HT_TASK::TaskResponse run_handle_send_vcf_ethernet_data(const unsigned long& sys
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    bool was_dim_btn_pressed = DashboardInterfaceInstance::instance().get_dashboard_stored_state().brightness_ctrl_btn_is_pressed; //NOLINT (linter thinks variable uninitialized)
-    DashInputState_s current_state = DashboardInterfaceInstance::instance().get_dashboard_outputs();
+    bool was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; //NOLINT (linter thinks variable uninitialized)
+    DashInputState_s current_state = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
     if (!current_state.preset_btn_is_pressed) //preset btn tied to brightness control on schematic
     {

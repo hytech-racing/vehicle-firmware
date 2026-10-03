@@ -11,10 +11,10 @@
 #include "device_fw_version.h"
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
-#include "DashboardInterface.h"
-#include "PedalsSystem.h"
-#include "BrakeRotorTempInterface.h"
+#include "ADCInterface.hpp"
+#include "DashboardInterface.hpp"
+#include "PedalsSystem.hpp"
+#include "BrakeRotorTempInterface.hpp"
 #include "SteeringSystem.hpp"
 
 using namespace qindesign::network;
