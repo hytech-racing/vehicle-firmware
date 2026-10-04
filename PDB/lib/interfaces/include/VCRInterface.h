@@ -15,6 +15,7 @@
 class VCRInterface
 {
 public:
+
     void receive_vehicle_state(const CAN_message_t &can_msg);
 
     VehicleState_e get_curr_car_state() { return _vehicle_state_value; }
@@ -22,7 +23,7 @@ public:
 
     DrivetrainState_e get_curr_drivetrain_state() { return _drivetrain_state_value; }
     void set_curr_drivetrain_state(DrivetrainState_e drivetrain_state) { _drivetrain_state_value = drivetrain_state;  }
-    
+
     bool get_curr_db_in_ctrl() { return _is_db_in_ctrl; }
     void set_curr_db_in_ctrl(bool db_ctrl) { _is_db_in_ctrl = db_ctrl; }
 
