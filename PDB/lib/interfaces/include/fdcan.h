@@ -1,52 +1,24 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file    fdcan.h
-  * @brief   This file contains all the function prototypes for
-  *          the fdcan.c file
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __FDCAN_H__
-#define __FDCAN_H__
+#ifndef PDB_FDCAN
+#define PDB_FDCAN
 
-#ifdef __cplusplus
-extern "C" {
+#include <stm32h7xx_hal.h>
+#include <stm32h750xx.h>
+#include "hytech.h"
+#include "VCRInterface.h"
+
+struct CANInterfaces_s; //forward declaration, type exists somewhere but defined somewhere else (since C++ compiles top to bottom)
+
+// namespace initialize_can { //namespaces are overrated
+  int FDCAN_Init(void);
+  int FDCAN_Config_Start(void);
+  void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle);
+  void FDCAN1_PD0PD1_init(void);
+  void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle);
+//}
+//namespace read_write_can {
+  void FDCAN_set_interfaces(CANInterfaces_s &interfaces);
+  void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs);
+  int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len);
+//}
+
 #endif
-
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
-
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-extern FDCAN_HandleTypeDef hfdcan1;
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-void MX_FDCAN1_Init(void);
-
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* __FDCAN_H__ */
-

@@ -1,3 +1,4 @@
+#if 0 //Pretty sure we do not require the adc functionality with stmduino (also confuses the linker)
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -50,3 +51,4 @@ void MX_ADC1_Init(void);
 
 #endif /* __ADC_H__ */
 
+#endif

@@ -20,8 +20,8 @@
 #include "main.h"
 #include "adc.h"
 #include "fdcan.h"
-#include "i2c.h"
-#include "usb_otg.h"
+#include "HT_I2C.h"
+//#include "usb_otg.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -94,10 +94,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
-  MX_FDCAN1_Init();
-  MX_I2C1_Init();
-  MX_USB_OTG_FS_PCD_Init();
+  //MX_ADC1_Init();
+  FDCAN_Init();
+  HT_I2C_Init();
+  //MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

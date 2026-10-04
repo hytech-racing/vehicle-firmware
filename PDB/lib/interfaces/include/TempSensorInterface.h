@@ -3,6 +3,7 @@
 
 #include <stm32h7xx_hal.h>
 #include <stm32h750xx.h>
+#include "HT_I2C.h"
 #include "hytech.h"
 
 struct TempSensorRegisters_s {
@@ -11,7 +12,7 @@ struct TempSensorRegisters_s {
     static constexpr uint8_t T_HYST_SETPOINT = 0x02;
     static constexpr uint8_t T_OVER_SETPOINT = 0x03;
     static constexpr uint8_t ONE_SHOT = 0x04;
-}
+};
 
 struct TempSensorData_s {
     float temp_value;
@@ -19,7 +20,7 @@ struct TempSensorData_s {
     uint16_t t_hyst_sp; // default 75 deg. C
     uint16_t t_os_sp; // default 80 deg. C
     uint16_t one_shot;
-}
+};
 
 class TempSensorInterface {
     public:
@@ -30,6 +31,7 @@ class TempSensorInterface {
          _sensor_data.t_os_sp = t_os_sp;
 
     };
+    void encodeSetPoint(uint16_t data, uint8_t out[2]);
     void initSensor();
     void readTempValue();
 
@@ -39,6 +41,6 @@ class TempSensorInterface {
     bool overtemp_reached;
 
    
-}
+};
 
 #endif // _TEMPSENSORINTERFACE_H_
