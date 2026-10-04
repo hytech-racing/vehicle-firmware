@@ -1,79 +1,27 @@
 #include "Hotswap.h"
+#include "HT_I2C.h"
+#include <cstring>
 
-Hotswap::Hotswap(const Config_s &config)
-    : _config(config)
-{
-}
+Hotswap::Config_s config = {GPIOB, GPIO_PIN_5, GPIOB, GPIO_PIN_11};
+Hotswap HS5066(config); //must split the hotswap extern and constructor call
 
-void Hotswap::Init()
-{
-    _status = HAL_I2C_IsDeviceReady(
-        &hi2c1,
-        address,
-        3,
-        I2C_TIMEOUT_ms 
-    )
+// --------------------------- Initialization Functions ---------------------------------
+bool Hotswap::init() {
+    // HAL_I2C_IsDeviceReady( instance, device address, trials, timeout )
+    _status = HAL_I2C_IsDeviceReady( &hi2c1, address, 3, I2C_TIMEOUT_MS );
+    if (_status == 1) return 0;
 
-    set4retry();
+    BlackboxRecord r; //only check the blackbox eeprom at the beginning (otherwise just exploit current state)
+    if(readBlackBoxEEPROM(r)) {
+        //Send through CAN the previous state for the fault
+        //Or potentially decode the eepromstate first using the ram
+    };
+
+    readFault();
+
+    set4Retry();
     clearFaults();
     unmaskFaults();
-}
-
-void Hotswap::unmaskFaults()
-{
-    uint8_t data[2] = {0x00, 0x00};
-
-    return HAL_I2C_Mem_Write(
-        hi2c,
-        address << 1,
-        0xD9,
-        I2C_MEMADD_SIZE_8BIT,
-        data,
-        2,
-        HAL_MAX_DELAY
-    );
-}
-
-/*
-There are 16 total faults labeled 0-15 correpsonding to bits 0-15
-the data we send contains the 16 bits the correspond to the total faults, with 1 meaning the fault is masked and 0 meaning the fault is unmasked.
-For example: Data = 0000 0000 0100 0100
-mask bit 2 and 6
-Bit 2 - overtemp masked
-Bit 6 - Fet Fail asked
-
-Note that low bytes are sent first, meaning to mask bit 0, data = {0x01, 0x00}
-
-View full table for all faults in datasheet page 59
-*/
-
-void Hotswap::Set4retry(
-    std::I2C_HandleTypeDef *hi2c
-)
-{
-    std::uint8_t value;
-
-    HAL_I2C_Mem_Read(
-        hi2c,
-        Address,
-        DEVICE_SETUP1,
-        I2C_MEMADD_SIZE_8BIT,
-        &value,
-        1,
-        i2c_timeout_ms
-    );
-
-    value = (value & ~RETRY_MASK) | RETRY_4;
-
-    HAL_I2C_Mem_Write(
-        hi2c,
-        M5066_ADDR,
-        DEVICE_SETUP1,
-        I2C_MEMADD_SIZE_8BIT,
-        value,
-        1,
-        HAL_MAX_DELAY
-    );
 }
 
 /*
@@ -83,134 +31,146 @@ A mask is needed because retry settings only corresponds to bits 5-7 of the regi
 Essentially, we need to read the register, mask out bits 5-7, and then set bits 5-7 to the value corresponding to 4 retries.
 check datasheet page 74 to change to either 0, 1, 2, 4, 8, 16, or infinite retries
 */
+void Hotswap::set4Retry() {
+    std::uint8_t value;
 
-void Hotswap::_ReadWord( //send command + read bytes
-    std::uint8_t command,
-    std::uint16_t &stored_data
-)
-{
-    std::uint8_t buffer[2];
+    //HAL_I2C_Mem_Read( instance, deviceAddr, memAddr, memAddrSize, *data, dataSize, timeout)
+    HAL_I2C_Mem_Read( &hi2c1, address, DEVICE_SETUP1, I2C_MEMADD_SIZE_8BIT, &value, 1, I2C_TIMEOUT_MS);
+    value = (value & ~RETRY_MASK) | RETRY_4;
 
-    HAL_I2C_Mem_Read(
-        &hi2c1,
-        address,
-        command,
-        I2C_MEMADD_SIZE_8BIT,
-        buffer,
-        2,
-        I2C_TIMEOUT_MS
-    );
-
-    data =
-        static_cast<std::uint16_t>(buffer[0]) |
-        (static_cast<std::uint16_t>(buffer[1]) << 8);
+    HAL_I2C_Mem_Write( &hi2c1, address, DEVICE_SETUP1, I2C_MEMADD_SIZE_8BIT, &value, 1, HAL_MAX_DELAY );
 }
 
-//low bytes are sent first, so we need to shift the high byte left by 8 bits and then OR it with the low byte to get the full 16 bit value
-
-void Hotswap::ReadVoltage()
-{
-    std::uint16_t raw = 0;
-    _ReadWord(CMD_READ_VIN, raw);
-
-    _voltage_V =
-        (static_cast<float>(raw) * 100.0f - 255.0f)
-        / 4596.0f;
+void Hotswap::clearFaults() {
+    uint8_t command = CMD_CLEAR_FAULTS;
+    //HAL_I2C_Mem_Transmit(instance, deviceAddr, memAddr, memAddrSize, timeout) - only sends a command (not a data to the mem address)
+    HAL_I2C_Master_Transmit( &hi2c1, address, &command, 1, I2C_TIMEOUT_MS);
 }
 
 /*
-
-PMbus Conversion: X = (Y * 10^(-R) - b)/m
-
-Page 81 -> Read_VIN
-m = 4596.0
-b = 255.0
-R = -2
-
-*/
-
-void Hotswap::ReadCurrent()
-{
-    std::uint16_t raw = 0;
-    _ReadWord(CMD_READ_IIN, raw);
-
-    _current_A =
-        (static_cast<float>(raw) * 100.0f - 237.03f)
-        / 15166.6f;
-}
-
-/*
-
-Page 6 -> CL to ground -> overcurrent threshold = 50mV
-
-Page 82 -> Read_IN
-m = 7583.3 x RSNS_mOhm
-b = 237.03
-R = -2
-
-*/
-
-void Hotswap::ReadFault()
-{
-    _ReadWord(CMD_DIAGNOSTIC_WORD, _fault_word); 
-}
-
-/*
-Similar situation as unmaskFaults(); but 1 means fault present and 0 means no fault present.
-For example: fault word = 0000 0000 0100 0100
-Fault for bit 2 and 6
-Bit 2 - overtemp fault
-Bit 6 - Fet Fail
-
+There are 16 total faults mapped to bits 0-15, we unmask all faults.
+1 is fault masked (SMDA unchanged) and 0 is unmasked (SMDA pulled low when fault occurs).
+Note: low bytes sent first, meaning to mask bit 0, data = {0x01, 0x00}
 View full table for all faults in datasheet page 59
 */
-
-void Hotswap::_WriteByte( // send command only
-    std::uint8_t command,
-    std::uint8_t send_data
-)
-{
-    HAL_I2C_Mem_Write(
-        hi2c1,
-        address,
-        command,
-        I2C_MEMADD_SIZE_8BIT,
-        &send_data,
-        1,
-        I2C_TIMEOUT_MS
-    );
+void Hotswap::unmaskFaults() {
+    uint8_t data[2] = {0x00, 0x00};
+    HAL_I2C_Mem_Write( &hi2c1, address << 1, 0xD9, I2C_MEMADD_SIZE_8BIT, data, 2, HAL_MAX_DELAY );
 }
 
-void Hotswap::ShutOff()
-{
-    _last_status = _WriteByte(
-        CMD_OPERATION,
-        OPERATION_OFF
-    );
+
+// ------------------------- Reading/Writing Functions -----------------------
+//send command (which represents the memory address) + read bytes
+uint16_t Hotswap::_readWord( std::uint8_t command) {
+    uint8_t buffer[2];
+    HAL_I2C_Mem_Read( &hi2c1, address, command, I2C_MEMADD_SIZE_8BIT, buffer, 2, I2C_TIMEOUT_MS );
+
+    return buffer[1] << 8 | buffer[0]; //low bytes are sent first
 }
 
-void Hotswap::ClearFaults()
-{
-    HAL_I2C_Master_Transmit(
-        hi2c1,
-        address,
-        CMD_CLEAR_FAULTS,
-        1,
-        I2C_TIMEOUT_MS
-    );
+float Hotswap::_decoder( uint16_t raw, float R, float b, float m) {
+    return (raw * pow(10.0f, -R) - b) / m;  // PMbus Conversion: X = (Y * 10^(-R) - b)/m
 }
 
-void Hotswap::smbaIrqHandler()
-{
-    lastFault = readFault();
-    clearFaults();
+/* Page 81 -> Read_VIN -> m = 4596.0, b = 255.0, R = -2 */
+
+void Hotswap::readInputVoltage() {
+    uint16_t raw =_readWord(CMD_READ_VIN);
+    _Vin = _decoder(raw, -2, 255.0f, 4596.0f);
 }
 
-//clear faults after every read fault so we know if it ever happens again
+/*
+Page 6 -> CL to ground -> overcurrent threshold = 50mV
+Page 82 -> Read_IIN -> m = 7583.3 x RSNS_mOhm = 7583.3 x 2, b = 237.03, R = -2
+*/
 
-void Hotswap::pgdIrqHandler()
-{
-    powerGood = HAL_GPIO_ReadPin(PGD_GPIO_Port, PGD_Pin) == GPIO_PIN_SET;
+void Hotswap::readInputCurrent() {
+    uint16_t raw = _readWord(CMD_READ_IIN);
+    _Iin = _decoder(raw, -2, 237.03, 7583.3 * 2);
 }
 
-//can decide later what to do if power not good
+/* Page 81 -> Read_VIN -> m = 4596.0, b = 455.0, R = -2 */
+void Hotswap::readOutputVoltage() {
+    uint16_t raw = _readWord(CMD_READ_VOUT);
+    _Vout = _decoder(raw, -2, 455.0f, 4596.0f);
+}
+
+/*
+Page 82 -> Read_PIN -> m = 8511 x RSNS_mOhm, b = 6868, R = -4
+*/
+void Hotswap::readInputPower() {
+    uint16_t raw = _readWord(CMD_READ_POWER);
+    _Pin = _decoder(raw, -4, 6868, 2511 * 2);
+}
+
+/*
+Page 81 -> Read_Temp -> m = 100, b = 26437, R = -2
+*/
+void Hotswap::readTemp() {
+    uint16_t raw = _readWord(CMD_READ_TEMP);
+    _Temp = _decoder(raw, -2, 262437, 100);
+}
+
+void Hotswap::shutOff() {
+    uint8_t data = OPERATION_OFF;
+    HAL_I2C_Mem_Write(&hi2c1, address, CMD_OPERATION, I2C_MEMADD_SIZE_8BIT, &data, 1, I2C_TIMEOUT_MS);
+}
+
+// ------------------------ Interrupt handlers --------------------------
+/* View full table for all faults in datasheet page 59 */
+
+void Hotswap::smbaIrqHandler() {
+    _alert_pending = true;
+}
+
+void Hotswap::pgdIrqHandler() {
+    powerGood = HAL_GPIO_ReadPin(_config.PGD_GPIO_PORT, _config.PGD_PIN) == GPIO_PIN_SET; //not used currently more for debugging
+}
+
+bool Hotswap::handleAlert() {
+    _fault_word = _readWord(CMD_DIAGNOSTIC_WORD); // bit to fault type mapping like unmask, 1 represents fault
+    
+    readTelemetry(); //read current data for the handler
+    clearFaults();  //clear faults manually once handled (faults read)
+    if(_fault_word == 0) return 0; //no faults detected
+
+    //packed response with all the data prior to the fault
+    int_data = InterruptResponse({_Vin, _Iin, _Vout, _Pin,_Temp, _fault_word});
+    return 1;
+}
+
+//Whenever a warning happens, can't do much but collect telemetry data
+void Hotswap::readTelemetry() {
+    readOutputVoltage();
+    readInputVoltage();
+    readInputCurrent();
+    readInputPower();
+    readTemp();
+}
+
+bool Hotswap::readBlackBoxEEPROM(BlackboxRecord& r) {
+    // 1. copy EEPROM -> shadow registers
+    uint8_t cmd = CMD_FETCH_BB_EEPROM;
+    _status = HAL_I2C_Master_Transmit(&hi2c1, address, &cmd, 1, I2C_TIMEOUT_MS);
+    if (_status != HAL_OK) return false;
+
+    // 2. block read: 1 count byte + 22 data bytes
+    uint8_t buf[23];
+    _status = HAL_I2C_Mem_Read(&hi2c1, address, CMD_READ_BB_EEPROM, I2C_MEMADD_SIZE_8BIT,
+            buf, sizeof(buf), I2C_TIMEOUT_MS);
+    if (_status != HAL_OK || buf[0] != 22) return false; //checks also if the count is right
+
+    // 3. split into fields
+    const uint8_t* d = &buf[1]; //skips the count byte
+    memcpy(r.ram, d, 7);
+    r.timer       = d[7];
+    r.statusWord  = d[8]  | (d[9]  << 8);
+    r.statusMfr   = d[10];
+    r.statusMfr2  = d[11] | (d[12] << 8);
+    r.statusInput = d[13];
+    r.vinPeakRaw  = d[14] | (d[15] << 8);
+    r.iinPeakRaw  = d[16] | (d[17] << 8);
+    r.pinPeakRaw  = d[18] | (d[19] << 8);
+    r.tempPeakRaw = d[20] | (d[21] << 8);
+    return true;
+}

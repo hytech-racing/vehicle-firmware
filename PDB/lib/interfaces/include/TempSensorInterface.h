@@ -2,9 +2,10 @@
 #define _TEMPSENSORINTERFACE_H_
 
 #include <stm32h7xx_hal.h>
-#include <stm32h750xx.h>
 #include "HT_I2C.h"
 #include "hytech.h"
+
+//uint16_t pins[] = [3,4,5,6,7,8,9,10] //all GPIO pins on port D
 
 struct TempSensorRegisters_s {
     static constexpr uint8_t TEMP_VALUE = 0x00;
@@ -15,32 +16,46 @@ struct TempSensorRegisters_s {
 };
 
 struct TempSensorData_s {
-    float temp_value;
-    uint16_t config_bits; // use comparator mode, 
-    uint16_t t_hyst_sp; // default 75 deg. C
-    uint16_t t_os_sp; // default 80 deg. C
-    uint16_t one_shot;
+    float temp_value = 0.0f;
+    //uint16_t config_bits = 0; // use comparator mode, 
+    float t_hyst_sp = 75.0f; // default 75 deg. C
+    float t_os_sp = 80.0f; // default 80 deg. C
+    //uint16_t one_shot = 0;
 };
 
 class TempSensorInterface {
     public:
-    TempSensorInterface(uint16_t addr, uint16_t t_hyst_sp, uint16_t t_os_sp) {
+    GPIO_TypeDef* alert_port;
+    uint16_t alert_pin;
+    volatile bool _alert_pending = false; //ensures caching optimization does not prevent interrupt logic from running
+    //public to allow ease of use if the interrupt function is put in a different file
+
+    TempSensorInterface(uint16_t addr, float t_hyst_sp, float t_os_sp, GPIO_TypeDef* port, uint16_t pin) {
          _addr = addr << 1; 
          overtemp_reached = false;
          _sensor_data.t_hyst_sp = t_hyst_sp;
          _sensor_data.t_os_sp = t_os_sp;
-
+         alert_port = port;
+         alert_pin = pin;
     };
-    void encodeSetPoint(uint16_t data, uint8_t out[2]);
-    void initSensor();
-    void readTempValue();
+
+    void onAlertIrq();
+
+    void encodeSetPoint(float temp, uint8_t out[2]);
+    bool initSensor();
+    bool readTempValue();
+    bool getOvertemp() const { return overtemp_reached; };
+    //const ensures no one changes the object at hand
+    float getTemp() const { return _sensor_data.temp_value; };
+    bool isOvertemp() const;
+    void handleAlert();
 
     private:
     uint16_t _addr;
     TempSensorData_s _sensor_data;
     bool overtemp_reached;
-
-   
 };
+
+extern TempSensorInterface temps[8]; //Top to bottom
 
 #endif // _TEMPSENSORINTERFACE_H_
