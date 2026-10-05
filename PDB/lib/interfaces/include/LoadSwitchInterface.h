@@ -39,10 +39,12 @@ namespace loadswitch_default_params
  * @param ilim_resistor_ohms is the value of the ILIM-to-GND resistor
  * @param startup_ignore_fault_ms is the amount of time we ignore FLT after enable (turn-on delay + dVdT ramp)
 */
-struct LoadSwitchParams_s
-{
-    uint32_t enable_pin;
+struct LoadSwitchParams_s {
+    GPIO_TypeDef* fault_port;
     uint32_t fault_pin;
+    GPIO_TypeDef* enable_port;
+    uint32_t enable_pin;
+    GPIO_TypeDef* imon_port;
     uint32_t imon_pin;
     uint32_t imon_resistor_ohms;
     uint32_t ilim_resistor_ohms;

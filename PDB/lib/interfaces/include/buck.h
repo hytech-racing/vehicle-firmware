@@ -19,39 +19,21 @@
 #include <array>
 #include <etl/singleton.h>
 
-#define NRST_ORIN_18V PB10
-#define NRST_DTI_12V PB12
-#define NRST_MAIN_12V PB13
-#define NRST_MAIN_5V PB14
-#define NRST_MAIN_33V PB15
-
 #define EN_LIDAR_24V PC8
-//#define EN_ORIN_18V 
 #define EN_DTI_12V PC11
-//#define EN_MAIN_12V
-//#define EN_MAIN_5V
-//#define EN_MAIN_33V
-
-enum class RailState { Off, Good, Fault };
-
-struct BuckData_s {
-    RailState LIDAR_24V_RAIL_STATE;
-    RailState ORIN_18V_RAIL_STATE;
-    RailState DTI_12V_RAIL_STATE;
-    RailState MAIN_12V_RAIL_STATE;
-    RailState MAIN_5V_RAIL_STATE;
-    RailState MAIN_33V_RAIL_STATE;
-};
 
 class BuckInterface {
 public:
+    const uint32_t pins[7] = {PB10, PB12, PB13, PB14, PB15, PC8, PC11};
+    const uint32_t NRST_pins[5] = {PB10, PB12, PB13, PB14, PB15};
+    
     BuckInterface() {
         _buck_data = {}; // all rails default-construct to RailState::Off
     }
 
     void init_bucks(void);
 
-    std::array<int, 5> read_NRST_pins(void);
+    void read_NRST_pins(void);
     
     void enable_bucks(void);
     void enable_lidar_buck(void);
@@ -61,12 +43,12 @@ public:
     void disable_lidar_buck(void);
     void disable_DTI_buck(void);
 
-    BuckData_s get_curr_data() { 
+    uint8_t get_curr_data() { 
         return _buck_data;
     }
 
 private:
-    BuckData_s _buck_data;
+    uint8_t _buck_data;
 };
 
 using BuckInterfaceInstance = etl::singleton<BuckInterface>;
