@@ -78,7 +78,7 @@ void TempSensorInterface::onAlertIrq() {
 //externed so the hal library is able to exploit strong-weak callbacks
 extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (HAL_GPIO_ReadPin(HS5066._config.SMBA_PORT, HS5066._config.SMBA_PIN) != GPIO_PIN_SET) {
-        
+        HS5066.smbaIrqHandler();
     }
     for (auto &t: temps) {
         if (t.alert_pin == GPIO_Pin) {

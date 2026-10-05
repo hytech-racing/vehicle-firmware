@@ -14,30 +14,30 @@ void LoadSwitchInterface::init()
 
     // IMON: analog input; analogRead() configures the pin on STM32duino.
 
-    _is_loadswitch_enabled = false;
-    _is_loadswitch_faulted = false;
-    _imon_current_mA       = 0.0f;
+    _current_data.is_loadswitch_enabled = false;
+    _current_data.is_loadswitch_faulted = false;
+    _current_data.imon_current_mA       = 0.0f;
 }
 
 void LoadSwitchInterface::enable()
 {
     // Only restart the ignore fault timer on an off -> on transition
-    if (!_is_loadswitch_enabled)
+    if (!_current_data.is_loadswitch_enabled)
     {
         _enable_time_ms = millis();
     }
 
     // SHDN > V(SHUTR) = 2 V enables the device; output then ramps in dVdT mode (8.3.13).
     digitalWrite(_params.enable_pin, HIGH);
-    _is_loadswitch_enabled = true;
+    _current_data.is_loadswitch_enabled = true;
 }
 
 void LoadSwitchInterface::disable()
 {
     // SHDN < V(SHUTF) = 0.8 V turns the FET off within tSD(dly) = 1 us typ (6.6).
     digitalWrite(_params.enable_pin, LOW);
-    _is_loadswitch_enabled = false;
-    _is_loadswitch_faulted = false;
+    _current_data.is_loadswitch_enabled = false;
+    _current_data.is_loadswitch_faulted = false;
 }
 
 void LoadSwitchInterface::reset_latched_fault()
@@ -54,8 +54,8 @@ void LoadSwitchInterface::reset_latched_fault()
     delayMicroseconds(loadswitch_default_params::LATCH_RESET_LOW_US);
     digitalWrite(_params.enable_pin, HIGH);
 
-    _is_loadswitch_enabled = true;
-    _is_loadswitch_faulted = false;
+    _current_data.is_loadswitch_enabled = true;
+    _current_data.is_loadswitch_faulted = false;
     _enable_time_ms        = millis(); // output restarts with a full dVdT ramp
 }
 
@@ -72,15 +72,15 @@ void LoadSwitchInterface::sampleFault()
      * e.g. C_dVdT = 100 nF, V_IN = 24 V:
      *   t_on = 5.7 ms, t_dVdT = 49.9 ms  ->  ~56 ms, so use ~100 ms.
      */
-    if (!_is_loadswitch_enabled ||
+    if (!_current_data.is_loadswitch_enabled ||
         (millis() - _enable_time_ms) < _params.startup_ignore_fault_ms)
     {
-        _is_loadswitch_faulted = false;
+        _current_data.is_loadswitch_faulted = false;
         return;
     }
 
     // Active-low: LOW = fault (UV, OV, overload, reverse current, ILIM open/short, TSD).
-    _is_loadswitch_faulted = (digitalRead(_params.fault_pin) == LOW);
+    _current_data.is_loadswitch_faulted = (digitalRead(_params.fault_pin) == LOW);
 }
 
 void LoadSwitchInterface::sampleIMON()
@@ -93,7 +93,7 @@ void LoadSwitchInterface::sampleIMON()
      * I_OUT[mA] = counts * mA_per_count       (mA_per_count from _computeMilliampsPerCount)
      */
     const auto counts = static_cast<uint16_t>(analogRead(_params.imon_pin));
-    _imon_current_mA  = _convertCountsTomA(counts, _imon_mA_per_count);
+    _current_data.imon_current_mA  = _convertCountsTomA(counts, _imon_mA_per_count);
 }
 
 float LoadSwitchInterface::imon_full_scale_mA() const
