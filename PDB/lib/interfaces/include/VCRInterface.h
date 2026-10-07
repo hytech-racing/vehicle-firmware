@@ -11,7 +11,7 @@
 /* Local Interface Includes */
 #include "CANInterface.h"
 
-//Setters methods only exist for the VCRInterface.cpp updating from CAN message (should not be used generally)
+
 class VCRInterface
 {
 public:
