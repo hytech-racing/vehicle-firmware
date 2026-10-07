@@ -1,4 +1,4 @@
-#include "LoadSwitchInterface.h"
+#include "LoadSwitchInterface.hpp"
 
 LoadSwitchParams_s LDSWs_params[6] = {
     LoadSwitchParams_s(PE4, PE5, PB0, 100000, 20000, ), //Camera
