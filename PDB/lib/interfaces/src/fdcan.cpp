@@ -74,7 +74,7 @@ int FDCAN_Config_Start(void) {
   return 1;
 }
 
-/* Initializes the FDCAN peripheral clock, rest of the clocks done by pinMode() functions */
+/* Initializes the FDCAN peripheral clock, rest of the clocks done by pinMode() functions generally */
 //Check with Nazar since he did not use any HAL configuration for the CAN clock, but seems logical
 void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle) {
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};

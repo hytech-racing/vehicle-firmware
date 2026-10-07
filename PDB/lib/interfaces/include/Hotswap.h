@@ -35,17 +35,14 @@ public:
     void set4Retry();
     void unmaskFaults();
 
-    void readInputCurrent();
-    void readOutputVoltage();
-    void readInputVoltage();
-    void readInputPower();
-    void readTemp();
+    uint16_t readDecodedTelemetry(uint8_t command, float R, float b, float m);
+    void readTelemetry(); //Pin, Vin, Vout, Temp, Iin
     void readFault();
 
     void smbaIrqHandler();
     void pgdIrqHandler();
     bool handleAlert();
-    void readTelemetry();
+
     bool readBlackBoxEEPROM(BlackboxRecord& r);
     float _decoder(uint16_t raw, float R, float b, float m);
 
@@ -67,7 +64,7 @@ private:
     static constexpr uint8_t CMD_READ_IIN        = 0x89;
     static constexpr uint8_t CMD_READ_VOUT       = 0x8B;
     static constexpr uint8_t CMD_READ_TEMP       = 0x8D;
-    static constexpr uint8_t CMD_READ_POWER      = 0x97;
+    static constexpr uint8_t CMD_READ_PIN        = 0x97;
     static constexpr uint8_t CMD_DIAGNOSTIC_WORD = 0xE1;
 
     static constexpr uint8_t OPERATION_OFF       = 0x00;

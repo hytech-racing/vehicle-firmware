@@ -1,18 +1,19 @@
-#include "LoadSwitchInterface.hpp"
+#include "LoadSwitchInterface.h"
 
-LoadSwitchData_s data; //enabled, faulted, satured, imon all 0 when intiailized
-LoadSwitchParams_s[6] LDSWs_params = {
-    LoadSwitchParams_s(GPIOE, 4, GPIOE, 5, GPIOB, 0, 100000, 20000); //Camera
-    LoadSwitchParams_s(GPIOE, 6, GPIOE, 7, GPIOB, 1, 31600, 4870); //Orin
-    LoadSwitchParams_s(GPIOE, 8, GPIOE, 9, GPIOC, 4, 22100, 5100); //Inverter
-    LoadSwitchParams_s(GPIOE, 10, GPIOE, 11, GPIOC, 5, 22100, 5100); //Motor
-    LoadSwitchParams_s(GPIOE, 12, GPIOE, 13, GPIOA, 6, 84500, 14700); //Lidar
-    LoadSwitchParams_s(GPIOE, 14, GPIOE, 15, GPIOA, 7, 24900, 3900); //DTI
+LoadSwitchParams_s LDSWs_params[6] = {
+    LoadSwitchParams_s(PE4, PE5, PB0, 100000, 20000, ), //Camera
+    LoadSwitchParams_s(PE6, PE7, PB1, 31600, 4870, ), //Orin
+    LoadSwitchParams_s(PE8, PE9, PC4, 22100, 5100, ), //Inverter
+    LoadSwitchParams_s(PE10, PE11, PC5, 22100, 5100, ), //Motor
+    LoadSwitchParams_s(PE12, PE13, PA6, 84500, 14700, ), //Lidar
+    LoadSwitchParams_s(PE14, PE15, PA7, 24900, 3900, ) //DTI
 };
 
-LoadSwitchInterface LDSWs[6];
-for(int i = 0; i < 6; i++) {
-    LDSWs[i] = LoadSwitchInterface(LDSWs_params[i]);
+void initLoadSwitches() {
+    for (int i = 0; i < 6; i++) {
+        LDSWs[i] = LoadSwitchInterface(LDSWs_params[i]);
+        LDSWs[i].init();
+    }
 }
 
 void LoadSwitchInterface::init()

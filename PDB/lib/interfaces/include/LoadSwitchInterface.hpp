@@ -40,11 +40,8 @@ namespace loadswitch_default_params
  * @param startup_ignore_fault_ms is the amount of time we ignore FLT after enable (turn-on delay + dVdT ramp)
 */
 struct LoadSwitchParams_s {
-    GPIO_TypeDef* fault_port;
     uint32_t fault_pin;
-    GPIO_TypeDef* enable_port;
     uint32_t enable_pin;
-    GPIO_TypeDef* imon_port;
     uint32_t imon_pin;
     uint32_t imon_resistor_ohms;
     uint32_t ilim_resistor_ohms;
@@ -129,5 +126,6 @@ private:
     uint32_t _current_limit_mA;
     uint32_t _enable_time_ms = 0;
 };
+extern LoadSwitchInterface LDSWs[6];
 
 #endif // LDSW_INTERFACE_H

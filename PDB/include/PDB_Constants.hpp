@@ -33,4 +33,13 @@ namespace ACUConstants
     const uint32_t EM_CAN_BAUDRATE = 500000;
 }
 
+namespace PDBConstants
+{
+    const uint32_t FAULT_HANDLING_PRIORITY = 2;
+    const uint32_t FAULT_HANDLING_TELEMETRY_US = 500;
+    
+    const uint32_t TELEMETRY_PRIORITY = 1;
+    const uint32_t TELEMETRY_PERIOD_US = 1000;
+}
+
 #endif

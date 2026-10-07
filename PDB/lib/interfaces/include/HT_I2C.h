@@ -10,7 +10,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern "C" {
 #endif
 
-void HT_I2C_Init(void);
+int HT_I2C_Init(void);
 // void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle);
 // void HAL_I2C_Mspnit(I2C_HandleTypeDef* i2cHandle);
 
