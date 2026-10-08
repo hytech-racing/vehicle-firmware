@@ -24,7 +24,6 @@
 #include "MainChargeSystem.h"
 #include "ChargerStateMachine.h"
 
-
 /**
  * @brief Creates an instance of all interfaces. Init functions are called if necessary.
  */

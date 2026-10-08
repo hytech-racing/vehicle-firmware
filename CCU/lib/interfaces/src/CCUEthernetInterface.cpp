@@ -35,14 +35,20 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg() {
     out.max_cell_temp = latest_acu_data.max_cell_temp;
     out.avg_cell_temp = latest_acu_data.max_cell_temp;
     out.max_board_temp = latest_acu_data.max_board_temp;
+    
+    out.cell_voltages_count = _ccu_params.num_cells;
     std::transform(latest_acu_data.cell_voltages.begin(),
                 latest_acu_data.cell_voltages.end(),
                 out.cell_voltages,
                 [](const etl::optional<float> &v) { return v.value_or(0.0f); });
+
+    out.cell_temperatures_count = _ccu_params.num_celltemps;
     std::transform(latest_acu_data.cell_temps.begin(),
                latest_acu_data.cell_temps.end(),
                out.cell_temperatures,
                [](const etl::optional<float> &v) { return v.value_or(0.0f); });
+
+    out.board_temperatures_count = _ccu_params.num_chips;
     std::transform(latest_acu_data.board_temps.begin(),
                latest_acu_data.board_temps.end(),
                out.board_temperatures,
