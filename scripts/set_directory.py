@@ -1,6 +1,6 @@
 # This script runs before a build starts. It points PROJECT_SRC_DIR / TEST_DIR /
 # INCLUDE_DIR / LIBSOURCE_DIRS at the right subsystem folder (ACU, CCU, VCF, VCR,
-# Dashboard) instead of PlatformIO's defaults (./src, ./test, ./include, ./lib).
+# RDC, Dashboard) instead of PlatformIO's defaults (./src, ./test, ./include, ./lib).
 # This is because this repo doesn't have a separate ini file per board and each
 # board has a ./src, ./test, ./include, and ./lib.
 #

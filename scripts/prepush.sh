@@ -18,6 +18,7 @@ get_prod_env() {
         ccu)  echo "ccu-prod" ;;
         vcf)  echo "vcf-prod" ;;
         vcr)  echo "vcr-prod" ;;
+        rdc)  echo "rdc-prod" ;;
         dash) echo "dash-dfu-prod" ;;
     esac
 }
@@ -50,7 +51,7 @@ get_test_filters() {
 }
 
 # ${@:-default}: use script arguments if given, otherwise run every subsystem.
-SUBSYSTEMS=${@:-"acu ccu vcf vcr dash"}
+SUBSYSTEMS=${@:-"acu ccu vcf vcr rdc dash"}
 
 FAILED=()
 
