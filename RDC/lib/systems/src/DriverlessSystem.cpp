@@ -27,7 +27,7 @@ bool DriverlessSystem::startupCheckNoTS()
         return false;
     }
 
-    if (_watchdog_been_ok && (_startup_check_start_time_millis - _getCurrentMillisDelegate() > RDCConstants::STARTUP_WATCHDOG_CHECK_DELAY_MS))
+    if (_watchdog_been_ok && (_getCurrentMillisDelegate() - _startup_check_start_time_millis > RDCConstants::STARTUP_WATCHDOG_CHECK_DELAY_MS))
     {
         _commandFDCDelegate(true, 0);
         _no_ts_startup_ok = true;
@@ -41,38 +41,49 @@ bool DriverlessSystem::startupCheckNoTS()
 
 bool DriverlessSystem::startupCheckTSActive()
 {
-    // CAN message is activate the individual solenoids + some other stuff idk yet
-    // Command stop actuating the first solenoid
-    EBSData_s ebs_data = _getEbsDataDelegate();
-    BrakeFluidPressureData_s brake_data = _getCurrentBrakeDataDelegate();
-
-    bool ebs_line_1_ok = false;
-    bool ebs_line_2_ok = false;
-
-    if ((_getCurrentMillisDelegate() - _solenoid_1_start_time <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS) && !ebs_line_2_ok)
+    // Each solenoid gets its own window, starting when that phase starts.
+    // The no-TS watchdog delay runs first, so the window cannot be anchored at boot.
+    // Solenoid 1 is commanded alone until both axles build pressure. Solenoid 2 is checked on a later call.
+    if (_ebs_line_1_ok)
     {
-        _commandFDCDelegate(true, 1);
-        if (brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI &&
-            brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI)
-        {
-            ebs_line_2_ok = true;
-        }
+        return true;
     }
-    if (ebs_line_2_ok)
+
+    const unsigned long now = _getCurrentMillisDelegate();
+    const BrakeFluidPressureData_s brake_data = _getCurrentBrakeDataDelegate();
+    const bool brakes_pressurized =
+        brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI && brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
+
+    if (!_ebs_line_2_ok)
     {
-        if ((_getCurrentMillisDelegate() - _solenoid_2_start_time <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS) && !ebs_line_1_ok)
+        if (!_solenoid_1_timing)
         {
-            _commandFDCDelegate(true, 2);
-            if (brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI &&
-                brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI)
+            _solenoid_1_start_time = now;
+            _solenoid_1_timing = true;
+        }
+
+        if ((now - _solenoid_1_start_time) <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS)
+        {
+            _commandFDCDelegate(true, 1);
+            if (brakes_pressurized)
             {
-                ebs_line_1_ok = true;
-                _solenoid_1_start_time = 0;
-                _solenoid_2_start_time = 0;
-                return true;
+                _ebs_line_2_ok = true;
+                _solenoid_2_start_time = now;
             }
         }
+        return false;
     }
+
+    if ((now - _solenoid_2_start_time) <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS)
+    {
+        _commandFDCDelegate(true, 2);
+        if (brakes_pressurized)
+        {
+            _ebs_line_1_ok = true;
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -87,4 +98,7 @@ void DriverlessSystem::resetTSActiveValues()
 {
     _solenoid_1_start_time = 0;
     _solenoid_2_start_time = 0;
+    _solenoid_1_timing = false;
+    _ebs_line_1_ok = false;
+    _ebs_line_2_ok = false;
 }

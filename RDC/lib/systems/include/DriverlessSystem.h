@@ -33,7 +33,7 @@ class DriverlessSystem
     void resetTSActiveValues();
 
     private:
-    etl::delegate<void(bool, int)> _commandFDCDelegate; // continue toggle watchdog, solenoid control
+    etl::delegate<void(bool, uint8_t)> _commandFDCDelegate; // continue toggle watchdog, solenoid control
     etl::delegate<DriverlessMission_e()> _getDriverlessMissionDelegate;
     etl::delegate<EBSData_s()> _getEbsDataDelegate;
     etl::delegate<bool()> _getWatchdogStatusDelegate;
@@ -47,6 +47,10 @@ class DriverlessSystem
 
     unsigned long _solenoid_1_start_time = 0;
     unsigned long _solenoid_2_start_time = 0;
+    bool _solenoid_1_timing = false;
+    // Solenoid 1 validates line 2, then solenoid 2 validates line 1. Flags persist across ticks.
+    bool _ebs_line_1_ok = false;
+    bool _ebs_line_2_ok = false;
 };
 
 using DriverlessSystemInstance = etl::singleton<DriverlessSystem>;
