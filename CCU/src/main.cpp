@@ -30,6 +30,7 @@ HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debug_prints, CCUConsta
 
 void setup()
 {
+    Serial.begin(CCUInterfaces::SERIAL_BAUDRATE);
     SPI.begin();
     SPI.beginTransaction(SPISettings(CCUInterfaces::DISPLAY_BAUDRATE, MSBFIRST, SPI_MODE0)); //NOLINT (spi settings)
 
