@@ -5,23 +5,17 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "ADCInterface.h"
-#include "Level2Interface.h"
+#include "ACUInterface.hpp"
+#include "ADCInterface.hpp"
+#include "Level2Interface.hpp"
 #include "SystemTimeInterface.h"
-#include "WatchdogInterface.h"
+#include "WatchdogInterface.hpp"
 
 /* Local System Includes */
-#include "ChargerStateMachine.h"
-#include "Level2System.h"
-
-#ifdef TEENSY_OPT_SMALLEST_CODE
+#include "ChargerStateMachine.hpp"
+#include "Level2System.hpp"
 #include <Arduino.h>
-#endif
 
-#ifdef TESTING_SYSTEMS
-#include "mockArduino.h"
-#endif
 
 enum BalancingState_e
 {

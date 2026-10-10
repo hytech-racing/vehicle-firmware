@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "ButtonInterface.h"
+#include "ButtonInterface.hpp"
 
 using pin = uint8_t;
 
@@ -29,7 +29,7 @@ struct ADCPinout_s
     /**
      * NOTE: All SHDN pins are currently digital pins. However, if there is an issue where shdn voltage is fluctuating,
      *       make a transition to reading shdn C as an analog pin
-     */
+    */
     pin teensy_shdn_A_pin;
     pin teensy_shdn_B_pin;
     pin teensy_shdn_C_pin;
@@ -111,103 +111,103 @@ public:
     /**
      * @pre constructor called and instance created
      * @post Pins on Teensy configured and written as IN/OUT
-     */
+    */
     void init(uint32_t init_millis);
 
     /**
      * @return true if shdn A HIGH, else false
-     */
-    bool read_shdn_A_voltage();
+    */
+    bool isShutdownAHigh();
 
     /**
      * @return true if shdn B HIGH, else false
-     */
-    bool read_shdn_B_voltage();
+    */
+    bool isShutdownBHigh();
 
     /**
      * @return true if shdn C HIGH, else false
-     */
-    bool read_shdn_C_voltage();
+    */
+    bool isShutdownCHigh();
 
     /**
      * @return true if shdn D HIGH, else false
-     */
-    bool read_shdn_D_voltage();
+    */
+    bool isShutdownDHigh();
 
     /**
      * @return true if shdn E HIGH, else false
-     */
-    bool read_shdn_E_voltage();
+    */
+    bool isShutdownEHigh();
 
     /**
      * @return true if shdn  HIGH, else false
-     */
-    bool read_shdn_F_voltage();
+    */
+    bool isShutdownFHigh();
 
     /**
      * @return true if shdn G HIGH, else false
-     */
-    bool read_shdn_G_voltage();
+    */
+    bool isShutdownGHigh();
 
     /**
      * @return voltage value of GLV, nominal 24V
-     */
-    volt read_global_lv_value();
+    */
+    volt readGLV();
 
     /**
      * @return voltage value of Control Pilot
-     */
-    volt read_control_pilot();
+    */
+    volt readControlPilot();
 
     /**
      * @return true if Control Pilot voltage below threshold, else false
-     */
-    bool is_control_pilot_low();
+    */
+    bool isControlPilotLow();
 
     /**
      * @return voltage value of Proximity Pilot
-     */
-    volt read_proximity_pilot();
+    */
+    volt readProximityPilot();
 
     /**
      * @return true if Proximity Pilot voltage above threshold, else false
-     */
-    bool is_proximity_pilot_high();
+    */
+    bool isProximityHigh();
 
     /**
      * @return true if 240_Enabled HIGH, else false
-     */
-    bool read_240_enabled();
+    */
+    bool read240Enabled();
 
     /**
      * @return true if 240_Ok HIGH, else false
-     */
-    bool read_240_ok();
+    */
+    bool read240OK();
 
     /**
      * @return voltage value of JP_OUT_READ
-     */
-    volt read_jumper_out();
+    */
+    volt readJumperOut();
 
     /**
      * @return true if JP_OUT_READ HIGH, else false
-     */
-    bool is_jumper_out_high();
+    */
+    bool isJumperOutHigh();
 
     /**
      * @return true if JP_OUT_READ LOW, else false
-     */
-    bool is_jumper_out_low();
+    */
+    bool isJumperOutLow();
 
     /**
      * @return true if reset button pressed, else false
-     */
-    bool is_reset_errors_button_pressed(unsigned long current_millis);
+    */
+    bool isResetErrorsButtonPressed(unsigned long current_millis);
 
     /**
      * @return ADC parameters
-     */
-    const ADCInterfaceParams_s& get_adc_params() const;
+    */
+    const ADCInterfaceParams_s& getADCParams() const;
 
 private:
 
@@ -216,7 +216,7 @@ private:
 
     /**
      * @brief timestamp captured in init()
-     */
+    */
     uint32_t _init_millis = 0;
 };
 
