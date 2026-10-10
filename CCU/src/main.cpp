@@ -50,7 +50,7 @@ void setup()
     scheduler.schedule(receive_ethernet);
     scheduler.schedule(send_ethernet);
     scheduler.schedule(read_encoder_task);
-    scheduler.schedule(debug_print_task);
+    // scheduler.schedule(debug_print_task);
     scheduler.schedule(update_display_task);
 }
 

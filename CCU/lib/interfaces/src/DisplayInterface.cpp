@@ -30,7 +30,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
             _display.println(ACUInterfaceInstance::instance().getLatestData().average_voltage, 3);
             _display.print("Cell Voltage delta: ");
             _display.println((ACUInterfaceInstance::instance().getLatestData().high_voltage - ACUInterfaceInstance::instance().getLatestData().low_voltage), 3);
-            _display.print("Total pack Volts: ");
+            _display.print("Total Pack Volts: ");
             _display.println(ACUInterfaceInstance::instance().getLatestData().pack_voltage, 3);
             _display.print("Max Board Temp (C): ");
             _display.println(ACUInterfaceInstance::instance().getLatestData().max_board_temp, 3);
