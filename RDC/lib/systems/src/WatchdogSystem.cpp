@@ -1,4 +1,4 @@
-#include "WatchdogSystem.h"
+#include "WatchdogSystem.hpp"
 #include "SharedFirmwareTypes.h"
 
 /* Returns intended watchdog state */

@@ -1,5 +1,5 @@
-#include "DriverlessSystem.h"
-#include "RDC_Constants.h"
+#include "DriverlessSystem.hpp"
+#include "RDC_Constants.hpp"
 #include "SharedFirmwareTypes.h"
 
 bool DriverlessSystem::startupCheckNoTS()

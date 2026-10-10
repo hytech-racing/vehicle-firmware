@@ -1,22 +1,22 @@
 #ifndef RDC_INTERFACETASKS_H
 #define RDC_INTERFACETASKS_H
 
-#include "RDC_Constants.h"
+#include "RDC_Constants.hpp"
 
 /* External Includes */
 #include "ht_sched.hpp"
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
-#include "CoreRDCCANInterface.h"
-#include "RSSInterface.h"
+#include "ADCInterface.hpp"
+#include "CoreRDCCANInterface.hpp"
+#include "RSSInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "ht_task.hpp"
 
 /* System Includes */
-#include "DriverlessStateMachine.h"
-#include "DriverlessSystem.h"
-#include "WatchdogSystem.h"
+#include "DriverlessStateMachine.hpp"
+#include "DriverlessSystem.hpp"
+#include "WatchdogSystem.hpp"
 
 void initializeAllInterfaces();
 void initializeDriverless();

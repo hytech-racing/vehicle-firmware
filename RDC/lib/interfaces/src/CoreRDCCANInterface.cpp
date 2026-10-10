@@ -1,4 +1,4 @@
-#include "CoreRDCCANInterface.h"
+#include "CoreRDCCANInterface.hpp"
 #include "FlexCAN_T4.h"
 #include "SystemTimeInterface.h"
 #include "ht_can.h"

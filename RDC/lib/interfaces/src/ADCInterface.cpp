@@ -1,4 +1,4 @@
-#include "ADCInterface.h"
+#include "ADCInterface.hpp"
 
 bool ADCInterface::getEBSCtrlExt() const
 {

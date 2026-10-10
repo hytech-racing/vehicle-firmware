@@ -1,5 +1,5 @@
-#include "RSSInterface.h"
-#include "CoreRDCCANInterface.h"
+#include "RSSInterface.hpp"
+#include "CoreRDCCANInterface.hpp"
 
 void RSSInterface::receiveRSSBootCANmsg(const CAN_message_t &msg, unsigned long long millis)
 {

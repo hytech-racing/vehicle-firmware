@@ -12,9 +12,9 @@
 #include <ht_can.h>
 
 /* Local Interface Includes */
-#include "DrivebrainInterface.h"
-#include "FDCInterface.h"
-#include "RSSInterface.h"
+#include "DrivebrainInterface.hpp"
+#include "FDCInterface.hpp"
+#include "RSSInterface.hpp"
 
 /* Globally accessible types */
 using CANTXBuffer_t = Circular_Buffer<uint8_t, (uint32_t)128, sizeof(CAN_message_t)>;

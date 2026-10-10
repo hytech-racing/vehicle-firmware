@@ -2,7 +2,7 @@
 #define FDC_INTERFACE_H
 
 /* ETL Library */
-#include "RDC_Constants.h"
+#include "RDC_Constants.hpp"
 #include <FlexCAN_T4.h>
 #include <etl/singleton.h>
 

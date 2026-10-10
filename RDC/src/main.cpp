@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include "RDC_Constants.h"
-#include "RDC_Tasks.h"
+#include "RDC_Constants.hpp"
+#include "RDC_Tasks.hpp"
 #include "SharedFirmwareTypes.h"
 
 /* Scheduler Setup */

@@ -1,4 +1,4 @@
-#include "CoreRDCCANInterface.h"
+#include "CoreRDCCANInterface.hpp"
 #include "ht_can.h"
 
 void FDCInterface::receiveEbsPressure(const CAN_message_t &msg, unsigned long curr_millis)

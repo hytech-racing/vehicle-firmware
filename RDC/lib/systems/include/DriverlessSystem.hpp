@@ -5,7 +5,7 @@
 #include <etl/delegate.h>
 #include <etl/singleton.h>
 
-#include "RDC_Constants.h"
+#include "RDC_Constants.hpp"
 
 class DriverlessSystem
 {
