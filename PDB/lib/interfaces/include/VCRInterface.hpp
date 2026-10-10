@@ -9,7 +9,7 @@
 #include "ht_can.h"
 
 /* Local Interface Includes */
-#include "CANInterface.h"
+#include "STM32_CANInterface.hpp"
 
 
 class VCRInterface
