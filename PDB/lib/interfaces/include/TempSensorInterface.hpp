@@ -6,29 +6,29 @@
 #include <stm32h7xx_hal.h>
 #include <stm32h750xx.h>
 #include <etl/singleton.h>
-#include "HT_I2C.h"
-#include "hytech.h"
+#include "ht_can.h"
 
+using degreeC = float;
 
 namespace temp_sensor_default_params
 {
     constexpr uint8_t NUM_SENSORS = 8;
     constexpr uint8_t MIN_ADDR = 0x48;                      // 7-bit 1001 000: A2 A1 A0 = 000
     constexpr uint8_t MAX_ADDR = 0x4F;                      // 7-bit 1001 111: A2 A1 A0 = 111
-    constexpr float HYSTERESIS_SETPOINT = 75.0f;
-    constexpr float OVERTEMP_SHUTDOWN_SETPOINT = 80.0f;
-    constexpr float TEMP_MIN_C = -55.0f;                    // guaranteed measurement range (datasheet p. 11)
-    constexpr float TEMP_MAX_C = 125.0f;
+    constexpr degreeC HYSTERESIS_SETPOINT = 75.0f;
+    constexpr degreeC OVERTEMP_SHUTDOWN_SETPOINT = 80.0f;
+    constexpr degreeC TEMP_MIN = -55.0f;                    // guaranteed measurement range (datasheet p. 11)
+    constexpr degreeC TEMP_MAX = 125.0f;
     constexpr uint32_t MIN_READ_INTERVAL_MS = 100;          // conversion ~60 ms; any bus access restarts it
-    constexpr uint32_t I2C_TIMEOUT_MS       = 10;
-    constexpr uint8_t  MAX_CONSEC_ERRORS    = 3;            // failed transactions before a sensor is offline
-    constexpr uint8_t  CONFIG_NORMAL = 0x00;                // continuous conversion (chip power-on default)
+    constexpr uint32_t I2C_TIMEOUT_MS = 10;
+    constexpr uint8_t MAX_CONSEC_ERRORS = 3;                // failed transactions before a sensor is offline
+    constexpr uint8_t CONFIG_NORMAL = 0x00;                 // continuous conversion (chip power-on default)
     constexpr uint8_t POINTER_UNKNOWN = 0xFF;
 
     static_assert(NUM_SENSORS <= (MAX_ADDR - MIN_ADDR + 1), "ADT75 has only 8 addresses per bus");
     static_assert(HYSTERESIS_SETPOINT <= OVERTEMP_SHUTDOWN_SETPOINT,
                   "Hysteresis setpoint must not be above the overtemp setpoint");
-    static_assert(HYSTERESIS_SETPOINT >= TEMP_MIN_C && OVERTEMP_SHUTDOWN_SETPOINT <= TEMP_MAX_C,
+    static_assert(HYSTERESIS_SETPOINT >= TEMP_MIN && OVERTEMP_SHUTDOWN_SETPOINT <= TEMP_MAX,
                   "Setpoints must be within the guaranteed -55..125 C range");
 }
 
@@ -91,6 +91,23 @@ struct TempSensorStatus_s
     uint8_t consecutive_errors; ///< Failed transactions since the last success
 };
 
+/**
+ * @brief Represents one sensor
+ * @param hal_address is the 7-bit I2C address shifted left by 1, as the HAL expects (e.g. 0x48 -> 0x90)
+ * @param address_pointer is a copy of the sensor's address pointer register
+ * @param last_bus_tick is the HAL_GetTick() value of the last transaction with this sensor, successful or not.
+ * @param data is the most recent measurement, see TempSensorData_s
+ * @param status is the health flags and error counters, see TempSensorStatus_s
+*/
+struct TempSensor_s
+{
+    uint16_t hal_address;
+    uint8_t address_pointer;
+    uint32_t last_bus_tick;
+    TempSensorData_s data;
+    TempSensorStatus_s status;
+};
+
 class TempSensorInterface
 {
 public:
@@ -111,7 +128,7 @@ public:
         }
     }
 
-    TempSensorInterface(const TempSensorInterface &)            = delete;
+    TempSensorInterface(const TempSensorInterface &) = delete;
     TempSensorInterface &operator=(const TempSensorInterface &) = delete;
 
     /**
@@ -138,12 +155,12 @@ public:
      * @brief Method loops through and reads all 8 sensors temp register
      * @return HAL_OK if all sensors can be read, HAL_ERROR if any fails
     */
-    HAL_StatusTypeDef readAllSensorsTemp();
+    HAL_StatusTypeDef readAllTempSensors();
 
 
     /// HAL_OK = new reading stored. HAL_BUSY = no new reading this call (too soon,
     /// or sensor was just (re)initialized); not an error. HAL_ERROR = bus failure.
-    HAL_StatusTypeDef readSensorTemp(uint8_t index);
+    HAL_StatusTypeDef readTempSensor(uint8_t index);
 
     // Accessors. Pointer getters return nullptr for an invalid index.
     const TempSensorData_s *getData(uint8_t index) const;
@@ -164,23 +181,6 @@ public:
 
 private:
 
-    /**
-     * @brief Represents one sensor
-     * @param hal_address is the 7-bit I2C address shifted left by 1, as the HAL expects (e.g. 0x48 -> 0x90)
-     * @param address_pointer is a copy of the sensor's address pointer register
-     * @param last_bus_tick is the HAL_GetTick() value of the last transaction with this sensor, successful or not.
-     * @param data is the most recent measurement, see TempSensorData_s
-     * @param status is the health flags and error counters, see TempSensorStatus_s
-    */
-    struct TempSensor_s
-    {
-        uint16_t hal_address;
-        uint8_t address_pointer;
-        uint32_t last_bus_tick;
-        TempSensorData_s data;
-        TempSensorStatus_s status;
-    };
-
     I2C_HandleTypeDef *_hi2c;
     TempSensor_s _all_temp_sensors[temp_sensor_default_params::NUM_SENSORS];
 
@@ -196,12 +196,12 @@ private:
      * @return HAL_OK if the pointer is set (or already was), otherwise the failed HAL status.
      *         On failure the sensors pointer is set to temp_sensor_default_params::POINTER_UNKNOWN so the next call resends it.
      */
-    HAL_StatusTypeDef setAddressPointerRegister(TempSensor_s &sensor, uint8_t desired_register);
+    HAL_StatusTypeDef _setAddressPointerRegister(TempSensor_s &sensor, uint8_t desired_register);
 
     /**
      *
     */
-    HAL_StatusTypeDef readRegister(TempSensor_s &sensor, uint8_t desired_register, uint8_t *buffer, uint16_t length);
+    HAL_StatusTypeDef _readRegister(TempSensor_s &sensor, uint8_t desired_register, uint8_t *buffer, uint16_t length);
 
     /**
      * @brief Writes data to one of the sensor's registers
@@ -212,7 +212,7 @@ private:
      * @param length 1 for CONFIG (8-bit), 2 for T_HYST/T_OS (16-bit)
      * @return HAL status of the write, also recorded by _updateSensorStatus()
     */
-    HAL_StatusTypeDef writeRegister(TempSensor_s &sensor, uint8_t desired_register, uint8_t *buffer, uint16_t length);
+    HAL_StatusTypeDef _writeRegister(TempSensor_s &sensor, uint8_t desired_register, uint8_t *buffer, uint16_t length);
 
     /**
      * @brief Records the result of one HAL I2C call for a sensor and updates its status
@@ -225,7 +225,7 @@ private:
     /**
      * @brief Check if we have an overtemp based on the overtemp shutdown setpoint
     */
-    void updateOvertemp(TempSensor_s &sensor);
+    void _updateOvertemp(TempSensor_s &sensor);
 };
 
 using TempSensorInterfaceInstance = etl::singleton<TempSensorInterface>;

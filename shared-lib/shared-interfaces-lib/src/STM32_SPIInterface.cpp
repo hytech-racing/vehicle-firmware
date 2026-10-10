@@ -267,19 +267,19 @@ void SPIInterface::mspInit()
             HAL_DMA_Init(&_hdma_tx);
             __HAL_LINKDMA(&_hspi, hdmatx, _hdma_tx);
         }
-        if (_cfg.dmaRxStream) {
-            _hdmaRx.Instance                 = _cfg.dmaRxStream;
-            _hdmaRx.Init.Request             = _cfg.dmaRxRequest;
-            _hdmaRx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-            _hdmaRx.Init.PeriphInc           = DMA_PINC_DISABLE;
-            _hdmaRx.Init.MemInc              = DMA_MINC_ENABLE;
-            _hdmaRx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-            _hdmaRx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-            _hdmaRx.Init.Mode                = DMA_NORMAL;
-            _hdmaRx.Init.Priority            = DMA_PRIORITY_LOW;
-            _hdmaRx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-            HAL_DMA_Init(&_hdmaRx);
-            __HAL_LINKDMA(&_hspi, hdmarx, _hdmaRx);
+        if (_config.dma_rx_stream) {
+            _hdma_rx.Instance                 = _config.dma_rx_stream;
+            _hdma_rx.Init.Request             = _config.dma_rx_request;
+            _hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+            _hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+            _hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+            _hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+            _hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+            _hdma_rx.Init.Mode                = DMA_NORMAL;
+            _hdma_rx.Init.Priority            = DMA_PRIORITY_LOW;
+            _hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+            HAL_DMA_Init(&_hdma_rx);
+            __HAL_LINKDMA(&_hspi, hdmarx, _hdma_rx);
         }
     }
 }

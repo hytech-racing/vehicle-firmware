@@ -1,113 +1,81 @@
 /**
  * @brief Pin definitions for the Power Distribution Board (PDB), Rev 1.
- * @note These map each signal name to its GPIO port + pin, as assigned in STM32CubeMX.
- *       Names match the schematic net names.
- * @note For future reference, this file can be copied from Core/main.h from CubeMX code generation
+ * @note Each schematic net name maps to its Arduino pin (PB14, PC11, ...), as assigned in STM32CubeMX
+ * @note After changing pins in CubeMX, update this file from Core/Inc/main.h: GPIOx + GPIO_PIN_n -> Pxn.
 */
 
 #ifndef PDB_PINS_H
 #define PDB_PINS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <cstdint>
+#include <Arduino.h>
 
-#include "stm32h7xx_hal.h"
 
-/* --- Load switch fault inputs (active-low, open-drain from switch) --------- */
-#define FLT_CAMERAS_MCU_Pin        GPIO_PIN_4
-#define FLT_CAMERAS_MCU_GPIO_Port  GPIOE
-#define FLT_ORIN_MCU_Pin           GPIO_PIN_6
-#define FLT_ORIN_MCU_GPIO_Port     GPIOE
-#define FLT_INV_COOL_MCU_Pin       GPIO_PIN_8
-#define FLT_INV_COOL_MCU_GPIO_Port GPIOE
-#define FLT_MOTOR_COOL_MCU_Pin     GPIO_PIN_10
-#define FLT_MOTOR_COOL_MCU_GPIO_Port GPIOE
-#define FLT_LIDAR_MCU_Pin          GPIO_PIN_12
-#define FLT_LIDAR_MCU_GPIO_Port    GPIOE
-#define FLT_DTI_MCU_Pin            GPIO_PIN_14
-#define FLT_DTI_MCU_GPIO_Port      GPIOE
+namespace PDBPins
+{
+    /* --- Load switch fault inputs (active-low, open-drain from switch) --------- */
+    constexpr uint32_t FLT_CAMERAS_MCU      = PE4;
+    constexpr uint32_t FLT_ORIN_MCU         = PE6;
+    constexpr uint32_t FLT_INV_COOL_MCU     = PE8;
+    constexpr uint32_t FLT_MOTOR_COOL_MCU   = PE10;
+    constexpr uint32_t FLT_LIDAR_MCU        = PE12;
+    constexpr uint32_t FLT_DTI_MCU          = PE14;
 
-/* --- Load switch enable outputs -------------------------------------------- */
-#define EN_CAMERAS_MCU_Pin         GPIO_PIN_5
-#define EN_CAMERAS_MCU_GPIO_Port   GPIOE
-#define EN_ORIN_MCU_Pin            GPIO_PIN_7
-#define EN_ORIN_MCU_GPIO_Port      GPIOE
-#define EN_INV_COOL_MCU_Pin        GPIO_PIN_9
-#define EN_INV_COOL_MCU_GPIO_Port  GPIOE
-#define EN_MOTOR_COOL_MCU_Pin      GPIO_PIN_11
-#define EN_MOTOR_COOL_MCU_GPIO_Port GPIOE
-#define EN_LIDAR_MCU_Pin           GPIO_PIN_13
-#define EN_LIDAR_MCU_GPIO_Port     GPIOE
-#define EN_DTI_MCU_Pin             GPIO_PIN_15
-#define EN_DTI_MCU_GPIO_Port       GPIOE
-#define EN_12V_DTI_MCU_Pin         GPIO_PIN_11
-#define EN_12V_DTI_MCU_GPIO_Port   GPIOC
+    /* --- Load switch enable outputs -------------------------------------------- */
+    constexpr uint32_t EN_CAMERAS_MCU       = PE5;
+    constexpr uint32_t EN_ORIN_MCU          = PE7;
+    constexpr uint32_t EN_INV_COOL_MCU      = PE9;
+    constexpr uint32_t EN_MOTOR_COOL_MCU    = PE11;
+    constexpr uint32_t EN_LIDAR_MCU         = PE13;
+    constexpr uint32_t EN_DTI_MCU           = PE15;
 
-/* --- Other enable outputs -------------------------------------------------- */
-#define LIDAR_EN_MCU_Pin           GPIO_PIN_8
-#define LIDAR_EN_MCU_GPIO_Port     GPIOC
-#define DSMS_EN_MCU_Pin            GPIO_PIN_9
-#define DSMS_EN_MCU_GPIO_Port      GPIOC
-#define PDB_FAN_EN_MCU_Pin         GPIO_PIN_10
-#define PDB_FAN_EN_MCU_GPIO_Port   GPIOC
+    /* --- Buck enable outputs --------------------------------------------------- */
+    constexpr uint32_t EN_12V_DTI_MCU       = PC11;
+    constexpr uint32_t LIDAR_EN_MCU         = PC8;
 
-/* --- IMON current-monitor analog inputs (ADC1) ----------------------------- */
-#define IMON_LIDAR_MCU_Pin         GPIO_PIN_6
-#define IMON_LIDAR_MCU_GPIO_Port   GPIOA
-#define IMON_DTI_MCU_Pin           GPIO_PIN_7
-#define IMON_DTI_MCU_GPIO_Port     GPIOA
-#define IMON_INV_COOL_MCU_Pin      GPIO_PIN_4
-#define IMON_INV_COOL_MCU_GPIO_Port GPIOC
-#define IMON_MOTOR_COOL_MCU_Pin    GPIO_PIN_5
-#define IMON_MOTOR_COOL_MCU_GPIO_Port GPIOC
-#define IMON_CAMERAS_MCU_Pin       GPIO_PIN_0
-#define IMON_CAMERAS_MCU_GPIO_Port GPIOB
-#define IMON_ORIN_MCU_Pin          GPIO_PIN_1
-#define IMON_ORIN_MCU_GPIO_Port    GPIOB
+    /* --- Other enable outputs -------------------------------------------------- */
+    constexpr uint32_t DSMS_EN_MCU          = PC9;
+    constexpr uint32_t PDB_FAN_EN_MCU       = PC10;
 
-/* --- Power-good status inputs (from bucks) --------------------------------- */
-#define PG_18V_ORIN_MCU_Pin        GPIO_PIN_10
-#define PG_18V_ORIN_MCU_GPIO_Port  GPIOB
-#define PG_24V_MAIN_MCU_Pin        GPIO_PIN_11
-#define PG_24V_MAIN_MCU_GPIO_Port  GPIOB
-#define PG_12V_DTI_MCU_Pin         GPIO_PIN_12
-#define PG_12V_DTI_MCU_GPIO_Port   GPIOB
-#define PG_12V_MAIN_MCU_Pin        GPIO_PIN_13
-#define PG_12V_MAIN_MCU_GPIO_Port  GPIOB
-#define PG_5V_MAIN_MCU_Pin         GPIO_PIN_14
-#define PG_5V_MAIN_MCU_GPIO_Port   GPIOB
-#define PG_3V3_MAIN_MCU_Pin        GPIO_PIN_15
-#define PG_3V3_MAIN_MCU_GPIO_Port  GPIOB
+    /* --- IMON current-monitor analog inputs (ADC1) ----------------------------- */
+    constexpr uint32_t IMON_LIDAR_MCU       = PA6;
+    constexpr uint32_t IMON_DTI_MCU         = PA7;
+    constexpr uint32_t IMON_INV_COOL_MCU    = PC4;
+    constexpr uint32_t IMON_MOTOR_COOL_MCU  = PC5;
+    constexpr uint32_t IMON_CAMERAS_MCU     = PB0;
+    constexpr uint32_t IMON_ORIN_MCU        = PB1;
 
-/* --- Temperature sensor alert inputs (I2C temp sensors) -------------------- */
-#define TEMP_48_ALERT_Pin          GPIO_PIN_3
-#define TEMP_48_ALERT_GPIO_Port    GPIOD
-#define TEMP_49_ALERT_Pin          GPIO_PIN_4
-#define TEMP_49_ALERT_GPIO_Port    GPIOD
-#define TEMP_4A_ALERT_Pin          GPIO_PIN_5
-#define TEMP_4A_ALERT_GPIO_Port    GPIOD
-#define TEMP_4B_ALERT_Pin          GPIO_PIN_6
-#define TEMP_4B_ALERT_GPIO_Port    GPIOD
-#define TEMP_4C_ALERT_Pin          GPIO_PIN_7
-#define TEMP_4C_ALERT_GPIO_Port    GPIOD
-#define TEMP_4D_ALERT_Pin          GPIO_PIN_8
-#define TEMP_4D_ALERT_GPIO_Port    GPIOD
-#define TEMP_4E_ALERT_Pin          GPIO_PIN_9
-#define TEMP_4E_ALERT_GPIO_Port    GPIOD
-#define TEMP_4F_ALERT_Pin          GPIO_PIN_10
-#define TEMP_4F_ALERT_GPIO_Port    GPIOD
+    /* --- Power-good status inputs (from bucks / hotswap) ----------------------- */
+    constexpr uint32_t PG_18V_ORIN_MCU      = PB10;
+    constexpr uint32_t PG_24V_MAIN_MCU      = PB11;     // Hotswap PGD
+    constexpr uint32_t PG_12V_DTI_MCU       = PB12;
+    constexpr uint32_t PG_12V_MAIN_MCU      = PB13;
+    constexpr uint32_t PG_5V_MAIN_MCU       = PB14;
+    constexpr uint32_t PG_3V3_MAIN_MCU      = PB15;
 
-/* --- Miscellaneous --------------------------------------------------------- */
-#define MCU_ID_Pin                 GPIO_PIN_0
-#define MCU_ID_GPIO_Port           GPIOC
-#define SHDN_LATCH_MCU_Pin         GPIO_PIN_0
-#define SHDN_LATCH_MCU_GPIO_Port   GPIOA
-#define EEPROM_WC_N_MCU_Pin        GPIO_PIN_4   /* EEPROM write-control, active-low */
-#define EEPROM_WC_N_MCU_GPIO_Port  GPIOB
+    /* --- Temperature sensor alert inputs (I2C temp sensors) -------------------- */
+    constexpr uint32_t TEMP_48_ALERT        = PD3;
+    constexpr uint32_t TEMP_49_ALERT        = PD4;
+    constexpr uint32_t TEMP_4A_ALERT        = PD5;
+    constexpr uint32_t TEMP_4B_ALERT        = PD6;
+    constexpr uint32_t TEMP_4C_ALERT        = PD7;
+    constexpr uint32_t TEMP_4D_ALERT        = PD8;
+    constexpr uint32_t TEMP_4E_ALERT        = PD9;
+    constexpr uint32_t TEMP_4F_ALERT        = PD10;
 
-#ifdef __cplusplus
+    /* --- Hotswap --------------------------------------------------------------- */
+    constexpr uint32_t HOTSWAP_SMBA_MCU     = PB5;      // I2C1_SMBA, open-drain alert, active low
+
+    /* --- Buses (set up by the shared I2C / CAN drivers) ------------------------ */
+    constexpr uint32_t I2C1_SCL             = PB6;
+    constexpr uint32_t I2C1_SDA             = PB7;
+    constexpr uint32_t FDCAN1_RX            = PD0;
+    constexpr uint32_t FDCAN1_TX            = PD1;
+
+    /* --- Miscellaneous --------------------------------------------------------- */
+    constexpr uint32_t MCU_ID               = PC0;
+    constexpr uint32_t SHDN_LATCH_MCU       = PA0;
+    constexpr uint32_t EEPROM_WC_N_MCU      = PB4;      // EEPROM write-control, active-low
 }
-#endif
 
 #endif
