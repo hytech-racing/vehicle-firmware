@@ -97,6 +97,7 @@ void initialize_all_interfaces()
     );
 
     /* ---------- IO Expander Interface ---------- */
+    Wire.begin();
     IOExpanderInterfaceInstance::create(Wire,
                                         IOExpanderParams_s {
                                             VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
