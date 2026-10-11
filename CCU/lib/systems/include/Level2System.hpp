@@ -1,5 +1,5 @@
-#ifndef LEVEL2SYSTEM_H
-#define LEVEL2SYSTEM_H
+#ifndef LEVEL2SYSTEM
+#define LEVEL2SYSTEM
 /**
  * NOTE: This is the system file for 240V charging. It is called level 2 because that is what SAE defines it as.
  *       However you will see 240V naming convention used interchangably
@@ -14,9 +14,9 @@
 #include <cstdint>
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
-#include "Level2Interface.h"
-#include "WatchdogInterface.h"
+#include "ADCInterface.hpp"
+#include "Level2Interface.hpp"
+#include "WatchdogInterface.hpp"
 
 
 struct Level2SystemThresholds_s

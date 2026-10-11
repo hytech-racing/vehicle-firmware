@@ -55,17 +55,17 @@ public:
     void init();
 
     /**
-     * Function to determine pwm dutycycle
-     */
-    bool _is_pwm_duty_cycle_valid();
+     * @brief Method to determine pwm duty cycle, and perform checks
+     * @return True if PWM is within thresholds, false otherwise
+    */
+    bool _isPWMDutyCycleValid();
 
     /**
-     * Setter for START_CHARGE signal
-     */
-    void set_start_charge(bool state);
+     * @brief Setter for START_CHARGE signal
+    */
+    void setStartCharge(bool state);
 
-
-    Level2_Data_s get_level_2_data() const;
+    Level2_Data_s getLevel2Data() const;
 
 private:
 

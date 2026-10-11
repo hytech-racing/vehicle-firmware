@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "ButtonInterface.h"
+#include "ButtonInterface.hpp"
 
 using pin = uint8_t;
 
@@ -74,6 +74,7 @@ struct RotaryEncoderState_s
 class RotaryEncoderInterface
 {
 public:
+
     RotaryEncoderInterface(RotaryEncoderPinout_s pinout,
                         RotaryEncoderState_s state = RotaryEncoderState_s{}
     ) : _pinout(pinout),
@@ -83,24 +84,26 @@ public:
 
     void init();
 
-    // Call this from the main loop.
-    // Encoder movement is handled by interrupts.
-    // Button debounce/state is still handled here.
+    /**
+     * @note Call this from the main loop
+     *       Encoder movement is handled by interrupts
+     *       Button debounce/state is still handled here
+    */
     void tick(unsigned long current_millis);
 
-    float get_value() const;
+    float getValue() const;
 
-    void set_value(float value);
+    void setValue(float value);
 
-    void set_limits(float min_value, float max_value);
+    void setLimits(float min_value, float max_value);
 
-    void set_step(float step);
+    void setStep(float step);
 
-    bool switch_pressed();
+    bool isSwitchPressed();
 
-    bool switch_released();
+    bool isSwitchReleased();
 
-    bool switch_held();
+    bool isSwitchHeld();
 
 private:
 
@@ -112,17 +115,17 @@ private:
     // That is fine for your current use case.
     static RotaryEncoderInterface* _active_instance;
 
-    static void _isr_handler();
+    static void _ISRHandler();
 
-    uint8_t _read_encoded() const;
+    uint8_t _readEncoded() const;
 
-    void _update_encoder_from_isr();
+    void _updateEncoderFromISR();
 
-    void _apply_transition_delta_from_isr(int delta);
+    void _applyTransitionDeltaFromISR(int delta);
 
-    void _increment_from_isr();
+    void _incrementFromISR();
 
-    void _decrement_from_isr();
+    void _decrementFromISR();
 
     float _clamp(float value) const;
 
