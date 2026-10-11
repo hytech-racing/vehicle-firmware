@@ -20,7 +20,7 @@ void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData &msg_i
 
 void CCUEthernetInterface::sendCCUDataMsg(const hytech_msgs_CCUData &data) {
     handle_ethernet_socket_send_pb<hytech_msgs_CCUData_size>(EthernetIPDefsInstance::instance().drivebrain_ip,
-                                                                EthernetIPDefsInstance::instance().VCFData_port,
+                                                                EthernetIPDefsInstance::instance().CCUData_port,
                                                                 &_ccu_data_send_socket, data, hytech_msgs_CCUData_fields);
 }
 
@@ -35,7 +35,7 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg() {
     out.max_cell_temp = latest_acu_data.max_cell_temp;
     out.avg_cell_temp = latest_acu_data.max_cell_temp;
     out.max_board_temp = latest_acu_data.max_board_temp;
-    
+
     out.cell_voltages_count = _ccu_params.num_cells;
     std::transform(latest_acu_data.cell_voltages.begin(),
                 latest_acu_data.cell_voltages.end(),
