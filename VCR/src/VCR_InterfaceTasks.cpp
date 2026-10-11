@@ -397,54 +397,54 @@ namespace async_tasks
 
 HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    // Serial.println("time\t:\taccel\t:\tbrake");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.last_recv_millis);
-    // Serial.print("\t:\t");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.accel_percent);
-    // Serial.print("\t:\t");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.brake_percent);
-    // Serial.println();
-    // Serial.print("pedals heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
-    // Serial.println();
-    // Serial.print("steering heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
-    // Serial.println();
-    // Serial.print("Pedals Brake Is Active: "); Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
-    // Serial.println();
-    // Serial.print("Is Start Button Active: "); Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
-    // Serial.println();
+    Serial.println("time\t:\taccel\t:\tbrake");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.last_recv_millis);
+    Serial.print("\t:\t");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.accel_percent);
+    Serial.print("\t:\t");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.brake_percent);
+    Serial.println();
+    Serial.print("pedals heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
+    Serial.println();
+    Serial.print("steering heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
+    Serial.println();
+    Serial.print("Pedals Brake Is Active: "); Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
+    Serial.println();
+    Serial.print("Is Start Button Active: "); Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
+    Serial.println();
 
 
     // Serial.println();
     // Serial.println();
 
-    // Serial.print("Drivetrain system state: ");
-    // Serial.println(static_cast<int>(DrivetrainInstance::instance().get_state()));
-    // Serial.print("Diagnostic FL #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FL.diagnostic_number);
-    // Serial.print(" FR #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FR.diagnostic_number);
-    // Serial.print(" RL #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.RL.diagnostic_number);
-    // Serial.print(" RR #: ");
-    // Serial.println(DrivetrainInstance::instance().get_status().inverter_statuses.RR.diagnostic_number);
+    Serial.print("Drivetrain system state: ");
+    Serial.println(static_cast<int>(DrivetrainInstance::instance().get_state()));
+    Serial.print("Diagnostic FL #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FL.diagnostic_number);
+    Serial.print(" FR #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FR.diagnostic_number);
+    Serial.print(" RL #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.RL.diagnostic_number);
+    Serial.print(" RR #: ");
+    Serial.println(DrivetrainInstance::instance().get_status().inverter_statuses.RR.diagnostic_number);
 
-    // Serial.print("Vehicle state machine state: ");
-    // Serial.println(static_cast<int>(VehicleStateMachineInstance::instance().get_state()));
-    // Serial.println();
-    // Serial.print("launch controller state: ");
-    // Serial.println(static_cast<int>(VCRControlsInstance::instance().get_launch_controller().get_launch_state()));
+    Serial.print("Vehicle state machine state: ");
+    Serial.println(static_cast<int>(VehicleStateMachineInstance::instance().get_state()));
+    Serial.println();
+    Serial.print("launch controller state: ");
+    Serial.println(static_cast<int>(VCRControlsInstance::instance().get_launch_controller().get_launch_state()));
 
-    // Serial.print("Start button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.start_btn_is_pressed);
+    Serial.print("Start button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.start_btn_is_pressed);
 
-    // Serial.print("pedal recalibrate button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.preset_btn_is_pressed);
+    Serial.print("pedal recalibrate button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.preset_btn_is_pressed);
 
-    // Serial.print("mc reset button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.mc_reset_btn_is_pressed);
+    Serial.print("mc reset button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.mc_reset_btn_is_pressed);
 
     // Serial.print("torque mode cycle button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.mode_btn_is_pressed);
+    // Serial.println(vcr_data.interface_data.dash_input_state.);
 
     // Serial.println("IOExpander testing");
     // auto& s = vcr_data.interface_data.shutdown_sensing_data;
@@ -457,7 +457,7 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     // snprintf(buf, sizeof(buf),
     //     "%-10d %-14d %-13d %-10d %-8d %-6d",
-    //     s.bspd_is_ok, s.bspd_missing, s.bspd_fault,
+    //     s.bspd_is_ok, s.bs, s.bspd_fault,
     //     s.watchdog_is_ok, s.bms_is_ok, s.imd_is_ok
     // );
     // Serial.println(buf);

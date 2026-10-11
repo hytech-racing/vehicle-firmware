@@ -118,7 +118,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     out.firmware_version_info.project_on_main_or_master = device_status_t::project_on_main_or_master;
     std::copy(fw_version_hash.begin(), fw_version_hash.end(), out.firmware_version_info.git_hash);
     out.has_msg_versions = true;
-    out.msg_versions.ht_can_version = HT_CAN_LIB_VERSION;
+    out.msg_versions.ht_can_version = HT_CAN_VERSION;
 
     // working with bytes in nanopb
     std::string_view version_view(version);

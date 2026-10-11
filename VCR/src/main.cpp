@@ -58,31 +58,20 @@ void setup()
     // Schedule scheduler tasks
     scheduler.schedule(adc_0_sample_task);
     scheduler.schedule(adc_1_sample_task);
-
     scheduler.schedule(kick_watchdog_task);
-
     scheduler.schedule(ams_system_task); // ensure ACU connection
     scheduler.schedule(enqueue_suspension_CAN_task);
     scheduler.schedule(enqueue_dashboard_CAN_task);
-
     scheduler.schedule(send_CAN_task);
-
     scheduler.schedule(vcr_data_ethernet_send);
-
     scheduler.schedule(enqueue_inverter_CAN_task);
     scheduler.schedule(enqueue_coolant_temp_CAN_task);
     scheduler.schedule(async_main_task);
-
     scheduler.schedule(enqueue_controls_CAN_task);
-
-    // scheduler.schedule(debug_state_print_task);
-
+    scheduler.schedule(debug_state_print_task);
     scheduler.schedule(update_brakelight_task);
-
     // scheduler.schedule(update_sample_flowmeter);
-
     scheduler.schedule(IOExpander_read_task);
-
     scheduler.schedule(run_enable_motor_cooling);
     scheduler.schedule(run_enable_inverter_cooling);
 }
