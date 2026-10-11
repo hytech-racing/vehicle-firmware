@@ -41,6 +41,12 @@ etl::delegate<void(bool)> set_ef_pin_active = etl::delegate<void(bool)>::create(
 
 void initialize_all_systems()
 {
+    /* ---------- Drivetrain System ---------- */
+    DrivetrainInstance::create(inverter_functs, set_ef_pin_active);
+
+    /* ---------- Drivebrain Control System ---------- */
+    VCRControlsInstance::create(&DrivetrainInstance::instance(), VCRSystems::MAX_ALLOWED_DB_LATENCY_MS);
+
     /* Delegate Function Definitions */
     etl::delegate<bool()> hv_over_threshold =
         etl::delegate<bool()>::create<DrivetrainSystem, &DrivetrainSystem::hv_over_threshold>(DrivetrainInstance::instance());
@@ -112,11 +118,6 @@ void initialize_all_systems()
                                     reset_steering_heartbeat
     );
 
-    /* ---------- Drivebrain Control System ---------- */
-    VCRControlsInstance::create(&DrivetrainInstance::instance(), VCRSystems::MAX_ALLOWED_DB_LATENCY_MS);
-
-    /* ---------- Drivetrain System ---------- */
-    DrivetrainInstance::create(inverter_functs, set_ef_pin_active);
 }
 
 /**

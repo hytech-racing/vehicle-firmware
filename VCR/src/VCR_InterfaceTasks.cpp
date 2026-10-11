@@ -90,6 +90,10 @@ void initialize_all_interfaces()
     );
     ADCInterfaceInstance::instance().init();
 
+    /* ---------- Ethernet Interface ---------- */
+    VCREthernetInterfaceInstance::create();
+    VCREthernetInterfaceInstance::instance().init_ethernet_device();
+
     /* ---------- Drivebrain Interface ---------- */
     DrivebrainInterfaceInstance::create(EthernetIPDefsInstance::instance().drivebrain_ip,
                                         EthernetIPDefsInstance::instance().VCRData_port,
@@ -116,10 +120,6 @@ void initialize_all_interfaces()
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
-
-    /* ---------- Ethernet Interface ---------- */
-    VCREthernetInterfaceInstance::create();
-    VCREthernetInterfaceInstance::instance().init_ethernet_device();
 
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
@@ -324,7 +324,7 @@ namespace async_tasks
 
     VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s &can_interfaces)
     {
-        VCRInterfaceData_s ret;
+        VCRInterfaceData_s ret = vcr_data.interface_data;
 
         auto vcf_data = can_interfaces.vcf_interface.get_latest_data();
         auto acu_data = can_interfaces.acu_interface.get_latest_data(sys_time::hal_millis());
@@ -352,6 +352,7 @@ namespace async_tasks
         ret.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
 
         ret.recvd_pedals_data = vcf_data.stamped_pedals;
+        ret.recvd_steering_data = vcf_data.stamped_steering;
         ret.front_loadcell_data = vcf_data.front_loadcell_data;
         ret.front_suspot_data = vcf_data.front_suspot_data;
         ret.dash_input_state = vcf_data.dash_input_state;
@@ -365,7 +366,7 @@ namespace async_tasks
     {
         handle_async_recvs();
 
-        bool torque_mode_cycle_button_was_pressed = VCFInterfaceInstance::instance().get_latest_data().dash_input_state.BUTTON_2;
+        bool torque_mode_cycle_button_was_pressed = vcr_data.interface_data.dash_input_state.BUTTON_2;
 
         VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
 
@@ -480,16 +481,16 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.println();
 
     Serial.print("Load Cell RR: ");
-    Serial.println(vcr_data.interface_data.rear_loadcell_data.RR_loadcell_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_filtered_RR_load_cell());
 
     Serial.print("Load Cell RL: ");
-    Serial.println(vcr_data.interface_data.rear_loadcell_data.RL_loadcell_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_filtered_RL_load_cell());
 
     Serial.print("SusPot RR: ");
-    Serial.println(vcr_data.interface_data.rear_suspot_data.RR_sus_pot_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_RR_sus_pot().conversion);
 
     Serial.print("SusPot RL: ");
-    Serial.println(vcr_data.interface_data.rear_suspot_data.RL_sus_pot_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_RL_sus_pot().conversion);
 
     // /* Drivebrain data */
     // Serial.print("Latest Drivebrain data: ");
@@ -501,22 +502,21 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.print(" ");
     // Serial.println(vcr_data.interface_data.inverter_data.RR.commanded_torque);
 
-    // Serial.println("desired speeds, torq lim");
-    // Serial.print("FL:   ");
-    // Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.FL); Serial.print(" ");
-    // Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.FL);
-
-    Serial.print("FR:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.FR); Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.FR);
-
-    Serial.print("RL:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.RL); Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.RL);
-
-    Serial.print("RR:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.RR); Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.RR);
+    /* Drivetrain command sent to the inverters (zero unless the controller is commanding, e.g. READY_TO_DRIVE) */
+    const auto &dt_command = VCRControlsInstance::instance()._debug_dt_command;
+    Serial.println("Drivetrain Command:");
+    Serial.println("\t\tFL\tFR\tRL\tRR");
+    Serial.print("Speed (rpm)\t");
+    Serial.print(dt_command.desired_speeds.FL); Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.FR); Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.RL); Serial.print("\t");
+    Serial.println(dt_command.desired_speeds.RR);
+    Serial.print("Torque Lim (Nm)\t");
+    Serial.print(dt_command.torque_limits.FL); Serial.print("\t");
+    Serial.print(dt_command.torque_limits.FR); Serial.print("\t");
+    Serial.print(dt_command.torque_limits.RL); Serial.print("\t");
+    Serial.println(dt_command.torque_limits.RR);
+    Serial.println();
 
     Serial.print("Current Controller Mode: ");
     Serial.println(static_cast<uint8_t>(vcr_data.interface_data.dash_input_state.dial_state));
