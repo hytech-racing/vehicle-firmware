@@ -130,7 +130,7 @@ HT_TASK::TaskResponse run_send_ethernet(const unsigned long& sysMicros, const HT
 
 HT_TASK::TaskResponse run_receive_ethernet(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    // HELP IDK WHAT THE MSG ISSS
+    // Recv ACU message
     return HT_TASK::TaskResponse::YIELD;
 }
 
