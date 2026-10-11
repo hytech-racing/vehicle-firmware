@@ -20,10 +20,10 @@
  * the InverterInterface class itself. That still lives in InverterInterface.h.
  */
 
-#include "VCR_Constants.h"
+#include "VCR_Constants.hpp"
 
 /* Local Interface Includes */
-#include "InverterInterface.h"
+#include "InverterInterface.hpp"
 
 extern InverterInterface fl_inverter_interface;
 extern InverterInterface fr_inverter_interface;

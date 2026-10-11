@@ -1,5 +1,5 @@
-#ifndef ADCINTERFACE_H
-#define ADCINTERFACE_H
+#ifndef ADC_INTERFACE_HPP
+#define ADC_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>

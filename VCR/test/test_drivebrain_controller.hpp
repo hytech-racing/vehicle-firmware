@@ -2,8 +2,8 @@
 #define __TEST_DRIVEBRAIN_CONTROLLER_H__
 
 #include "SharedFirmwareTypes.h"
-#include "controllers/DrivebrainController.h"
-#include "controllers/SimpleController.h"
+#include "controllers/DrivebrainController.hpp"
+#include "controllers/SimpleController.hpp"
 #include <gtest/gtest.h>
 
 auto runTick(DrivebrainController *controller, float last_speed_recv_millis,

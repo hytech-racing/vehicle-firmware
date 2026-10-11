@@ -1,4 +1,4 @@
-#include "controls.h"
+#include "controls.hpp"
 
 
 VCRControls::VCRControls(DrivetrainSystem *dt_system,

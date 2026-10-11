@@ -1,5 +1,5 @@
-#include "DrivebrainInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "DrivebrainInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 
 DrivebrainInterface::DrivebrainInterface(IPAddress drivebrain_ip,

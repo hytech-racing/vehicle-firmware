@@ -5,8 +5,8 @@
 #include "TorqueControllerMux.hpp"
 #include "gtest/gtest.h"
 
-#include "controllers/DrivebrainController.h"
-#include "controllers/SimpleController.h"
+#include "controllers/DrivebrainController.hpp"
+#include "controllers/SimpleController.hpp"
 #include <functional>
 // TODO
 // - [x] test to ensure that the size checking for desired modes works and failes properly

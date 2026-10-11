@@ -1,8 +1,8 @@
 #ifndef __TEST_DRIVETRAIN__
 #define __TEST_DRIVETRAIN__
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 #include "gtest/gtest.h"
-#include "shared_types.h"
+#include "shared_types.hpp"
 
 InverterStatus_s FL_status = {};
 InverterStatus_s FR_status = {};

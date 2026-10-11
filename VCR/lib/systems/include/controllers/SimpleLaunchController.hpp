@@ -10,7 +10,7 @@
 #include <math.h>
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 /// @brief Modes to define launch behavior, where each one waits for acceleration request threshold to move to next mode
 /// LAUNCH_NOT_READY keeps speed at 0 and makes sure pedals are not pressed, the launch controller begins in this state

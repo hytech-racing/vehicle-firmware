@@ -1,17 +1,17 @@
-#ifndef INVERTERINTERFACE_H
-#define INVERTERINTERFACE_H
+#ifndef INVERTER_INTERFACE_HPP
+#define INVERTER_INTERFACE_HPP
 
 /* Standard Library */
 #include <stdint.h>
 
 /* External Includes */
-#include "shared_types.h"
+#include "shared_types.hpp"
 #include "FlexCAN_T4.h"
 #include <CANInterface.h>
 #include <hytech.h>
 
 /* Local System Includes */
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 
 
 struct InverterParams_s
@@ -86,7 +86,7 @@ public:
     MotorMechanics_s get_motor_mechanics() const;
 
     InverterControlFeedback_s get_control_params() const;
-    
+
     InverterFeedbackData_s get_all_inverter_data() const;
 
 private:

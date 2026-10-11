@@ -13,7 +13,7 @@
 #include <array>
 #include <functional>
 #include <SysClock.h>
-#include "shared_types.h"
+#include "shared_types.hpp"
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */

@@ -1,4 +1,4 @@
-#include "controllers/SimpleController.h"
+#include "controllers/SimpleController.hpp"
 
 
 DrivetrainCommand_s TorqueControllerSimple::evaluate(const VCRData_s &state, unsigned long curr_millis)

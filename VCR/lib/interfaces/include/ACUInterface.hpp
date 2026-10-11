@@ -1,12 +1,12 @@
-#ifndef ACUINTERFACE_H
-#define ACUINTERFACE_H
+#ifndef ACU_INTERFACE_HPP
+#define ACU_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "shared_types.h"
+#include "shared_types.hpp"
 #include <FlexCAN_T4.h>
 
 struct ACUCANInterfaceData_s

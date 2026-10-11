@@ -1,5 +1,5 @@
-#ifndef FLOWMETERINTERFACE_H
-#define FLOWMETERINTERFACE_H
+#ifndef FLOWMETER_INTERFACE_HPP
+#define FLOWMETER_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -29,7 +29,7 @@ private:
     unsigned long _last_sample_timestamp_ms;
     unsigned long _pulse_count = 0;
     size_t _pin;
-    
+
 };
 
 using FlowmeterInterfaceInstance = etl::singleton<FlowmeterInterface>;

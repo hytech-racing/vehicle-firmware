@@ -1,5 +1,5 @@
-#ifndef VCR_CONSTANTS
-#define VCR_CONSTANTS
+#ifndef VCR_CONSTANTS_HPP
+#define VCR_CONSTANTS_HPP
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"

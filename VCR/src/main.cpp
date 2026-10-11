@@ -1,7 +1,7 @@
-#include "VCR_Constants.h"
-#include "VCR_Globals.h"
-#include "VCR_InterfaceTasks.h"
-#include "VCR_SystemTasks.h"
+#include "VCR_Constants.hpp"
+#include "VCR_Globals.hpp"
+#include "VCR_InterfaceTasks.hpp"
+#include "VCR_SystemTasks.hpp"
 
 /* Schedular Dependencies */
 #include "ht_sched.hpp"

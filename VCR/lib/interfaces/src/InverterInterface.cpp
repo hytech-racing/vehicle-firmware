@@ -1,5 +1,5 @@
-#include "InverterInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "InverterInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 
 /**
