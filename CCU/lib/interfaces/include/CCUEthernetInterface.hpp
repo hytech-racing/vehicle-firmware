@@ -15,10 +15,10 @@
 #include <etl/singleton.h>
 
 
-#include "ACUInterface.h"
-#include "ChargerInterface.h"
-#include "EMInterface.h"
-#include "MainChargeSystem.h"
+#include "ACUInterface.hpp"
+#include "ChargerInterface.hpp"
+#include "EMInterface.hpp"
+#include "MainChargeSystem.hpp"
 
 using namespace qindesign::network;
 

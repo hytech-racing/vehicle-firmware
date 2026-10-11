@@ -24,7 +24,7 @@ void CCUEthernetInterface::sendCCUDataMsg(const hytech_msgs_CCUData &data) {
 }
 
 hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg() {
-    ACUInterfaceData_s latest_acu_data = ACUInterfaceInstance::instance().get_latest_data();
+    ACUInterfaceData_s latest_acu_data = ACUInterfaceInstance::instance().getLatestData();
     hytech_msgs_CCUData out;
     out.average_cell_voltage = latest_acu_data.average_voltage;
     out.min_cell_voltage = latest_acu_data.low_voltage;
@@ -64,6 +64,6 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg() {
     out.charger_dc_output_V = ((charger_data.output_dc_voltage_high >> 8) | charger_data.output_dc_voltage_low) / 10.0f;
     out.charger_ac_input_V = ((charger_data.input_ac_voltage_high >> 8) | charger_data.input_ac_voltage_low) / 10.0f;;
     
-    out.em_current_A = EnergyMeterInterfaceInstance::instance().get_latest_em_data().current_amps; 
+    out.em_current_A = EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps; 
     return out;
 }
