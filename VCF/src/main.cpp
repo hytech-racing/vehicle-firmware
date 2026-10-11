@@ -10,22 +10,23 @@
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
-HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, VCFConstants::WATCHDOG_KICK_PERIOD_US, VCFConstants::WATCHDOG_PRIORITY);
-HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PERIOD_US, VCFConstants::ASYNC_MAIN_PRIORITY);
-HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PERIOD_US, VCFConstants::PEDALS_SAMPLE_PRIORITY);
-HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PERIOD_US, VCFConstants::LOADCELL_SAMPLE_PRIORITY);
-HT_TASK::Task pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PERIOD_US, VCFConstants::PEDALS_SEND_PRIORITY);
-HT_TASK::Task steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PERIOD_US, VCFConstants::STEERING_SEND_PRIORITY);
-HT_TASK::Task front_suspension_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueFrontSuspensionCANDataTask, VCFConstants::LOADCELL_SEND_PERIOD_US, VCFConstants::LOADCELL_SEND_PRIORITY);
-HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PERIOD_US, VCFConstants::CAN_SEND_PRIORITY);
-HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PERIOD_US, VCFConstants::DASH_SEND_PRIORITY);
-HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PERIOD_US, VCFConstants::DASH_SAMPLE_PRIORITY);
-HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PERIOD_US, VCFConstants::ETHERNET_SEND_PRIORITY);
-HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_WRITE_PERIOD_US, VCFConstants::BUZZER_PRIORITY);
-HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &updateNeopixelsTask, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US, VCFConstants::NEOPIXEL_UPDATE_PRIORITY);
-HT_TASK::Task pedals_calibration_task(HT_TASK::DUMMY_FUNCTION, &updatePedalsCalibrationTask, VCFConstants::PEDALS_RECALIBRATION_PERIOD_US, VCFConstants::PEDALS_RECALIBRATION_PRIORITY);
-HT_TASK::Task steering_calibration_task(HT_TASK::DUMMY_FUNCTION, &updateSteeringCalibrationTask, VCFConstants::STEERING_RECALIBRATION_PERIOD_US, VCFConstants::STEERING_RECALIBRATION_PRIORITY);
-HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrints, VCFConstants::DEBUG_PERIOD_US, VCFConstants::DEBUG_PRIORITY);
+HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, VCFConstants::WATCHDOG_PRIORITY, VCFConstants::WATCHDOG_KICK_PERIOD_US);
+HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PRIORITY, VCFConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PRIORITY, VCFConstants::PEDALS_SAMPLE_PERIOD_US);
+HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PRIORITY, VCFConstants::LOADCELL_SAMPLE_PERIOD_US);
+HT_TASK::Task pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PRIORITY, VCFConstants::PEDALS_SEND_PERIOD_US);
+HT_TASK::Task steering_evaluate(HT_TASK::DUMMY_FUNCTION, &evaluateSteeringTask, VCFConstants::STEERING_SAMPLE_PRIORITY, VCFConstants::STEERING_SAMPLE_PERIOD_US);
+HT_TASK::Task steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PRIORITY, VCFConstants::STEERING_SEND_PERIOD_US);
+HT_TASK::Task front_suspension_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueFrontSuspensionCANDataTask, VCFConstants::LOADCELL_SEND_PRIORITY, VCFConstants::LOADCELL_SEND_PERIOD_US);
+HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
+HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
+HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
+HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PRIORITY, VCFConstants::ETHERNET_SEND_PERIOD_US);
+HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_PRIORITY, VCFConstants::BUZZER_WRITE_PERIOD_US);
+HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &updateNeopixelsTask, VCFConstants::NEOPIXEL_UPDATE_PRIORITY, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US);
+HT_TASK::Task pedals_calibration_task(HT_TASK::DUMMY_FUNCTION, &updatePedalsCalibrationTask, VCFConstants::PEDALS_RECALIBRATION_PRIORITY, VCFConstants::PEDALS_RECALIBRATION_PERIOD_US);
+HT_TASK::Task steering_calibration_task(HT_TASK::DUMMY_FUNCTION, &updateSteeringCalibrationTask, VCFConstants::STEERING_RECALIBRATION_PRIORITY, VCFConstants::STEERING_RECALIBRATION_PERIOD_US);
+HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrints, VCFConstants::DEBUG_PRIORITY, VCFConstants::DEBUG_PERIOD_US);
 
 
 void setup()
@@ -48,6 +49,7 @@ void setup()
     HT_SCHED::Scheduler::getInstance().schedule(adc1_sample);
     HT_SCHED::Scheduler::getInstance().schedule(read_dash_GPIOs_task);
     HT_SCHED::Scheduler::getInstance().schedule(neopixels_task);
+    HT_SCHED::Scheduler::getInstance().schedule(steering_evaluate);
     HT_SCHED::Scheduler::getInstance().schedule(steering_message_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(front_suspension_message_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(pedals_calibration_task);
@@ -81,12 +83,6 @@ namespace async_tasks
     HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
         handle_async_recvs();
-
-        SteeringSystemInstance::instance().evaluateSteering(
-            ADCInterfaceInstance::instance().getSteeringDegreesCW().conversion,
-            OrbisInterfaceInstance::instance().getLastReading(),
-            sys_time::hal_millis()
-        );
 
         PedalsSystemInstance::instance().evaluatePedals(
             PedalsSystemInstance::instance().getPedalsSensorData(),
@@ -223,32 +219,32 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
     Serial.println(BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()));
 
     /* Brake Rotor Temp Info */
-    Serial.println("\nBrake Rotor Temps:");
-    Serial.println("Sensor\tMax\tAvg\tCH0\tCH1\tCH2\tCH3\tCH4\tCH5\tCH6\tCH7\tCH8\tCH9\tCH10\tCH11\tCH12\tCH13\tCH14\tCH15");
+    // Serial.println("\nBrake Rotor Temps:");
+    // Serial.println("Sensor\tMax\tAvg\tCH0\tCH1\tCH2\tCH3\tCH4\tCH5\tCH6\tCH7\tCH8\tCH9\tCH10\tCH11\tCH12\tCH13\tCH14\tCH15");
 
     // Sensor 1
-    Serial.print("FL\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.max_temp); Serial.print("\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.avg_temp); Serial.print("\t");
+    // Serial.print("FL\t");
+    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.max_temp); Serial.print("\t");
+    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.avg_temp); Serial.print("\t");
 
-    for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
-    {
-        Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.channel_data[i]);
-        Serial.print("\t");
-    }
-    Serial.println();
+    // for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
+    // {
+    //     Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.channel_data[i]);
+    //     Serial.print("\t");
+    // }
+    // Serial.println();
 
     // Sensor 2
-    Serial.print("FR\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.max_temp); Serial.print("\t");
-    Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.avg_temp); Serial.print("\t");
+    // Serial.print("FR\t");
+    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.max_temp); Serial.print("\t");
+    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.avg_temp); Serial.print("\t");
 
-    for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
-    {
-        Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.channel_data[i]);
-        Serial.print("\t");
-    }
-    Serial.println();
+    // for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
+    // {
+    //     Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.channel_data[i]);
+    //     Serial.print("\t");
+    // }
+    // Serial.println();
 
     return HT_TASK::TaskResponse::YIELD;
 }

@@ -23,7 +23,7 @@ void DashboardInterface::syncDashboardStoredState()
 void DashboardInterface::receiveACUOKCANMsg(const CAN_message_t &can_msg)
 {
     ACU_OK_t unpacked_msg;
-    Unpack_ACU_OK_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
+    Unpack_ACU_OK_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
 
     _bms_ok = unpacked_msg.bms_ok;
     _imd_ok = unpacked_msg.imd_ok;

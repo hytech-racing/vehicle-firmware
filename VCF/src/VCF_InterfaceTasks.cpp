@@ -201,7 +201,7 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     msg_out.right_shifter_button = dash_outputs.BUTTON_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
-    CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_hytech, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -210,9 +210,9 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sys
     FRONT_SUSPENSION_t msg_out;
     msg_out.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
     msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
-    msg_out.fr_shock_pot_ro = HYTECH_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
-    msg_out.fl_shock_pot_ro = HYTECH_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
-    CAN_util::enqueue_msg(&msg_out, &Pack_FRONT_SUSPENSION_hytech, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    msg_out.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
+    msg_out.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
+    CAN_util::enqueue_msg(&msg_out, &Pack_FRONT_SUSPENSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 

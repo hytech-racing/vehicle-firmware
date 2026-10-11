@@ -8,6 +8,8 @@
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
+#include "ADCInterface.hpp"
+#include "OrbisInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "VCFCANInterfaceImpl.hpp"
 #include "VCRInterface.hpp"
@@ -35,6 +37,8 @@ void initializeAllSystems();
 ::HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info);
 
 ::HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+::HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info);
 
 ::HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 

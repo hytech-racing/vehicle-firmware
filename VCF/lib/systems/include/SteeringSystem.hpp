@@ -93,7 +93,7 @@ public:
     void updateObservedExtremes(uint32_t analog_raw, uint32_t digital_raw);
 
     /** Converts, filters, plausibility-checks and selects the output steering angle for one tick. */
-    void evaluateSteering(uint32_t analog_raw, const SteeringEncoderReading_s &digital_reading, uint32_t current_millis);
+    void evaluateSteering(uint32_t analog_raw, const SteeringEncoderReading_s &digital_reading, uint32_t current_micros);
 
     /* Getters */
     const SteeringSystemParams_s &getSteeringParams() const { return _params; }
@@ -132,7 +132,7 @@ private:
     /**
      * @brief Using a 2nd-order Butterworth low-pass
      * @note fc = 8 Hz at fs = 500 Hz
-     * @note H(z) = ( B0 + B1/z + B2/(z^2) ) / ( 1+ A1/z = A2/(z^2))
+     * @note H(z) = ( B0 + B1/z + B2/(z^2) ) / ( 1 + A1/z + A2/(z^2) )
     */
     static constexpr float LOWPASS_B0 =  0.00235721f;
     static constexpr float LOWPASS_B1 =  0.00471442f;

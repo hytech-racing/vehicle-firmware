@@ -6,7 +6,7 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "hytech.h"
+#include "ht_can.h"
 #include "CANInterface.h"
 #include <FlexCAN_T4.h>
 
