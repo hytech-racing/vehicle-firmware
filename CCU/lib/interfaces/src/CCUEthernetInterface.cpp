@@ -1,5 +1,4 @@
-#include "CCUEthernetInterface.h"
-#include "MainChargeSystem.h"
+#include "CCUEthernetInterface.hpp"
 
 
 void CCUEthernetInterface::initEthernetDevice() {
