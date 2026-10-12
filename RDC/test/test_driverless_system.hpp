@@ -145,6 +145,23 @@ TEST(DriverlessSystem, StartupNoTsRequiresSupervisorToDropAfterDelay)
     ASSERT_FDC(3, true, 0);
 }
 
+TEST(DriverlessSystem, AirPressureWellAboveTheExpectedLevelStillPasses)
+{
+    reset_driverless_inputs();
+    DriverlessSystem system = make_driverless_system();
+
+    // The rules set no maximum air pressure. The check is "at least the expected level".
+    ebs_data.pressure_1 = 500;
+    ebs_data.pressure_2 = 800;
+    supervisor_ok = true;
+    current_millis = 1000;
+    ASSERT_FALSE(system.startupCheckNoTS());
+
+    supervisor_ok = false;
+    current_millis = 1000 + RDCConstants::STARTUP_WATCHDOG_CHECK_DELAY_MS + 1;
+    ASSERT_TRUE(system.startupCheckNoTS());
+}
+
 TEST(DriverlessSystem, ResetNoTsValuesRestartsWatchdogCheck)
 {
     reset_driverless_inputs();
@@ -266,6 +283,18 @@ TEST(DriverlessSystem, StartupTsActiveWindowsExpireUntilReset)
     ASSERT_TRUE(fdc_commands.empty());
 }
 
+TEST(DriverlessSystem, BrakePressureWellAboveTheExpectedLevelStillPasses)
+{
+    reset_driverless_inputs();
+    DriverlessSystem system = make_driverless_system();
+
+    // The rules set no maximum brake pressure. Both axles only have to build past the expected level.
+    set_brake_pressure(2500, 4000);
+    current_millis = 1000;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_TRUE(system.startupCheckTSActive());
+}
+
 TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
 {
     reset_driverless_inputs();
@@ -314,4 +343,33 @@ TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
 
     eval_vehicle_state = VehicleState_e::READY_TO_DRIVE;
     ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::DRIVING);
+
+    ebs_data.pressure_1 = 0;
+    ebs_data.pressure_2 = 0;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::EMERGENCY);
+}
+
+TEST(DriverlessEvaluation, DsmsOffDuringStartupIsOff)
+{
+    reset_driverless_inputs();
+    DriverlessSystem system = make_driverless_system();
+    DriverlessStateMachine state_machine = DriverlessStateMachine(
+        mock_eval_dsms_on,
+        mock_eval_vehicle_state,
+        etl::delegate<bool()>::create<DriverlessSystem, &DriverlessSystem::startupCheckNoTS>(system),
+        etl::delegate<bool()>::create<DriverlessSystem, &DriverlessSystem::startupCheckTSActive>(system),
+        mock_eval_ebs_pressure_ok,
+        etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetNoTSValues>(system),
+        etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetTSActiveValues>(system));
+
+    eval_dsms_on = true;
+    supervisor_ok = true;
+    current_millis = 1000;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_NO_TS);
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_NO_TS);
+
+    const size_t commands_before_dsms_opened = fdc_commands.size();
+    eval_dsms_on = false;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::OFF);
+    ASSERT_EQ(fdc_commands.size(), commands_before_dsms_opened);
 }

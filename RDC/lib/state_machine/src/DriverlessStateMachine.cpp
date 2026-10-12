@@ -11,13 +11,21 @@ DriverlessSystemState_e DriverlessStateMachine::tickStateMachine(unsigned long c
         }
         break;
     case DriverlessSystemState_e::STARTUP_NO_TS:
-        if (_runStartupNoTsLogicDelegate() && _getVehicleStateDelegate() == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE)
+        if (!_getDsmsOnDelegate())
+        {
+            _setState(DriverlessSystemState_e::OFF, curr_millis);
+        }
+        else if (_runStartupNoTsLogicDelegate() && _getVehicleStateDelegate() == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE)
         {
             _setState(DriverlessSystemState_e::STARTUP_TS_ACTIVE, curr_millis);
         }
         break;
     case DriverlessSystemState_e::STARTUP_TS_ACTIVE:
-        if (_getVehicleStateDelegate() == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE && _runStartupTsActiveLogicDelegate())
+        if (!_getDsmsOnDelegate())
+        {
+            _setState(DriverlessSystemState_e::OFF, curr_millis);
+        }
+        else if (_getVehicleStateDelegate() == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE && _runStartupTsActiveLogicDelegate())
         {
             _setState(DriverlessSystemState_e::READY, curr_millis);
         }
@@ -31,8 +39,21 @@ DriverlessSystemState_e DriverlessStateMachine::tickStateMachine(unsigned long c
         {
             _setState(DriverlessSystemState_e::EMERGENCY, curr_millis);
         }
+        else if (!_getDsmsOnDelegate())
+        {
+            _setState(DriverlessSystemState_e::OFF, curr_millis);
+        }
         break;
     case DriverlessSystemState_e::DRIVING:
+        if (!_runEBSBrakePressureOkDelegate())
+        {
+            _setState(DriverlessSystemState_e::EMERGENCY, curr_millis);
+        }
+        else if (!_getDsmsOnDelegate())
+        {
+            _setState(DriverlessSystemState_e::OFF, curr_millis);
+        }
+        break;
     default:
         break;
     }
