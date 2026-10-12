@@ -82,12 +82,22 @@ void initialize_all_interfaces()
         VCREthernetInterfaceInstance::instance().get_vcr_data_send_socket());
 
     /* ---------- IO Expander Interface ---------- */
-    IOExpanderInterfaceInstance::create(
-        Wire,
-        IOExpanderParams_s{
-            VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
-            IOExpanderPortMode_s{VCRInterfaces::PORTA_DIRECTIONS, VCRInterfaces::PORTA_PULLUPS, VCRInterfaces::PORTA_INVERTED},
-            IOExpanderPortMode_s{VCRInterfaces::PORTB_DIRECTIONS, VCRInterfaces::PORTB_PULLUPS, VCRInterfaces::PORTB_INVERTED}});
+    Wire.begin();
+    IOExpanderInterfaceInstance::create(Wire,
+                                        IOExpanderParams_s {
+                                            VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
+                                            IOExpanderPortMode_s {
+                                                VCRInterfaces::PORTA_DIRECTIONS,
+                                                VCRInterfaces::PORTA_PULLUPS,
+                                                VCRInterfaces::PORTA_INVERTED
+                                            },
+                                            IOExpanderPortMode_s {
+                                                VCRInterfaces::PORTB_DIRECTIONS,
+                                                VCRInterfaces::PORTB_PULLUPS,
+                                                VCRInterfaces::PORTB_INVERTED
+                                            }
+                                        }
+    );
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
