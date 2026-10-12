@@ -11,8 +11,8 @@
 #include "ht_can.h"
 
 /* Local Interface Includes */
-#include "CCUInterface.h"
-#include "EMInterface.h"
+#include "CCUInterface.hpp"
+#include "EMInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);

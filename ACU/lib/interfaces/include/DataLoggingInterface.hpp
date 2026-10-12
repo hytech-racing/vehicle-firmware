@@ -11,12 +11,12 @@
 #include <string>
 
 /* Local Interface Includes */
-#include "ADCInterface.h"
+#include "ADCInterface.hpp"
 #include "SystemTimeInterface.h"
 
 /* Local System Includes */
-#include "ACUController.h"
-#include "BMSDriverGroup.h"
+#include "ACUController.hpp"
+#include "BMSDriverGroup.hpp"
 
 using BMSDriverInstance_t = BMSDriverInstance<12, 2, LTC6811_Type_e::LTC6811_1>;
 

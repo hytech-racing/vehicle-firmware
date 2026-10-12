@@ -6,7 +6,7 @@
 
 /* External Includes*/
 #include "SharedFirmwareTypes.h"
-#include "MAX114XInterface.h"
+#include "MAX114XInterface.hpp"
 
 using pin = uint8_t;
 

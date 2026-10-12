@@ -1,20 +1,20 @@
 #ifndef ACU_SYSTEMTASKS
 #define ACU_SYSTEMTASKS
 
-#include "ACU_Constants.h"
-#include "shared_types.h"
+#include "ACU_Constants.hpp"
+#include "shared_types.hpp"
 
 /* Local System Includes */
-#include "ACUController.h"
-#include "ACUStateMachine.h"
+#include "ACUController.hpp"
+#include "ACUStateMachine.hpp"
 
 /* Interface Function Dependencies */
-#include "WatchdogInterface.h"
-#include "CCUInterface.h"
-#include "EMInterface.h"
-#include "BMSDriverGroup.h"
-#include "BMSFaultDataManager.h"
-#include "ADCInterface.h"
+#include "WatchdogInterface.hpp"
+#include "CCUInterface.hpp"
+#include "EMInterface.hpp"
+#include "BMSDriverGroup.hpp"
+#include "BMSFaultDataManager.hpp"
+#include "ADCInterface.hpp"
 #include "SystemTimeInterface.h"
 #include <ht_task.hpp>
 

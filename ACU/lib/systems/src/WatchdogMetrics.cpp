@@ -1,4 +1,4 @@
-#include "WatchdogMetrics.h"
+#include "WatchdogMetrics.hpp"
 
 
 void WatchdogMetrics::update_metrics(volt measured_glv,

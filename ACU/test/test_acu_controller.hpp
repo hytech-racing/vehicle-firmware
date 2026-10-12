@@ -2,9 +2,9 @@
 #include <array>
 #include <stddef.h>
 
-#include "ACUController.h"
-#include "ACU_Constants.h"
-#include "shared_types.h"
+#include "ACUController.hpp"
+#include "ACU_Constants.hpp"
+#include "shared_types.hpp"
 
 constexpr size_t num_cells = 12; // local test convenience
 bool charging_enabled;

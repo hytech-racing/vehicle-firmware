@@ -1,4 +1,4 @@
-#include "ACUCANInterfaceImpl.h"
+#include "ACUCANInterfaceImpl.hpp"
 
 
 void ACUCANInterfaceImpl::on_ccu_can_receive(const CAN_message_t &msg)
