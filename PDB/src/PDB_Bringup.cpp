@@ -46,5 +46,8 @@ void loop()
     Serial.print(fault);
     Serial.println(fault == LOW ? "  <-- FAULT" : "  ok");
 
+    //use command:
+    //pio device monitor -b 115200
+
     delay(500);
 }
