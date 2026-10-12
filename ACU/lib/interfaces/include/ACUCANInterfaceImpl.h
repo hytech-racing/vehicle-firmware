@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 #include "CANInterface.h"
 #include "FlexCAN_T4.h"
-#include "hytech.h"
+#include "ht_can.h"
 
 /* Local Interface Includes */
 #include "CCUInterface.h"
