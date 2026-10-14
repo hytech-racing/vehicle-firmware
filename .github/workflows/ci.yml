@@ -19,6 +19,25 @@ permissions:
   contents: read
   pull-requests: write
 
+# ─────────────────────────────────────────────────────────────────────
+#                             Concurrency
+# If someone pushes again to the same PR while CI is still running, the
+# older run is cancelled — no point finishing a build of stale code.
+# Pushes to develop are never cancelled, so every merge gets a full run.
+# ─────────────────────────────────────────────────────────────────────
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# ─────────────────────────────────────────────────────────────────────
+#                             Defaults
+# Explicitly using bash makes GitHub run every step with
+# `bash -eo pipefail`.
+# ─────────────────────────────────────────────────────────────────────
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 1 — changes
@@ -112,7 +131,45 @@ jobs:
           EOF
 
   # ═══════════════════════════════════════════════════════════════════
-  #                         JOB 2 — build
+  #                         JOB 2 — format
+  # Checks that all C/C++ source files match the rules in .clang-format.
+  # Runs on every PR.
+  # ═══════════════════════════════════════════════════════════════════
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: |
+          if [ ! -f .clang-format ]; then
+            echo "::notice::No .clang-format file found — skipping format check"
+            exit 0
+          fi
+
+          # Pin the clang-format version: different versions can format
+          # the same code slightly differently. Developers should use the
+          # same major version locally.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang-format-18
+
+          # Only check tracked files inside the subsystem folders, so
+          # build output and downloaded libraries are never checked.
+          mapfile -d '' files < <(
+            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard \
+              | grep -zE '\.(c|cc|cpp|h|hpp|ino)$' || true
+          )
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No C/C++ files to check."
+            exit 0
+          fi
+
+          echo "Checking ${#files[@]} files…"
+          clang-format-18 --dry-run --Werror "${files[@]}"
+
+  # ═══════════════════════════════════════════════════════════════════
+  #                         JOB 3 — build
   # Runs in parallel for each changed subsystem using a matrix strategy.
   # A matrix strategy mean one independent runner per subsystem. So ACU,
   # CCU, VCF etc. all build at the same time.
@@ -153,12 +210,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      # PlatformIO is pinned so CI doesn't change behavior on its own when
+      # a new release comes out. Set this to the version the team uses
+      # locally (`pio --version`) and bump it deliberately.
       - name: Install PlatformIO
-        run: pip install platformio
+        run: pip install platformio==6.2.0
 
       # Compile the firmware for this subsystem.
       # tee captures the build output to a file so we can parse it
-      # for memory usage in the next step.
+      # for memory usage in the next step. pipefail (see `defaults` at
+      # the top) makes this step fail if pio fails, not just if tee fails.
       - name: Build ${{ matrix.subsystem }}
         id: build
         run: pio run -e ${{ matrix.build_env }} 2>&1 | tee build_output.txt
@@ -169,7 +230,10 @@ jobs:
       # Ex:
       #   Flash: [========  ]  80.3% (used 105432 bytes from 131072 bytes)
       #   RAM:   [===       ]  32.1% (used 52488 bytes from 163840 bytes)
+      # If the numbers can't be found, the step fails instead of
+      # silently reporting 0%.
       - name: Check memory usage
+        id: memory
         if: steps.build.outcome == 'success'
         run: |
           python3 - <<'EOF'
@@ -181,8 +245,12 @@ jobs:
           flash = re.search(r"Flash:\s+\[=*\s*\]\s+([\d.]+)%", output)
           ram   = re.search(r"RAM:\s+\[=*\s*\]\s+([\d.]+)%",   output)
 
-          flash_percent = float(flash.group(1)) if flash else 0.0
-          ram_percent   = float(ram.group(1))   if ram   else 0.0
+          if not flash or not ram:
+            print("::error::Could not parse memory usage from build output")
+            sys.exit(1)
+
+          flash_percent = float(flash.group(1))
+          ram_percent   = float(ram.group(1))
 
           print(f"Flash usage: {flash_percent:.1f}%")
           print(f"RAM usage:   {ram_percent:.1f}%")
@@ -191,31 +259,41 @@ jobs:
             s.write(f"| Flash | {flash_percent:.1f}% | {'⚠️' if flash_percent > 80 else '✅'} |\n")
             s.write(f"| RAM   | {ram_percent:.1f}%   | {'⚠️' if ram_percent   > 80 else '✅'} |\n")
 
+          failed = False
           if flash_percent > 90:
             print("::error::Flash usage exceeds 90% — binary too large")
-            sys.exit(1)
+            failed = True
           if ram_percent > 90:
             print("::error::RAM usage exceeds 90% — too much static memory")
-            sys.exit(1)
+            failed = True
+          sys.exit(1 if failed else 0)
           EOF
 
-      # Runs unit tests on the native platform. Dashboard is excluded because it has no
-      # native test environment at the moment.
+      # Runs unit tests on the native platform. Subsystems with no
+      # *_sil_tests environment (e.g. Dashboard) are skipped.
+      # !cancelled() means this runs even if the memory check failed, so
+      # one failure doesn't hide the results of the other steps.
+      # Every test env runs even if an earlier one fails, so you see all
+      # failures in one run instead of one at a time.
       - name: Test ${{ matrix.subsystem }}
         id: test
-        if: steps.build.outcome == 'success' && join(matrix.test_envs, '') != ''
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && join(matrix.test_envs, '') != '' }}
         run: |
+          failed=0
           for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
             echo "→ Running $TEST_ENV"
-            pio test -e "$TEST_ENV"
+            pio test -e "$TEST_ENV" || failed=1
           done
+          exit $failed
 
       # Runs lint/clang-tidy static analysis.
       # --fail-on-defect high means only high severity issues block
       # the build. Medium severity issues are reported but don't fail.
+      # Anything listed in WarningsAsErrors in .clang-tidy counts as high.
+      # Runs independently of tests: a failing test doesn't skip lint.
       - name: Lint ${{ matrix.subsystem }}
         id: lint
-        if: steps.build.outcome == 'success'
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: pio check -e ${{ matrix.build_env }} --fail-on-defect high
 
       # Uploads the firmware artifacts on the PR: compiled .hex file
@@ -223,7 +301,7 @@ jobs:
       # makes each artifact uniquely identifiable.
       # Artifacts are auto-deleted after 30 days to avoid filling up storage.
       - name: Upload ${{ matrix.subsystem }} firmware artifact
-        if: steps.build.outcome == 'success'
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.subsystem }}-firmware-${{ github.sha }}
@@ -236,35 +314,58 @@ jobs:
       # no need to dig through logs to see pass/fail at a glance.
       - name: Write job summary
         if: always()
+        env:
+          BUILD:  ${{ steps.build.outcome }}
+          MEMORY: ${{ steps.memory.outcome }}
+          TEST:   ${{ steps.test.outcome }}
+          LINT:   ${{ steps.lint.outcome }}
         run: |
-          echo "## ${{ matrix.subsystem }} CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Step  | Result |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ${{ steps.build.outcome == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Test  | ${{ steps.test.outcome  == 'success' && '✅ passed' || steps.test.outcome == 'skipped' && '⏭️ skipped' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Lint  | ${{ steps.lint.outcome  == 'success' && '✅ passed' || '❌ failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          # Append memory usage from the python script above if it exists
-          if [ -f summary.md ]; then
-            echo "### Memory Usage" >> $GITHUB_STEP_SUMMARY
-            echo "| Section | Usage | Status |" >> $GITHUB_STEP_SUMMARY
-            echo "|---------|-------|--------|" >> $GITHUB_STEP_SUMMARY
-            cat summary.md >> $GITHUB_STEP_SUMMARY
-          fi
+          # Converts a step outcome into a readable result.
+          result() {
+            case "$1" in
+              success) echo "✅ passed" ;;
+              skipped) echo "⏭️ skipped" ;;
+              failure) echo "❌ failed" ;;
+              *)       echo "⏸️ ${1:-not run}" ;;
+            esac
+          }
 
-      # Posts a comment on the PR with a build summary table.
-      # only runs on pull_request events, not on push to develop
+          {
+            echo "## ${{ matrix.subsystem }} CI Results"
+            echo ""
+            echo "| Step   | Result |"
+            echo "|--------|--------|"
+            echo "| Build  | $(result "$BUILD") |"
+            echo "| Memory | $(result "$MEMORY") |"
+            echo "| Test   | $(result "$TEST") |"
+            echo "| Lint   | $(result "$LINT") |"
+            echo ""
+            # Append memory usage from the python script above if it exists
+            if [ -f summary.md ]; then
+              echo "### Memory Usage"
+              echo "| Section | Usage | Status |"
+              echo "|---------|-------|--------|"
+              cat summary.md
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Posts (or updates) a comment on the PR with a result table.
+      # Each subsystem gets one comment, identified by a hidden marker,
+      # which is edited on every push instead of adding a new comment.
+      # Only runs for PRs from branches in this repo: PRs from forks get a
+      # read-only token, so commenting would fail the job.
       - name: Post PR comment
         if: |
           always() &&
-          github.event_name == 'pull_request'
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v7
         with:
           script: |
             const subsystem = '${{ matrix.subsystem }}';
             const sha       = '${{ github.sha }}'.substring(0, 7);
             const build     = '${{ steps.build.outcome }}';
+            const memory    = '${{ steps.memory.outcome }}';
             const test      = '${{ steps.test.outcome }}';
             const lint      = '${{ steps.lint.outcome }}';
 
@@ -274,33 +375,63 @@ jobs:
               outcome === 'skipped'  ? '⏭️' :
               outcome === 'failure'  ? '❌' : '⏸️';
 
-            const overall = (build === 'success' && lint === 'success') ? '✅' : '❌';
+            // Tests may legitimately be skipped (no test env), so only a
+            // test *failure* counts against the overall result.
+            const passed =
+              build  === 'success' &&
+              memory === 'success' &&
+              lint   === 'success' &&
+              test   !== 'failure';
+            const overall = passed ? '✅' : '❌';
+
+            // Hidden marker used to find this subsystem's comment later.
+            const marker = `<!-- ci-result:${subsystem} -->`;
 
             const body = [
+              marker,
               `### ${overall} ${subsystem} — \`${sha}\``,
               '',
-              '| Step  | Result |',
-              '|-------|--------|',
-              `| Build | ${icon(build)} ${build} |`,
-              `| Test  | ${icon(test)}  ${test}  |`,
-              `| Lint  | ${icon(lint)}  ${lint}  |`,
+              '| Step   | Result |',
+              '|--------|--------|',
+              `| Build  | ${icon(build)} ${build || 'not run'} |`,
+              `| Memory | ${icon(memory)} ${memory || 'not run'} |`,
+              `| Test   | ${icon(test)} ${test || 'not run'} |`,
+              `| Lint   | ${icon(lint)} ${lint || 'not run'} |`,
             ].join('\n');
 
-            await github.rest.issues.createComment({
+            const params = {
               owner:        context.repo.owner,
               repo:         context.repo.repo,
               issue_number: context.issue.number,
-              body,
-            });
+            };
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...params, per_page: 100 },
+            );
+            const existing = comments.find(
+              c => c.user.type === 'Bot' && c.body.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner:      context.repo.owner,
+                repo:       context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({ ...params, body });
+            }
 
   # ═══════════════════════════════════════════════════════════════════
-  #                    JOB 3 — all-checks-passed
+  #                    JOB 4 — all-checks-passed
   # A single, stable check that always runs on every PR regardless
   # of which subsystems changed (or none). This is the one check we
   # mark as "required" in branch protection
   # ═══════════════════════════════════════════════════════════════════
   all-checks-passed:
-    needs: [changes, build]
+    needs: [changes, format, build]
     # `always()` makes this job run even if `build` failed or was
     # skipped entirely — otherwise a failure upstream would skip this
     # job too, and a skipped required check blocks merging forever,
@@ -311,15 +442,25 @@ jobs:
       - name: Evaluate results
         run: |
           echo "changes job result: ${{ needs.changes.result }}"
+          echo "format job result:  ${{ needs.format.result }}"
           echo "build job result:   ${{ needs.build.result }}"
 
-          if [ "${{ needs.changes.result }}" == "failure" ]; then
-            echo "::error::changes job failed"
-            exit 1
-          fi
+          # Only "success" and "skipped" count as passing. Anything else
+          # (failure, cancelled, timed out) blocks the merge.
+          failed=0
+          check() {
+            local name="$1" result="$2"
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "::error::$name job did not pass (result: $result)"
+              failed=1
+            fi
+          }
 
-          if [ "${{ needs.build.result }}" == "failure" ]; then
-            echo "::error::one or more subsystem builds failed"
+          check "changes" "${{ needs.changes.result }}"
+          check "format"  "${{ needs.format.result }}"
+          check "build"   "${{ needs.build.result }}"
+
+          if [ "$failed" -ne 0 ]; then
             exit 1
           fi
 
