@@ -103,6 +103,9 @@ void initializeAllSystems()
     steering_params.digital.oor_tolerance_raw = static_cast<float>(digital_calibration.span_raw) * steering_params.digital.oor_tolerance_fraction;
 
     SteeringSystemInstance::create(steering_params);
+
+    /* Buzzer Controller */
+    BuzzerControllerInstance::create();
 }
 
 HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info)

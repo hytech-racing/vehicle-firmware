@@ -129,6 +129,12 @@ struct PedalSensorData_s
     uint32_t brake_2;
 };
 
+struct BrakeFluidPressureData_s
+{
+    uint16_t brake_fluid_pressure_data_front;
+    uint16_t brake_fluid_pressure_data_rear;
+};
+
 struct FrontLoadCellData_s
 {
     uint32_t FL_loadcell_analog;
@@ -732,6 +738,43 @@ struct VCRData_s
     VCRSystemData_s system_data;
     VCRInterfaceData_s interface_data;
     FWVersionInfo fw_version_info;
+};
+
+/**---------------------------------------------------
+ *              DRIVERLESS SHARED TYPES
+----------------------------------------------------*/
+
+// EBS pressure data and heartbeat information.
+struct EBSData_s
+{
+    bool pressure_heartbeat_ok;
+    unsigned long pressure_last_recv_millis;
+    bool supervisor_ok;
+    bool ebs_engaged;
+    uint32_t pressure_1;
+    uint32_t pressure_2;
+};
+
+// Driverless system states. Values match DRIVERLESS_STATUS_AND_STARTUP.
+enum class DriverlessSystemState_e
+{
+    OFF = 0,
+    STARTUP_NO_TS = 1,
+    STARTUP_TS_ACTIVE = 2,
+    READY = 3,
+    DRIVING = 4,
+    EMERGENCY = 5,
+    FINISHED = 6
+};
+
+enum class DriverlessMission_e
+{
+    OFF = 0,
+    ACCELERATION = 1,
+    SKIDPAD = 2,
+    AUTOCROSS = 3,
+    TRACKDRIVE = 4,
+    INESPECTION = 5
 };
 
 #endif // __SHAREDFIRMWARETYPES_H__

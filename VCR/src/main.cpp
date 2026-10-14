@@ -56,8 +56,8 @@ void setup()
     scheduler.setTimingFunction(micros);
 
     // Schedule scheduler tasks
-    // scheduler.schedule(adc_0_sample_task);
-    // scheduler.schedule(adc_1_sample_task);
+    scheduler.schedule(adc_0_sample_task);
+    scheduler.schedule(adc_1_sample_task);
 
     scheduler.schedule(kick_watchdog_task);
 
@@ -65,9 +65,9 @@ void setup()
     scheduler.schedule(enqueue_suspension_CAN_task);
     scheduler.schedule(enqueue_dashboard_CAN_task);
 
-    // scheduler.schedule(send_CAN_task);
+    scheduler.schedule(send_CAN_task);
 
-    // scheduler.schedule(vcr_data_ethernet_send);
+    scheduler.schedule(vcr_data_ethernet_send);
 
     scheduler.schedule(enqueue_inverter_CAN_task);
     scheduler.schedule(enqueue_coolant_temp_CAN_task);
@@ -75,7 +75,7 @@ void setup()
 
     scheduler.schedule(enqueue_controls_CAN_task);
 
-    scheduler.schedule(debug_state_print_task);
+    // scheduler.schedule(debug_state_print_task);
 
     scheduler.schedule(update_brakelight_task);
 
