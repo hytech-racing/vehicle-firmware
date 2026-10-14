@@ -81,13 +81,13 @@ public:
     {
         return {FL, FR, RL, RR};
     }
-    
+
 };
 
 struct TimestampedData_s
 {
     unsigned long last_recv_millis = 0;
-    bool recvd = false; // flag saying that this message has been received at least once 
+    bool recvd = false; // flag saying that this message has been received at least once
 };
 
 template <typename T>
@@ -328,7 +328,7 @@ struct CurrentSensorData_s
  * nodes to probe and four relay inputs to probe (total of 9 booleans).
  */
 struct ShutdownSensingData_s
-{   
+{
 
     // Shutdown inputs
     bool bspd_is_ok : 1;
@@ -446,7 +446,7 @@ struct TorqueControllerMuxStatus_s
 
 
 
-/// @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque limits for each motor. These setpoints are defined in the torque controllers cycled by the TC Muxer. 
+/// @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque limits for each motor. These setpoints are defined in the torque controllers cycled by the TC Muxer.
 /// The Speeds unit is rpm and are the targeted speeds for each wheel of the car.
 /// The torques unit is nm and is the max torque requested from the inverter to reach such speeds.
 struct DrivetrainCommand_s
@@ -462,18 +462,18 @@ struct StampedDrivetrainCommand_s
 
     DrivetrainCommand_s get_command()
     {
-        return {.desired_speeds= desired_speeds.veh_vec_data, 
+        return {.desired_speeds= desired_speeds.veh_vec_data,
                 .torque_limits = torque_limits.veh_vec_data};
     }
 };
 
 struct DrivebrainMessageLatencyInfo_s {
-    bool timing_failure; 
-    unsigned long worst_latency_millis; 
+    bool timing_failure;
+    unsigned long worst_latency_millis;
 
-    bool speed_setpoint_msg_too_latent; 
+    bool speed_setpoint_msg_too_latent;
     bool torque_limit_message_too_latent;
-    bool not_all_messages_received; 
+    bool not_all_messages_received;
     bool latency_diff_too_high;
 };
 
@@ -490,7 +490,7 @@ struct StampedDrivetrainTorqueCommand_s
 
     DrivetrainTorqueCommand_s get_command()
     {
-        return {.torque_limits= torque_limits.veh_vec_data, 
+        return {.torque_limits= torque_limits.veh_vec_data,
                 .torque_setpoints = torque_setpoints.veh_vec_data};
     }
 };
@@ -517,12 +517,12 @@ struct ACUHeartbeatData_s
 
 enum class ACUState_e
 {
-    STARTUP = 0, 
-    ACTIVE = 1, 
-    CHARGING = 2, 
+    STARTUP = 0,
+    ACTIVE = 1,
+    CHARGING = 2,
     FAULTED = 3,
     WELDED = 4,
-    WELDCHECK = 5 
+    WELDCHECK = 5
 };
 
 /**
@@ -574,7 +574,7 @@ struct ACUAllData_s
     size_t min_cell_voltage_id;
     size_t max_cell_temp_id;
     size_t max_board_temp_id;
-    volt measured_tractive_system_voltage; 
+    volt measured_tractive_system_voltage;
     volt measured_pack_voltage;
     volt measured_shdn_voltage;
     float measured_bspd_current;
@@ -585,10 +585,10 @@ struct ACUAllData_s
     float lifetime_ah_throughput;
     float SoE_percentage;
     float V1;
-    double remaining_pack_wh;    
+    double remaining_pack_wh;
     std::array<size_t, num_chips> consecutive_invalid_packet_counts;
     std::array<volt, num_cells> cell_voltages;
-    std::array<celsius, num_cell_temps> cell_temps; 
+    std::array<celsius, num_cell_temps> cell_temps;
     std::array<celsius, num_chips> board_temps;
     bool shutdown_has_gone_low;
 };
@@ -675,11 +675,11 @@ enum class DrivetrainState_e
     INVERTERS_READY = 3,
     INVERTERS_HV_ENABLED = 4,
     ENABLED_DRIVE_MODE = 5,
-    ERROR = 6, 
+    ERROR = 6,
     CLEARING_ERRORS = 7
 };
 
-struct DrivebrainControllerStatus_s 
+struct DrivebrainControllerStatus_s
 {
     bool drivebrain_is_in_control = false;
     bool drivebrain_controller_timing_failure = false;
@@ -705,7 +705,7 @@ struct VCRSystemData_s
     bool buzzer_is_active = false;
     DrivebrainControllerStatus_s db_cntrl_status = {};
     VCRLOCData vcr_loc_data = {};
-    DrivebrainMessageLatencyInfo_s aux_latency_info; 
+    DrivebrainMessageLatencyInfo_s aux_latency_info;
     DrivebrainMessageLatencyInfo_s telem_latency_info;
 };
 
@@ -725,6 +725,7 @@ struct VCRInterfaceData_s
     FlowmeterData_s flowmeter_data = {};
     CurrentSensorData_s current_sensor_data = {};
     StampedPedalsSystemData_s recvd_pedals_data = {};
+    StampedSteeringSystemData_s recvd_steering_data = {};
     veh_vec<InverterData_s> inverter_data = {};
     DashInputState_s dash_input_state = {};
     StampedACUCoreData_s stamped_acu_core_data = {};

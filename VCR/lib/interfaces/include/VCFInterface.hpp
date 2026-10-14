@@ -1,13 +1,13 @@
-#ifndef VCFINTERFACE_H
-#define VCFINTERFACE_H
+#ifndef VCF_INTERFACE_HPP
+#define VCF_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "shared_types.h"
-#include "hytech.h"
+#include "shared_types.hpp"
+#include "ht_can.h"
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */

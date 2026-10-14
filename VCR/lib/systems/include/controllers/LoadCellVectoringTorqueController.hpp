@@ -6,7 +6,7 @@
 #include <algorithm>
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 class LoadCellVectoringTorqueController
 {

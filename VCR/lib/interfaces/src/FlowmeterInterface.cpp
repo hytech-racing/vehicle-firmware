@@ -1,4 +1,4 @@
-#include "FlowmeterInterface.h"
+#include "FlowmeterInterface.hpp"
 
 using namespace default_flowmeter_params;
 

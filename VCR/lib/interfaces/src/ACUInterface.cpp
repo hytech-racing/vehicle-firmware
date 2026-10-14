@@ -1,10 +1,10 @@
-#include "ACUInterface.h"
-#include "VCRCANInterfaceImpl.h"
+#include "ACUInterface.hpp"
+#include "VCRCANInterfaceImpl.hpp"
 
 void ACUInterface::receive_acu_ok_message(const CAN_message_t &msg, unsigned long curr_millis)
 {
     ACU_OK_t acu_msg = {};
-    Unpack_ACU_OK_hytech(&acu_msg, &msg.buf[0], msg.len);
+    Unpack_ACU_OK_ht_can(&acu_msg, &msg.buf[0], msg.len);
     _curr_data.imd_ok = acu_msg.imd_ok;
     _curr_data.bms_ok = acu_msg.bms_ok;
     if (_curr_data.last_recv_millis == 0) { _received_first_acu_heartbeat = true; }
@@ -14,9 +14,9 @@ void ACUInterface::receive_acu_ok_message(const CAN_message_t &msg, unsigned lon
 void ACUInterface::receive_em_measurement(const CAN_message_t &msg, unsigned long curr_millis)
 {
     EM_MEASUREMENT_t em_msg = {};
-    Unpack_EM_MEASUREMENT_hytech(&em_msg, &msg.buf[0], msg.len);
-    _curr_data.em_current = HYTECH_em_current_ro_fromS(em_msg.em_current_ro);
-    _curr_data.em_voltage = HYTECH_em_voltage_ro_fromS(em_msg.em_voltage_ro);
+    Unpack_EM_MEASUREMENT_ht_can(&em_msg, &msg.buf[0], msg.len);
+    _curr_data.em_current = HT_CAN_em_current_ro_fromS(em_msg.em_current_ro);
+    _curr_data.em_voltage = HT_CAN_em_voltage_ro_fromS(em_msg.em_voltage_ro);
 }
 
 ACUCANInterfaceData_s ACUInterface::get_latest_data(uint64_t curr_millis)

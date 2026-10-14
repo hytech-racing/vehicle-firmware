@@ -1,5 +1,5 @@
-#ifndef WATCHDOG_INTERFACE_H
-#define WATCHDOG_INTERFACE_H
+#ifndef WATCHDOG_INTERFACE_HPP
+#define WATCHDOG_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>

@@ -1,5 +1,5 @@
-#ifndef VCR_CONSTANTS
-#define VCR_CONSTANTS
+#ifndef VCR_CONSTANTS_HPP
+#define VCR_CONSTANTS_HPP
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
@@ -178,7 +178,7 @@ namespace VCRConstants
 
     /* --------- CAN Constants ---------- */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000;
-    constexpr uint32_t RAUX_CAN_BAUDRATE = 500000;
+    constexpr uint32_t RAUX_CAN_BAUDRATE = 1000000; // CTRE Kraken runs CAN 2.0B at 1 Mbit/s
     constexpr uint32_t INVERTER_CAN_BAUDRATE = 500000;
 }
 #endif /* VCR_CONSTANTS */

@@ -1,4 +1,4 @@
-#include "VCR_Inverters.h"
+#include "VCR_Inverters.hpp"
 
 
 InverterInterface fl_inverter_interface(INV1_CONTROL_WORD_CANID,

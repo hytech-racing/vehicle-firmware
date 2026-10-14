@@ -7,10 +7,10 @@
 #include <cmath>
 
 /* Local System Includes */
-#include "DrivetrainSystem.h"
+#include "DrivetrainSystem.hpp"
 
 /* Local Controller Includes */
-#include "controllers/SimpleController.h"
+#include "controllers/SimpleController.hpp"
 
 #define WORST_LATENCY_PERIOD_MS 1000
 

@@ -1,4 +1,4 @@
-#include "VehicleStateMachine.h"
+#include "VehicleStateMachine.hpp"
 #include <gtest/gtest.h>
 
 bool hv_over_threshold = false;

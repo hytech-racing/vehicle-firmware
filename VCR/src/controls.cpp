@@ -1,4 +1,4 @@
-#include "controls.h"
+#include "controls.hpp"
 
 
 VCRControls::VCRControls(DrivetrainSystem *dt_system,
@@ -68,7 +68,7 @@ void VCRControls::send_controls_can_messages()
     status_msg.db_telem_timing_fault = telem_latency_info.timing_failure;
 
     CAN_util::enqueue_msg(&status_msg,
-                        &Pack_DRIVEBRAIN_LATENCY_STATUSES_hytech,
+                        &Pack_DRIVEBRAIN_LATENCY_STATUSES_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 
     // Enqueue latency periods
@@ -78,6 +78,6 @@ void VCRControls::send_controls_can_messages()
     latency_msg.telem_latency_millis = static_cast<int>(telem_latency_info.worst_period_millis);
 
     CAN_util::enqueue_msg(&latency_msg,
-                        &Pack_DRIVEBRAIN_LATENCY_TIMES_hytech,
+                        &Pack_DRIVEBRAIN_LATENCY_TIMES_ht_can,
                         VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }

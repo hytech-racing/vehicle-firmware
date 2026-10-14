@@ -1,5 +1,5 @@
-#ifndef MCP23017_IOEXPANDER_INTERFACE_H
-#define MCP23017_IOEXPANDER_INTERFACE_H
+#ifndef MCP23017_IOEXPANDER_INTERFACE_HPP
+#define MCP23017_IOEXPANDER_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -31,9 +31,9 @@ public:
 
     void read() override;
 
-    bool get_bit_port_a(uint8_t bit) override;
+    bool getBitPortA(uint8_t bit) override;
 
-    bool get_bit_port_b(uint8_t bit) override;
+    bool getBitPortB(uint8_t bit) override;
 
 private:
 
