@@ -8,7 +8,7 @@
 #include <EEPROM.h>
 #include <Logger.h>
 
-
+/// TODO: I want to create some generic way to do EEPROM where we round robin the EEPROM cells to avoid degredation
 namespace EEPROMUtilities
 {
 

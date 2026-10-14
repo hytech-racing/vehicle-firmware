@@ -11,10 +11,10 @@
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "BrakeRotorTempInterface.h"
-#include "DashboardInterface.h"
-#include "VCRInterface.h"
+#include "ACUInterface.hpp"
+#include "BrakeRotorTempInterface.hpp"
+#include "DashboardInterface.hpp"
+#include "VCRInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);

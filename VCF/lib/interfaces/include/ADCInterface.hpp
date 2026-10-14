@@ -128,9 +128,9 @@ public:
         )
     {};
 
-    void tick_adc0();
+    void tickADC0();
 
-    void tick_adc1();
+    void tickADC1();
 
 
     /* -------------------- ADC0 -------------------- */
@@ -138,37 +138,37 @@ public:
     /**
      * @return Pedal Reference Reading
     */
-    AnalogConversion_s pedal_reference();
+    AnalogConversion_s getPedalReference();
 
     /**
      * @return Analog Steering Degrees [Steering 1]
     */
-    AnalogConversion_s get_steering_degrees_cw();
+    AnalogConversion_s getSteeringDegreesCW();
 
     /**
      * @return Analog Steering Degrees [Steering 2]
     */
-    AnalogConversion_s get_steering_degrees_ccw();
+    AnalogConversion_s getSteeringDegreesCCW();
 
     /**
      * @return Acceleration Pedal 1
     */
-    AnalogConversion_s get_acceleration_1();
+    AnalogConversion_s getAcceleration1();
 
     /**
      * @return Acceleration Pedal 2
     */
-    AnalogConversion_s get_acceleration_2();
+    AnalogConversion_s getAcceleration2();
 
     /**
      * @return Brake Pedal 1
     */
-    AnalogConversion_s get_brake_1();
+    AnalogConversion_s getBrake1();
 
     /**
      * @return Brake Pedal 2
     */
-    AnalogConversion_s get_brake_2();
+    AnalogConversion_s getBrake2();
 
 
     /* -------------------- ADC1 -------------------- */
@@ -176,67 +176,67 @@ public:
     /**
      * @return SHDN H Voltage Sense
      */
-    AnalogConversion_s shdn_h();
+    AnalogConversion_s getShutdownH();
 
     /**
      * @return SHDN D Voltage Sense
     */
-    AnalogConversion_s shdn_d();
+    AnalogConversion_s getShutdownD();
 
     /**
      * @return Front Left Load Cell
     */
-    AnalogConversion_s get_FL_load_cell();
+    AnalogConversion_s getFLLoadcell();
 
     /**
      * @return Front Right Load Cell
     */
-    AnalogConversion_s get_FR_load_cell();
+    AnalogConversion_s getFRLoadcell();
 
     /**
      * @return Front Left Suspension Potentiometer Reading
     */
-    AnalogConversion_s get_FL_sus_pot();
+    AnalogConversion_s getFLSuspot();
 
     /**
      * @return Front Right Suspension Potentiometer Reading
     */
-    AnalogConversion_s get_FR_sus_pot();
+    AnalogConversion_s getFRSuspot();
 
     /**
      * @return Front Brake Pressure
     */
-    AnalogConversion_s get_brake_pressure_front();
+    AnalogConversion_s getBrakePressureFront();
 
     /**
      * @return Rear Brake Pressure
     */
-    AnalogConversion_s get_brake_pressure_rear();
+    AnalogConversion_s getBrakePressureRear();
 
     /**
      * @brief Update the filtered values for the load cells and sus pots. Uses iir filter.
     */
-    void update_filtered_values(float alpha);
+    void updateFilteredCalues(float alpha);
 
     /**
      * @return Filtered Front Left Load Cell
     */
-    float get_filtered_FL_load_cell();
+    float getFilteredFLLoadcell();
 
     /**
      * @return Filtered Front Right Load Cell
     */
-    float get_filtered_FR_load_cell();
+    float getFilteredFRLoadcell();
 
     /**
      * @return Filtered Front Left Sus Pot
     */
-    float get_filtered_FL_sus_pot();
+    float getFilteredFLSuspot();
 
     /**
      * @return Filtered Front Right Sus Pot
     */
-    float get_filtered_FR_sus_pot();
+    float getFilteredFRSuspot();
 
 private:
 
@@ -260,7 +260,7 @@ private:
     /**
      * @return updated filtered value based on given alpha, previous filtered value, and new measured value
      */
-    static float _apply_iir_filter(float alpha, float prev_value, float new_value);
+    static float _applyIIRFilter(float alpha, float prev_value, float new_value);
 
 };
 

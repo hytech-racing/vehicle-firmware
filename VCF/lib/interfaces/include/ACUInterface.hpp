@@ -6,7 +6,7 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "hytech.h"
+#include "ht_can.h"
 #include "CANInterface.h"
 #include <FlexCAN_T4.h>
 
@@ -15,11 +15,11 @@ class ACUInterface
 {
 public:
 
-    ACUCoreData_s get_last_recvd_data() { return _last_recvd_data; }
+    ACUCoreData_s getLastReceivedData() { return _last_recvd_data; }
 
-    float get_cell_voltage() { return _min_cell_voltage; }
+    float getMinCellVoltage() { return _min_cell_voltage; }
 
-    void receive_ACU_voltages(const CAN_message_t &can_msg);
+    void receiveACUVoltages(const CAN_message_t &can_msg);
 
 private:
 
