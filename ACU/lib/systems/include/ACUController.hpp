@@ -6,8 +6,8 @@
 
 /* Externl Includes */
 #include "SharedFirmwareTypes.h"
-#include "shared_types.h"
-#include "SOCKalmanFilter.h"
+#include "shared_types.hpp"
+#include "SOCKalmanFilter.hpp"
 #include <array>
 #include <math.h>
 #include <stddef.h>

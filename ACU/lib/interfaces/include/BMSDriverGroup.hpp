@@ -6,7 +6,7 @@
 #include "etl/singleton.h"
 
 /* External Includes */
-#include "LTCSPIInterface.h"
+#include "LTCSPIInterface.hpp"
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -17,7 +17,7 @@
 #include <atomic>
 
 #include "SharedFirmwareTypes.h"
-#include "shared_types.h"
+#include "shared_types.hpp"
 
 using namespace std;
 

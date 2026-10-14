@@ -1,32 +1,32 @@
 #ifndef ACU_INTERFACETASKS
 #define ACU_INTERFACETASKS
 
-#include "ACU_Constants.h"
+#include "ACU_Constants.hpp"
 
 /* External Includes */
 #include <ht_task.hpp>
 #include "CANInterface.h"
 
 /* Local Interface Includes */
-#include "ACUCANInterfaceImpl.h"
-#include "ACUEthernetInterface.h"
-#include "ADCInterface.h"
-#include "BMSDriverGroup.h"
-#include "BMSFaultDataManager.h"
-#include "DataLoggingInterface.h"
-#include "MAX114XInterface.h"
-#include "WatchdogInterface.h"
-#include "SoHPersistenceInterface.h"
+#include "ACUCANInterfaceImpl.hpp"
+#include "ACUEthernetInterface.hpp"
+#include "ADCInterface.hpp"
+#include "BMSDriverGroup.hpp"
+#include "BMSFaultDataManager.hpp"
+#include "DataLoggingInterface.hpp"
+#include "MAX114XInterface.hpp"
+#include "WatchdogInterface.hpp"
+#include "SoHPersistenceInterface.hpp"
 #include "SystemTimeInterface.h"
-#include "VCRInterface.h"
+#include "VCRInterface.hpp"
 
 /* Local System Includes */
-#include "ACUController.h"
-#include "FaultLatchManager.h"
-#include "WatchdogMetrics.h"
+#include "ACUController.hpp"
+#include "FaultLatchManager.hpp"
+#include "WatchdogMetrics.hpp"
 
 /* For Debugging */
-#include "ACUStateMachine.h"
+#include "ACUStateMachine.hpp"
 
 /* Scheduling */
 #include <ht_task.hpp>

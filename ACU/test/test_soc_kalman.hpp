@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include <cmath>
-#include "SOCKalmanFilter.h"
+#include "SOCKalmanFilter.hpp"
 
 float coulomb_count(float initial_soc, float current, float dt) {
     return initial_soc - (current * dt / soc_ekf_constants::CAPACITY_AS);

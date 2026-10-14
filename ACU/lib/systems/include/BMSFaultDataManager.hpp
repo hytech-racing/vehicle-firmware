@@ -6,7 +6,7 @@
 #include <etl/algorithm.h>
 
 /* Local Interface Includes */
-#include "BMSDriverGroup.h"  // for ValidPacketData_s
+#include "BMSDriverGroup.hpp"  // for ValidPacketData_s
 
 template <size_t num_chips>
 class BMSFaultDataManager
