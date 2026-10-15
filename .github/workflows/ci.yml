@@ -225,13 +225,21 @@ jobs:
         run: pio run -e ${{ matrix.build_env }} 2>&1 | tee build_output.txt
 
       # Memory usage check.
-      # Parses the PlatformIO build output for flash and RAM usage
-      # percentages and fails CI if either exceeds 90%.
-      # Ex:
-      #   Flash: [========  ]  80.3% (used 105432 bytes from 131072 bytes)
-      #   RAM:   [===       ]  32.1% (used 52488 bytes from 163840 bytes)
-      # If the numbers can't be found, the step fails instead of
-      # silently reporting 0%.
+      # Parses the build output for memory usage and fails CI if any
+      # region exceeds 90% (warns above 80%). Two formats are supported:
+      #
+      # 1. PlatformIO's generic size check (most boards):
+      #      Flash: [========  ]  80.3% (used 105432 bytes from 131072 bytes)
+      #      RAM:   [===       ]  32.1% (used 52488 bytes from 163840 bytes)
+      #
+      # 2. teensy_size (Teensy 4.x), which lists bytes used per region and
+      #    bytes free; usage is used / (used + free):
+      #      teensy_size:   FLASH: code:122432, data:18704, headers:8364   free for files:7976964
+      #      teensy_size:    RAM1: variables:54912, code:119432, padding:11640   free for local variables:338304
+      #      teensy_size:    RAM2: variables:12416  free for malloc/new:511872
+      #
+      # If neither format is found, the step fails instead of silently
+      # reporting 0%.
       - name: Check memory usage
         id: memory
         if: steps.build.outcome == 'success'
@@ -242,30 +250,41 @@ jobs:
           with open("build_output.txt") as f:
             output = f.read()
 
-          flash = re.search(r"Flash:\s+\[=*\s*\]\s+([\d.]+)%", output)
-          ram   = re.search(r"RAM:\s+\[=*\s*\]\s+([\d.]+)%",   output)
+          # Region name -> (bytes used, bytes total)
+          regions = {}
 
-          if not flash or not ram:
+          # Format 1: PlatformIO's generic size check
+          for name in ("Flash", "RAM"):
+            m = re.search(
+              rf"^{name}:\s+\[[=\s]*\]\s+[\d.]+%\s+\(used (\d+) bytes from (\d+) bytes\)",
+              output, re.MULTILINE,
+            )
+            if m:
+              regions[name] = (int(m.group(1)), int(m.group(2)))
+
+          # Format 2: teensy_size. Everything before "free for ..." is a
+          # list of name:bytes fields that together make up the used space.
+          if not regions:
+            pattern = r"teensy_size:\s+(FLASH|RAM1|RAM2):\s+(.*?)\s+free for [^:]+:\s*(\d+)"
+            for name, fields, free in re.findall(pattern, output):
+              used = sum(int(v) for v in re.findall(r"\w+:\s*(\d+)", fields))
+              regions[name] = (used, used + int(free))
+
+          if not regions:
             print("::error::Could not parse memory usage from build output")
             sys.exit(1)
 
-          flash_percent = float(flash.group(1))
-          ram_percent   = float(ram.group(1))
-
-          print(f"Flash usage: {flash_percent:.1f}%")
-          print(f"RAM usage:   {ram_percent:.1f}%")
-
-          with open("summary.md", "a") as s:
-            s.write(f"| Flash | {flash_percent:.1f}% | {'⚠️' if flash_percent > 80 else '✅'} |\n")
-            s.write(f"| RAM   | {ram_percent:.1f}%   | {'⚠️' if ram_percent   > 80 else '✅'} |\n")
-
           failed = False
-          if flash_percent > 90:
-            print("::error::Flash usage exceeds 90% — binary too large")
-            failed = True
-          if ram_percent > 90:
-            print("::error::RAM usage exceeds 90% — too much static memory")
-            failed = True
+          with open("summary.md", "a") as s:
+            for name, (used, total) in regions.items():
+              percent = 100 * used / total if total else 0.0
+              status = "⚠️" if percent > 80 else "✅"
+              print(f"{name}: {percent:.1f}% ({used:,} / {total:,} bytes)")
+              s.write(f"| {name} | {percent:.1f}% ({used:,} / {total:,} B) | {status} |\n")
+              if percent > 90:
+                print(f"::error::{name} usage is {percent:.1f}% — exceeds 90% limit")
+                failed = True
+
           sys.exit(1 if failed else 0)
           EOF
 
