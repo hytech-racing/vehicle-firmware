@@ -61,9 +61,9 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::evaluateTCMux(Controll
 
         if (active_mode_evaluate_output.control_mode == DrivetrainControlMode_e::TORQUE)
         {
-            // Regen branch -> apply limits so that the pack voltage doesn't spike too high
-            if (active_mode_evaluate_output.desired_torques.FL == 0.0f && active_mode_evaluate_output.desired_torques.FR == 0.0f &&
-                active_mode_evaluate_output.desired_torques.RL == 0.0f && active_mode_evaluate_output.desired_torques.RR == 0.0f
+            // Regen branch -> apply limits so that the pack voltage doesn't spike too high and regen fades out at low speed (EV.3.3.3)
+            if (active_mode_evaluate_output.desired_torques.FL < 0.0f || active_mode_evaluate_output.desired_torques.FR < 0.0f ||
+                active_mode_evaluate_output.desired_torques.RL < 0.0f || active_mode_evaluate_output.desired_torques.RR < 0.0f
             )
             {
                 active_mode_evaluate_output = _applyRegenLimit(active_mode_evaluate_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
@@ -351,7 +351,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(const
     float torque_scale_down = std::min(1.0f, std::max(0.0f, (max_wheel_speed - full_regen_limit_kph) / (no_regen_limit_kph - full_regen_limit_kph))); // FIX: removed self-assignment (was `= torque_scale_down =`)
 
     // limit torque based on overvoltage so that cells do not limit; using linear ramp
-    float over_voltage_protection_scale = std::min(1.0f, std::max(0.1f, (max_inverter_voltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
+    float over_voltage_protection_scale = std::min(1.0f, std::max(0.0f, (max_inverter_voltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
     torque_scale_down *= (1.0f - over_voltage_protection_scale);
 
     // regen power limit (what was wrong with this??)

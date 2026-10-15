@@ -182,7 +182,9 @@ void InverterInterface::receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
 
 void InverterInterface::send_AC_CURRENT(float target_ac_current_apk)
 {
-    target_ac_current_apk = std::isfinite(target_ac_current_apk) ? std::clamp(target_ac_current_apk, -850.0f, 850.0f) : 0.0f;   // signed: sign = torque direction
+    // Forward-only: negative AC current is reverse torque, which would drive the car backwards once stopped.
+    // Braking goes through send_BRAKE_CURRENT, which always opposes rotation.
+    target_ac_current_apk = std::isfinite(target_ac_current_apk) ? std::clamp(target_ac_current_apk, 0.0f, 850.0f) : 0.0f;
 
     INV1_SET_AC_CURRENT_t msg_out{};
     msg_out.target_ac_current_apk_ro = HT_CAN_target_ac_current_apk_ro_toS(target_ac_current_apk);
@@ -210,7 +212,7 @@ void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
 
 void InverterInterface::send_ERPM(float target_erpm)
 {
-    target_erpm = std::isfinite(target_erpm) ? std::clamp(target_erpm, -100000.0f, 100000.0f) : 0.0f;
+    target_erpm = std::isfinite(target_erpm) ? std::clamp(target_erpm, 0.0f, 100000.0f) : 0.0f;   // forward-only, never command reverse rotation
 
     INV1_SET_ERPM_t msg_out{};
     msg_out.target_erpm = target_erpm;
@@ -355,13 +357,15 @@ void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
     {
         case DrivetrainControlMode_e::TORQUE:
         {
-            if (_control_inputs.pending_ac_current_apk > 0.0f)
+            // Only one command per cycle: the inverter likely follows whichever set-command it received last.
+            // Zero request (coast, or regen limited to zero at low speed) is sent as AC current 0, not brake current 0.
+            if (_control_inputs.pending_ac_brake_current_apk > 0.0f)
             {
-                send_AC_CURRENT(_control_inputs.pending_ac_current_apk);
+                send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
             }
             else
             {
-                send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
+                send_AC_CURRENT(_control_inputs.pending_ac_current_apk);
             }
             break;
         }
@@ -583,9 +587,15 @@ float InverterInterface::_convertTorqueToCurrent(float motor_torque_nm) const
                             (_dti_params.ld_henries - _dti_params.lq_henries) * // negative value, -128 uH
                             id_actual; // normally negative
 
+    if (motor_torque_nm == 0.0f)
+    {
+        return 0.0f; // hypot below would return |id| and command current at zero torque
+    }
+
     float iqff = (2.0f * motor_torque_nm) / (3.0f * static_cast<float>(_dti_params.num_pole_pairs) * lambda_effective);
 
-    return std::hypot(id_actual, iqff);
+    // hypot is always positive, so carry the torque's sign: setMotorTorque routes negative current to brake current
+    return std::copysign(std::hypot(id_actual, iqff), motor_torque_nm);
 }
 
 float InverterInterface::_convertCurrentToTorque(float id_apk, float iq_apk) const
