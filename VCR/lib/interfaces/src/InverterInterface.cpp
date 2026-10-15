@@ -196,7 +196,7 @@ void InverterInterface::send_AC_CURRENT(float target_ac_current_apk)
 
 void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
 {
-    target_brake_current_apk = std::isfinite(target_brake_current_apk) ? (target_brake_current_apk, 0.0f, 850.0f) : 0.0f;
+    target_brake_current_apk = std::isfinite(target_brake_current_apk) ? std::clamp(target_brake_current_apk, 0.0f, 850.0f) : 0.0f;
 
     INV1_SET_BRAKE_CURRENT_t msg_out{};
     msg_out.target_brake_current_apk_ro = HT_CAN_target_brake_current_apk_ro_toS(target_brake_current_apk);
@@ -210,7 +210,7 @@ void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
 
 void InverterInterface::send_ERPM(float target_erpm)
 {
-    target_erpm = std::isfinite(target_erpm) ? (target_erpm, -100000.0f, 100000.0f) : 0.0f;
+    target_erpm = std::isfinite(target_erpm) ? std::clamp(target_erpm, -100000.0f, 100000.0f) : 0.0f;
 
     INV1_SET_ERPM_t msg_out{};
     msg_out.target_erpm = target_erpm;
@@ -224,7 +224,7 @@ void InverterInterface::send_ERPM(float target_erpm)
 
 void InverterInterface::send_MOTOR_POSITION(float target_motor_position_deg)
 {
-    target_motor_position_deg = std::isfinite(target_motor_position_deg) ? (target_motor_position_deg, 0.0f, 359.9f) : 0.0f;
+    target_motor_position_deg = std::isfinite(target_motor_position_deg) ? std::clamp(target_motor_position_deg, 0.0f, 359.9f) : 0.0f;
 
     INV1_SET_MOTOR_POSITION_t msg_out{};
     msg_out.target_motor_position_deg_ro = HT_CAN_target_motor_position_deg_ro_toS(target_motor_position_deg);
@@ -238,7 +238,7 @@ void InverterInterface::send_MOTOR_POSITION(float target_motor_position_deg)
 
 void InverterInterface::send_REL_AC_CURRENT(float target_ac_current_percent)
 {
-    target_ac_current_percent = std::isfinite(target_ac_current_percent) ? (target_ac_current_percent, -100.0f, 100.0f) : 0.0f;
+    target_ac_current_percent = std::isfinite(target_ac_current_percent) ? std::clamp(target_ac_current_percent, -100.0f, 100.0f) : 0.0f;
 
     INV1_SET_REL_AC_CURRENT_t msg_out{};
     msg_out.target_ac_current_percent_ro = HT_CAN_target_ac_current_percent_ro_toS(target_ac_current_percent);
@@ -252,7 +252,7 @@ void InverterInterface::send_REL_AC_CURRENT(float target_ac_current_percent)
 
 void InverterInterface::send_REL_AC_BRAKE_CURRENT(float target_ac_brake_current_percent)
 {
-    target_ac_brake_current_percent = std::isfinite(target_ac_brake_current_percent) ? (target_ac_brake_current_percent, 0.0f, 100.0f) : 0.0f;
+    target_ac_brake_current_percent = std::isfinite(target_ac_brake_current_percent) ? std::clamp(target_ac_brake_current_percent, 0.0f, 100.0f) : 0.0f;
 
     INV1_SET_REL_AC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_ac_brake_current_percent_ro = HT_CAN_target_ac_brake_current_percent_ro_toS(target_ac_brake_current_percent);
@@ -273,7 +273,7 @@ void InverterInterface::send_DIGITAL_OUTPUTS()
 
 void InverterInterface::send_MAX_AC_CURRENT(float target_max_ac_current_apk)
 {
-    target_max_ac_current_apk = std::isfinite(target_max_ac_current_apk) ? (target_max_ac_current_apk, 0.0f, 850.0f) : 0.0f;
+    target_max_ac_current_apk = std::isfinite(target_max_ac_current_apk) ? std::clamp(target_max_ac_current_apk, 0.0f, 850.0f) : 0.0f;
 
     INV1_SET_MAX_AC_CURRENT_t msg_out{};
     // Uses the command signal's own scaling macro (was the 0x25 status signal's macro)
@@ -288,7 +288,7 @@ void InverterInterface::send_MAX_AC_CURRENT(float target_max_ac_current_apk)
 
 void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_current_apk)
 {
-    target_max_ac_brake_current_apk = std::isfinite(target_max_ac_brake_current_apk) ? (target_max_ac_brake_current_apk, -850.0f, 0.0f) : 0.0f;
+    target_max_ac_brake_current_apk = std::isfinite(target_max_ac_brake_current_apk) ? std::clamp(target_max_ac_brake_current_apk, -850.0f, 0.0f) : 0.0f;
 
     INV1_SET_MAX_AC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_max_ac_brake_current_apk_ro = HT_CAN_target_max_ac_brake_current_apk_ro_toS(target_max_ac_brake_current_apk);
@@ -302,7 +302,7 @@ void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_curr
 
 void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_amp)
 {
-    target_max_dc_current_amp = std::isfinite(target_max_dc_current_amp) ? (target_max_dc_current_amp, 0.0f, 850.0f) : 0.0f;
+    target_max_dc_current_amp = std::isfinite(target_max_dc_current_amp) ? std::clamp(target_max_dc_current_amp, 0.0f, 850.0f) : 0.0f;
 
     INV1_SET_MAX_DC_CURRENT_t msg_out{};
     // Uses the command signal's own scaling macro (was the 0x26 status signal's macro)
@@ -317,7 +317,7 @@ void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_amp)
 
 void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_current_amp)
 {
-    target_max_dc_brake_current_amp = std::isfinite(target_max_dc_brake_current_amp) ? (target_max_dc_brake_current_amp, -850.0f, 0.0f) : 0.0f;
+    target_max_dc_brake_current_amp = std::isfinite(target_max_dc_brake_current_amp) ? std::clamp(target_max_dc_brake_current_amp, -850.0f, 0.0f) : 0.0f;
 
     INV1_SET_MAX_DC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_max_dc_brake_current_amp_ro = HT_CAN_target_max_dc_brake_current_amp_ro_toS(target_max_dc_brake_current_amp);

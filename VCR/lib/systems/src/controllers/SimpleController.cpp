@@ -9,7 +9,6 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
     };
 
     const PedalsSystemData_s &pedals_data = state.interface_data.recvd_pedals_data.pedals_data;
-
     float accel_request = pedals_data.accel_percent - pedals_data.brake_percent;
 
     if (_params.control_mode == DrivetrainControlMode_e::TORQUE)
