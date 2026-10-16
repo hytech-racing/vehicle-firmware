@@ -11,6 +11,7 @@ This repository contains the firmware for all HyTech Racing boards in a single, 
 | **Dashboard** | Driver Dashboard |
 | **VCF** | Vehicle Controller Front |
 | **VCR** | Vehicle Controller Rear |
+| **RDC** | Driverless Controller |
 
 ## Documentation
 

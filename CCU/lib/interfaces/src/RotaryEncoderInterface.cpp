@@ -1,4 +1,4 @@
-#include "RotaryEncoderInterface.h"
+#include "RotaryEncoderInterface.hpp"
 
 
 RotaryEncoderInterface* RotaryEncoderInterface::_active_instance = nullptr;
@@ -8,20 +8,20 @@ void RotaryEncoderInterface::init()
     pinMode(_pinout.enc_a_pin, INPUT_PULLUP);
     pinMode(_pinout.enc_b_pin, INPUT_PULLUP);
 
-    _state.last_encoded = _read_encoded();
+    _state.last_encoded = _readEncoded();
     _state.transition_accumulator = 0;
 
     _active_instance = this;
 
     attachInterrupt(
         digitalPinToInterrupt(_pinout.enc_a_pin),
-        RotaryEncoderInterface::_isr_handler,
+        RotaryEncoderInterface::_ISRHandler,
         CHANGE
     );
 
     attachInterrupt(
         digitalPinToInterrupt(_pinout.enc_b_pin),
-        RotaryEncoderInterface::_isr_handler,
+        RotaryEncoderInterface::_ISRHandler,
         CHANGE
     );
 }
@@ -33,7 +33,7 @@ void RotaryEncoderInterface::tick(unsigned long current_millis)
     _enc_switch_button.update(current_millis);
 }
 
-float RotaryEncoderInterface::get_value() const
+float RotaryEncoderInterface::getValue() const
 {
     noInterrupts();
     float value = _state.encoder_value;
@@ -42,7 +42,7 @@ float RotaryEncoderInterface::get_value() const
     return value;
 }
 
-void RotaryEncoderInterface::set_value(float value)
+void RotaryEncoderInterface::setValue(float value)
 {
     noInterrupts();
     _state.encoder_value = _clamp(value);
@@ -50,7 +50,7 @@ void RotaryEncoderInterface::set_value(float value)
     interrupts();
 }
 
-void RotaryEncoderInterface::set_limits(float min_value, float max_value)
+void RotaryEncoderInterface::setLimits(float min_value, float max_value)
 {
     if (min_value > max_value)
     {
@@ -69,7 +69,7 @@ void RotaryEncoderInterface::set_limits(float min_value, float max_value)
     interrupts();
 }
 
-void RotaryEncoderInterface::set_step(float step)
+void RotaryEncoderInterface::setStep(float step)
 {
     if (step < 0)
     {
@@ -81,30 +81,30 @@ void RotaryEncoderInterface::set_step(float step)
     interrupts();
 }
 
-bool RotaryEncoderInterface::switch_pressed()
+bool RotaryEncoderInterface::isSwitchPressed()
 {
-    return _enc_switch_button.is_pressed();
+    return _enc_switch_button.isPressed();
 }
 
-bool RotaryEncoderInterface::switch_released()
+bool RotaryEncoderInterface::isSwitchReleased()
 {
-    return _enc_switch_button.is_released();
+    return _enc_switch_button.isReleased();
 }
 
-bool RotaryEncoderInterface::switch_held()
+bool RotaryEncoderInterface::isSwitchHeld()
 {
-    return _enc_switch_button.is_held();
+    return _enc_switch_button.isHeld();
 }
 
-void RotaryEncoderInterface::_isr_handler()
+void RotaryEncoderInterface::_ISRHandler()
 {
     if (_active_instance != nullptr)
     {
-        _active_instance->_update_encoder_from_isr();
+        _active_instance->_updateEncoderFromISR();
     }
 }
 
-uint8_t RotaryEncoderInterface::_read_encoded() const
+uint8_t RotaryEncoderInterface::_readEncoded() const
 {
     uint8_t a = static_cast<uint8_t>(digitalRead(_pinout.enc_a_pin));
     uint8_t b = static_cast<uint8_t>(digitalRead(_pinout.enc_b_pin));
@@ -112,9 +112,9 @@ uint8_t RotaryEncoderInterface::_read_encoded() const
     return static_cast<uint8_t>((a << 1) | b);
 }
 
-void RotaryEncoderInterface::_update_encoder_from_isr()
+void RotaryEncoderInterface::_updateEncoderFromISR()
 {
-    uint8_t encoded = _read_encoded();
+    uint8_t encoded = _readEncoded();
 
     if (encoded == _state.last_encoded)
     {
@@ -130,7 +130,7 @@ void RotaryEncoderInterface::_update_encoder_from_isr()
         case default_encoder_params::CW_3:
         case default_encoder_params::CW_4:
         {
-            _apply_transition_delta_from_isr(+1);
+            _applyTransitionDeltaFromISR(+1);
             break;
         }
 
@@ -139,7 +139,7 @@ void RotaryEncoderInterface::_update_encoder_from_isr()
         case default_encoder_params::CCW_3:
         case default_encoder_params::CCW_4:
         {
-            _apply_transition_delta_from_isr(-1);
+            _applyTransitionDeltaFromISR(-1);
             break;
         }
 
@@ -156,29 +156,29 @@ void RotaryEncoderInterface::_update_encoder_from_isr()
     _state.last_encoded = encoded;
 }
 
-void RotaryEncoderInterface::_apply_transition_delta_from_isr(int delta)
+void RotaryEncoderInterface::_applyTransitionDeltaFromISR(int delta)
 {
     _state.transition_accumulator += delta;
 
     if (_state.transition_accumulator >= default_encoder_params::TRANSITIONS_PER_DETENT)
     {
-        _increment_from_isr();
+        _incrementFromISR();
         _state.transition_accumulator = 0;
     }
     else if (_state.transition_accumulator <= -default_encoder_params::TRANSITIONS_PER_DETENT)
     {
-        _decrement_from_isr();
+        _decrementFromISR();
         _state.transition_accumulator = 0;
     }
 }
 
-void RotaryEncoderInterface::_increment_from_isr()
+void RotaryEncoderInterface::_incrementFromISR()
 {
     float next_value = _state.encoder_value + _state.step;
     _state.encoder_value = _clamp(next_value);
 }
 
-void RotaryEncoderInterface::_decrement_from_isr()
+void RotaryEncoderInterface::_decrementFromISR()
 {
     float next_value = _state.encoder_value - _state.step;
     _state.encoder_value = _clamp(next_value);

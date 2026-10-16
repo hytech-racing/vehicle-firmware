@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Controller Includes */
-#include "PhysicalParameters.h"
+#include "PhysicalParameters.hpp"
 
 // notes:
 // 21 torque limit should be first

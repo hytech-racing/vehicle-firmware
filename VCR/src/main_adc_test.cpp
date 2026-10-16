@@ -1,6 +1,6 @@
 #include "Arduino.h"
-#include "ADCInterface.h"
-#include "VCR_Constants.h"
+#include "ADCInterface.hpp"
+#include "VCR_Constants.hpp"
 
 #include "Logger.h"
 

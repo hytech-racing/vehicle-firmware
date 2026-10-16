@@ -1,4 +1,4 @@
-#include "controllers/SimpleLaunchController.h"
+#include "controllers/SimpleLaunchController.hpp"
 
 
 DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s &vcr_data, uint32_t curr_millis)
