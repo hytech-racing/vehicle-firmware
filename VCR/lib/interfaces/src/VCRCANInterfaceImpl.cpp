@@ -1,6 +1,5 @@
 #include "VCRCANInterfaceImpl.hpp"
 
-
 void VCRCANInterfaceImpl::on_auxillary_can_receive(const CAN_message_t &msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
@@ -198,6 +197,14 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
                 break;
             }
         }
+            case EBS_DATA_CANID:
+            {
+                if (interface_type == CANInterfaceType_e::TELEM){
+                    VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer.push_back(
+                    (const uint8_t *)&msg, CAN_MSG_SIZE);
+                }
+                break;
+        }
 
         default:
         {
@@ -217,4 +224,3 @@ void VCRCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Ba
         can_interface->write(msg);
     }
 }
-
