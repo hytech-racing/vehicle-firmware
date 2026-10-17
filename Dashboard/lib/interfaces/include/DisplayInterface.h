@@ -10,6 +10,7 @@
 #include "HT_SPI.h"
 #include "alysa_frames.h"
 #include "HT_SharpMem.h"
+#include "DashScreens.h"
 #include <Adafruit_GFX.h>
 
 // Fonts
@@ -78,6 +79,18 @@ public:
     void display_all_temps(veh_vec<int> temps);
     void display_max_temps(int inverter_temp, int motor_temp);
 
+    /* Event Screens
+     * Each draws only that screen's own content. The shared frame (pedal bars, battery bar, icons, mode number,
+     * fault popup) is drawn by the caller, so it is identical on every screen. */
+    void draw_screen_standard(const DashScreens::ScreenData_s &d);
+    void draw_screen_acceleration(const DashScreens::ScreenData_s &d);
+    void draw_screen_handling(const DashScreens::ScreenData_s &d);
+    void draw_screen_endurance(const DashScreens::ScreenData_s &d);
+    void draw_screen_cooling(const DashScreens::ScreenData_s &d);
+
+    /// Motor RPM to vehicle MPH. Only as accurate as conversions::GEARBOX_RATIO / WHEEL_DIAMETER (both marked TODO).
+    static float rpm_to_mph(float rpm);
+
     /* Status Icons */
     void draw_icons(uint8_t vn_status, VehicleState_e car_state, bool db_in_ctrl);
     void draw_popup(String title);
@@ -101,6 +114,12 @@ private:
     void _draw_rectangle_right_corner(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 
     String _twoDigits(int number);
+
+    /* Screen helpers */
+    String _percent_string(float percent);
+    void _print_centered(const String &text, int16_t x_min, int16_t x_max, int16_t baseline_y);
+    void _draw_label_value(const char *label, const String &value, int16_t x, int16_t baseline_y);
+    void _draw_temp_strip(int inverter_temp, int motor_temp);
 
     bool _blink();
 

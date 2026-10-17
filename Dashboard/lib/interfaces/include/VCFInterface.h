@@ -44,6 +44,16 @@ public:
 
     int get_control_mode() { return _control_mode; }
 
+    /// @brief Dial position as the shared enum. Values outside MODE_0..MODE_5 (e.g. before the first
+    ///        DASH_INPUT message, or a corrupt frame) fall back to MODE_0.
+    ControllerMode_e get_dial_mode()
+    {
+        return (_control_mode >= static_cast<int>(ControllerMode_e::MODE_0) &&
+                _control_mode <= static_cast<int>(ControllerMode_e::MODE_5))
+                   ? static_cast<ControllerMode_e>(_control_mode)
+                   : ControllerMode_e::MODE_0;
+    }
+
     VCFCANInterfaceData_s get_curr_data() {return _curr_data;}
 
 private:

@@ -15,6 +15,16 @@ void DashCAN::dash_CAN_recv_switch(CANInterfaces_s &interfaces, const CAN_messag
             interfaces.acu_interface.receive_acu_ok_message(msg);
             break;
         }
+        case STATE_OF_CHARGE_CANID:
+        {
+            interfaces.acu_interface.receive_state_of_charge(msg);
+            break;
+        }
+        case STATE_OF_ENERGY_CANID:
+        {
+            interfaces.acu_interface.receive_state_of_energy(msg);
+            break;
+        }
         case PEDALS_SYSTEM_DATA_CANID:
         {
             interfaces.vcf_interface.receive_pedals_message(msg, millis);

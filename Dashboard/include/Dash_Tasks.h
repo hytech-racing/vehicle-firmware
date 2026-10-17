@@ -3,6 +3,7 @@
 
 #include "Dash_Constants.h"
 #include "Dash_Globals.h"
+#include "DashScreens.h"
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
@@ -20,7 +21,7 @@
 #include "VCRInterface.h"
 
 
-void initalize_all_interfaces();
+void initialize_all_interfaces();
 
 ::HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 ::HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);

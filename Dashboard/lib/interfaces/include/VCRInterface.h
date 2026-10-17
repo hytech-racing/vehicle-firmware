@@ -75,13 +75,13 @@ public:
 private:
 
     bool _is_in_pedals_calibration_state = false;
-    bool _is_db_in_ctrl;
+    bool _is_db_in_ctrl = false;
     TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_LOW_TORQUE;
-    MotorMechanics_s _wheel_data;
-    VehicleState_e _vehicle_state_value;
-    Temperature_s _temps;
+    MotorMechanics_s _wheel_data = {};
+    VehicleState_e _vehicle_state_value = {};
+    Temperature_s _temps = {};
     DrivetrainState_e _drivetrain_state_value;
-    InverterStatus_s _inverter_status;
+    InverterStatus_s _inverter_status = {};
 
 };
 

@@ -130,7 +130,8 @@ void DisplayInterface::draw_battery_bar(int percent)
     // 0%: 59
     // 100% 0
     _display.fillRect(60, 5, 250, 20, _black);
-    int w = (100 - percent) * (246 / 100);
+    percent = std::max(0, std::min(100, percent));
+    int w = ((100 - percent) * 246) / 100; // multiply first: 246 / 100 is 2 in integer math
     DisplayInterface::_draw_rectangle_right_corner(306, 7, w, 16, _white);
 }
 
@@ -330,4 +331,150 @@ bool DisplayInterface::_blink()
         DisplayInterface::_last_blink_millis = millis();
     }
     return DisplayInterface::_last_blink;
+}
+
+
+/* ============================================================================================================
+ * Event screens
+ *
+ * Usable area below the shared frame: x 62..318, y 70..238. Top-left strip (x 62..175, y 33..68) sits beside the
+ * status icons (x >= 180) and is used for the inverter / motor temperatures on the screens that show them.
+ * Fonts are limited to the ones DisplayInterface.h already pulls in, so this adds no font flash.
+ * ============================================================================================================ */
+
+static constexpr int16_t CONTENT_X_MIN = 62;
+static constexpr int16_t CONTENT_X_MAX = 318;
+
+float DisplayInterface::rpm_to_mph(float rpm)
+{
+    return fabsf(rpm) * conversions::RPM_TO_METERS_PER_SECOND * conversions::METERS_PER_SECOND_TO_MPH;
+}
+
+String DisplayInterface::_percent_string(float percent)
+{
+    if (percent < 0.0f)
+    {
+        return String("--"); // no CAN data yet
+    }
+    return String(static_cast<int>(std::min(100.0f, percent) + 0.5f));
+}
+
+void DisplayInterface::_print_centered(const String &text, int16_t x_min, int16_t x_max, int16_t baseline_y)
+{
+    int16_t bx = 0;
+    int16_t by = 0;
+    uint16_t bw = 0;
+    uint16_t bh = 0;
+    _display.getTextBounds(text, 0, 0, &bx, &by, &bw, &bh);
+    _display.setCursor(x_min + ((x_max - x_min) - static_cast<int16_t>(bw)) / 2 - bx, baseline_y);
+    _display.print(text);
+}
+
+// Bold label followed by a regular-weight value, e.g. "SOC 87"
+void DisplayInterface::_draw_label_value(const char *label, const String &value, int16_t x, int16_t baseline_y)
+{
+    _display.setTextSize(1);
+    _display.setTextColor(_black);
+    _display.setFont(&FreeSansBold12pt7b);
+    _display.setCursor(x, baseline_y);
+    _display.print(label);
+    _display.setFont(&FreeSans12pt7b);
+    _display.print(value);
+}
+
+// Inverter / motor temperatures in the strip under the battery bar and left of the icons
+void DisplayInterface::_draw_temp_strip(int inverter_temp, int motor_temp)
+{
+    // 12 pt text is 28 px tall, so the two lines need ~28 px between baselines or they overlap
+    _draw_label_value("INV ", String(inverter_temp), 65, 50);
+    _draw_label_value("MTR ", String(motor_temp), 65, 80);
+}
+
+// The original all-purpose layout, unchanged
+void DisplayInterface::draw_screen_standard(const DashScreens::ScreenData_s &d)
+{
+    display_min_cell(d.min_cell_voltage);
+    display_max_temps(d.inverter_max_temp, d.motor_max_temp);
+}
+
+// Acceleration: a 75 m run lasts a few seconds. Speed only, as large as it goes.
+void DisplayInterface::draw_screen_acceleration(const DashScreens::ScreenData_s &d)
+{
+    _display.setTextColor(_black);
+    _display.setFont(&FreeSans24pt7b);
+    _display.setTextSize(2);
+    _print_centered(String(static_cast<int>(d.speed_mph)), CONTENT_X_MIN, CONTENT_X_MAX, 165);
+
+    _display.setTextSize(1);
+    _display.setFont(&FreeSansBold12pt7b);
+    _print_centered(String("MPH"), CONTENT_X_MIN, CONTENT_X_MAX, 195);
+
+    _draw_label_value("SOC ", _percent_string(d.soc_percent) + "%", 65, 230);
+}
+
+// Skidpad + autocross: speed large, temperatures up top, SoC and weakest cell along the bottom
+void DisplayInterface::draw_screen_handling(const DashScreens::ScreenData_s &d)
+{
+    _draw_temp_strip(d.inverter_max_temp, d.motor_max_temp);
+
+    _display.setTextColor(_black);
+    _display.setFont(&FreeSans24pt7b);
+    _display.setTextSize(2);
+    _print_centered(String(static_cast<int>(d.speed_mph)), CONTENT_X_MIN, CONTENT_X_MAX, 160);
+
+    _display.setTextSize(1);
+    _display.setFont(&FreeSansBold12pt7b);
+    _print_centered(String("MPH"), CONTENT_X_MIN, CONTENT_X_MAX, 190);
+
+    _draw_label_value("SOC ", _percent_string(d.soc_percent) + "%", 65, 230);
+    _draw_label_value("CELL ", String(d.min_cell_voltage, 2), 185, 230);
+}
+
+// Endurance: state of charge is the headline number; SoE and speed support it
+void DisplayInterface::draw_screen_endurance(const DashScreens::ScreenData_s &d)
+{
+    _draw_temp_strip(d.inverter_max_temp, d.motor_max_temp);
+
+    _display.setTextColor(_black);
+    _display.setFont(&FreeSans24pt7b);
+    _display.setTextSize(2);
+    _print_centered(_percent_string(d.soc_percent), CONTENT_X_MIN, CONTENT_X_MAX - 28, 160);
+
+    // the % sign goes right after the digits (the cursor is left at the end of the number)
+    const int16_t pct_x = _display.getCursorX() + 4;
+    _display.setTextSize(1);
+    _display.setFont(&FreeSansBold18pt7b);
+    _display.setCursor(pct_x, 160);
+    _display.print("%");
+
+    _display.setFont(&FreeSansBold12pt7b);
+    _print_centered(String("STATE OF CHARGE"), CONTENT_X_MIN, CONTENT_X_MAX, 190);
+
+    _draw_label_value("SOE ", _percent_string(d.soe_percent) + "%", 65, 230);
+    _draw_label_value("MPH ", String(static_cast<int>(d.speed_mph)), 195, 230);
+}
+
+// Cooling / pit: temperatures are the point, with cell and pack voltage underneath
+void DisplayInterface::draw_screen_cooling(const DashScreens::ScreenData_s &d)
+{
+    _display.setTextColor(_black);
+    _display.setTextSize(1);
+
+    _display.setFont(&FreeSansBold18pt7b);
+    _display.setCursor(70, 112);
+    _display.print("INV");
+    _display.setFont(&FreeSans24pt7b);
+    _display.setCursor(175, 112);
+    _display.print(d.inverter_max_temp);
+
+    _display.setFont(&FreeSansBold18pt7b);
+    _display.setCursor(70, 162);
+    _display.print("MTR");
+    _display.setFont(&FreeSans24pt7b);
+    _display.setCursor(175, 162);
+    _display.print(d.motor_max_temp);
+
+    _draw_label_value("CELL ", String(d.min_cell_voltage, 2), 65, 205);
+    _draw_label_value("PACK ", String(static_cast<int>(d.pack_voltage)), 65, 230);
+    _draw_label_value("SOC ", _percent_string(d.soc_percent) + "%", 195, 230);
 }

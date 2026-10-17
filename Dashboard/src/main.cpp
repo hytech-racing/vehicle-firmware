@@ -21,6 +21,7 @@ HT_TASK::Task refresh_screen_task(HT_TASK::DUMMY_FUNCTION, &screen_refresh, Dash
 
 void setup()
 {
+    initialize_all_interfaces(); // creates the interface singletons the tasks below use
 
     scheduler.setTimingFunction(micros);
     scheduler.schedule(can_task);
