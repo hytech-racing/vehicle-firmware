@@ -76,7 +76,7 @@ protected:
     }
 
     /**
-     * Commands the underlying device to sample all channels and internall store the results.
+     * Commands the underlying device to sample all channels and internally store the results.
      * @post The lastSample field of each AnalogChannel in channels_ must contain the new value.
      */
     virtual void _sample();
