@@ -1,7 +1,7 @@
 name: Release on merge to main
 # When a release/* branch gets merged into main, this computes the next
 # version number, tags it, builds firmware for all five subsystems, and
-# publishes a single GitHub Release with all five .hex files attached.
+# publishes a single GitHub Release with one firmware file per board.
 
 on:
   pull_request:
@@ -102,7 +102,7 @@ jobs:
       #   subsystem still gets a chance to finish independently, so you
       #   can see all five results instead of one truncated run.
       matrix:
-        subsystem: [ACU, CCU, VCF, VCR, Dashboard]
+        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -126,6 +126,7 @@ jobs:
             CCU)       echo "name=ccu-prod"      >> "$GITHUB_OUTPUT" ;;
             VCF)       echo "name=vcf-prod"      >> "$GITHUB_OUTPUT" ;;
             VCR)       echo "name=vcr-prod"      >> "$GITHUB_OUTPUT" ;;
+            RDC)       echo "name=rdc-prod"      >> "$GITHUB_OUTPUT" ;;
             Dashboard) echo "name=dash-dfu-prod" >> "$GITHUB_OUTPUT" ;;
           esac
 
@@ -176,6 +177,7 @@ jobs:
           mv firmware/CCU-firmware/firmware.hex       firmware/CCU-firmware/CCU-firmware.hex
           mv firmware/VCF-firmware/firmware.hex       firmware/VCF-firmware/VCF-firmware.hex
           mv firmware/VCR-firmware/firmware.hex       firmware/VCR-firmware/VCR-firmware.hex
+          mv firmware/RDC-firmware/firmware.hex       firmware/RDC-firmware/RDC-firmware.hex
           mv firmware/Dashboard-firmware/firmware.bin firmware/Dashboard-firmware/Dashboard-firmware.bin
 
       - name: Create GitHub Release
@@ -187,5 +189,6 @@ jobs:
             firmware/CCU-firmware/CCU-firmware.hex
             firmware/VCF-firmware/VCF-firmware.hex
             firmware/VCR-firmware/VCR-firmware.hex
+            firmware/RDC-firmware/RDC-firmware.hex
             firmware/Dashboard-firmware/Dashboard-firmware.bin
           generate_release_notes: true

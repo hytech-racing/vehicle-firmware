@@ -1,4 +1,4 @@
-#include "SOCKalmanFilter.h"
+#include "SOCKalmanFilter.hpp"
 
 
 SOCKalmanFilter::SOCKalmanFilter() : _state{soc_ekf_constants::INITIAL_SOC, soc_ekf_constants::INITIAL_V1},

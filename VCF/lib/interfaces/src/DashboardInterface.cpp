@@ -1,4 +1,4 @@
-#include "DashboardInterface.h"
+#include "DashboardInterface.hpp"
 
 
 void DashboardInterface::init()
@@ -13,56 +13,54 @@ void DashboardInterface::init()
     _dash_created_millis = sys_time::hal_millis();
 
     _i2c_bus.begin();
-
-    _init_io_expander();
 }
 
-void DashboardInterface::sync_dashboard_stored_state()
+void DashboardInterface::syncDashboardStoredState()
 {
     _dashboard_stored_state = _dashboard_outputs;
 }
 
-void DashboardInterface::receive_ACU_OK(const CAN_message_t &can_msg)
+void DashboardInterface::receiveACUOKCANMsg(const CAN_message_t &can_msg)
 {
     ACU_OK_t unpacked_msg;
-    Unpack_ACU_OK_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
+    Unpack_ACU_OK_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
 
-    bms_ok = unpacked_msg.bms_ok;
-    imd_ok = unpacked_msg.imd_ok;
+    _bms_ok = unpacked_msg.bms_ok;
+    _imd_ok = unpacked_msg.imd_ok;
 }
 
-void DashboardInterface::set_dial_state(ControllerMode_e mode)
+void DashboardInterface::setDialState(ControllerMode_e mode)
 {
     _dashboard_outputs.dial_state = mode;
 }
 
-void DashboardInterface::read_ioexpander()
+void DashboardInterface::readIOExpander()
 {
-    uint16_t data = _io_expander.read(); // read data from IOExpander
+    _io_expander.read();
     ControllerMode_e new_mode = ControllerMode_e::MODE_0; // default to mode 0
 
     // check for value of dial
-    if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 0)) // NOLINT 0 is pos of bit
+    if (_io_expander.getBitPortB(0)) // NOLINT 0 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_0;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 1)) // NOLINT 1 is pos of bit
+    else if (_io_expander.getBitPortB(1)) // NOLINT 1 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_1;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 2)) // NOLINT 2 is pos of bit
+    else if (_io_expander.getBitPortB(2)) // NOLINT 2 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_2;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 3)) // NOLINT 3 is pos of bit
+    else if (_io_expander.getBitPortB(3)) // NOLINT 3 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_3;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 4)) // NOLINT 4 is pos of bit
+    else if (_io_expander.getBitPortB(4)) // NOLINT 4 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_4;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 5)) // NOLINT 5 is pos of bit
+    else if (_io_expander.getBitPortB(5)) // NOLINT 5 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_5;
     }
@@ -111,7 +109,7 @@ void DashboardInterface::read_ioexpander()
 }
 
 /* Button reads */
-DashInputState_s DashboardInterface::get_dashboard_outputs()
+DashInputState_s DashboardInterface::getDashboardOutputs()
 {
     _dashboard_outputs.brightness_ctrl_btn_is_pressed = !digitalRead(_dashboard_gpios.BRIGHTNESS_CONTROL_PIN);
     _dashboard_outputs.preset_btn_is_pressed = !digitalRead(_dashboard_gpios.PRESET_BUTTON);
@@ -123,18 +121,7 @@ DashInputState_s DashboardInterface::get_dashboard_outputs()
     return _dashboard_outputs;
 }
 
-DashInputState_s DashboardInterface::get_dashboard_stored_state()
+DashInputState_s DashboardInterface::getDashboardStoredState()
 {
     return _dashboard_stored_state;
-}
-
-void DashboardInterface::_init_io_expander()
-{
-    _io_expander.init();
-
-    _io_expander.portMode(MCP23017Port::A, 0b00000000); // 0b0000 0000 = 0
-    _io_expander.portMode(MCP23017Port::B, 0b01111111); // 0b0111 1111 = 127
-
-    _io_expander.writeRegister(MCP23017Register::GPPU_A, 0xFF); // Internal pull-ups
-    _io_expander.writeRegister(MCP23017Register::IPOL_B, 0xFF); // Polarity (inverted)
 }

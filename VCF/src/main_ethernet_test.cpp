@@ -1,4 +1,4 @@
-#include "VCFEthernetInterface.h"
+#include "VCFEthernetInterface.hpp"
 
 #include <array>
 #include <cstring>

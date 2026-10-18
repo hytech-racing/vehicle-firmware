@@ -1,4 +1,4 @@
-#include <DrivetrainSystem.h>
+#include <DrivetrainSystem.hpp>
 
 DrivetrainSystem::DrivetrainSystem(veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
                                 etl::delegate<void(bool)> set_ef_active_pin,

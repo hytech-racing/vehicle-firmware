@@ -4,10 +4,10 @@
 
 #include <array>
 
-#include "ACU_Constants.h"
+#include "ACU_Constants.hpp"
 
 #include "SystemTimeInterface.h"
-#include "BMSDriverGroup.h"
+#include "BMSDriverGroup.hpp"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "FaultLatchManager.h"
+#include "FaultLatchManager.hpp"
 
 
 void FaultLatchManager::clear_if_not_faulted(bool is_faulted)
