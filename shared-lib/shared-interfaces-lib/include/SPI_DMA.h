@@ -29,7 +29,7 @@ class SPIDMAInterface {
 
         virtual void transfer(SPIClass* SPI);
 
-        virtual void dmaCallback(SPIClass* SPI);
+        virtual void dmaCallback();
 
         bool getDMAState() { return _dmaBusy; }
 

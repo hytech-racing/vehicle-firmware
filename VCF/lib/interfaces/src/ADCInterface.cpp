@@ -11,26 +11,6 @@ void ADCInterface::tickADC1()
     _adc1.tick();
 }
 
-void ADCInterface::setCommand() {
-    array<uint8_t, 3> txBufADC0;
-    array<uint8_t, 3> txBufADC1;
-    txBufADC0[0] = ((0x01 << 7) |                    // start bit
-                   (0x01 << 6) |                    // single or differential
-                   ((_adc0.getCurrChannel() & 0x07) << 3));
-    txBufADC0[1] = 0x00;
-    txBufADC0[2] = 0x00;
-
-    txBufADC1[0] = ((0x01 << 7) |                    // start bit
-                   (0x01 << 6) |                    // single or differential
-                   ((_adc1.getCurrChannel() & 0x07) << 3));
-    txBufADC1[1] = 0x00;
-    txBufADC1[2] = 0x00;
-
-    _adc0.setTxBuf(txBufADC0);
-    _adc1.setTxBuf(txBufADC1);
-
-}
-
 std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc0_scales()
 {
   std::array<float, adc_default_parameters::channels_within_mcp_adc> scales = {};

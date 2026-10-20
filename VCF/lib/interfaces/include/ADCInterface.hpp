@@ -153,8 +153,8 @@ public:
 
     void tickADC1();
 
-    void setCommand();
-
+    uint32_t getADC0Cycles() { return _adc0.getCycles(); }
+    uint32_t getADC1Cycles() { return _adc1.getCycles(); }
 
     /* -------------------- ADC0 -------------------- */
 

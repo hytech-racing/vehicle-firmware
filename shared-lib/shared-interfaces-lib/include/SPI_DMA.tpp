@@ -1,7 +1,7 @@
 #include "SPI_DMA.h"
 
 template <size_t bufferSize>
-void SPIDMAInterface<bufferSize>::dmaCallback(SPIClass* SPI) {
+void SPIDMAInterface<bufferSize>::dmaCallback() {
     digitalWrite(_spiParams.spiPinCS, HIGH);
     SPI->endTransaction();
     _dmaBusy = false;
@@ -11,7 +11,7 @@ template <size_t bufferSize>
 void SPIDMAInterface<bufferSize>::initDMA() {
     pinMode(_spiPinCS, OUTPUT);
     _eventRef->setContext(this);
-    _eventRef->attachImmediate(transferComplete);
+    _eventRef->attachImmediate(dmaCallback);
 }
 
 template <size_t bufferSize>

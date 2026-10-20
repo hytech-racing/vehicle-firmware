@@ -53,16 +53,19 @@ class SPI_ADC : public SPIDMAInterface<size_t bufferSize>, public AnalogMultiSen
 
     void _sample() override;
     void tick() override;
-    void dmaCallback(SPIClass* SPI) override;
+    void dmaCallback() override;
     virtual void setValue();
+    virtual void setCommand();
  
     int getCurrChannel() { return _currChannel; }
+    uint32_t getCycles() { return _cycles; }
 
     protected:
     ChannelTypeArray<ChannelType_e, ADC_NUM_CHANNELS> _channelTypes;
     bool _SSTRBpresent = false;
     uint8_t _SSTRBpin = 0;
     int _currChannel;
+    uint32_t _cycles = 0;
 };
 
 

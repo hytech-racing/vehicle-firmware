@@ -34,7 +34,9 @@ void setup()
     initializeAllInterfaces();
     initializeAllSystems();
 
-
+    ARM_DEMCR |= ARM_DEMCR_TRCENA;          // Enable trace and debug
+    ARM_DWT_CYCCNT = 0;                     // Reset cycle counter
+    ARM_DWT_CTRL |= ARM_DWT_CTRL_CYCCNTENA; // Enable cycle count register
     // Setup scheduler
     HT_SCHED::Scheduler::getInstance().setTimingFunction(micros);
 
@@ -163,6 +165,9 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
 
     /* ADC Values */
     Serial.println("\nADC Vals:");
+    Serial.println("\nADC Cycles:");
+    Serial.println(ADCInterfaceInstance::instance().getADC0Cycles());
+    Serial.println(ADCInterfaceInstance::instance().getADC1Cycles());
     // ADC 0
     Serial.println("ADC 0\t\t  Steering");
     Serial.println("\t2V5 Ref CW \tCCW \tAccel 1 Accel 2 Brake 1 Brake 2");

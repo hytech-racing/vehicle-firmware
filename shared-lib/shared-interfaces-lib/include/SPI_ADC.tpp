@@ -50,7 +50,10 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
 #endif
     while (_currChannel < ADC_NUM_CHANNELS) {
         setCommand();
+        uint32_t start_cycles = ARM_DWT_CYCCNT;
         transfer(&SPI);
+        uint32_t end_cycles = ARM_DWT_CYCCNT;
+        _cycles = start_cycles - end_cycles;
         if (_channelTypes[_currChannel] == ChannelType_e::NOT_USED) {
 #ifdef DIFF_CHANNELS
             _currChannel++;
@@ -61,7 +64,7 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback(SPIClass* SPI) {
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback() {
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
     if (channelType == ChannelType_e::DIFFERENTIAL || channelType = ChannelType_e::INV_DIFFERENTIAL) {
@@ -72,7 +75,7 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback(SPIClass* SPI) {
     uint16_t value = setValue();
     SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = value;
     digitalWrite(_spiParams.spiPinCS, HIGH);
-    SPI->endTransaction();
+    SPI.endTransaction();
     this->_dmaBusy = false;
 }
 
@@ -80,4 +83,14 @@ template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
     uint16_t value = (_rxBuf[0] & 0x01) << 11 | (_rxBuf[1] & 0xFF) << 3 | (_rxBuf[2] & 0xE0) >> 5;
     value = (value & 0x0FFF);
+}
+
+template <size_t bufferSize, int ADC_NUM_CHANNELS>
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setCommand() {
+    array<uint8_t, bufferSize> txBuf;
+    txBuf.fill(0);
+    txBuf[0] = ((0x01 << 7) |                    // start bit
+                   (0x01 << 6) |                    // single or differential
+                   ((_currChannel & 0x07) << 3));
+    setTxBuf(txBuf);
 }
