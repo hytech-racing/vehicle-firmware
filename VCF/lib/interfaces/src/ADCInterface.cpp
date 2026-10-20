@@ -1,6 +1,5 @@
 #include "ADCInterface.hpp"
 
-
 void ADCInterface::tickADC0()
 {
     _adc0.tick();

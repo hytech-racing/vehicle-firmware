@@ -10,9 +10,6 @@
 
 using pin = uint8_t;
 
-EventResponder _spiEventADC0;
-EventResponder _spiEventADC1;
-
 namespace adc_default_parameters
 {
     constexpr const unsigned int channels_within_mcp_adc = 8;
@@ -98,29 +95,30 @@ struct ADCInterfaceParams_s
     ADCOffsets_s offsets;
 };
 
-std::array<ChannelType_e, 8> _adc0_channels = {
-    ChannelType_e::NOT_USED,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE
+namespace adc_default_channels {
+    const std::array<ChannelType_e, 8> adc0_channels = {
+        ChannelType_e::NOT_USED,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE
+    };
 
-};
 
-
-std::array<ChannelType_e, 8> _adc1_channels = {
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE,
-    ChannelType_e::SINGLE
-};
+    const std::array<ChannelType_e, 8> adc1_channels = {
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE
+    };
+}
 
 class ADCInterface
 {
@@ -137,15 +135,15 @@ public:
             .scales = scales,
             .offsets = offsets
         },
-        _adc0 (&_spiEventADC0,
+        _adc0 (_spiEventADC0,
             adc0_scales().data(),
             adc0_offsets().data(),
-            _adc0_channels
+            adc_default_channels::adc0_channels
         ),
-        _adc1 (&_spiEventADC1,
+        _adc1 (_spiEventADC1,
             adc0_scales().data(),
             adc0_offsets().data(),
-            _adc1_channels
+            adc_default_channels::adc1_channels
         )
     {};
 
@@ -269,6 +267,9 @@ private:
     SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc0;
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
     SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc1;
+
+    EventResponder _spiEventADC0;
+    EventResponder _spiEventADC1;
 
     float _FL_load_cell_filtered;
     float _FR_load_cell_filtered;

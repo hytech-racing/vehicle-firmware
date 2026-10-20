@@ -2,7 +2,7 @@
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
-    EventResponder* eventRef,
+    EventResponder& eventRef,
     const float scales[ADC_NUM_CHANNELS], 
     const float offsets[ADC_NUM_CHANNELS],
     const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
@@ -12,7 +12,7 @@ SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(SPIParams_s spiParams,
-        EventResponder* eventRef,
+        EventResponder& eventRef,
         const float scales[ADC_NUM_CHANNELS], 
         const float offsets[ADC_NUM_CHANNELS],
         const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
@@ -24,7 +24,7 @@ SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(SPIParams_s spiParams,
       _channelTypes(channelTypes),
       _SSTRBpresent(SSTRBpresent),
       _SSTRBpin(SSTRBpin),
-      _currChannel(0),
+      _currChannel(0)
 {
     for (int i = 0; i < ADC_NUM_CHANNELS; i++) {
         this->setChannelScaleAndOffset(i, scales[i], offsets[i]);
@@ -33,7 +33,7 @@ SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(SPIParams_s spiParams,
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::tick() {
-    if (_dmaBusy || (_SSTRBpresent && digitalRead(_SSTRBpin) == HIGH)) {
+    if (this->_dmaBusy || (_SSTRBpresent && digitalRead(_SSTRBpin) == HIGH)) {
         return;
     }
     _sample();
@@ -46,15 +46,15 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
 #else
-    ChannelType_e channelType = _channelTypes[_currChannel];
+    ChannelType_e channelType = this->_channelTypes[_currChannel];
 #endif
     while (_currChannel < ADC_NUM_CHANNELS) {
         setCommand();
         uint32_t start_cycles = ARM_DWT_CYCCNT;
-        transfer(&SPI);
+        this->transfer();
         uint32_t end_cycles = ARM_DWT_CYCCNT;
-        _cycles = start_cycles - end_cycles;
-        if (_channelTypes[_currChannel] == ChannelType_e::NOT_USED) {
+        _cycles = end_cycles - start_cycles;
+        if (channelType == ChannelType_e::NOT_USED) {
 #ifdef DIFF_CHANNELS
             _currChannel++;
 #endif
@@ -67,30 +67,31 @@ template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback() {
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
-    if (channelType == ChannelType_e::DIFFERENTIAL || channelType = ChannelType_e::INV_DIFFERENTIAL) {
+    if (channelType == ChannelType_e::DIFFERENTIAL || channelType == ChannelType_e::INV_DIFFERENTIAL) {
         _currChannel++;
     }
 #endif
     _currChannel++;
     uint16_t value = setValue();
     SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = value;
-    digitalWrite(_spiParams.spiPinCS, HIGH);
+    digitalWrite(this->_spiParams.spiPinCS, HIGH);
     SPI.endTransaction();
     this->_dmaBusy = false;
 }
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
-    uint16_t value = (_rxBuf[0] & 0x01) << 11 | (_rxBuf[1] & 0xFF) << 3 | (_rxBuf[2] & 0xE0) >> 5;
+uint16_t SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
+    uint16_t value = (this->_rxBuf[0] & 0x01) << 11 | (this->_rxBuf[1] & 0xFF) << 3 | (this->_rxBuf[2] & 0xE0) >> 5;
     value = (value & 0x0FFF);
+    return value;
 }
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setCommand() {
-    array<uint8_t, bufferSize> txBuf;
+    std::array<uint8_t, bufferSize> txBuf;
     txBuf.fill(0);
     txBuf[0] = ((0x01 << 7) |                    // start bit
                    (0x01 << 6) |                    // single or differential
                    ((_currChannel & 0x07) << 3));
-    setTxBuf(txBuf);
+    this->_txBuf = txBuf;
 }

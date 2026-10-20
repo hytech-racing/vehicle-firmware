@@ -3,8 +3,7 @@
 
 #include "SPI_DMA.h"
 #include "AnalogSensorsInterface.h"
-
-using namespace std;
+#include <EventResponder.h>
 
 enum class ChannelType_e
 {
@@ -32,9 +31,9 @@ namespace mcp_adc_defaults
 
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-class SPI_ADC : public SPIDMAInterface<size_t bufferSize>, public AnalogMultiSensor<ADC_NUM_CHANNELS> {
+class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC_NUM_CHANNELS> {
     public:
-    SPI_ADC(EventResponder* eventRef, 
+    SPI_ADC(EventResponder& eventRef, 
                     const float scales[ADC_NUM_CHANNELS], 
                     const float offsets[ADC_NUM_CHANNELS],
                     const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
@@ -45,7 +44,7 @@ class SPI_ADC : public SPIDMAInterface<size_t bufferSize>, public AnalogMultiSen
                         .spiPinCLK = mcp_adc_defaults::MCP_ADC_DEFAULT_SPI_CLK,
                     });
 
-    SPI_ADC(SPIParams_s spiParams, EventResponder* eventRef, 
+    SPI_ADC(SPIParams_s spiParams, EventResponder& eventRef, 
                     const float scales[ADC_NUM_CHANNELS], 
                     const float offsets[ADC_NUM_CHANNELS],
                     const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes, 
@@ -54,19 +53,21 @@ class SPI_ADC : public SPIDMAInterface<size_t bufferSize>, public AnalogMultiSen
     void _sample() override;
     void tick() override;
     void dmaCallback() override;
-    virtual void setValue();
+    virtual uint16_t setValue();
     virtual void setCommand();
  
     int getCurrChannel() { return _currChannel; }
     uint32_t getCycles() { return _cycles; }
 
     protected:
-    ChannelTypeArray<ChannelType_e, ADC_NUM_CHANNELS> _channelTypes;
+    ChannelTypeArray<ADC_NUM_CHANNELS> _channelTypes;
     bool _SSTRBpresent = false;
     uint8_t _SSTRBpin = 0;
     int _currChannel;
     uint32_t _cycles = 0;
 };
+
+#include "SPI_ADC.tpp" 
 
 
 #endif // SPIADC_H_

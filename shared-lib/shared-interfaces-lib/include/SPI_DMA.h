@@ -2,8 +2,8 @@
 #define SPIDMA_H_
 
 #include <SPI.h>
-
-using namespace std;
+#include <array>
+#include <EventResponder.h>
 
 
 struct SPIParams_s {
@@ -17,34 +17,35 @@ struct SPIParams_s {
 template <size_t bufferSize>
 class SPIDMAInterface {
     public:
-        SPIDMAInterface(SPIParams_s spiParams, EventResponder* eventRef, array<uint8_t, bufferSize> txBuf, array<uint8_t, bufferSize> rxBuf) : 
+        SPIDMAInterface(SPIParams_s spiParams, EventResponder& eventRef, std::array<uint8_t, bufferSize> txBuf, std::array<uint8_t, bufferSize> rxBuf) : 
             _spiParams(spiParams), 
-            _eventRef(eventRef),
-            _dmaBusy(false),
             _txBuf(txBuf),
-            _rxBuf(rxBuf) 
+            _rxBuf(rxBuf),
+            _dmaBusy(false),
+            _eventRef(eventRef)
         {};
 
         void initDMA();
 
-        virtual void transfer(SPIClass* SPI);
+        virtual void transfer();
 
         virtual void dmaCallback();
 
         bool getDMAState() { return _dmaBusy; }
 
-        void setTxBuf(array<uint8_t, bufferSize> txBuf);
+        void setTxBuf(std::array<uint8_t, bufferSize>& txBuf);
 
-        array<uint8_t, bufferSize> getRxBuf() { return _rxBuf; }
+        const std::array<uint8_t, bufferSize>& getRxBuf() { return _rxBuf; }
 
     protected:
         SPIParams_s _spiParams;
-        array<uint8_t, bufferSize> _txBuf;
-        array<uint8_t, bufferSize> _rxBuf;
+        std::array<uint8_t, bufferSize> _txBuf;
+        std::array<uint8_t, bufferSize> _rxBuf;
         bool _dmaBusy;
-        EventResponder* _eventRef;
+        EventResponder _eventRef;
 
 };
 
+#include "SPI_DMA.tpp"
 
 #endif // SPIDMA_H_
