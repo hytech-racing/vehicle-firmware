@@ -33,6 +33,10 @@ class SPIDMAInterface {
 
         bool getDMAState() { return _dmaBusy; }
 
+        void setTxBuf(array<uint8_t, bufferSize> txBuf);
+
+        array<uint8_t, bufferSize> getRxBuf() { return _rxBuf; }
+
     protected:
         SPIParams_s _spiParams;
         array<uint8_t, bufferSize> _txBuf;

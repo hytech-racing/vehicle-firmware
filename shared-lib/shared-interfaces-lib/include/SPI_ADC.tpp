@@ -1,17 +1,17 @@
 #include "SPI_ADC.h"
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::SPIADCInterface(
+SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
     EventResponder* eventRef,
     const float scales[ADC_NUM_CHANNELS], 
     const float offsets[ADC_NUM_CHANNELS],
     const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
     SPIParams_s spiParams)
-    : SPIADCInterface(spiParams, eventRef, scales, offsets, channelTypes)
+    : SPI_ADC(spiParams, eventRef, scales, offsets, channelTypes)
     {};
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::SPIADCInterface(SPIParams_s spiParams,
+SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(SPIParams_s spiParams,
         EventResponder* eventRef,
         const float scales[ADC_NUM_CHANNELS], 
         const float offsets[ADC_NUM_CHANNELS],
@@ -32,7 +32,7 @@ SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::SPIADCInterface(SPIParams_s spiPa
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::tick() {
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::tick() {
     if (_dmaBusy || (_SSTRBpresent && digitalRead(_SSTRBpin) == HIGH)) {
         return;
     }
@@ -41,7 +41,7 @@ void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::tick() {
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::_sample() {
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
     _currChannel = 0;
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
@@ -61,7 +61,7 @@ void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::_sample() {
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::dmaCallback(SPIClass* SPI) {
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback(SPIClass* SPI) {
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
     if (channelType == ChannelType_e::DIFFERENTIAL || channelType = ChannelType_e::INV_DIFFERENTIAL) {
@@ -70,8 +70,14 @@ void SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::dmaCallback(SPIClass* SPI) {
 #endif
     _currChannel++;
     uint16_t value = setValue();
-    SPIADCInterface<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = value;
+    SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = value;
     digitalWrite(_spiParams.spiPinCS, HIGH);
     SPI->endTransaction();
     this->_dmaBusy = false;
+}
+
+template <size_t bufferSize, int ADC_NUM_CHANNELS>
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
+    uint16_t value = (_rxBuf[0] & 0x01) << 11 | (_rxBuf[1] & 0xFF) << 3 | (_rxBuf[2] & 0xE0) >> 5;
+    value = (value & 0x0FFF);
 }

@@ -23,3 +23,8 @@ void SPIDMAInterface<bufferSize>::transfer(SPIClass* SPI) {
     _dmaBusy = true;
 
 }
+
+template <size_t bufferSize>
+void SPIDMAInterface<bufferSize>::setTxBuf(array<uint8_t, bufferSize> txBuf) {
+    _txBuf = txBuf;
+}

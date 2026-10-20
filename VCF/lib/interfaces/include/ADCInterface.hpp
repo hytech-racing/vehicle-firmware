@@ -6,9 +6,12 @@
 
 /* External Includes */
 #include <MCP_ADC.h>
+#include <SPI_ADC.h>
 
 using pin = uint8_t;
 
+EventResponder _spiEventADC0;
+EventResponder _spiEventADC1;
 
 namespace adc_default_parameters
 {
@@ -95,9 +98,35 @@ struct ADCInterfaceParams_s
     ADCOffsets_s offsets;
 };
 
+std::array<ChannelType_e, 8> _adc0_channels = {
+    ChannelType_e::NOT_USED,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE
+
+};
+
+
+std::array<ChannelType_e, 8> _adc1_channels = {
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE
+};
+
 class ADCInterface
 {
 public:
+
+    
     ADCInterface(ADCPinout_s pinouts,
                 ADCChannels_s channels,
                 ADCScales_s scales,
@@ -108,29 +137,23 @@ public:
             .scales = scales,
             .offsets = offsets
         },
-        _adc0 (
-            _adc_parameters.pinouts.adc0_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
+        _adc0 (&_spiEventADC0,
             adc0_scales().data(),
-            adc0_offsets().data()
+            adc0_offsets().data(),
+            _adc0_channels
         ),
-        _adc1 (
-            _adc_parameters.pinouts.adc1_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
-            adc1_scales().data(),
-            adc1_offsets().data()
+        _adc1 (&_spiEventADC1,
+            adc0_scales().data(),
+            adc0_offsets().data(),
+            _adc1_channels
         )
     {};
 
     void tickADC0();
 
     void tickADC1();
+
+    void setCommand();
 
 
     /* -------------------- ADC0 -------------------- */
@@ -243,9 +266,9 @@ private:
     ADCInterfaceParams_s _adc_parameters = {};
 
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc0;
+    SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc0;
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc1;
+    SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc1;
 
     float _FL_load_cell_filtered;
     float _FR_load_cell_filtered;
