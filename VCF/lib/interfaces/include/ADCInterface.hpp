@@ -119,6 +119,30 @@ struct ADCInterfaceParams_s
     ADCOffsets_s offsets;
 };
 
+std::array<ChannelType_e, 8> _adc0_channels = {
+    ChannelType_e::NOT_USED,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE
+
+};
+
+
+std::array<ChannelType_e, 8> _adc1_channels = {
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE,
+    ChannelType_e::SINGLE
+};
+
 class ADCInterface
 {
 public:
