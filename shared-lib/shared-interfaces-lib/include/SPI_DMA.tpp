@@ -27,7 +27,6 @@ void SPIDMAInterface<bufferSize>::transfer() {
     _rxBuf.fill(0);
     SPI.transfer(_txBuf.data(), _rxBuf.data(), bufferSize, _eventRef);
     _dmaBusy = true;
-
 }
 
 template <size_t bufferSize>
