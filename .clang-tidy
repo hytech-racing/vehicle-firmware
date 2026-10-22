@@ -1,30 +1,51 @@
-# Naming rules for the whole repo. clangd (--clang-tidy) and `pio check` both use this file.
-# Methods: lowerCamelCase
-# Variables / params: snake_case
-# Private members + private methods: leading underscore
+# ==============================================================================
+# 1. Enabled Checks & File Filtering
+# ==============================================================================
 Checks: 'readability-identifier-naming'
-# Only subsystem headers, which leaves out .pio/ and library packages.
-# (ExcludeHeaderFilterRegex would be cleaner, but PlatformIO's clang-tidy 15
-# rejects the whole file on that key.)
 HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
+
 CheckOptions:
+  # ============================================================================
+  # 2. Types, Classes, Enums & Templates
+  # ============================================================================
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+
+  # ============================================================================
+  # 3. Functions & Methods
+  # ============================================================================
   readability-identifier-naming.FunctionCase: camelBack
   readability-identifier-naming.MethodCase: camelBack
   readability-identifier-naming.PrivateMethodCase: camelBack
   readability-identifier-naming.PrivateMethodPrefix: '_'
+
+  # ============================================================================
+  # 4. Variables, Parameters & Class Members
+  # ============================================================================
   readability-identifier-naming.VariableCase: lower_case
   readability-identifier-naming.ParameterCase: lower_case
   readability-identifier-naming.PublicMemberCase: lower_case
-  readability-identifier-naming.PrivateMemberCase: lower_case
-  readability-identifier-naming.PrivateMemberPrefix: '_'
   readability-identifier-naming.ProtectedMemberCase: lower_case
   readability-identifier-naming.ProtectedMemberPrefix: '_'
-  # etl::delegate params/members use method-style camelCase + Delegate suffix.
+  readability-identifier-naming.PrivateMemberCase: lower_case
+  readability-identifier-naming.PrivateMemberPrefix: '_'
+
+  # ============================================================================
+  # 5. Constants & Enum Values
+  # ============================================================================
+  readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
+  readability-identifier-naming.StaticConstantCase: UPPER_CASE
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+
+  # ============================================================================
+  # 6. Naming Exceptions (Ignored Patterns)
+  # ============================================================================
   readability-identifier-naming.VariableIgnoredRegexp: '.*Delegate$'
   readability-identifier-naming.ParameterIgnoredRegexp: '.*Delegate$'
   readability-identifier-naming.MemberIgnoredRegexp: '.*Delegate$'
   readability-identifier-naming.PublicMemberIgnoredRegexp: '.*Delegate$'
-  readability-identifier-naming.PrivateMemberIgnoredRegexp: '.*Delegate$'
   readability-identifier-naming.ProtectedMemberIgnoredRegexp: '.*Delegate$'
-  readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
-  readability-identifier-naming.StaticConstantCase: UPPER_CASE
+  readability-identifier-naming.PrivateMemberIgnoredRegexp: '.*Delegate$'

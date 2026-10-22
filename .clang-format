@@ -1,33 +1,53 @@
-# Shared formatting rules for every subsystem. Editors with clang-format
-# support (VS Code C/C++ / clangd, Neovim conform, CLion, ...) pick this file
-# up automatically. CI checks formatting with the clang-format version pinned
-# in .github/workflows/ci.yml; use the same major version locally.
+# ==============================================================================
+# 1. Base Style & Indentation
+# ==============================================================================
 BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
-# Stay on one line through 200 columns. Past that, break one argument or
-# one && / || clause per line, so the pieces do not run back up to 200.
-# 200 covers the longest HT_TASK::Task declaration (195 columns).
+NamespaceIndentation: All
+AccessModifierOffset: 0
+
+# ==============================================================================
+# 2. Column Limit & Line Wrapping (Expressions & Operators)
+# ==============================================================================
 ColumnLimit: 200
 BreakBinaryOperations: RespectPrecedence
+BreakBeforeBinaryOperators: NonAssignment
+AlignOperands: Align
+
+# ==============================================================================
+# 3. Function Calls, Declarations & Constructors
+# ==============================================================================
+AlignAfterOpenBracket: AlwaysBreak
 BinPackParameters: OnePerLine
 BinPackArguments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllArgumentsOnNextLine: false
-AlignAfterOpenBracket: AlwaysBreak
-AlignOperands: Align
-BreakBeforeBinaryOperators: None
-PackConstructorInitializers: Never
 BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: NextLineOnly
+
+# ==============================================================================
+# 4. Braces & Short Single-Line Statements
+# ==============================================================================
 BreakBeforeBraces: Allman
-AccessModifierOffset: 0
 AllowShortBlocksOnASingleLine: Never
-# Class getters/setters (and other single-statement in-class methods) stay
-# on one line. Free functions and multi-statement methods stay Allman.
-AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-NamespaceIndentation: All
-# Declarations and inline functions keep whatever blank lines you give them.
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: Inline
+
+# ==============================================================================
+# 5. Alignment, Qualifiers & Comments
+# ==============================================================================
+QualifierAlignment: Left
+AlignConsecutiveDeclarations: Consecutive
+AlignTrailingComments: true
+FixNamespaceComments: true
+
+# ==============================================================================
+# 6. Includes & Vertical Whitespace
+# ==============================================================================
+IncludeBlocks: Regroup
 SeparateDefinitionBlocks: Leave
+MaxEmptyLinesToKeep: 2
