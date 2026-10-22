@@ -110,6 +110,9 @@ void initialize_all_interfaces()
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
+    
+    /* ---------- VCF Interface ---------- */
+    RSSInterfaceInstance::create();
 
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(
@@ -119,13 +122,14 @@ void initialize_all_interfaces()
         fr_inverter_interface,
         rl_inverter_interface,
         rr_inverter_interface,
-        VCFInterfaceInstance::instance());
+        VCFInterfaceInstance::instance(), 
+        RSSInterfaceInstance::instance());
 
     VCRCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::vcr_recv_switch>());
 
     handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_inverter_can_receive);
     handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_telem_can_receive);
-    // handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
+    handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
 }
 
 HT_TASK::TaskResponse run_read_adc0_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)

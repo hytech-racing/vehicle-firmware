@@ -99,6 +99,10 @@ void initialize_all_systems()
     etl::delegate<void()> reset_steering_heartbeat =
         etl::delegate<void()>::create<VCFInterface, &VCFInterface::reset_steering_heartbeat>(VCFInterfaceInstance::instance());
 
+    etl::delegate<bool()> is_go_button_pressed =
+        etl::delegate<bool()>::create<RSSInterface, &RSSInterface::is_go_button_pressed>(RSSInterfaceInstance::instance());
+
+
     VehicleStateMachineInstance::create(hv_over_threshold,
                                     start_button_pressed,
                                     brake_pressed,
@@ -115,7 +119,8 @@ void initialize_all_systems()
                                     send_recalibrate_steering_message,
                                     recalibrate_steering_button_pressed,
                                     steering_heartbeat_not_ok,
-                                    reset_steering_heartbeat
+                                    reset_steering_heartbeat, 
+                                    is_go_button_pressed
     );
 
 }
