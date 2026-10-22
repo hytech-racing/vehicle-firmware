@@ -28,8 +28,8 @@ class SPIDMAInterface {
         void initDMA();
 
         virtual void transfer();
+        virtual void transferComplete();
 
-        virtual void dmaCallback();
 
         bool getDMAState() { return _dmaBusy; }
 
@@ -42,7 +42,9 @@ class SPIDMAInterface {
         std::array<uint8_t, bufferSize> _txBuf;
         std::array<uint8_t, bufferSize> _rxBuf;
         bool _dmaBusy;
-        EventResponder _eventRef;
+        EventResponder& _eventRef;
+    private:
+        static void dmaCallback(EventResponderRef ref);
 
 };
 

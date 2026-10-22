@@ -147,6 +147,9 @@ public:
         )
     {};
 
+    void initADC0() { _adc0.initDMA(); }
+    void initADC1() { _adc1.initDMA(); }
+
     void tickADC0();
 
     void tickADC1();

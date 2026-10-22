@@ -44,27 +44,27 @@ template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
     _currChannel = 0;
 #ifdef DIFF_CHANNELS
-    ChannelType_e channelType = _channelTypes[_currChannel / 2];
+    const int group = 2;
 #else
-    ChannelType_e channelType = this->_channelTypes[_currChannel];
+    const int group = 1;
 #endif
     while (_currChannel < ADC_NUM_CHANNELS) {
-        setCommand();
+        if (_channelTypes[_currChannel] == ChannelType_e::NOT_USED) {
+            _currChannel += group;
+        }
         uint32_t start_cycles = ARM_DWT_CYCCNT;
+        setCommand();
         this->transfer();
         uint32_t end_cycles = ARM_DWT_CYCCNT;
         _cycles = end_cycles - start_cycles;
-        if (channelType == ChannelType_e::NOT_USED) {
-#ifdef DIFF_CHANNELS
-            _currChannel++;
-#endif
-            _currChannel++;
-        }
     }
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
-void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback() {
+void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::transferComplete() {
+    const uint32_t isrStart = ARM_DWT_CYCCNT;
+    SPIDMAInterface<bufferSize>::transferComplete(); 
+    SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = setValue();
 #ifdef DIFF_CHANNELS
     ChannelType_e channelType = _channelTypes[_currChannel / 2];
     if (channelType == ChannelType_e::DIFFERENTIAL || channelType == ChannelType_e::INV_DIFFERENTIAL) {
@@ -72,11 +72,7 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::dmaCallback() {
     }
 #endif
     _currChannel++;
-    uint16_t value = setValue();
-    SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = value;
-    digitalWrite(this->_spiParams.spiPinCS, HIGH);
-    SPI.endTransaction();
-    this->_dmaBusy = false;
+    _isrCycles = ARM_DWT_CYCCNT - isrStart;
 }
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
@@ -94,4 +90,12 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setCommand() {
                    (0x01 << 6) |                    // single or differential
                    ((_currChannel & 0x07) << 3));
     this->_txBuf = txBuf;
+}
+
+template <size_t bufferSize, int ADC_NUM_CHANNELS>
+uint32_t SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::getCycles() {
+     _totCycles = _cycles + _isrCycles;
+    Serial.println("Total CPU Cycles: "); 
+    Serial.println(_totCycles);
+    return _totCycles;
 }

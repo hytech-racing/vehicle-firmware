@@ -18,6 +18,7 @@ void initializeAllInterfaces()
     ACUInterfaceInstance::create();
 
     /* ADC Interface */
+
     ADCInterfaceInstance::create(
         ADCPinout_s
         {
@@ -82,6 +83,9 @@ void initializeAllInterfaces()
             VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET
         }
     );
+
+    ADCInterfaceInstance::instance().initADC0();
+    ADCInterfaceInstance::instance().initADC1();
 
     /* Brake Rotor Temp Interface */
     BrakeRotorTempInterfaceInstance::create();
