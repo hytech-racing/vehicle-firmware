@@ -7,6 +7,7 @@
 
 void initializeAllInterfaces()
 {
+    Serial.begin(RDCConstants::SERIAL_BAUDRATE);
     DrivebrainInterfaceInstance::create();
     FDCInterfaceInstance::create(sys_time::hal_millis(), RDCConstants::EBS_HEARTBEAT_TIMEOUT_MS);
     RSSInterfaceInstance::create(RDCConstants::RSS_NODE_ID);
