@@ -1,5 +1,6 @@
-#include <Arduino.h>
 #include "CANInterface.h"
+
+#include <Arduino.h>
 
 /**
  * @brief Unified CAN test harness. Replaces the three separate test files
@@ -30,7 +31,7 @@
  *  - variable DLC (3-8 bytes) and extended (29-bit) IDs
  *  - burst/stress behavior            (N frames back-to-back, no delay)
  *  - arbitration priority             (lower CAN ID should win contention -> lower latency)
-*/
+ */
 
 
 // ---------------------------------------------------------------------
@@ -45,7 +46,7 @@
  *
  * NOTE: Every value here is prefixed with BOARD_ specifically so it can't
  *       collide with CANInterfaceType_e's bare ACU/CCU/etc. names.
-*/
+ */
 enum BoardId : uint8_t
 {
     BOARD_ACU,
@@ -64,38 +65,37 @@ enum BoardId : uint8_t
  *
  * NOTE: Using a const char* here since a string is just an array of char.
  *       Could use Arduino's String class.
-*/
-const char* board_name(uint8_t id)
+ */
+const char *board_name(uint8_t id)
 {
     switch (id)
     {
-        case BOARD_ACU:
-        {
-            return "ACU";
-        }
-        case BOARD_DASHBOARD:
-        {
-            return "DASHBOARD";
-        }
-        case BOARD_CCU:
-        {
-            return "CCU";
-        }
-        case BOARD_VCF:
-        {
-            return "VCF";
-        }
-        case BOARD_VCR:
-        {
-            return "VCR";
-        }
-        default:
-        {
-            return "UNKNOWN";
-        }
+    case BOARD_ACU:
+    {
+        return "ACU";
+    }
+    case BOARD_DASHBOARD:
+    {
+        return "DASHBOARD";
+    }
+    case BOARD_CCU:
+    {
+        return "CCU";
+    }
+    case BOARD_VCF:
+    {
+        return "VCF";
+    }
+    case BOARD_VCR:
+    {
+        return "VCR";
+    }
+    default:
+    {
+        return "UNKNOWN";
+    }
     }
 }
-
 
 
 // ---------------------------------------------------------------------
@@ -108,10 +108,10 @@ const char* board_name(uint8_t id)
  *
  * NOTE: #define here means the preprocessor replaces, e.g.,
  *       ENABLE_CAN1 with true/false everywhere it appears
-*/
-#define ENABLE_CAN1   false
-#define ENABLE_CAN2   true
-#define ENABLE_CAN3   true
+ */
+#define ENABLE_CAN1 false
+#define ENABLE_CAN2 true
+#define ENABLE_CAN3 true
 
 static const uint32_t CAN1_BAUDRATE = 500000;
 static const uint32_t CAN2_BAUDRATE = 1000000;
@@ -124,7 +124,7 @@ static const uint32_t CAN1_TX_ID = 0x11;
 static const uint32_t CAN2_TX_ID = 0x11;
 static const uint32_t CAN3_TX_ID = 0x11;
 
-static const uint32_t TX_PERIOD_MS     = 10;   // matches the original delay(10)
+static const uint32_t TX_PERIOD_MS = 10;       // matches the original delay(10)
 static const uint32_t REPORT_PERIOD_MS = 1000; // periodic stats line instead of per-frame spam
 
 // FlexCAN bus objects - only instantiated for enabled buses.
@@ -137,7 +137,6 @@ FlexCAN_T4<CAN2> CAN_bus_2;
 #if ENABLE_CAN3
 FlexCAN_T4<CAN3> CAN_bus_3;
 #endif
-
 
 
 // ---------------------------------------------------------------------
@@ -159,8 +158,7 @@ FlexCAN_T4<CAN3> CAN_bus_3;
  * NOTE: Minimum usable length is 3 bytes (board id + seq); shorter frames
  *       are still counted as received but skipped for loss/corruption
  *       tracking.
-*/
-
+ */
 
 
 // ---------------------------------------------------------------------
@@ -173,13 +171,13 @@ FlexCAN_T4<CAN3> CAN_bus_3;
  *        boards gets independent loss/corruption/timing tracking per
  *        sender instead of one number that mixes everyone's traffic
  *        together.
-*/
+ */
 struct RXStats_s
 {
-    uint32_t rx_count = 0;          // number of frames received from a sender
-    uint32_t rx_dropped = 0;        // number of frames dropped; detected by gaps in sequence numbers
-    uint32_t rx_corrupt = 0;        // number of frames where the payload didn't match expected pattern
-    uint32_t rx_out_of_order = 0;   // number of frames that arrived out of order
+    uint32_t rx_count = 0;        // number of frames received from a sender
+    uint32_t rx_dropped = 0;      // number of frames dropped; detected by gaps in sequence numbers
+    uint32_t rx_corrupt = 0;      // number of frames where the payload didn't match expected pattern
+    uint32_t rx_out_of_order = 0; // number of frames that arrived out of order
 
     bool     has_last_sequence = false;
     uint16_t last_sequence_num = 0;
@@ -193,11 +191,11 @@ struct RXStats_s
  * @brief Statistics for one CAN bus: this board's own transmit count, plus
  *        a per-sender lookup table (from[]) of everything received on this
  *        bus, indexed by BoardId.
-*/
+ */
 struct BusStats_s
 {
-    const char *name;      // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
-    uint32_t tx_count = 0; // number of frames THIS_BOARD has transmitted on this bus
+    const char *name;         // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
+    uint32_t    tx_count = 0; // number of frames THIS_BOARD has transmitted on this bus
 
     // Toggle to print every received frame. Yet to be tested but this might just flood the serial monitor
     // and brick everything if left on during a burst test.
@@ -212,7 +210,7 @@ BusStats_s CAN_3_stats{"CAN3"};
 /**
  * @brief Per-CAN-ID timing stats used only by the arbitration test.
  *        Tracks inter-arrival gap in microseconds instead of ms.
-*/
+ */
 struct ArbIdStats_s
 {
     uint32_t count = 0;
@@ -225,13 +223,13 @@ struct ArbIdStats_s
 /**
  * @brief Arbitration test state for one bus. Kept separate per-bus so a
  *        test running on CAN2 doesn't disturb CAN1's/CAN3's state.
-*/
+ */
 struct ArbBusState_s
 {
-    ArbIdStats_s high_priority_stats;  // stats for the high-priority (low numeric ID) test frame
-    ArbIdStats_s low_priority_stats;   // stats for the low-priority (high numeric ID) test frame
+    ArbIdStats_s  high_priority_stats; // stats for the high-priority (low numeric ID) test frame
+    ArbIdStats_s  low_priority_stats;  // stats for the low-priority (high numeric ID) test frame
     volatile bool is_arb_test_running = false;
-    uint16_t frames_sent = 0;
+    uint16_t      frames_sent = 0;
 };
 ArbBusState_s CAN_1_arb;
 ArbBusState_s CAN_2_arb;
@@ -240,9 +238,8 @@ ArbBusState_s CAN_3_arb;
 // Global test-mode toggles (shared across buses), changed live via serial
 // commands - see print_help().
 bool     g_variable_len_mode = false; // cycle DLC 3..8 instead of fixed len = 3
-bool     g_extended_id_mode  = false; // send frames with extended (29-bit) IDs instead of standard (11-bit)
-uint16_t g_sequence_count    = 0;     // shared outgoing seq counter for this board, incremented per frame sent (regardless of which bus it goes out on)
-
+bool     g_extended_id_mode = false;  // send frames with extended (29-bit) IDs instead of standard (11-bit)
+uint16_t g_sequence_count = 0;        // shared outgoing seq counter for this board, incremented per frame sent (regardless of which bus it goes out on)
 
 
 // ---------------------------------------------------------------------
@@ -254,10 +251,9 @@ uint16_t g_sequence_count    = 0;     // shared outgoing seq counter for this bo
 // per-board traffic so they don't get mixed into the regular loss/
 // corruption stats tracked by check_payload().
 static const uint32_t ARB_HIGH_PRIORITY_ID = 0x001; // should win arbitration
-static const uint32_t ARB_LOW_PRIORITY_ID  = 0x7FE; // should lose / back off under contention
-static const uint32_t ARB_TRIGGER_ID       = 0x7FF; // "start the test now" sync frame
-static const uint16_t ARB_BURST_COUNT      = 200;   // frame pairs sent per test run
-
+static const uint32_t ARB_LOW_PRIORITY_ID = 0x7FE;  // should lose / back off under contention
+static const uint32_t ARB_TRIGGER_ID = 0x7FF;       // "start the test now" sync frame
+static const uint16_t ARB_BURST_COUNT = 200;        // frame pairs sent per test run
 
 
 // ---------------------------------------------------------------------
@@ -271,7 +267,7 @@ static const uint16_t ARB_BURST_COUNT      = 200;   // frame pairs sent per test
  * @param msg          the CAN_message_t to fill in (FlexCAN's message struct)
  * @param can_id       arbitration ID to send this frame with (e.g. CAN1_TX_ID)
  * @param sequence_num this frame's sequence number; caller increments it
-*/
+ */
 void fill_test_frame(CAN_message_t &msg, uint32_t can_id, uint16_t sequence_num)
 {
     msg.id = can_id;
@@ -293,7 +289,7 @@ void fill_test_frame(CAN_message_t &msg, uint32_t can_id, uint16_t sequence_num)
  * @brief Post-processes a received frame: figures out which board sent it,
  *        updates that sender's stats (received count, corruption check,
  *        loss/reorder detection, jitter timing).
-*/
+ */
 void check_payload(const CAN_message_t &msg, BusStats_s &bus_stats)
 {
     if (msg.len < 3)
@@ -380,7 +376,7 @@ void check_payload(const CAN_message_t &msg, BusStats_s &bus_stats)
  * NOTE: This is intentionally separate from check_payload()!
  *       Arbitration test frames aren't board-tagged/sequence-numbered
  *       the same way and they have different stats structs.
-*/
+ */
 void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
 {
     if (msg.id == ARB_TRIGGER_ID)
@@ -429,7 +425,6 @@ void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
 }
 
 
-
 // ---------------------------------------------------------------------
 //                      Debugging and Prints
 // ---------------------------------------------------------------------
@@ -437,31 +432,40 @@ void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
 /**
  * @brief Prints one received frame's raw contents to Serial. Only called
  *        when a bus's verbose flag is on.
-*/
+ */
 void print_frame(const char *bus_name, const CAN_message_t &msg)
 {
-    Serial.print(bus_name); Serial.print(" receiving  ");
-    Serial.print("MB:"); Serial.print(msg.mb);
-    Serial.print(" ID:0x"); Serial.print(msg.id, HEX);
-    Serial.print(" EXTENDED:"); Serial.print(msg.flags.extended);
-    Serial.print(" LEN:"); Serial.print(msg.len);
+    Serial.print(bus_name);
+    Serial.print(" receiving  ");
+    Serial.print("MB:");
+    Serial.print(msg.mb);
+    Serial.print(" ID:0x");
+    Serial.print(msg.id, HEX);
+    Serial.print(" EXTENDED:");
+    Serial.print(msg.flags.extended);
+    Serial.print(" LEN:");
+    Serial.print(msg.len);
     Serial.print(" DATA:");
     for (uint8_t i = 0; i < msg.len; i++)
     {
-        Serial.print(msg.buf[i], HEX); Serial.print(' ');
+        Serial.print(msg.buf[i], HEX);
+        Serial.print(' ');
     }
-    Serial.print(" TIMESTAMP:"); Serial.println(msg.timestamp);
+    Serial.print(" TIMESTAMP:");
+    Serial.println(msg.timestamp);
 }
 
 /**
  * @brief Prints a summary line for a bus's own tx_count, followed by one
  *        line per sender actually heard from on that bus (senders with no
  *        traffic yet are skipped).
-*/
+ */
 void print_report(BusStats_s &bus_stats)
 {
-    Serial.print("[report] "); Serial.print(bus_stats.name);
-    Serial.print("  tx="); Serial.println(bus_stats.tx_count);
+    Serial.print("[report] ");
+    Serial.print(bus_stats.name);
+    Serial.print("  tx=");
+    Serial.println(bus_stats.tx_count);
 
     for (uint8_t board_id = 0; board_id < NUM_BOARDS; board_id++)
     {
@@ -470,13 +474,20 @@ void print_report(BusStats_s &bus_stats)
         {
             continue; // nothing heard from this sender yet
         }
-        Serial.print("    from "); Serial.print(board_name(board_id));
-        Serial.print(": rx count ="); Serial.print(sender_stats.rx_count);
-        Serial.print(" dropped =");   Serial.print(sender_stats.rx_dropped);
-        Serial.print(" corrupt =");   Serial.print(sender_stats.rx_corrupt);
-        Serial.print(" reordered ="); Serial.print(sender_stats.rx_out_of_order);
-        Serial.print(" gap(min/max ms)="); Serial.print(sender_stats.min_gap_ms == 0xFFFFFFFF ? 0 : sender_stats.min_gap_ms);
-        Serial.print('/'); Serial.println(sender_stats.max_gap_ms);
+        Serial.print("    from ");
+        Serial.print(board_name(board_id));
+        Serial.print(": rx count =");
+        Serial.print(sender_stats.rx_count);
+        Serial.print(" dropped =");
+        Serial.print(sender_stats.rx_dropped);
+        Serial.print(" corrupt =");
+        Serial.print(sender_stats.rx_corrupt);
+        Serial.print(" reordered =");
+        Serial.print(sender_stats.rx_out_of_order);
+        Serial.print(" gap(min/max ms)=");
+        Serial.print(sender_stats.min_gap_ms == 0xFFFFFFFF ? 0 : sender_stats.min_gap_ms);
+        Serial.print('/');
+        Serial.println(sender_stats.max_gap_ms);
     }
 }
 
@@ -486,24 +497,30 @@ void print_report(BusStats_s &bus_stats)
  * NOTE: A widening gap between the two (LOW's avg/max
  *       growing worse than HIGH's) is the sign of arbitration
  *       actually deciding who gets the bus under contention.
-*/
+ */
 void print_arb_report(const char *bus_name, ArbBusState_s &arb)
 {
-    Serial.print("[Arbitration Report] "); Serial.println(bus_name);
+    Serial.print("[Arbitration Report] ");
+    Serial.println(bus_name);
 
-    Serial.print("  HIGH (0x1):   count="); Serial.print(arb.high_priority_stats.count);
+    Serial.print("  HIGH (0x1):   count=");
+    Serial.print(arb.high_priority_stats.count);
     Serial.print(" min/avg/max us=");
     Serial.print(arb.high_priority_stats.min_gap_us == 0xFFFFFFFF ? 0 : arb.high_priority_stats.min_gap_us);
-    Serial.print('/'); Serial.print(arb.high_priority_stats.count ? arb.high_priority_stats.sum_gap_us / arb.high_priority_stats.count : 0);
-    Serial.print('/'); Serial.println(arb.high_priority_stats.max_gap_us);
+    Serial.print('/');
+    Serial.print(arb.high_priority_stats.count ? arb.high_priority_stats.sum_gap_us / arb.high_priority_stats.count : 0);
+    Serial.print('/');
+    Serial.println(arb.high_priority_stats.max_gap_us);
 
-    Serial.print("  LOW  (0x7FE): count="); Serial.print(arb.low_priority_stats.count);
+    Serial.print("  LOW  (0x7FE): count=");
+    Serial.print(arb.low_priority_stats.count);
     Serial.print(" min/avg/max us=");
     Serial.print(arb.low_priority_stats.min_gap_us == 0xFFFFFFFF ? 0 : arb.low_priority_stats.min_gap_us);
-    Serial.print('/'); Serial.print(arb.low_priority_stats.count ? arb.low_priority_stats.sum_gap_us / arb.low_priority_stats.count : 0);
-    Serial.print('/'); Serial.println(arb.low_priority_stats.max_gap_us);
+    Serial.print('/');
+    Serial.print(arb.low_priority_stats.count ? arb.low_priority_stats.sum_gap_us / arb.low_priority_stats.count : 0);
+    Serial.print('/');
+    Serial.println(arb.low_priority_stats.max_gap_us);
 }
-
 
 
 // ---------------------------------------------------------------------
@@ -513,7 +530,7 @@ void print_arb_report(const char *bus_name, ArbBusState_s &arb)
 /**
  * @brief Clears a bus's tx_count and every sender's receive stats back to
  *        their initial values.
-*/
+ */
 void reset_stats(BusStats_s &bus_stats)
 {
     bus_stats.tx_count = 0;
@@ -522,7 +539,6 @@ void reset_stats(BusStats_s &bus_stats)
         bus_stats.from[board_id] = RXStats_s{};
     }
 }
-
 
 
 // ---------------------------------------------------------------------
@@ -567,7 +583,6 @@ void on_recv_CAN_3(const CAN_message_t &msg)
 #endif
 
 
-
 // ---------------------------------------------------------------------
 //                          Burst / Stress test
 // ---------------------------------------------------------------------
@@ -578,12 +593,14 @@ void on_recv_CAN_3(const CAN_message_t &msg)
  *        contention. Templated on bus type since FlexCAN_T4<CAN1>,
  *        <CAN2>, and <CAN3> are distinct C++ types despite sharing an
  *        interface.
-*/
-template <typename Bus_t>
-void burst_test(Bus_t &bus, uint32_t can_id, BusStats_s &bus_stats, uint16_t count)
+ */
+template <typename Bus_t> void burst_test(Bus_t &bus, uint32_t can_id, BusStats_s &bus_stats, uint16_t count)
 {
-    Serial.print(" Starting Burst Test For: "); Serial.println(bus_stats.name);
-    Serial.print(" Sending "); Serial.print(count); Serial.println(" frames back-to-back...");
+    Serial.print(" Starting Burst Test For: ");
+    Serial.println(bus_stats.name);
+    Serial.print(" Sending ");
+    Serial.print(count);
+    Serial.println(" frames back-to-back...");
 
     uint32_t start = micros();
     for (uint16_t i = 0; i < count; i++)
@@ -595,9 +612,10 @@ void burst_test(Bus_t &bus, uint32_t can_id, BusStats_s &bus_stats, uint16_t cou
     }
     uint32_t elapsed = micros() - start;
 
-    Serial.print(" Burst test done in "); Serial.print(elapsed); Serial.println(" us - check the rx/dropped counters on the receiving end");
+    Serial.print(" Burst test done in ");
+    Serial.print(elapsed);
+    Serial.println(" us - check the rx/dropped counters on the receiving end");
 }
-
 
 
 // ---------------------------------------------------------------------
@@ -608,12 +626,11 @@ void burst_test(Bus_t &bus, uint32_t can_id, BusStats_s &bus_stats, uint16_t cou
  * @brief Sends the trigger frame that (re)starts the arbitration test on a
  *        given bus, and arms this board's own test loop immediately (it
  *        doesn't have to wait to hear its own trigger echoed back).
-*/
-template <typename Bus_t>
-void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, const char *bus_name)
+ */
+template <typename Bus_t> void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, const char *bus_name)
 {
     CAN_message_t trigger{};
-    trigger.id  = ARB_TRIGGER_ID;
+    trigger.id = ARB_TRIGGER_ID;
     trigger.len = 0;
     bus.write(trigger);
 
@@ -622,7 +639,9 @@ void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, const char *bus_name)
     arb.high_priority_stats = ArbIdStats_s{};
     arb.low_priority_stats = ArbIdStats_s{};
 
-    Serial.print("[arbitration test started on "); Serial.print(bus_name); Serial.println("]");
+    Serial.print("[arbitration test started on ");
+    Serial.print(bus_name);
+    Serial.println("]");
 }
 
 /**
@@ -630,9 +649,8 @@ void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, const char *bus_name)
  *        running, sends one HIGH + one LOW priority frame back-to-back
  *        (no delay) each iteration, forcing contention, until
  *        ARB_BURST_COUNT pairs have been sent, then stops itself.
-*/
-template <typename Bus_t>
-void arb_test_service(Bus_t &bus, ArbBusState_s &arb)
+ */
+template <typename Bus_t> void arb_test_service(Bus_t &bus, ArbBusState_s &arb)
 {
     if (!arb.is_arb_test_running || arb.frames_sent >= ARB_BURST_COUNT)
     {
@@ -660,7 +678,6 @@ void arb_test_service(Bus_t &bus, ArbBusState_s &arb)
 }
 
 
-
 // ---------------------------------------------------------------------
 //                      Serial Command Interface
 // ---------------------------------------------------------------------
@@ -668,27 +685,27 @@ void arb_test_service(Bus_t &bus, ArbBusState_s &arb)
 /**
  * @brief Prints which board this harness identifies as, plus the list of
  *        available serial commands.
-*/
+ */
 void print_help()
 {
-    Serial.print("This board is: "); Serial.println(board_name(THIS_BOARD));
-    Serial.println(F(
-        "Commands:\n"
-        "  s     - print stats for all enabled buses now\n"
-        "  r     - reset all stats\n"
-        "  v     - toggle variable-length payload mode (cycles DLC 3-8)\n"
-        "  x     - toggle extended (29-bit) ID mode\n"
-        "  1/2/3 - fire a 100-frame burst test on CAN1/CAN2/CAN3 (if enabled)\n"
-        "  a/b/c - fire an arbitration test on CAN1/CAN2/CAN3 (if enabled)\n"
-        "  p     - toggle verbose per-frame printing\n"
-        "  h     - show this help\n"
-    ));
+    Serial.print("This board is: ");
+    Serial.println(board_name(THIS_BOARD));
+    Serial.println(
+        F("Commands:\n"
+          "  s     - print stats for all enabled buses now\n"
+          "  r     - reset all stats\n"
+          "  v     - toggle variable-length payload mode (cycles DLC 3-8)\n"
+          "  x     - toggle extended (29-bit) ID mode\n"
+          "  1/2/3 - fire a 100-frame burst test on CAN1/CAN2/CAN3 (if enabled)\n"
+          "  a/b/c - fire an arbitration test on CAN1/CAN2/CAN3 (if enabled)\n"
+          "  p     - toggle verbose per-frame printing\n"
+          "  h     - show this help\n"));
 }
 
 /**
  * @brief Reads and dispatches a single character command from Serial, if
  *        one is available. Non-blocking: does nothing if no input waiting.
-*/
+ */
 void handle_serial_commands()
 {
     if (!Serial.available())
@@ -699,120 +716,119 @@ void handle_serial_commands()
     char c = Serial.read();
     switch (c)
     {
-        case 's': // print current stats for every enabled bus
-        {
-            #if ENABLE_CAN1
-                print_report(CAN_1_stats);
-                print_arb_report("CAN1", CAN_1_arb);
-            #endif
-            #if ENABLE_CAN2
-                print_report(CAN_2_stats);
-                print_arb_report("CAN2", CAN_2_arb);
-            #endif
-            #if ENABLE_CAN3
-                print_report(CAN_3_stats);
-                print_arb_report("CAN3", CAN_3_arb);
-            #endif
-            break;
-        }
-        case 'r': // reset stats for every enabled bus
-        {
-            #if ENABLE_CAN1
-                reset_stats(CAN_1_stats);
-            #endif
-            #if ENABLE_CAN2
-                reset_stats(CAN_2_stats);
-            #endif
-            #if ENABLE_CAN3
-                reset_stats(CAN_3_stats);
-            #endif
-            Serial.println("[stats reset]");
-            break;
-        }
-        case 'v': // toggle cycling DLC 3-8 vs. always sending a fixed 3-byte frame
-        {
-            g_variable_len_mode = !g_variable_len_mode;
-            Serial.print("[variable length mode] ");
-            Serial.println(g_variable_len_mode ? "ON" : "OFF");
-            break;
-        }
-        case 'x': // toggle sending extended (29-bit) vs. standard (11-bit) CAN IDs
-        {
-            g_extended_id_mode = !g_extended_id_mode;
-            Serial.print("[extended id mode] ");
-            Serial.println(g_extended_id_mode ? "ON" : "OFF");
-            break;
-        }
-        case 'p': // toggle printing every received frame (per enabled bus)
-        {
-            #if ENABLE_CAN1
-                CAN_1_stats.verbose = !CAN_1_stats.verbose;
-            #endif
-            #if ENABLE_CAN2
-                CAN_2_stats.verbose = !CAN_2_stats.verbose;
-            #endif
-            #if ENABLE_CAN3
-                CAN_3_stats.verbose = !CAN_3_stats.verbose;
-            #endif
-            Serial.println("[verbose toggled]");
-            break;
-        }
+    case 's': // print current stats for every enabled bus
+    {
+#if ENABLE_CAN1
+        print_report(CAN_1_stats);
+        print_arb_report("CAN1", CAN_1_arb);
+#endif
+#if ENABLE_CAN2
+        print_report(CAN_2_stats);
+        print_arb_report("CAN2", CAN_2_arb);
+#endif
+#if ENABLE_CAN3
+        print_report(CAN_3_stats);
+        print_arb_report("CAN3", CAN_3_arb);
+#endif
+        break;
+    }
+    case 'r': // reset stats for every enabled bus
+    {
+#if ENABLE_CAN1
+        reset_stats(CAN_1_stats);
+#endif
+#if ENABLE_CAN2
+        reset_stats(CAN_2_stats);
+#endif
+#if ENABLE_CAN3
+        reset_stats(CAN_3_stats);
+#endif
+        Serial.println("[stats reset]");
+        break;
+    }
+    case 'v': // toggle cycling DLC 3-8 vs. always sending a fixed 3-byte frame
+    {
+        g_variable_len_mode = !g_variable_len_mode;
+        Serial.print("[variable length mode] ");
+        Serial.println(g_variable_len_mode ? "ON" : "OFF");
+        break;
+    }
+    case 'x': // toggle sending extended (29-bit) vs. standard (11-bit) CAN IDs
+    {
+        g_extended_id_mode = !g_extended_id_mode;
+        Serial.print("[extended id mode] ");
+        Serial.println(g_extended_id_mode ? "ON" : "OFF");
+        break;
+    }
+    case 'p': // toggle printing every received frame (per enabled bus)
+    {
+#if ENABLE_CAN1
+        CAN_1_stats.verbose = !CAN_1_stats.verbose;
+#endif
+#if ENABLE_CAN2
+        CAN_2_stats.verbose = !CAN_2_stats.verbose;
+#endif
+#if ENABLE_CAN3
+        CAN_3_stats.verbose = !CAN_3_stats.verbose;
+#endif
+        Serial.println("[verbose toggled]");
+        break;
+    }
 
-        // Fire a 100-frame burst test on whichever bus is enabled and requested.
-        #if ENABLE_CAN1
-            case '1':
-            {
-                burst_test(CAN_bus_1, CAN1_TX_ID, CAN_1_stats, 100);
-                break;
-            }
-        #endif
-        #if ENABLE_CAN2
-            case '2':
-            {
-                burst_test(CAN_bus_2, CAN2_TX_ID, CAN_2_stats, 100);
-                break;
-            }
-        #endif
-        #if ENABLE_CAN3
-            case '3':
-            {
-                burst_test(CAN_bus_3, CAN3_TX_ID, CAN_3_stats, 100);
-                break;
-            }
-        #endif
+// Fire a 100-frame burst test on whichever bus is enabled and requested.
+#if ENABLE_CAN1
+    case '1':
+    {
+        burst_test(CAN_bus_1, CAN1_TX_ID, CAN_1_stats, 100);
+        break;
+    }
+#endif
+#if ENABLE_CAN2
+    case '2':
+    {
+        burst_test(CAN_bus_2, CAN2_TX_ID, CAN_2_stats, 100);
+        break;
+    }
+#endif
+#if ENABLE_CAN3
+    case '3':
+    {
+        burst_test(CAN_bus_3, CAN3_TX_ID, CAN_3_stats, 100);
+        break;
+    }
+#endif
 
-        // Fire an arbitration test on whichever bus is enabled and requested.
-        #if ENABLE_CAN1
-            case 'a':
-            {
-                arb_test_trigger(CAN_bus_1, CAN_1_arb, "CAN1");
-                break;
-            }
-        #endif
-        #if ENABLE_CAN2
-            case 'b':
-            {
-                arb_test_trigger(CAN_bus_2, CAN_2_arb, "CAN2");
-                break;
-            }
-        #endif
-        #if ENABLE_CAN3
-            case 'c':
-            {
-                arb_test_trigger(CAN_bus_3, CAN_3_arb, "CAN3");
-                break;
-            }
-        #endif
+// Fire an arbitration test on whichever bus is enabled and requested.
+#if ENABLE_CAN1
+    case 'a':
+    {
+        arb_test_trigger(CAN_bus_1, CAN_1_arb, "CAN1");
+        break;
+    }
+#endif
+#if ENABLE_CAN2
+    case 'b':
+    {
+        arb_test_trigger(CAN_bus_2, CAN_2_arb, "CAN2");
+        break;
+    }
+#endif
+#if ENABLE_CAN3
+    case 'c':
+    {
+        arb_test_trigger(CAN_bus_3, CAN_3_arb, "CAN3");
+        break;
+    }
+#endif
 
-        case 'h':
-        default:
-        {
-            print_help();
-            break;
-        }
+    case 'h':
+    default:
+    {
+        print_help();
+        break;
+    }
     }
 }
-
 
 
 // ---------------------------------------------------------------------
@@ -824,16 +840,16 @@ void setup()
     Serial.begin(115200);
     delay(400);
 
-    // Initialize each enabled bus: sets baud rate and registers this bus's receive callback.
-    #if ENABLE_CAN1
-        handle_CAN_setup(CAN_bus_1, CAN1_BAUDRATE, &on_recv_CAN_1);
-    #endif
-    #if ENABLE_CAN2
-        handle_CAN_setup(CAN_bus_2, CAN2_BAUDRATE, &on_recv_CAN_2);
-    #endif
-    #if ENABLE_CAN3
-        handle_CAN_setup(CAN_bus_3, CAN3_BAUDRATE, &on_recv_CAN_3);
-    #endif
+// Initialize each enabled bus: sets baud rate and registers this bus's receive callback.
+#if ENABLE_CAN1
+    handle_CAN_setup(CAN_bus_1, CAN1_BAUDRATE, &on_recv_CAN_1);
+#endif
+#if ENABLE_CAN2
+    handle_CAN_setup(CAN_bus_2, CAN2_BAUDRATE, &on_recv_CAN_2);
+#endif
+#if ENABLE_CAN3
+    handle_CAN_setup(CAN_bus_3, CAN3_BAUDRATE, &on_recv_CAN_3);
+#endif
 
     print_help();
 }
@@ -842,19 +858,19 @@ void loop()
 {
     handle_serial_commands();
 
-    #if ENABLE_CAN1
-        CAN_bus_1.events();
-    #endif
-    #if ENABLE_CAN2
-        CAN_bus_2.events();
-    #endif
-    #if ENABLE_CAN3
-        CAN_bus_3.events();
-    #endif
+#if ENABLE_CAN1
+    CAN_bus_1.events();
+#endif
+#if ENABLE_CAN2
+    CAN_bus_2.events();
+#endif
+#if ENABLE_CAN3
+    CAN_bus_3.events();
+#endif
 
-    static uint32_t last_tx     = 0;
+    static uint32_t last_tx = 0;
     static uint32_t last_report = 0;
-    uint32_t now = millis();
+    uint32_t        now = millis();
 
     // Periodic send: one frame per enabled bus, every TX_PERIOD_MS, all
     // sharing the same sequence number so multi-bus outgoing traffic
@@ -864,40 +880,55 @@ void loop()
         last_tx = now;
         uint16_t seq = g_sequence_count++;
 
-        #if ENABLE_CAN1
-            { CAN_message_t m; fill_test_frame(m, CAN1_TX_ID, seq); CAN_bus_1.write(m); CAN_1_stats.tx_count++; }
-        #endif
-        #if ENABLE_CAN2
-            { CAN_message_t m; fill_test_frame(m, CAN2_TX_ID, seq); CAN_bus_2.write(m); CAN_2_stats.tx_count++; }
-        #endif
-        #if ENABLE_CAN3
-            { CAN_message_t m; fill_test_frame(m, CAN3_TX_ID, seq); CAN_bus_3.write(m); CAN_3_stats.tx_count++; }
-        #endif
+#if ENABLE_CAN1
+        {
+            CAN_message_t m;
+            fill_test_frame(m, CAN1_TX_ID, seq);
+            CAN_bus_1.write(m);
+            CAN_1_stats.tx_count++;
+        }
+#endif
+#if ENABLE_CAN2
+        {
+            CAN_message_t m;
+            fill_test_frame(m, CAN2_TX_ID, seq);
+            CAN_bus_2.write(m);
+            CAN_2_stats.tx_count++;
+        }
+#endif
+#if ENABLE_CAN3
+        {
+            CAN_message_t m;
+            fill_test_frame(m, CAN3_TX_ID, seq);
+            CAN_bus_3.write(m);
+            CAN_3_stats.tx_count++;
+        }
+#endif
     }
 
-    #if ENABLE_CAN1
-        arb_test_service(CAN_bus_1, CAN_1_arb);
-    #endif
-    #if ENABLE_CAN2
-        arb_test_service(CAN_bus_2, CAN_2_arb);
-    #endif
-    #if ENABLE_CAN3
-        arb_test_service(CAN_bus_3, CAN_3_arb);
-    #endif
+#if ENABLE_CAN1
+    arb_test_service(CAN_bus_1, CAN_1_arb);
+#endif
+#if ENABLE_CAN2
+    arb_test_service(CAN_bus_2, CAN_2_arb);
+#endif
+#if ENABLE_CAN3
+    arb_test_service(CAN_bus_3, CAN_3_arb);
+#endif
 
     // Periodic summary report, instead of printing every single frame.
     if (now - last_report >= REPORT_PERIOD_MS)
     {
         last_report = now;
 
-        #if ENABLE_CAN1
-            print_report(CAN_1_stats);
-        #endif
-        #if ENABLE_CAN2
-            print_report(CAN_2_stats);
-        #endif
-        #if ENABLE_CAN3
-            print_report(CAN_3_stats);
-        #endif
+#if ENABLE_CAN1
+        print_report(CAN_1_stats);
+#endif
+#if ENABLE_CAN2
+        print_report(CAN_2_stats);
+#endif
+#if ENABLE_CAN3
+        print_report(CAN_3_stats);
+#endif
     }
 }

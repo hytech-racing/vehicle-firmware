@@ -1,4 +1,5 @@
 #include "VehicleStateMachine.hpp"
+
 #include <gtest/gtest.h>
 
 bool hv_over_threshold = false;
@@ -38,41 +39,23 @@ void reset_all_booleans()
     steering_timeout = false;
 }
 
-etl::delegate<bool()> mock_hv_over_threshold = etl::delegate<bool()>::create([]() -> bool {
-    return hv_over_threshold;
-});
+etl::delegate<bool()> mock_hv_over_threshold = etl::delegate<bool()>::create([]() -> bool { return hv_over_threshold; });
 
-etl::delegate<bool()> mock_start_btn = etl::delegate<bool()>::create([]() -> bool {
-    return start_btn;
-});
+etl::delegate<bool()> mock_start_btn = etl::delegate<bool()>::create([]() -> bool { return start_btn; });
 
-etl::delegate<bool()> mock_brake_pressed = etl::delegate<bool()>::create([]() -> bool {
-    return brake_pressed;
-});
+etl::delegate<bool()> mock_brake_pressed = etl::delegate<bool()>::create([]() -> bool { return brake_pressed; });
 
-etl::delegate<bool()> mock_drivetrain_error = etl::delegate<bool()>::create([]() -> bool {
-    return drivetrain_error;
-});
+etl::delegate<bool()> mock_drivetrain_error = etl::delegate<bool()>::create([]() -> bool { return drivetrain_error; });
 
-etl::delegate<bool()> mock_drivetrain_ready = etl::delegate<bool()>::create([]() -> bool {
-    return drivetrain_ready;
-});
+etl::delegate<bool()> mock_drivetrain_ready = etl::delegate<bool()>::create([]() -> bool { return drivetrain_ready; });
 
-etl::delegate<void()> mock_start_buzzer = etl::delegate<void()>::create([]() -> void {
-    buzzer_active = true;
-});
+etl::delegate<void()> mock_start_buzzer = etl::delegate<void()>::create([]() -> void { buzzer_active = true; });
 
-etl::delegate<bool()> mock_buzzer_done = etl::delegate<bool()>::create([]() -> bool {
-    return !buzzer_active;
-});
+etl::delegate<bool()> mock_buzzer_done = etl::delegate<bool()>::create([]() -> bool { return !buzzer_active; });
 
-etl::delegate<void()> mock_end_buzzer = etl::delegate<void()>::create([]() -> void {
-    buzzer_active = false;
-});
+etl::delegate<void()> mock_end_buzzer = etl::delegate<void()>::create([]() -> void { buzzer_active = false; });
 
-etl::delegate<void()> mock_handle_drivetrain_init = etl::delegate<void()>::create([]() -> void {
-    return;
-});
+etl::delegate<void()> mock_handle_drivetrain_init = etl::delegate<void()>::create([]() -> void { return; });
 
 void mock_command_drivetrain_function(bool wrtd, bool rtd)
 {
@@ -82,50 +65,50 @@ void mock_command_drivetrain_function(bool wrtd, bool rtd)
 }
 etl::delegate<void(bool, bool)> mock_command_drivetrain = etl::delegate<void(bool, bool)>::create<mock_command_drivetrain_function>();
 
-etl::delegate<bool()> mock_pedals_timeout = etl::delegate<bool()>::create([]() -> bool {
-    return pedals_timeout;
-});
+etl::delegate<bool()> mock_pedals_timeout = etl::delegate<bool()>::create([]() -> bool { return pedals_timeout; });
 
-etl::delegate<void()> mock_pedals_reset = etl::delegate<void()>::create([]() -> void {
-    pedals_timeout = false;
-    return;
-});
+etl::delegate<void()> mock_pedals_reset = etl::delegate<void()>::create(
+    []() -> void
+    {
+        pedals_timeout = false;
+        return;
+    });
 
-etl::delegate<void()> mock_recalibrate_pedals = etl::delegate<void()>::create([]() -> void {
-    called_recalibrate_pedals = true;
-    return;
-});
+etl::delegate<void()> mock_recalibrate_pedals = etl::delegate<void()>::create(
+    []() -> void
+    {
+        called_recalibrate_pedals = true;
+        return;
+    });
 
-etl::delegate<bool()> mock_inverter_button_pressed = etl::delegate<bool()>::create([]() -> bool {
-    return inverter_button_pressed;
-});
+etl::delegate<bool()> mock_inverter_button_pressed = etl::delegate<bool()>::create([]() -> bool { return inverter_button_pressed; });
 
-etl::delegate<bool()> mock_calibrate_pedals_pressed = etl::delegate<bool()>::create([]() -> bool {
-    return calibrate_pedals_pressed;
-});
+etl::delegate<bool()> mock_calibrate_pedals_pressed = etl::delegate<bool()>::create([]() -> bool { return calibrate_pedals_pressed; });
 
-etl::delegate<void()> mock_reset_inverter_error = etl::delegate<void()>::create([]() -> void {
-    called_reset_inverter_error = true;
-    return;
-});
+etl::delegate<void()> mock_reset_inverter_error = etl::delegate<void()>::create(
+    []() -> void
+    {
+        called_reset_inverter_error = true;
+        return;
+    });
 
-etl::delegate<void()> mock_recalibrate_steering = etl::delegate<void()>::create([]() -> void {
-    called_recalibrate_steering = true;
-    return;
-});
+etl::delegate<void()> mock_recalibrate_steering = etl::delegate<void()>::create(
+    []() -> void
+    {
+        called_recalibrate_steering = true;
+        return;
+    });
 
-etl::delegate<bool()> mock_is_calibrate_steering_pressed = etl::delegate<bool()>::create([]() -> bool {
-    return calibrate_steering_pressed;
-});
+etl::delegate<bool()> mock_is_calibrate_steering_pressed = etl::delegate<bool()>::create([]() -> bool { return calibrate_steering_pressed; });
 
-etl::delegate<bool()> mock_steering_timeout = etl::delegate<bool()>::create([]() -> bool {
-    return steering_timeout;
-});
+etl::delegate<bool()> mock_steering_timeout = etl::delegate<bool()>::create([]() -> bool { return steering_timeout; });
 
-etl::delegate<void()> mock_steering_reset = etl::delegate<void()>::create([]() -> void {
-    steering_timeout = false;
-    return;
-});
+etl::delegate<void()> mock_steering_reset = etl::delegate<void()>::create(
+    []() -> void
+    {
+        steering_timeout = false;
+        return;
+    });
 
 void ASSERT_DRIVETRAIN_COMMANDED(bool wrtd, bool rtd)
 {
@@ -133,7 +116,8 @@ void ASSERT_DRIVETRAIN_COMMANDED(bool wrtd, bool rtd)
     ASSERT_EQ(ready_to_drive, rtd);
 }
 
-TEST (VehicleStateMachine, TractiveSystemNotActive) {
+TEST(VehicleStateMachine, TractiveSystemNotActive)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -151,8 +135,7 @@ TEST (VehicleStateMachine, TractiveSystemNotActive) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -179,12 +162,12 @@ TEST (VehicleStateMachine, TractiveSystemNotActive) {
     ASSERT_EQ(called_reset_inverter_error, true);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
     called_reset_inverter_error = false;
-    
 }
 
 // TODO: Add CalibratingSteering test
 
-TEST (VehicleStateMachine, CalibratingPedals) {
+TEST(VehicleStateMachine, CalibratingPedals)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -202,8 +185,7 @@ TEST (VehicleStateMachine, CalibratingPedals) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -258,10 +240,10 @@ TEST (VehicleStateMachine, CalibratingPedals) {
     state_machine.tick_state_machine(7000);
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
-    
 }
 
-TEST (VehicleStateMachine, TractiveSystemActive) {
+TEST(VehicleStateMachine, TractiveSystemActive)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -279,8 +261,7 @@ TEST (VehicleStateMachine, TractiveSystemActive) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -342,10 +323,10 @@ TEST (VehicleStateMachine, TractiveSystemActive) {
     state_machine.tick_state_machine(1000);
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
-
 }
 
-TEST (VehicleStateMachine, WantingReadyToDrive) {
+TEST(VehicleStateMachine, WantingReadyToDrive)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -363,8 +344,7 @@ TEST (VehicleStateMachine, WantingReadyToDrive) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -414,10 +394,10 @@ TEST (VehicleStateMachine, WantingReadyToDrive) {
     state_machine.tick_state_machine(0); // Evaluates in new state
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, true);
-
 }
 
-TEST (VehicleStateMachine, ExitsReadyToDriveWhenNoHV) {
+TEST(VehicleStateMachine, ExitsReadyToDriveWhenNoHV)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -435,8 +415,7 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenNoHV) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -470,10 +449,10 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenNoHV) {
     state_machine.tick_state_machine(0); // Evaluates in new state
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
-
 }
 
-TEST (VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError) {
+TEST(VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -491,8 +470,7 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -528,12 +506,12 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError) {
     state_machine.tick_state_machine(0); // Evaluates in new state
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
-
 }
 
 // TODO: Add ExitsReadyToDriveWhenSteeringTimeout
 
-TEST (VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout) {
+TEST(VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout)
+{
     VehicleStateMachine state_machine = VehicleStateMachine(
         mock_hv_over_threshold,
         mock_start_btn,
@@ -551,8 +529,7 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout) {
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset
-    );
+        mock_steering_reset);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -588,5 +565,4 @@ TEST (VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout) {
     state_machine.tick_state_machine(0); // Evaluates in new state
     ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
-
 }

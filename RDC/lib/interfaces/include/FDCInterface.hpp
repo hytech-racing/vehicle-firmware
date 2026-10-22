@@ -3,10 +3,10 @@
 
 /* ETL Library */
 #include "RDC_Constants.hpp"
-#include <FlexCAN_T4.h>
-#include <etl/singleton.h>
 
+#include <FlexCAN_T4.h>
 #include <SharedFirmwareTypes.h>
+#include <etl/singleton.h>
 #include <ht_can.h>
 
 struct BrakeData_s
@@ -17,7 +17,7 @@ struct BrakeData_s
 
 struct FDCControl_s
 {
-    bool toggle_watchdog;
+    bool    toggle_watchdog;
     uint8_t activate_ebs_solenoid_id;
 };
 
@@ -45,21 +45,21 @@ class FDCInterface
 
     bool getEbsPressureOk() const { return _current_ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && _current_ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; }
 
-    FDCControl_s getFDCControl() const { return _fdc_control; }
-    EBSData_s getEbsData() const { return _current_ebs_data; }
+    FDCControl_s             getFDCControl() const { return _fdc_control; }
+    EBSData_s                getEbsData() const { return _current_ebs_data; }
     BrakeFluidPressureData_s getBrakeData() const { return _current_brake_data; }
 
     DriverlessMission_e getDriverlessMision() const { return _current_dv_mission; }
-    bool getEbsSupervisorStatus() const { return _current_ebs_data.supervisor_ok; }
+    bool                getEbsSupervisorStatus() const { return _current_ebs_data.supervisor_ok; }
 
     private:
-    EBSData_s _current_ebs_data;
+    EBSData_s                _current_ebs_data;
     BrakeFluidPressureData_s _current_brake_data;
-    DriverlessMission_e _current_dv_mission;
-    FDCControl_s _fdc_control;
+    DriverlessMission_e      _current_dv_mission;
+    FDCControl_s             _fdc_control;
 
     unsigned long _max_heartbeat_timeout_ms;
-    bool _pressure_heartbeat_init_ok = false;
+    bool          _pressure_heartbeat_init_ok = false;
 };
 
 using FDCInterfaceInstance = etl::singleton<FDCInterface>;

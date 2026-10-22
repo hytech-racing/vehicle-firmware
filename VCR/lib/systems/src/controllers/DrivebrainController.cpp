@@ -47,15 +47,9 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &state, unsig
         _aux_latency_info.worst_period_millis = 0;
     }
 
-    unsigned long aux_latency_millis = std::max(
-        curr_millis - db_auxillary_input.desired_speeds.last_recv_millis,
-        curr_millis - db_auxillary_input.torque_limits.last_recv_millis
-    );
+    unsigned long aux_latency_millis = std::max(curr_millis - db_auxillary_input.desired_speeds.last_recv_millis, curr_millis - db_auxillary_input.torque_limits.last_recv_millis);
 
-    unsigned long telem_latency_millis = std::max(
-        curr_millis - db_telem_input.desired_speeds.last_recv_millis,
-        curr_millis - db_telem_input.torque_limits.last_recv_millis
-    );
+    unsigned long telem_latency_millis = std::max(curr_millis - db_telem_input.desired_speeds.last_recv_millis, curr_millis - db_telem_input.torque_limits.last_recv_millis);
 
     _aux_latency_info.worst_period_millis = std::max(_aux_latency_info.worst_period_millis, aux_latency_millis);
     _telem_latency_info.worst_period_millis = std::max(_telem_latency_info.worst_period_millis, telem_latency_millis);
@@ -63,7 +57,7 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &state, unsig
     return output;
 }
 
-void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info)
+void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s &latency_info)
 {
     // Cases for timing_failure:
 
@@ -81,7 +75,7 @@ void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrive
     bool torque_limit_message_too_latent = (torque_setpoint_latency > (int)_params.allowed_latency);
 
     // 3. if the relative latency is too high (time between the message members) -> (allowed latency / 2)
-    int relative_latency = ::abs((int)(static_cast<int64_t>(last_speed_setpoint_timestamp) - static_cast<int64_t>(last_torque_lim_timestamp)));
+    int  relative_latency = ::abs((int)(static_cast<int64_t>(last_speed_setpoint_timestamp) - static_cast<int64_t>(last_torque_lim_timestamp)));
     bool latency_diff_too_high = (relative_latency > ((int)_params.allowed_latency / 2));
 
     bool timing_failure = (speed_setpoint_msg_too_latent || torque_limit_message_too_latent || not_all_messages_recvd || latency_diff_too_high);

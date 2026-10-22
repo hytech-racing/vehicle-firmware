@@ -4,10 +4,11 @@
 void initializeAllSystems()
 {
     /* Neopixel Controller */
-    etl::delegate<void(uint16_t, uint32_t)> setPixelColor = etl::delegate<void(uint16_t, uint32_t)>::create<NeopixelInterface, &NeopixelInterface::setPixelColor>(NeopixelInterfaceInstance::instance());
+    etl::delegate<void(uint16_t, uint32_t)> setPixelColor =
+        etl::delegate<void(uint16_t, uint32_t)>::create<NeopixelInterface, &NeopixelInterface::setPixelColor>(NeopixelInterfaceInstance::instance());
     etl::delegate<void(uint8_t)> setBrightness = etl::delegate<void(uint8_t)>::create<NeopixelInterface, &NeopixelInterface::setBrightness>(NeopixelInterfaceInstance::instance());
-    etl::delegate<void()> show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
-    NeopixelControllerInputs_s controller_inputs = {
+    etl::delegate<void()>        show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
+    NeopixelControllerInputs_s   controller_inputs = {
         .are_pedals_calibrating = VCRInterfaceInstance::instance().arePedalsCalibrating(),
         .is_steering_calibrating = VCRInterfaceInstance::instance().isSteeringCalibrating(),
         .torque_limit_mode = VCRInterfaceInstance::instance().getTorqueLimitMode(),
@@ -17,16 +18,9 @@ void initializeAllSystems()
         .is_inverter_errored = VCRInterfaceInstance::instance().isInverterErrored(),
         .is_imd_ok = DashboardInterfaceInstance::instance().isIMDOk(),
         .is_bms_ok = DashboardInterfaceInstance::instance().isBMSOk(),
-        .min_cell_voltage = ACUInterfaceInstance::instance().getMinCellVoltage()
-    };
+        .min_cell_voltage = ACUInterfaceInstance::instance().getMinCellVoltage()};
 
-    NeopixelControllerInstance::create(
-        setPixelColor,
-        setBrightness,
-        show,
-        controller_inputs,
-        VCFSystems::NEOPIXEL_COUNT
-    );
+    NeopixelControllerInstance::create(setPixelColor, setBrightness, show, controller_inputs, VCFSystems::NEOPIXEL_COUNT);
     NeopixelControllerInstance::instance().init();
 
     /* Pedals System */
@@ -42,8 +36,7 @@ void initializeAllSystems()
         .max_sensor_pedal_2 = VCFSystems::ACCEL_MAX_SENSOR_PEDAL_2,
         .deadzone_margin = VCFSystems::ACCEL_DEADZONE_MARGIN,
         .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-        .mechanical_activation_percentage = VCFSystems::ACCEL_MECHANICAL_ACTIVATION_PERCENTAGE
-    };
+        .mechanical_activation_percentage = VCFSystems::ACCEL_MECHANICAL_ACTIVATION_PERCENTAGE};
 
     PedalsParams brake_params = {
         .min_pedal_1 = EEPROMUtilities::read_eeprom_32bit(VCFSystems::BRAKE_1_MIN_ADDR),
@@ -57,48 +50,53 @@ void initializeAllSystems()
         .max_sensor_pedal_2 = VCFSystems::BRAKE_MAX_SENSOR_PEDAL_2,
         .deadzone_margin = VCFSystems::BRAKE_DEADZONE_MARGIN,
         .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-        .mechanical_activation_percentage = VCFSystems::BRAKE_MECHANICAL_ACTIVATION_PERCENTAGE
-    };
+        .mechanical_activation_percentage = VCFSystems::BRAKE_MECHANICAL_ACTIVATION_PERCENTAGE};
     PedalsSystemInstance::create(accel_params, brake_params); // pass in the two different params
 
     /* Steering System */
     SteeringSystemParams_s steering_params = {
-        .analog = {
-            .deg_per_count = VCFSystems::DEG_PER_COUNT_ANALOG,
-            .oor_tolerance_fraction = VCFSystems::ANALOG_TOLERANCE,
-            .calibration_snapshot = {
-                .min_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR),
-                .max_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR),
+        .analog =
+            {
+                .deg_per_count = VCFSystems::DEG_PER_COUNT_ANALOG,
+                .oor_tolerance_fraction = VCFSystems::ANALOG_TOLERANCE,
+                .calibration_snapshot =
+                    {
+                        .min_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR),
+                        .max_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR),
+                    },
+                .oor_bounds =
+                    {
+                        .min_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MIN_WITH_MARGINS_ADDR)),
+                        .max_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MAX_WITH_MARGINS_ADDR)),
+                    },
             },
-            .oor_bounds = {
-                .min_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MIN_WITH_MARGINS_ADDR)),
-                .max_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MAX_WITH_MARGINS_ADDR)),
+        .digital =
+            {
+                .deg_per_count = VCFSystems::DEG_PER_COUNT_DIGITAL,
+                .oor_tolerance_fraction = VCFSystems::DIGITAL_TOLERANCE,
+                .calibration_snapshot =
+                    {
+                        .min_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_DIGITAL_ADDR),
+                        .max_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_DIGITAL_ADDR),
+                    },
+                .oor_bounds =
+                    {
+                        .min_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR)),
+                        .max_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR)),
+                    },
             },
-        },
-        .digital = {
-            .deg_per_count = VCFSystems::DEG_PER_COUNT_DIGITAL,
-            .oor_tolerance_fraction = VCFSystems::DIGITAL_TOLERANCE,
-            .calibration_snapshot = {
-                .min_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_DIGITAL_ADDR),
-                .max_raw = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_DIGITAL_ADDR),
-            },
-            .oor_bounds = {
-                .min_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR)),
-                .max_valid_raw = static_cast<int32_t>(EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR)),
-            },
-        },
         .max_steering_rate_deg_per_s = VCFSystems::MAX_DTHETA_THRESHOLD,
         .max_sensor_disagreement_deg = VCFSystems::ERROR_BETWEEN_SENSORS_TOLERANCE,
     };
 
     // Derived calibration values (not stored in EEPROM)
     SteeringSensorCalibration_s &analog_calibration = steering_params.analog.calibration_snapshot;
-    analog_calibration.span_raw   = analog_calibration.max_raw - analog_calibration.min_raw;
+    analog_calibration.span_raw = analog_calibration.max_raw - analog_calibration.min_raw;
     analog_calibration.center_raw = analog_calibration.min_raw + (analog_calibration.span_raw / 2);
     steering_params.analog.oor_tolerance_raw = static_cast<float>(analog_calibration.span_raw) * steering_params.analog.oor_tolerance_fraction;
 
     SteeringSensorCalibration_s &digital_calibration = steering_params.digital.calibration_snapshot;
-    digital_calibration.span_raw   = digital_calibration.max_raw - digital_calibration.min_raw;
+    digital_calibration.span_raw = digital_calibration.max_raw - digital_calibration.min_raw;
     digital_calibration.center_raw = digital_calibration.min_raw + (digital_calibration.span_raw / 2);
     steering_params.digital.oor_tolerance_raw = static_cast<float>(digital_calibration.span_raw) * steering_params.digital.oor_tolerance_fraction;
 
@@ -108,7 +106,7 @@ void initializeAllSystems()
     BuzzerControllerInstance::create();
 }
 
-HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
     PEDALS_SYSTEM_DATA_t pedals_data = {};
 
@@ -130,7 +128,8 @@ HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, 
 }
 
 
-HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+{
     // Observed pedal values (ONLY USED FOR RECALIBRATION)
     // WARNING: These are the true min/max observed values, NOT the "value at min travel" and "value at max travel"
     //          that are defined in the PedalsParam struct.
@@ -153,19 +152,18 @@ HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
 {
     SteeringSystemInstance::instance().evaluateSteering(
         static_cast<uint32_t>(ADCInterfaceInstance::instance().getSteeringDegreesCW().raw),
         OrbisInterfaceInstance::instance().getLastReading(),
-        sysMicros
-    );
+        sysMicros);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
-    STEERING_DATA_t msg_out;
+    STEERING_DATA_t      msg_out;
     SteeringSystemData_s steering_system_data = SteeringSystemInstance::instance().getSteeringSystemData();
 
     msg_out.steering_analog_oor = steering_system_data.analog_oor_implausibility;
@@ -184,9 +182,9 @@ HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros,
 }
 
 
-HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
-    const uint32_t analog_raw = SteeringSystemInstance::instance().getSteeringSystemData().analog_raw; // NOLINT thinks this is not initialized
+    const uint32_t analog_raw = SteeringSystemInstance::instance().getSteeringSystemData().analog_raw;   // NOLINT thinks this is not initialized
     const uint32_t digital_raw = SteeringSystemInstance::instance().getSteeringSystemData().digital_raw; // NOLINT thinks this is not initialized
 
     SteeringSystemInstance::instance().updateObservedExtremes(analog_raw, digital_raw);
@@ -213,22 +211,22 @@ HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicr
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
     NeopixelControllerInstance::instance().refreshNeopixels(PedalsSystemInstance::instance().getPedalsSystemData());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
     pinMode(VCFInterfaces::BUZZER_CONTROL_PIN, OUTPUT);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
 
-    bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()); //NOLINT
+    bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()); // NOLINT
 
     digitalWrite(VCFInterfaces::BUZZER_CONTROL_PIN, buzzer_is_active);
     return HT_TASK::TaskResponse::YIELD;

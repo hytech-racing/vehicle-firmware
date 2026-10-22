@@ -5,9 +5,10 @@
 #include <etl/singleton.h>
 
 /* External Includes */
+#include "MCP_ADC.h"
+
 #include <array>
 #include <optional>
-#include "MCP_ADC.h"
 
 namespace adc_default_parameters
 {
@@ -91,98 +92,86 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinouts;
+    ADCPinout_s   pinouts;
     ADCChannels_s channels;
-    ADCScales_s scales;
-    ADCOffsets_s offsets;
+    ADCScales_s   scales;
+    ADCOffsets_s  offsets;
 };
 
 class ADCInterface
 {
-public:
-
-    ADCInterface(ADCPinout_s pinouts,
-                ADCChannels_s channels,
-                ADCScales_s scales,
-                ADCOffsets_s offsets
-    ) : _adc_parameters {
-            pinouts,
-            channels,
-            scales,
-            offsets
-        },
-        _adc0 (
-            _adc_parameters.pinouts.adc0_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
-            adc0_scales().data(),
-            adc0_offsets().data()
-        ),
-        _adc1 (
-            _adc_parameters.pinouts.adc1_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
-            adc1_scales().data(),
-            adc1_offsets().data()
-        )
-    {};
+    public:
+    ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
+        : _adc_parameters{pinouts, channels, scales, offsets},
+          _adc0(
+              _adc_parameters.pinouts.adc0_spi_cs_pin,
+              MCP_ADC_DEFAULT_SPI_SDI,
+              MCP_ADC_DEFAULT_SPI_SDO,
+              MCP_ADC_DEFAULT_SPI_CLK,
+              MCP_ADC_DEFAULT_SPI_SPEED,
+              adc0_scales().data(),
+              adc0_offsets().data()),
+          _adc1(
+              _adc_parameters.pinouts.adc1_spi_cs_pin,
+              MCP_ADC_DEFAULT_SPI_SDI,
+              MCP_ADC_DEFAULT_SPI_SDO,
+              MCP_ADC_DEFAULT_SPI_CLK,
+              MCP_ADC_DEFAULT_SPI_SPEED,
+              adc1_scales().data(),
+              adc1_offsets().data()) {};
 
     /**
      * Init function for pin modes
-    */
+     */
     void init();
 
     /**
-    * Samples from ADC0
-    */
+     * Samples from ADC0
+     */
     void tick_adc0();
 
     /**
-    * Samples from ADC1
-    */
+     * Samples from ADC1
+     */
     void tick_adc1();
 
-    const ADCInterfaceParams_s& get_adc_params() const;
+    const ADCInterfaceParams_s &get_adc_params() const;
 
     /* -------------------- ADC0 -------------------- */
 
     /**
      * @return The reading of the 24V sensor analog channel
-    */
+     */
     AnalogConversion_s get_glv() const;
 
     /**
      * @return The reading of the BSPD current analog channel
-    */
+     */
     AnalogConversion_s get_bspd_current() const;
 
     /**
      * @return The reading of the BSPD reference current analog channel
-    */
+     */
     AnalogConversion_s get_bspd_reference_current() const;
 
     /**
      * @return The reading of the rear left load cell analog channel
-    */
+     */
     AnalogConversion_s get_RL_load_cell() const;
 
     /**
      * @return The reading of the rear right load cell analog channel
-    */
+     */
     AnalogConversion_s get_RR_load_cell() const;
 
     /**
      * @return The reading of the rear left suspension potentiometer analog channel
-    */
+     */
     AnalogConversion_s get_RL_sus_pot() const;
 
     /**
      * @return The reading of the rear right suspension potentiometer analog channel
-    */
+     */
     AnalogConversion_s get_RR_sus_pot() const;
 
     /**
@@ -240,8 +229,7 @@ public:
 
     bool is_current_sense_high() const;
 
-private:
-
+    private:
     const size_t _digital_high_threshold = 2048;
 
     ADCInterfaceParams_s _adc_parameters = {};
@@ -263,7 +251,6 @@ private:
      * @return updated filtered value based on given alpha, previous value, and new value
      */
     static float _apply_iir_filter(float alpha, float old_value, float new_value);
-
 };
 
 using ADCInterfaceInstance = etl::singleton<ADCInterface>;

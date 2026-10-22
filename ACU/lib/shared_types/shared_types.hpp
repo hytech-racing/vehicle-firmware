@@ -3,12 +3,13 @@
 
 #include "SharedFirmwareTypes.h"
 
-struct BMSCoreData_s {
-    volt min_cell_voltage;
-    volt max_cell_voltage;
-    volt pack_voltage;
-    celsius max_cell_temp; 
-    celsius min_cell_temp; 
+struct BMSCoreData_s
+{
+    volt    min_cell_voltage;
+    volt    max_cell_voltage;
+    volt    pack_voltage;
+    celsius max_cell_temp;
+    celsius min_cell_temp;
     celsius max_board_temp;
 };
 
@@ -58,13 +59,14 @@ struct BMSCoreData_s {
  *   - CURRENT_GROUP_AUX_B → valid_read_gpios_4_to_6
  */
 
-enum ReadGroup_e {
-    CV_GROUP_A = 0, 
-    CV_GROUP_B, 
-    CV_GROUP_C, 
+enum ReadGroup_e
+{
+    CV_GROUP_A = 0,
+    CV_GROUP_B,
+    CV_GROUP_C,
     CV_GROUP_D,
-    AUX_GROUP_A,   
-    AUX_GROUP_B, 
+    AUX_GROUP_A,
+    AUX_GROUP_B,
     NUM_GROUPS
 };
 

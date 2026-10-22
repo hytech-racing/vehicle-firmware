@@ -4,8 +4,8 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 // Static pointers for interrupt handler
-static CANInterfaces_s* global_interfaces = nullptr;
-static unsigned long global_last_millis = 0;
+static CANInterfaces_s *global_interfaces = nullptr;
+static unsigned long    global_last_millis = 0;
 
 
 int FDCAN_init()
@@ -50,11 +50,11 @@ int FDCAN_init()
     FDCAN_FilterTypeDef sFilterConfig;
 
     sFilterConfig.IdType = FDCAN_STANDARD_ID;
-    sFilterConfig.FilterIndex = 0; // Use the first available Standard filter slot
-    sFilterConfig.FilterType = FDCAN_FILTER_MASK; // Set to mask mode
+    sFilterConfig.FilterIndex = 0;                        // Use the first available Standard filter slot
+    sFilterConfig.FilterType = FDCAN_FILTER_MASK;         // Set to mask mode
     sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0; // Route accepted messages to FIFO0
-    sFilterConfig.FilterID1 = 0x000; // Filter ID (e.g., 0x000 to match all IDs)
-    sFilterConfig.FilterID2 = 0x000; // Mask ID (e.g., 0x000 mask to accept all IDs)
+    sFilterConfig.FilterID1 = 0x000;                      // Filter ID (e.g., 0x000 to match all IDs)
+    sFilterConfig.FilterID2 = 0x000;                      // Mask ID (e.g., 0x000 mask to accept all IDs)
 
     // Accept ALL standard IDs for testing (ID & Mask == ID & FilterID1)
     // If FilterID1 = 0, FilterID2 = 0, then: (ID & 0) == (ID & 0) -> always true
@@ -86,60 +86,61 @@ int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len)
     txHeader.MessageMarker = 0;
 
     // Map len to DLC
-    switch(len)
+    switch (len)
     {
-        case 0:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_0;
-            break;
-        }
-        case 1:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_1;
-            break;
-        }
-        case 2:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_2;
-            break;
-        }
-        case 3:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_3;
-            break;
-        }
-        case 4:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_4;
-            break;
-        }
-        case 5:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_5;
-            break;
-        }
-        case 6:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_6;
-            break;
-        }
-        case 7:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_7;
-            break;
-        }
-        case 8:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_8;
-            break;
-        }
-        default:
-        {
-            txHeader.DataLength = FDCAN_DLC_BYTES_8; break;
-        }
+    case 0:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_0;
+        break;
+    }
+    case 1:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_1;
+        break;
+    }
+    case 2:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_2;
+        break;
+    }
+    case 3:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_3;
+        break;
+    }
+    case 4:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_4;
+        break;
+    }
+    case 5:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_5;
+        break;
+    }
+    case 6:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_6;
+        break;
+    }
+    case 7:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_7;
+        break;
+    }
+    case 8:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_8;
+        break;
+    }
+    default:
+    {
+        txHeader.DataLength = FDCAN_DLC_BYTES_8;
+        break;
+    }
     }
 
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, (uint8_t*)data) != HAL_OK)
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, (uint8_t *)data) != HAL_OK)
     {
         return 0; // send failed
     }
@@ -182,11 +183,12 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     if ((hfdcan->Instance == FDCAN1) && ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != 0))
     {
         // Only process if pointers have been set
-        if (global_interfaces == nullptr) return;
+        if (global_interfaces == nullptr)
+            return;
         {
 
             FDCAN_RxHeaderTypeDef rxHeader;
-            uint8_t rxData[8];
+            uint8_t               rxData[8];
 
             // Retrieve the message from FIFO 0
             if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rxHeader, rxData) == HAL_OK)
@@ -202,13 +204,13 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 }
 
 /**
-  * @brief FDCAN MSP Initialization
-  * This function configures the hardware resources for FDCAN
-  * Called automatically by HAL_FDCAN_Init()
-  * Sets up the interrupt priority and enables it in the NVIC
-  * (Nested Vectored Interrupt Controller — the STM32's interrupt manager)
-  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
+ * @brief FDCAN MSP Initialization
+ * This function configures the hardware resources for FDCAN
+ * Called automatically by HAL_FDCAN_Init()
+ * Sets up the interrupt priority and enables it in the NVIC
+ * (Nested Vectored Interrupt Controller — the STM32's interrupt manager)
+ */
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
     if (hfdcan->Instance == FDCAN1)
     {

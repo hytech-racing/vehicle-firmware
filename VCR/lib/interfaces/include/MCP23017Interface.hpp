@@ -6,6 +6,7 @@
 
 /* External Includes */
 #include "IOExpanderInterface.h"
+
 #include <MCP23017.h>
 
 
@@ -14,15 +15,13 @@
  * directions: 1 = input, 0 = output / pin
  * pullups: 1 = pullup, 0 = no pullup / pin
  * inverted: 1 = inverted, 0 = normal / pin
-*/
+ */
 
 class MCP23017IOExpanderInterface : public IOExpanderInterface
 {
-public:
-
-    MCP23017IOExpanderInterface(TwoWire &wire,
-                                IOExpanderParams_s params
-    ) : _io_expander(params.i2c_address, wire)
+    public:
+    MCP23017IOExpanderInterface(TwoWire &wire, IOExpanderParams_s params)
+        : _io_expander(params.i2c_address, wire)
     {
         _io_expander.init();
         _io_expander.portMode(MCP23017Port::A, params.port_a.directions, params.port_a.pullups, params.port_a.inverted);
@@ -35,11 +34,9 @@ public:
 
     bool getBitPortB(uint8_t bit) override;
 
-private:
-
+    private:
     MCP23017 _io_expander;
     uint16_t _data;
-
 };
 
 using IOExpanderInterfaceInstance = etl::singleton<MCP23017IOExpanderInterface>;

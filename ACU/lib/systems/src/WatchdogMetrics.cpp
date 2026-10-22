@@ -1,15 +1,11 @@
 #include "WatchdogMetrics.hpp"
 
 
-void WatchdogMetrics::update_metrics(volt measured_glv,
-                                    volt measured_pack_out_voltage,
-                                    volt measured_ts_out_voltage,
-                                    volt shdn_out_voltage,
-                                    unsigned long millis)
+void WatchdogMetrics::update_metrics(volt measured_glv, volt measured_pack_out_voltage, volt measured_ts_out_voltage, volt shdn_out_voltage, unsigned long millis)
 {
     if (measured_glv > _watchdog_metrics_data.max_measured_glv)
     {
-         _watchdog_metrics_data.max_measured_glv = measured_glv;
+        _watchdog_metrics_data.max_measured_glv = measured_glv;
     }
     if (measured_pack_out_voltage > _watchdog_metrics_data.max_measured_pack_out_voltage)
     {
@@ -51,10 +47,7 @@ bool WatchdogMetrics::is_shdn_out_voltage_invalid(unsigned long millis)
     return false;
 }
 
-void WatchdogMetrics::reset_metrics(volt measured_glv,
-                                    volt measured_pack_out_voltage,
-                                    volt measured_ts_out_voltage,
-                                    volt shdn_out_voltage)
+void WatchdogMetrics::reset_metrics(volt measured_glv, volt measured_pack_out_voltage, volt measured_ts_out_voltage, volt shdn_out_voltage)
 {
     _watchdog_metrics_data.max_measured_glv = measured_glv;
     _watchdog_metrics_data.max_measured_pack_out_voltage = measured_pack_out_voltage;

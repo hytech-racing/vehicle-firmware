@@ -125,7 +125,7 @@ bool ADCInterface::isResetErrorsButtonPressed(unsigned long current_millis)
     return _reset_error_button.isPressed();
 }
 
-const ADCInterfaceParams_s& ADCInterface::getADCParams() const
+const ADCInterfaceParams_s &ADCInterface::getADCParams() const
 {
     return _adc_parameters;
 }

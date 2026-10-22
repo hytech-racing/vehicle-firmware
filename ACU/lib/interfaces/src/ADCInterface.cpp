@@ -11,7 +11,7 @@ void ADCInterface::init(uint32_t init_millis)
     pinMode(_adc_parameters.pinout.teensy_hv_plus_out_ok_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_main_ok_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_main_under_thresh_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_precharge_under_thresh_pin,INPUT);
+    pinMode(_adc_parameters.pinout.teensy_precharge_under_thresh_pin, INPUT);
 
     pinMode(_adc_parameters.pinout.teensy_ts_out_filtered_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_pack_out_filtered_pin, INPUT);
@@ -34,12 +34,13 @@ bool ADCInterface::read_imd_ok(uint32_t curr_millis)
     if (_in_imd_startup_period)
     {
         if ((curr_millis - _init_millis) >= _adc_parameters.configs.imd_startup_time)
-        {   // give time for IMD to startup
+        { // give time for IMD to startup
             _in_imd_startup_period = false;
         }
         return true;
     }
-    return static_cast<float>(analogRead(_adc_parameters.pinout.teensy_imd_ok_pin)) * (_adc_parameters.configs.teensy41_max_input_voltage / _adc_parameters.bit_resolution) > _adc_parameters.thresholds.teensy41_min_digital_read_voltage_thresh; // idk if this would actually work, like if a LOW is a threshold or smth
+    return static_cast<float>(analogRead(_adc_parameters.pinout.teensy_imd_ok_pin)) * (_adc_parameters.configs.teensy41_max_input_voltage / _adc_parameters.bit_resolution)
+           > _adc_parameters.thresholds.teensy41_min_digital_read_voltage_thresh; // idk if this would actually work, like if a LOW is a threshold or smth
 }
 
 volt ADCInterface::read_shdn_voltage()
@@ -145,7 +146,7 @@ float ADCInterface::read_differential_shunt_current()
     return _max114x_instance.get_last_sample_converted(_adc_parameters.channels.shunt_current_p_channel);
 }
 
-const ADCInterfaceParams_s& ADCInterface::get_adc_params() const
+const ADCInterfaceParams_s &ADCInterface::get_adc_params() const
 {
     return _adc_parameters;
 }

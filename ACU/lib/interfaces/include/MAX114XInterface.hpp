@@ -3,9 +3,10 @@
 
 /* External Includes */
 #include "AnalogSensorsInterface.h"
+
 #include <Arduino.h>
-#include <array>
 #include <SPI.h>
+#include <array>
 #include <stdexcept>
 
 using namespace std;
@@ -16,8 +17,8 @@ using namespace std;
  */
 enum class CHANNEL_TYPE_e
 {
-    SINGLE, ///< single channel
-    DIFFERENTIAL, ///< +- differential pair
+    SINGLE,           ///< single channel
+    DIFFERENTIAL,     ///< +- differential pair
     INV_DIFFERENTIAL, ///< -+ differential pair
     NOT_USED,
 };
@@ -29,24 +30,32 @@ enum class CHANNEL_TYPE_e
  * @param MAX114X_ADC_NUM_CHANNELS number of channels for the ADC
  * @param MAX114xVersion 6, 7, 8, or 9, corresponding to the MAX1146, MAX1147, MAX1148, and MAX1149 ADCs
  */
-template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion>
-class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
+template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
 {
-public:
-
+    public:
     constexpr static size_t buffer_size = 3;
 
     /* Constructors */
     /**
      * Constructs a MAX114X ADC interface of the specified ADC model, number of channels, and channel types.
-     * @param channelTypes Constructs an array of channel types (Single, Differential, Inverse Differential) that is half the length of the ADC's channels. This is because each element of the array corresponds to a pair of channels.
+     * @param channelTypes Constructs an array of channel types (Single, Differential, Inverse Differential) that is half the length of the ADC's channels. This is because each element of the array
+     * corresponds to a pair of channels.
      */
-    MAX114XInterface(int spiPinCS, const int spiPinSDI, const int spiPinSDO, const int spiPinCLK, const int adc_not_shdn_pin, const int spiSpeed, const float scales[MAX114X_ADC_NUM_CHANNELS], const float offsets[MAX114X_ADC_NUM_CHANNELS], const std::array<CHANNEL_TYPE_e, MAX114X_ADC_NUM_CHANNELS / 2>& channelTypes);
+    MAX114XInterface(
+        int                                                             spiPinCS,
+        const int                                                       spiPinSDI,
+        const int                                                       spiPinSDO,
+        const int                                                       spiPinCLK,
+        const int                                                       adc_not_shdn_pin,
+        const int                                                       spiSpeed,
+        const float                                                     scales[MAX114X_ADC_NUM_CHANNELS],
+        const float                                                     offsets[MAX114X_ADC_NUM_CHANNELS],
+        const std::array<CHANNEL_TYPE_e, MAX114X_ADC_NUM_CHANNELS / 2> &channelTypes);
 
     /* Functions */
     /**
      * initialize pins particularly CS and ADC_!SHDN
-    */
+     */
     void init();
 
     /**
@@ -64,8 +73,7 @@ public:
      */
     float get_last_sample_converted(int index) const;
 
-private:
-
+    private:
     /**
      * Channel configuration is defined per channel pair (two physical channels).
      * This array stores the channel type for each pair of channels in the ADC.
@@ -80,12 +88,12 @@ private:
     const int _spiPinCLK;
     const int _adc_not_shdn_pin;
     const int _spiSpeed;
-    int _currentChannel;
+    int       _currentChannel;
 
     bool _dma_busy;
-    #ifdef ARDUINO
+#ifdef ARDUINO
     EventResponder _spi_event;
-    #endif
+#endif
 
     array<uint8_t, buffer_size> _tx_buf;
     array<uint8_t, buffer_size> _rx_buf;
@@ -104,13 +112,11 @@ private:
 
     /**
      * Callback function for DMA SPI reads
-    */
+     */
     void _dma_callback();
-
 };
 
-template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion>
-using MAX114XInterfaceInstance = etl::singleton<MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>>;
+template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> using MAX114XInterfaceInstance = etl::singleton<MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>>;
 
 #include "MAX114XInterface.tpp"
 

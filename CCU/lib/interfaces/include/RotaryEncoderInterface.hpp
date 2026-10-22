@@ -19,7 +19,7 @@ namespace default_encoder_params
     constexpr float MAX_VALUE = 100.F;
     constexpr float MIN_VALUE = 0.F;
 
-    constexpr float STEP_SIZE = 1.F;
+    constexpr float   STEP_SIZE = 1.F;
     constexpr uint8_t INIT_ENCODING = 0b00;
 
     // Valid quadrature transition keys.
@@ -46,7 +46,7 @@ namespace default_encoder_params
 
     // 4 valid transitions per full encoder detent/click.
     constexpr int TRANSITIONS_PER_DETENT = 4;
-}
+} // namespace default_encoder_params
 
 struct RotaryEncoderPinout_s
 {
@@ -73,14 +73,11 @@ struct RotaryEncoderState_s
 
 class RotaryEncoderInterface
 {
-public:
-
-    RotaryEncoderInterface(RotaryEncoderPinout_s pinout,
-                        RotaryEncoderState_s state = RotaryEncoderState_s{}
-    ) : _pinout(pinout),
-        _state(state),
-        _enc_switch_button(pinout.enc_switch_pin)
-    {}
+    public:
+    RotaryEncoderInterface(RotaryEncoderPinout_s pinout, RotaryEncoderState_s state = RotaryEncoderState_s{})
+        : _pinout(pinout), _state(state), _enc_switch_button(pinout.enc_switch_pin)
+    {
+    }
 
     void init();
 
@@ -88,7 +85,7 @@ public:
      * @note Call this from the main loop
      *       Encoder movement is handled by interrupts
      *       Button debounce/state is still handled here
-    */
+     */
     void tick(unsigned long current_millis);
 
     float getValue() const;
@@ -105,15 +102,14 @@ public:
 
     bool isSwitchHeld();
 
-private:
-
+    private:
     RotaryEncoderPinout_s _pinout;
-    RotaryEncoderState_s _state;
-    ButtonInterface _enc_switch_button;
+    RotaryEncoderState_s  _state;
+    ButtonInterface       _enc_switch_button;
 
     // This implementation supports one active encoder instance.
     // That is fine for your current use case.
-    static RotaryEncoderInterface* _active_instance;
+    static RotaryEncoderInterface *_active_instance;
 
     static void _ISRHandler();
 
@@ -128,7 +124,6 @@ private:
     void _decrementFromISR();
 
     float _clamp(float value) const;
-
 };
 
 using RotaryEncoderInterfaceInstance = etl::singleton<RotaryEncoderInterface>;

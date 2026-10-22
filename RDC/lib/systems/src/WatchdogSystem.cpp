@@ -1,5 +1,5 @@
-#include "WatchdogSystem.hpp"
 #include "SharedFirmwareTypes.h"
+#include "WatchdogSystem.hpp"
 
 /* Returns intended watchdog state */
 bool WatchdogSystem::getRDCWatchdogState(unsigned long curr_millis)

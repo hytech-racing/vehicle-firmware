@@ -7,16 +7,15 @@
 
 struct VCRCANInterfaceData_s
 {
-    bool imd_ok;
-    bool latch_ok;
-    bool bms_ok;
+    bool          imd_ok;
+    bool          latch_ok;
+    bool          bms_ok;
     unsigned long last_time_msg_sent;
 };
 
 class VCRInterface
 {
-public:
-
+    public:
     VCRInterface() = delete;
 
     VCRInterface(unsigned long init_millis)
@@ -33,8 +32,7 @@ public:
 
     void handle_enqueue_acu_ok_CAN_message();
 
-private:
-
+    private:
     VCRCANInterfaceData_s _curr_data;
 
     unsigned long _min_charging_enable_threshold;

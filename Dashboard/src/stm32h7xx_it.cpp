@@ -1,9 +1,9 @@
 /**
-  ******************************************************************************
-  * @file    stm32h7xx_it.cpp
-  * @brief   Interrupt Service Routines for STM32H7xx
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32h7xx_it.cpp
+ * @brief   Interrupt Service Routines for STM32H7xx
+ ******************************************************************************
+ */
 
 extern "C"
 {
@@ -15,8 +15,8 @@ extern "C"
     } hfdcan1;
 
     /**
-      * @brief  FDCAN1 Interrupt Handler
-      */
+     * @brief  FDCAN1 Interrupt Handler
+     */
     void FDCAN1_IT0_IRQHandler(void)
     {
         HAL_FDCAN_IRQHandler(&hfdcan1);

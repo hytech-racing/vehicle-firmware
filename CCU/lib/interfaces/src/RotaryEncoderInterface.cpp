@@ -1,7 +1,7 @@
 #include "RotaryEncoderInterface.hpp"
 
 
-RotaryEncoderInterface* RotaryEncoderInterface::_active_instance = nullptr;
+RotaryEncoderInterface *RotaryEncoderInterface::_active_instance = nullptr;
 
 void RotaryEncoderInterface::init()
 {
@@ -13,17 +13,9 @@ void RotaryEncoderInterface::init()
 
     _active_instance = this;
 
-    attachInterrupt(
-        digitalPinToInterrupt(_pinout.enc_a_pin),
-        RotaryEncoderInterface::_ISRHandler,
-        CHANGE
-    );
+    attachInterrupt(digitalPinToInterrupt(_pinout.enc_a_pin), RotaryEncoderInterface::_ISRHandler, CHANGE);
 
-    attachInterrupt(
-        digitalPinToInterrupt(_pinout.enc_b_pin),
-        RotaryEncoderInterface::_ISRHandler,
-        CHANGE
-    );
+    attachInterrupt(digitalPinToInterrupt(_pinout.enc_b_pin), RotaryEncoderInterface::_ISRHandler, CHANGE);
 }
 
 void RotaryEncoderInterface::tick(unsigned long current_millis)
@@ -125,32 +117,32 @@ void RotaryEncoderInterface::_updateEncoderFromISR()
 
     switch (transition)
     {
-        case default_encoder_params::CW_1:
-        case default_encoder_params::CW_2:
-        case default_encoder_params::CW_3:
-        case default_encoder_params::CW_4:
-        {
-            _applyTransitionDeltaFromISR(+1);
-            break;
-        }
+    case default_encoder_params::CW_1:
+    case default_encoder_params::CW_2:
+    case default_encoder_params::CW_3:
+    case default_encoder_params::CW_4:
+    {
+        _applyTransitionDeltaFromISR(+1);
+        break;
+    }
 
-        case default_encoder_params::CCW_1:
-        case default_encoder_params::CCW_2:
-        case default_encoder_params::CCW_3:
-        case default_encoder_params::CCW_4:
-        {
-            _applyTransitionDeltaFromISR(-1);
-            break;
-        }
+    case default_encoder_params::CCW_1:
+    case default_encoder_params::CCW_2:
+    case default_encoder_params::CCW_3:
+    case default_encoder_params::CCW_4:
+    {
+        _applyTransitionDeltaFromISR(-1);
+        break;
+    }
 
-        default:
-        {
-            // Invalid transition.
-            // This can happen from switch bounce or missed edges.
-            // Resetting the accumulator avoids applying a fake detent.
-            _state.transition_accumulator = 0;
-            break;
-        }
+    default:
+    {
+        // Invalid transition.
+        // This can happen from switch bounce or missed edges.
+        // Resetting the accumulator avoids applying a fake detent.
+        _state.transition_accumulator = 0;
+        break;
+    }
     }
 
     _state.last_encoded = encoded;

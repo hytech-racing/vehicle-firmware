@@ -1,6 +1,6 @@
-#include "RDC_Tasks.hpp"
 #include "CoreRDCCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
+#include "RDC_Tasks.hpp"
 #include "ht_task.hpp"
 
 #include <cstdio>
@@ -188,7 +188,7 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long &sys_micros, const HT_
 
 HT_TASK::TaskResponse debugPrint(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
-    auto &adc = ADCInterfaceInstance::instance();
+    auto       &adc = ADCInterfaceInstance::instance();
     const auto &sg1 = adc.getStrainGauge1();
     const auto &sg2 = adc.getStrainGauge2();
     const auto &sg3 = adc.getStrainGauge3();
@@ -200,8 +200,19 @@ HT_TASK::TaskResponse debugPrint(const unsigned long &sys_micros, const HT_TASK:
     Serial.println();
     std::snprintf(line, sizeof(line), "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s", "ebs_ctrl", "ebs_rss", "ebs_out", "shdn_l", "shdn_n", "ds_shdn_m", "dsms", "shdn_ds_ok", "shdn_m");
     Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d", adc.getEBSCtrlExt(), adc.getEBSSupplyRssExt(), adc.getEBSSupplyOut(), adc.getShdnL(), adc.getShdnN(),
-                  adc.getDsShdnM(), adc.getDsmsActiveExt(), adc.getShdnDsOk(), adc.getShdnM());
+    std::snprintf(
+        line,
+        sizeof(line),
+        "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
+        adc.getEBSCtrlExt(),
+        adc.getEBSSupplyRssExt(),
+        adc.getEBSSupplyOut(),
+        adc.getShdnL(),
+        adc.getShdnN(),
+        adc.getDsShdnM(),
+        adc.getDsmsActiveExt(),
+        adc.getShdnDsOk(),
+        adc.getShdnM());
     Serial.println(line);
 
     std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");

@@ -1,13 +1,14 @@
 /* ACU Dependent */
 #include "ACU_Constants.hpp"
-#include "SystemTimeInterface.h"
 #include "ACU_InterfaceTasks.hpp"
 #include "ACU_SystemTasks.hpp"
+#include "SystemTimeInterface.h"
 
 /* Interface Includes */
-#include <Arduino.h>
 #include "BMSDriverGroup.hpp"
 #include "WatchdogInterface.hpp"
+
+#include <Arduino.h>
 // #include "ACUEthernetInterface.hpp"
 
 /* System Includes */
@@ -23,22 +24,22 @@ elapsedMicros read_timer = 0;
 
 using chip_type = LTC6811_Type_e;
 
-const size_t sample_period_ms = 100; // 300 Hz - reads one group per call
+const size_t   sample_period_ms = 100; // 300 Hz - reads one group per call
 const uint32_t spi_baudrate = 115200;
-const uint8_t num_cells_per_board = 21;
+const uint8_t  num_cells_per_board = 21;
 
 const size_t spi1_mosi_pin = 26;
 const size_t spi1_sck_pin = 27;
 const size_t spi1_miso_pin = 39;
 
 // Initialize chip_select, chip_select_per_chip, and address
-const constexpr int num_cells_per_chip = 21;
-const constexpr int num_groups = 6;
-const constexpr int num_chips = 2; 
-const constexpr int num_chip_selects = 1;
+const constexpr int                     num_cells_per_chip = 21;
+const constexpr int                     num_groups = 6;
+const constexpr int                     num_chips = 2;
+const constexpr int                     num_chip_selects = 1;
 const std::array<int, num_chip_selects> cs = {38};
-const std::array<int, num_chips> cs_per_chip = {38, 38};// , 38, 38, 38, 38, 36, 36, 36, 36, 36, 36};
-const std::array<int, num_chips> addr = {0, 1};//, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+const std::array<int, num_chips>        cs_per_chip = {38, 38}; // , 38, 38, 38, 38, 36, 36, 36, 36, 36, 36};
+const std::array<int, num_chips>        addr = {0, 1};          //, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 // Instantiate BMS Driver Group (non-const so we can call non-const methods)
 BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1> BMSGroup = BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1>(cs, cs_per_chip, addr);
@@ -46,7 +47,8 @@ BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1> BMSGroup = BMS
 // std::array<BMSFaultCountData_s, num_chips> chip_invalid_cmd_counts;
 
 // Tracking variables for optimized read testing
-struct ReadGroupStats {
+struct ReadGroupStats
+{
     uint32_t read_count = 0;
     uint32_t total_duration_us = 0;
     uint32_t min_duration_us = UINT32_MAX;
@@ -54,11 +56,10 @@ struct ReadGroupStats {
 };
 
 std::array<ReadGroupStats, num_groups> group_stats;
-uint32_t cycle_count = 0;
-bool cycle_complete = false;
+uint32_t                               cycle_count = 0;
+bool                                   cycle_complete = false;
 
-template <typename driver_data>
-void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e current_group)
+template <typename driver_data> void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e current_group)
 {
     Serial.println("========================================");
     Serial.print("Read Group: ");
@@ -69,17 +70,21 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
 
     // Show validity summary for this group
     size_t invalid_count = BMSGroup.count_invalid_packets();
-    if (invalid_count > 0) {
+    if (invalid_count > 0)
+    {
         Serial.print(" | INVALID: ");
         Serial.print(invalid_count);
         Serial.print("/");
         Serial.print(num_chips);
-    } else {
+    }
+    else
+    {
         Serial.print(" | ALL VALID");
     }
     Serial.println();
 
-    if (cycle_complete) {
+    if (cycle_complete)
+    {
         Serial.println("*** CYCLE COMPLETE ***");
         Serial.print("Cycle #");
         Serial.println(cycle_count);
@@ -93,7 +98,7 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     Serial.print("Minimum Voltage: ");
     Serial.print(data.min_cell_voltage, 4);
     Serial.print("V\tLocation of Minimum Voltage: ");
-    Serial.println(data. min_cell_voltage_id);
+    Serial.println(data.min_cell_voltage_id);
 
     Serial.print("Maxmimum Voltage: ");
     Serial.print(data.max_cell_voltage, 4);
@@ -108,11 +113,16 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     Serial.print("Average Cell Temperature: ");
     Serial.print(data.average_cell_temperature, 2);
     Serial.print("°C");
-    if (isinf(data.average_cell_temperature)) {
+    if (isinf(data.average_cell_temperature))
+    {
         Serial.println(" *** WARNING: Temperature average is INFINITY (division by zero bug!) ***");
-    } else if (isnan(data.average_cell_temperature)) {
+    }
+    else if (isnan(data.average_cell_temperature))
+    {
         Serial.println(" *** WARNING: Temperature average is NaN! ***");
-    } else {
+    }
+    else
+    {
         Serial.println();
     }
 
@@ -130,15 +140,16 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     Serial.print("°C (ID: ");
     Serial.print(data.max_board_temperature_segment_id);
     Serial.println(")");
-    
+
     Serial.println();
 
-    for(int i=0; i< num_cells_per_chip * num_chips / 2; i++) 
+    for (int i = 0; i < num_cells_per_chip * num_chips / 2; i++)
     {
-        if(i%num_cells_per_chip==0){
+        if (i % num_cells_per_chip == 0)
+        {
             Serial.println();
             Serial.print("Chip ");
-            Serial.println(i/num_cells_per_chip);
+            Serial.println(i / num_cells_per_chip);
         }
         Serial.print(data.voltages[i]);
         Serial.print("\t");
@@ -147,27 +158,29 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     Serial.println();
 
     int cti = 0;
-    for(auto temp : data.cell_temperatures)
+    for (auto temp : data.cell_temperatures)
     {
         Serial.print("temp id ");
         Serial.print(cti);
         Serial.print(" val \t");
         Serial.print(temp);
         Serial.print("\t");
-        if (cti % 4 == 3) Serial.println();
+        if (cti % 4 == 3)
+            Serial.println();
         cti++;
     }
     Serial.println();
 
     int temp_index = 0;
-    for(auto bt : data.board_temperatures)
+    for (auto bt : data.board_temperatures)
     {
         Serial.print("board temp id ");
         Serial.print(temp_index);
         Serial.print(" val ");
         Serial.print(bt);
         Serial.print("\t");
-        if (temp_index % 4 == 3) Serial.println();
+        if (temp_index % 4 == 3)
+            Serial.println();
         temp_index++;
     }
     Serial.println();
@@ -256,27 +269,23 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     // Serial.println();
 }
 
-void print_performance_stats() {
+void print_performance_stats()
+{
     Serial.println("========================================");
     Serial.println("=== PERFORMANCE STATISTICS ===");
     Serial.println("========================================");
 
-    const char* group_names[] = {
-        "GROUP_A (Cells 0-2)",
-        "GROUP_B (Cells 3-5)",
-        "GROUP_C (Cells 6-8)",
-        "GROUP_D (Cells 9-11)",
-        "AUX_A (GPIO 0-2)",
-        "AUX_B (GPIO 3-4)"
-    };
+    const char *group_names[] = {"GROUP_A (Cells 0-2)", "GROUP_B (Cells 3-5)", "GROUP_C (Cells 6-8)", "GROUP_D (Cells 9-11)", "AUX_A (GPIO 0-2)", "AUX_B (GPIO 3-4)"};
 
-    for (size_t i = 0; i < num_groups; i++) {
-        Serial.print(group_names[i]); //NOLINT
+    for (size_t i = 0; i < num_groups; i++)
+    {
+        Serial.print(group_names[i]); // NOLINT
         Serial.println(":");
         Serial.print("  Reads: ");
         Serial.print(group_stats[i].read_count);
 
-        if (group_stats[i].read_count > 0) {
+        if (group_stats[i].read_count > 0)
+        {
             uint32_t avg = group_stats[i].total_duration_us / group_stats[i].read_count;
             Serial.print(" | Avg: ");
             Serial.print(avg);
@@ -286,10 +295,13 @@ void print_performance_stats() {
             Serial.print(group_stats[i].max_duration_us);
             Serial.println("us");
 
-            if (group_stats[i].max_duration_us > 3000) { //NOLINT
+            if (group_stats[i].max_duration_us > 3000)
+            { // NOLINT
                 Serial.println("  *** WARNING: Max duration exceeds 3ms budget! ***");
             }
-        } else {
+        }
+        else
+        {
             Serial.println(" (no data)");
         }
     }
@@ -298,7 +310,7 @@ void print_performance_stats() {
     Serial.print("Total Cycles Completed: ");
     Serial.println(cycle_count);
     Serial.print("Expected Frequency per Cell: ");
-    Serial.print(300.0 / num_groups, 1); //NOLINT
+    Serial.print(300.0 / num_groups, 1); // NOLINT
     Serial.println(" Hz");
     Serial.println("========================================");
     Serial.println();
@@ -308,22 +320,22 @@ void setup()
 {
     Serial.begin(spi_baudrate);
 
-    while(!Serial) {}
+    while (!Serial)
+    {
+    }
 
     SPI1.begin();
     SPI1.setMOSI(spi1_mosi_pin); // set up pins because it's not the default SPI1 MISO
     SPI1.setSCK(spi1_sck_pin);
     SPI1.setMISO(spi1_miso_pin);
-    
+
     BMSGroup.init();
     Serial.println("Setup Finished!");
     Serial.println();
 
 
     /* Watchdog Interface */
-    WatchdogInstance::create(WatchdogPinout_s {ACUInterfaces::TEENSY_OK_PIN,
-                                    ACUInterfaces::WD_KICK_PIN,
-                                    ACUInterfaces::N_FAULTED_STATE_PIN});
+    WatchdogInstance::create(WatchdogPinout_s{ACUInterfaces::TEENSY_OK_PIN, ACUInterfaces::WD_KICK_PIN, ACUInterfaces::N_FAULTED_STATE_PIN});
     WatchdogInstance::instance().init();
 }
 
@@ -338,7 +350,7 @@ void loop()
 
         // Get the group that WILL BE read by this call
         ReadGroup_e group_before_read = BMSGroup.get_current_read_group();
-        uint32_t group_index = static_cast<uint32_t>(group_before_read);
+        uint32_t    group_index = static_cast<uint32_t>(group_before_read);
 
         // Start timing the read
         read_timer = 0;
@@ -357,16 +369,19 @@ void loop()
         // Update statistics for the group that was just read
         group_stats[group_index].read_count++;
         group_stats[group_index].total_duration_us += read_duration_us;
-        if (read_duration_us < group_stats[group_index].min_duration_us) {
+        if (read_duration_us < group_stats[group_index].min_duration_us)
+        {
             group_stats[group_index].min_duration_us = read_duration_us;
         }
-        if (read_duration_us > group_stats[group_index].max_duration_us) {
+        if (read_duration_us > group_stats[group_index].max_duration_us)
+        {
             group_stats[group_index].max_duration_us = read_duration_us;
         }
 
         // Detect cycle completion: we just read AUX_B and driver advanced back to GROUP_A
         cycle_complete = (group_before_read == ReadGroup_e::AUX_GROUP_B);
-        if (cycle_complete) {
+        if (cycle_complete)
+        {
             cycle_count++;
         }
 
@@ -374,7 +389,8 @@ void loop()
         // print_voltages(bms_data, read_duration_us, group_before_read);
 
         // Print performance stats every 10 complete cycles
-        if (cycle_complete && (cycle_count % 10 == 0)) { //NOLINT
+        if (cycle_complete && (cycle_count % 10 == 0))
+        { // NOLINT
             print_performance_stats();
         }
 

@@ -15,16 +15,14 @@ class WatchdogSystem
 {
     public:
     WatchdogSystem(const unsigned long kick_interval_ms = 10UL)
-        : _watchdog_time(0),
-          _watchdog_state(false),
-          _watchdog_kick_interval(kick_interval_ms) {};
+        : _watchdog_time(0), _watchdog_state(false), _watchdog_kick_interval(kick_interval_ms) {};
 
     private:
     /*Private constructor*/
 
     /* Watchdog last kicked time */
     unsigned long _watchdog_time;
-    bool _watchdog_state;
+    bool          _watchdog_state;
     unsigned long _watchdog_kick_interval;
     /* Watchdog output state */
 

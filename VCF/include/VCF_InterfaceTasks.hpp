@@ -4,8 +4,9 @@
 #include "VCF_Constants.hpp"
 
 /* External Includes */
-#include <ht_task.hpp>
 #include "CANInterface.h"
+
+#include <ht_task.hpp>
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
@@ -31,15 +32,15 @@ void initializeAllInterfaces();
 
 /**
  * @brief Task will command the ADCInterface to sample, convert, and store data from all eight channels of ADC0
-*/
-::HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ */
+::HT_TASK::TaskResponse readADC0Task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 /**
  * @brief Task will command the ADCInterface to sample, convert, and store data from all eight channels of ADC1
-*/
-::HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+ */
+::HT_TASK::TaskResponse readADC1Task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
-::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse kickWatchdogTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 /**
  * The handle_send_VCF_ethernet_data task will send a protobuf message from VCF
@@ -48,24 +49,24 @@ void initializeAllInterfaces();
  * constants defined in EthernetAddressDefs.h.
  *
  */
-HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
-HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalization of GPIOs)
+HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info); // NOLINT (capitalization of GPIOs)
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
-HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 // this task attempts to send any data that is enqueued at 250hz. this will be the max rate that you can send over the CAN bus.
 // you dont have to enqeue at this rate, but this allows us to have 2 layers of rate limiting on CAN sending
 HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo); // NOLINT (capitalization of CAN)
 
 
-HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse debugPrints(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 namespace async_tasks
 {
     // the others in the VCF Tasks can just stay there, they dont need forward declarations.
-    HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-}
+    HT_TASK::TaskResponse handle_async_main(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info);
+} // namespace async_tasks
 
 #endif

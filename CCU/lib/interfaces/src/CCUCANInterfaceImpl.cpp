@@ -19,55 +19,55 @@ void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s &interfaces, const 
 {
     switch (msg.id)
     {
-        case BMS_VOLTAGES_CANID:
-        {
-            interfaces.acu_interface.receiveBMSVoltagesCANMsg(msg, millis);
-            break;
-        }
-        case BMS_DETAILED_VOLTAGES_CANID:
-        {
-            interfaces.acu_interface.receiveBMSDetailedVoltagesCANMsg(msg, millis);
-            break;
-        }
-        case BMS_STATUS_CANID:
-        {
-            interfaces.acu_interface.receiveBMSStatusCANMsg(msg, millis);
-            break;
-        }
-        case CHARGER_DATA_CANID:
-        {
-            interfaces.charger_interface.receiveChargerCANMsg(msg, millis, interfaces.acu_interface, interfaces.max_pack_voltage, interfaces.cell_cutoff_voltage);
-            break;
-        }
-        case BMS_TEMPS_CANID:
-        {
-            interfaces.acu_interface.receiveBMSTempsCANMsg(msg, millis);
-            break;
-        }
-        case BMS_DETAILED_TEMPS_CANID:
-        {
-            interfaces.acu_interface.receiveBMSDetailedTempsCANMsg(msg, millis);
-            break;
-        }
-        case BMS_BOARD_DETAILED_TEMPS_CANID:
-        {
-            interfaces.acu_interface.receiveBMSBoardTemps(msg, millis);
-            break;
-        }
-        case EM_MEASUREMENT_CANID:
-        {
-            interfaces.em_interface.receiveEMMeasurmentCANMsg(msg, millis);
-            break;
-        }
-        case STATE_OF_CHARGE_CANID:
-        {
-            interfaces.acu_interface.receiveStateOfChargeCANMSG(msg, millis);
-            break;
-        }
-        default:
-        {
-            break;
-        }
+    case BMS_VOLTAGES_CANID:
+    {
+        interfaces.acu_interface.receiveBMSVoltagesCANMsg(msg, millis);
+        break;
+    }
+    case BMS_DETAILED_VOLTAGES_CANID:
+    {
+        interfaces.acu_interface.receiveBMSDetailedVoltagesCANMsg(msg, millis);
+        break;
+    }
+    case BMS_STATUS_CANID:
+    {
+        interfaces.acu_interface.receiveBMSStatusCANMsg(msg, millis);
+        break;
+    }
+    case CHARGER_DATA_CANID:
+    {
+        interfaces.charger_interface.receiveChargerCANMsg(msg, millis, interfaces.acu_interface, interfaces.max_pack_voltage, interfaces.cell_cutoff_voltage);
+        break;
+    }
+    case BMS_TEMPS_CANID:
+    {
+        interfaces.acu_interface.receiveBMSTempsCANMsg(msg, millis);
+        break;
+    }
+    case BMS_DETAILED_TEMPS_CANID:
+    {
+        interfaces.acu_interface.receiveBMSDetailedTempsCANMsg(msg, millis);
+        break;
+    }
+    case BMS_BOARD_DETAILED_TEMPS_CANID:
+    {
+        interfaces.acu_interface.receiveBMSBoardTemps(msg, millis);
+        break;
+    }
+    case EM_MEASUREMENT_CANID:
+    {
+        interfaces.em_interface.receiveEMMeasurmentCANMsg(msg, millis);
+        break;
+    }
+    case STATE_OF_CHARGE_CANID:
+    {
+        interfaces.acu_interface.receiveStateOfChargeCANMSG(msg, millis);
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
 }
 

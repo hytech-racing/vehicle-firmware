@@ -9,13 +9,13 @@ class DriverlessStateMachine
 {
     public:
     DriverlessStateMachine(
-        etl::delegate<bool()> getDsmsOnDelegate,
+        etl::delegate<bool()>           getDsmsOnDelegate,
         etl::delegate<VehicleState_e()> getVehicleStateDelegate,
-        etl::delegate<bool()> runStartupNoTsLogicDelegate,
-        etl::delegate<bool()> runStartupTsActiveLogicDelegate,
-        etl::delegate<bool()> runEBSBrakePressureOkDelegate,
-        etl::delegate<void()> runResetStartupNoTsValuesDelegate,
-        etl::delegate<void()> runResetStartupTsActiveValuesDelegate)
+        etl::delegate<bool()>           runStartupNoTsLogicDelegate,
+        etl::delegate<bool()>           runStartupTsActiveLogicDelegate,
+        etl::delegate<bool()>           runEBSBrakePressureOkDelegate,
+        etl::delegate<void()>           runResetStartupNoTsValuesDelegate,
+        etl::delegate<void()>           runResetStartupTsActiveValuesDelegate)
         : _getDsmsOnDelegate(getDsmsOnDelegate),
           _getVehicleStateDelegate(getVehicleStateDelegate),
           _runStartupNoTsLogicDelegate(runStartupNoTsLogicDelegate),
@@ -42,7 +42,7 @@ class DriverlessStateMachine
 
     DriverlessSystemState_e _curr_driverless_system_state;
 
-    etl::delegate<bool()> _getDsmsOnDelegate;
+    etl::delegate<bool()>           _getDsmsOnDelegate;
     etl::delegate<VehicleState_e()> _getVehicleStateDelegate;
 
     etl::delegate<bool()> _runStartupNoTsLogicDelegate;

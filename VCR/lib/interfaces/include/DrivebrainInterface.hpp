@@ -5,14 +5,15 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
 #include "CANInterface.h"
-#include "ht_can.h"
-#include <FlexCAN_T4.h>
-#include "hytech_msgs.pb.h"
 #include "ProtobufMsgInterface.h"
-#include <QNEthernet.h>
+#include "SharedFirmwareTypes.h"
+#include "ht_can.h"
+#include "hytech_msgs.pb.h"
+
+#include <FlexCAN_T4.h>
 #include <IPAddress.h>
+#include <QNEthernet.h>
 #include <cstdint>
 
 /* Local Interface Includes */
@@ -22,11 +23,8 @@
 
 class DrivebrainInterface
 {
-public:
-
-    DrivebrainInterface(IPAddress drivebrain_ip,
-                        uint16_t vcr_data_port,
-                        qindesign::network::EthernetUDP *udp_socket);
+    public:
+    DrivebrainInterface(IPAddress drivebrain_ip, uint16_t vcr_data_port, qindesign::network::EthernetUDP *udp_socket);
 
     void receive_drivebrain_speed_command_telem(const CAN_message_t &msg, unsigned long curr_millis);
 
@@ -48,15 +46,13 @@ public:
 
     StampedDrivetrainCommand_s get_latest_auxillary_drivebrain_command();
 
-private:
-
-    IPAddress _drivebrain_ip;
-    uint16_t _vcr_data_port;
+    private:
+    IPAddress                        _drivebrain_ip;
+    uint16_t                         _vcr_data_port;
     qindesign::network::EthernetUDP *_udp_socket;
 
     StampedDrivetrainCommand_s _latest_drivebrain_command_telem = {};
     StampedDrivetrainCommand_s _latest_drivebrain_command_auxillary = {};
-
 };
 
 using DrivebrainInterfaceInstance = etl::singleton<DrivebrainInterface>;

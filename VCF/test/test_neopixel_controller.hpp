@@ -1,35 +1,34 @@
 #define TEST_NEOPIXEL_CONTROLLER_HPP
-#include <gtest/gtest.h>
 #include "NeopixelController.hpp"
+
+#include <gtest/gtest.h>
 
 
 struct FakeNeopixelStrip
 {
     static constexpr uint16_t NEOPIXEL_COUNT = 16;
 
-    std::array<uint32_t, NEOPIXEL_COUNT> pixel_colors {};
-    uint8_t brightness = 0;
-    int show_count = 0;
+    std::array<uint32_t, NEOPIXEL_COUNT> pixel_colors{};
+    uint8_t                              brightness = 0;
+    int                                  show_count = 0;
 
-    void setPixelColor(uint16_t id, uint32_t color) { pixel_colors.at(id) = color; }  // .at() fails the test on a bad id
+    void setPixelColor(uint16_t id, uint32_t color) { pixel_colors.at(id) = color; } // .at() fails the test on a bad id
     void setBrightness(uint8_t value) { brightness = value; }
     void show() { ++show_count; }
 };
 
 class NeopixelControllerTest : public ::testing::Test
 {
-protected:
-
+    protected:
     // Declared before the controller so it exists when the delegates are bound to it
     FakeNeopixelStrip _strip;
 
-    NeopixelController _controller {
+    NeopixelController _controller{
         etl::delegate<void(uint16_t, uint32_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setPixelColor>(_strip),
         etl::delegate<void(uint8_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setBrightness>(_strip),
         etl::delegate<void()>::create<FakeNeopixelStrip, &FakeNeopixelStrip::show>(_strip),
-        NeopixelControllerInputs_s {},  // all false / zero; not used by the tests below
-        FakeNeopixelStrip::NEOPIXEL_COUNT
-    };
+        NeopixelControllerInputs_s{}, // all false / zero; not used by the tests below
+        FakeNeopixelStrip::NEOPIXEL_COUNT};
 
     uint32_t pixelColor(LED_ID_e led) const { return _strip.pixel_colors.at(led); }
 };
@@ -63,8 +62,7 @@ TEST_F(NeopixelControllerTest, init_sets_all_other_leds_to_init_color)
 
     for (uint16_t id = 0; id < FakeNeopixelStrip::NEOPIXEL_COUNT; ++id)
     {
-        const bool starts_off = (id == LED_ID_e::BMS) || (id == LED_ID_e::IMD)
-                             || (id == LED_ID_e::BMS_WING) || (id == LED_ID_e::IMD_WING);
+        const bool starts_off = (id == LED_ID_e::BMS) || (id == LED_ID_e::IMD) || (id == LED_ID_e::BMS_WING) || (id == LED_ID_e::IMD_WING);
         if (!starts_off)
         {
             EXPECT_EQ(_strip.pixel_colors.at(id), to_raw(LED_color_e::INIT_COLOR)) << "LED id " << id;
@@ -108,7 +106,7 @@ TEST_F(NeopixelControllerTest, dim_from_default_wraps_to_max_then_steps_down)
 
 TEST_F(NeopixelControllerTest, dim_cycles_through_levels_and_wraps_after_min)
 {
-    _controller.dimNeopixels();  // 64 -> 255
+    _controller.dimNeopixels(); // 64 -> 255
 
     const uint8_t expected_levels[] = {192, 129, 66, 3, 255};
     for (const uint8_t expected : expected_levels)

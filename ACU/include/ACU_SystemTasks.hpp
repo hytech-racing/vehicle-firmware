@@ -9,13 +9,14 @@
 #include "ACUStateMachine.hpp"
 
 /* Interface Function Dependencies */
-#include "WatchdogInterface.hpp"
-#include "CCUInterface.hpp"
-#include "EMInterface.hpp"
+#include "ADCInterface.hpp"
 #include "BMSDriverGroup.hpp"
 #include "BMSFaultDataManager.hpp"
-#include "ADCInterface.hpp"
+#include "CCUInterface.hpp"
+#include "EMInterface.hpp"
 #include "SystemTimeInterface.h"
+#include "WatchdogInterface.hpp"
+
 #include <ht_task.hpp>
 
 using chip_type = LTC6811_Type_e;
@@ -42,5 +43,4 @@ extern ::etl::delegate<void()> reset_latch;
 ::HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 
-
-#endif 
+#endif

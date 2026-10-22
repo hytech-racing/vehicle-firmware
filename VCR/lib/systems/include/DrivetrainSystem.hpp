@@ -5,16 +5,17 @@
 #include <stdint.h>
 
 /* ETL Library */
-#include <etl/variant.h>
 #include <etl/delegate.h>
 #include <etl/singleton.h>
+#include <etl/variant.h>
 
 /* External Includes */
+#include "SharedFirmwareTypes.h"
+#include "shared_types.hpp"
+
+#include <SysClock.h>
 #include <array>
 #include <functional>
-#include <SysClock.h>
-#include "shared_types.hpp"
-#include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
@@ -37,10 +38,10 @@ enum class DrivetrainCmdResponse_e
  */
 struct DrivetrainStatus_s
 {
-    bool all_inverters_connected;
+    bool                      all_inverters_connected;
     veh_vec<InverterStatus_s> inverter_statuses;
-    DrivetrainCmdResponse_e cmd_resp;
-    DrivetrainState_e state;
+    DrivetrainCmdResponse_e   cmd_resp;
+    DrivetrainState_e         state;
 };
 
 /**
@@ -72,8 +73,7 @@ struct DrivetrainInit_s
 
 class DrivetrainSystem
 {
-public:
-
+    public:
     /**
      * etl::variants allow multiple types to be treated as a single type-- almost like an enum of types.
      * Here, we're just saying that when we refer to CmdVariant, the parameter can be any one of these
@@ -95,26 +95,28 @@ public:
      * Drivetrain state machine (DSM) functions
      */
     DrivetrainStatus_s evaluate_drivetrain(CmdVariant cmd);
-    DrivetrainState_e get_state() const;
+    DrivetrainState_e  get_state() const;
     DrivetrainStatus_s get_status() const;
 
     struct InverterFuncts_s
     {
         std::function<void(float desired_rpm, float torque_limit_nm)> set_speed;
-        std::function<void()> set_idle;
-        std::function<void(InverterControlWord_s control_word)> set_inverter_control_word;
-        std::function<InverterStatus_s()> get_status;
-        std::function<MotorMechanics_s()> get_motor_mechanics;
+        std::function<void()>                                         set_idle;
+        std::function<void(InverterControlWord_s control_word)>       set_inverter_control_word;
+        std::function<InverterStatus_s()>                             get_status;
+        std::function<MotorMechanics_s()>                             get_motor_mechanics;
     };
 
-    DrivetrainSystem(veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces, etl::delegate<void(bool)> set_ef_active_pin, unsigned long ef_pin_enable_delay_ms = 50); //why not make delay a constant that can easily be changed elsewhere where other constants are changed
+    DrivetrainSystem(
+        veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+        etl::delegate<void(bool)>                   set_ef_active_pin,
+        unsigned long                               ef_pin_enable_delay_ms = 50); // why not make delay a constant that can easily be changed elsewhere where other constants are changed
 
-private:
-
+    private:
     /**
      * Internal functions for handling DSM state transitions.
      */
-    bool _check_inverter_flags(std::function<bool(const InverterStatus_s&)> flag_check_func);
+    bool _check_inverter_flags(std::function<bool(const InverterStatus_s &)> flag_check_func);
     bool _drivetrain_active(float min_active_rpm);
     void _set_state(DrivetrainState_e state);
     void _set_drivetrain_disabled();
@@ -124,11 +126,11 @@ private:
     void _set_drivetrain_error_reset();
     void _set_drivetrain_command(DrivetrainCommand_s cmd);
 
-    DrivetrainState_e _evaluate_state_machine(CmdVariant cmd);
-    DrivetrainState_e _state;
+    DrivetrainState_e  _evaluate_state_machine(CmdVariant cmd);
+    DrivetrainState_e  _state;
     DrivetrainStatus_s _status;
 
-    const float _active_rpm_level = 100;
+    const float               _active_rpm_level = 100;
     veh_vec<InverterFuncts_s> _inverter_interfaces;
 
     /**
@@ -146,10 +148,9 @@ private:
      * Delegate function for setting ef active
      */
     etl::delegate<void(bool)> _set_ef_active_pin;
-    unsigned long _last_toggled_ef_active = 0;
-    unsigned long _ef_pin_enable_delay_ms;
-    unsigned long _precharge_wait_start = 0;
-    
+    unsigned long             _last_toggled_ef_active = 0;
+    unsigned long             _ef_pin_enable_delay_ms;
+    unsigned long             _precharge_wait_start = 0;
 };
 
 using DrivetrainInstance = etl::singleton<DrivetrainSystem>;

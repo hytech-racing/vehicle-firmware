@@ -22,12 +22,7 @@ void initialize_all_interfaces()
 
     /* ---------- ADC Interface ---------- */
     ADCInterfaceInstance::create(
-        ADCPinout_s{
-            VCRInterfaces::ADC0_CS,
-            VCRInterfaces::ADC1_CS,
-            VCRInterfaces::BRAKE_HIGH_SENSE_PIN,
-            VCRInterfaces::CURRENT_HIGH_SENSE_PIN
-        },
+        ADCPinout_s{VCRInterfaces::ADC0_CS, VCRInterfaces::ADC1_CS, VCRInterfaces::BRAKE_HIGH_SENSE_PIN, VCRInterfaces::CURRENT_HIGH_SENSE_PIN},
         ADCChannels_s{
             VCRInterfaces::GLV_SENSE_CHANNEL,
             VCRInterfaces::CURRENT_SENSE_CHANNEL,
@@ -92,21 +87,12 @@ void initialize_all_interfaces()
 
     /* ---------- IO Expander Interface ---------- */
     Wire.begin();
-    IOExpanderInterfaceInstance::create(Wire,
-                                        IOExpanderParams_s {
-                                            VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
-                                            IOExpanderPortMode_s {
-                                                VCRInterfaces::PORTA_DIRECTIONS,
-                                                VCRInterfaces::PORTA_PULLUPS,
-                                                VCRInterfaces::PORTA_INVERTED
-                                            },
-                                            IOExpanderPortMode_s {
-                                                VCRInterfaces::PORTB_DIRECTIONS,
-                                                VCRInterfaces::PORTB_PULLUPS,
-                                                VCRInterfaces::PORTB_INVERTED
-                                            }
-                                        }
-    );
+    IOExpanderInterfaceInstance::create(
+        Wire,
+        IOExpanderParams_s{
+            VCRInterfaces::IOEXPANDER_I2C_ADDRESS,
+            IOExpanderPortMode_s{VCRInterfaces::PORTA_DIRECTIONS, VCRInterfaces::PORTA_PULLUPS, VCRInterfaces::PORTA_INVERTED},
+            IOExpanderPortMode_s{VCRInterfaces::PORTB_DIRECTIONS, VCRInterfaces::PORTB_PULLUPS, VCRInterfaces::PORTB_INVERTED}});
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
@@ -190,9 +176,9 @@ HT_TASK::TaskResponse run_update_brakelight_task(const unsigned long &sysMicros,
 HT_TASK::TaskResponse enable_motor_cooling(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
     VehicleState_e vehicle_state = VehicleStateMachineInstance::instance().get_state(); // NOLINT will alway be populated so its ok
-    bool enable_state = vehicle_state == VehicleState_e::READY_TO_DRIVE ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_3;
+    bool           enable_state = vehicle_state == VehicleState_e::READY_TO_DRIVE
+                                  || VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2
+                                  || VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_3;
     digitalWrite(VCRInterfaces::MOTOR_COOLING_CONTROL_PIN, enable_state ? HIGH : LOW);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -200,11 +186,11 @@ HT_TASK::TaskResponse enable_motor_cooling(const unsigned long &sysMicros, const
 HT_TASK::TaskResponse enable_inverter_cooling(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
     VehicleState_e vehicle_state = VehicleStateMachineInstance::instance().get_state(); // NOLINT will alway be populated so its ok
-    bool enable_state = vehicle_state == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE ||
-                        vehicle_state == VehicleState_e::WANTING_READY_TO_DRIVE ||
-                        vehicle_state == VehicleState_e::READY_TO_DRIVE ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2 ||
-                        VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_5;
+    bool           enable_state = vehicle_state == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE
+                                  || vehicle_state == VehicleState_e::WANTING_READY_TO_DRIVE
+                                  || vehicle_state == VehicleState_e::READY_TO_DRIVE
+                                  || VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_2
+                                  || VCFInterfaceInstance::instance().get_latest_data().dash_input_state.dial_state == ControllerMode_e::MODE_5;
     digitalWrite(VCRInterfaces::INVERTER_COOLING_CONTROL_PIN, enable_state ? HIGH : LOW);
 
     return HT_TASK::TaskResponse::YIELD;
@@ -399,13 +385,17 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
     Serial.print("\t:\t");
     Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.brake_percent);
     Serial.println();
-    Serial.print("pedals heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
+    Serial.print("pedals heartbeat good: ");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
     Serial.println();
-    Serial.print("steering heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
+    Serial.print("steering heartbeat good: ");
+    Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
     Serial.println();
-    Serial.print("Pedals Brake Is Active: "); Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
+    Serial.print("Pedals Brake Is Active: ");
+    Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
     Serial.println();
-    Serial.print("Is Start Button Active: "); Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
+    Serial.print("Is Start Button Active: ");
+    Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
     Serial.println();
 
     // Serial.println();
@@ -500,14 +490,20 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
     Serial.println("Drivetrain Command:");
     Serial.println("\t\tFL\tFR\tRL\tRR");
     Serial.print("Speed (rpm)\t");
-    Serial.print(dt_command.desired_speeds.FL); Serial.print("\t");
-    Serial.print(dt_command.desired_speeds.FR); Serial.print("\t");
-    Serial.print(dt_command.desired_speeds.RL); Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.FL);
+    Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.FR);
+    Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.RL);
+    Serial.print("\t");
     Serial.println(dt_command.desired_speeds.RR);
     Serial.print("Torque Lim (Nm)\t");
-    Serial.print(dt_command.torque_limits.FL); Serial.print("\t");
-    Serial.print(dt_command.torque_limits.FR); Serial.print("\t");
-    Serial.print(dt_command.torque_limits.RL); Serial.print("\t");
+    Serial.print(dt_command.torque_limits.FL);
+    Serial.print("\t");
+    Serial.print(dt_command.torque_limits.FR);
+    Serial.print("\t");
+    Serial.print(dt_command.torque_limits.RL);
+    Serial.print("\t");
     Serial.println(dt_command.torque_limits.RR);
     Serial.println();
 

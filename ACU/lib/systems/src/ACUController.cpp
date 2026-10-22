@@ -28,7 +28,13 @@ void ACUController::restore_lifetime_throughput(double restored_ah)
     _acu_state.SoH = compute_soh_from_throughput(_acu_state.lifetime_ah_throughput);
 }
 
-ACUControllerData_s ACUController::evaluate_accumulator(time_ms current_millis, const BMSCoreData_s &input_state, size_t max_consecutive_invalid_packet_count, float em_current, size_t num_of_voltage_cells, bool voltage_is_fresh)
+ACUControllerData_s ACUController::evaluate_accumulator(
+    time_ms              current_millis,
+    const BMSCoreData_s &input_state,
+    size_t               max_consecutive_invalid_packet_count,
+    float                em_current,
+    size_t               num_of_voltage_cells,
+    bool                 voltage_is_fresh)
 {
     // _acu_state.charging_enabled = input_state.charging_enabled;
 
@@ -43,7 +49,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(time_ms current_millis, 
     _acu_state.V1 = _soc_ekf.get_voltage();
 
     // State of Health via Ah throughput model
-    float dt = static_cast<float>(current_millis - _acu_state.prev_bms_time_stamp) / _ms_to_seconds;
+    float  dt = static_cast<float>(current_millis - _acu_state.prev_bms_time_stamp) / _ms_to_seconds;
     double ah_step = (fabs(static_cast<double>(em_current)) * static_cast<double>(dt)) / _seconds_per_hour;
     _acu_state.lifetime_ah_throughput += ah_step;
 
@@ -56,10 +62,9 @@ ACUControllerData_s ACUController::evaluate_accumulator(time_ms current_millis, 
     // Cell balancing calculations
     bool previously_balancing = _acu_state.balancing_enabled;
 
-    bool balance_enableable = (
-        (previously_balancing && (input_state.max_board_temp < _acu_parameters.thresholds.balance_temp_limit_c)) ||
-        (!previously_balancing && (input_state.max_board_temp < _acu_parameters.thresholds.balance_enable_temp_c))
-    );
+    bool balance_enableable =
+        ((previously_balancing && (input_state.max_board_temp < _acu_parameters.thresholds.balance_temp_limit_c))
+         || (!previously_balancing && (input_state.max_board_temp < _acu_parameters.thresholds.balance_enable_temp_c)));
 
     bool allow_balancing = (balance_enableable && _acu_state.charging_enabled);
 
@@ -128,17 +133,18 @@ ACUControllerData_s ACUController::evaluate_accumulator(time_ms current_millis, 
     return _acu_state;
 }
 
-void ACUController::calculate_cell_balance_statuses(bool* output, const volt* voltages, size_t num_of_voltage_cells, volt min_voltage)
+void ACUController::calculate_cell_balance_statuses(bool *output, const volt *voltages, size_t num_of_voltage_cells, volt min_voltage)
 {
     for (size_t cell = 0; cell < num_of_voltage_cells; cell++)
     {
-        volt cell_voltage = voltages[cell]; //NOLINT
+        volt cell_voltage = voltages[cell]; // NOLINT
         if (((cell_voltage - min_voltage) > _acu_parameters.thresholds.v_diff_to_init_cb) && (cell_voltage > _acu_parameters.thresholds.min_discharge_voltage_thresh))
         {
-            output[cell] = true; //NOLINT
-        } else
+            output[cell] = true; // NOLINT
+        }
+        else
         {
-            output[cell] = false; //NOLINT
+            output[cell] = false; // NOLINT
         }
     }
 }
@@ -158,10 +164,10 @@ float ACUController::_get_soc_from_voltage(volt min_cell_voltage)
 
     for (size_t i = 0; i < table_size - 1; i++)
     {
-        if (min_cell_voltage <= SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i] && min_cell_voltage > SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i + 1]) //NOLINT
+        if (min_cell_voltage <= SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i] && min_cell_voltage > SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i + 1]) // NOLINT
         {
-            float v_high = SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i]; //NOLINT
-            float v_low = SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i + 1]; //NOLINT
+            float v_high = SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i];    // NOLINT
+            float v_low = SOCKalmanFilter::VOLTAGE_LOOKUP_TABLE[i + 1]; // NOLINT
             float soc_high = (float)(table_size - 1 - i) / (table_size - 1);
             float soc_low = (float)(table_size - 1 - (i + 1)) / (table_size - 1);
 
@@ -240,7 +246,7 @@ bool ACUController::_is_bms_ok(time_ms current_millis)
     }
     else if (!_acu_state.bms_ok && (current_millis - _acu_state.last_bms_not_ok_eval > _bms_not_ok_hold_time_ms))
     {
-       return true;
+        return true;
     }
 
     return _acu_state.bms_ok;

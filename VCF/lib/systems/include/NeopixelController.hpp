@@ -8,9 +8,10 @@
 #define STEP_BRIGHTNESS ((MAX_BRIGHTNESS - MIN_BRIGHTNESS) / BRIGHTNESS_STEPS)
 
 /* ETL Library Includes */
-#include <etl/singleton.h>
-#include <etl/delegate.h>
 #include "SharedFirmwareTypes.h"
+
+#include <etl/delegate.h>
+#include <etl/singleton.h>
 
 
 struct MinCellMonitoringThresholds_s
@@ -39,7 +40,7 @@ enum LED_ID_e
     RDY_DRIVE = 11,
     LATCH = 12,
     CRIT_CHARGE = 13,
-    LATCH_WING= 14,
+    LATCH_WING = 14,
     IMD_WING = 15
 };
 
@@ -57,38 +58,32 @@ enum class LED_color_e
 
 struct NeopixelControllerInputs_s
 {
-    bool are_pedals_calibrating;
-    bool is_steering_calibrating;
-    TorqueLimit_e torque_limit_mode;
+    bool           are_pedals_calibrating;
+    bool           is_steering_calibrating;
+    TorqueLimit_e  torque_limit_mode;
     VehicleState_e vehicle_state;
-    bool is_drivebrain_in_control;
-    veh_vec<int> bus_voltages;
-    bool is_inverter_errored;
-    bool is_imd_ok;
-    bool is_bms_ok;
-    float min_cell_voltage;
+    bool           is_drivebrain_in_control;
+    veh_vec<int>   bus_voltages;
+    bool           is_inverter_errored;
+    bool           is_imd_ok;
+    bool           is_bms_ok;
+    float          min_cell_voltage;
 };
 
 class NeopixelController
 {
-public:
-
+    public:
     /**
      * @param neopixel_interface Strip hardware the controller writes colors to (not owned; must outlive the controller)
      * @param neopixel_count Number of LEDs on the strip
      */
-    NeopixelController(etl::delegate<void(uint16_t, uint32_t)> setPixelColor,
-                    etl::delegate<void(uint8_t)> setBrightness,
-                    etl::delegate<void()> show,
-                    NeopixelControllerInputs_s controller_inputs,
-                    uint32_t neopixel_count
-    ) : _setPixelColor(setPixelColor),
-        _setBrightness(setBrightness),
-        _show(show),
-        _controller_inputs(controller_inputs),
-        _current_brightness(64),
-        _neopixel_count(neopixel_count)
-    {};
+    NeopixelController(
+        etl::delegate<void(uint16_t, uint32_t)> setPixelColor,
+        etl::delegate<void(uint8_t)>            setBrightness,
+        etl::delegate<void()>                   show,
+        NeopixelControllerInputs_s              controller_inputs,
+        uint32_t                                neopixel_count)
+        : _setPixelColor(setPixelColor), _setBrightness(setBrightness), _show(show), _controller_inputs(controller_inputs), _current_brightness(64), _neopixel_count(neopixel_count) {};
 
     void init();
 
@@ -100,17 +95,15 @@ public:
 
     void setNeopixelColor(LED_ID_e led, LED_color_e color);
 
-private:
-
+    private:
     etl::delegate<void(uint16_t, uint32_t)> _setPixelColor;
-    etl::delegate<void(uint8_t)> _setBrightness;
-    etl::delegate<void()> _show;
-    NeopixelControllerInputs_s _controller_inputs;
-    uint8_t _current_brightness;
-    uint8_t _neopixel_count;
-    const uint8_t _hv_threshold_voltage = 60;
-    MinCellMonitoringThresholds_s _min_cell_thresholds;
-
+    etl::delegate<void(uint8_t)>            _setBrightness;
+    etl::delegate<void()>                   _show;
+    NeopixelControllerInputs_s              _controller_inputs;
+    uint8_t                                 _current_brightness;
+    uint8_t                                 _neopixel_count;
+    const uint8_t                           _hv_threshold_voltage = 60;
+    MinCellMonitoringThresholds_s           _min_cell_thresholds;
 };
 
 using NeopixelControllerInstance = etl::singleton<NeopixelController>;

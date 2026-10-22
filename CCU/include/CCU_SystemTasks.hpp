@@ -13,13 +13,13 @@
 #include "WatchdogInterface.hpp"
 
 /* Local System Includes */
+#include "ChargerStateMachine.hpp"
 #include "Level2System.hpp"
 #include "MainChargeSystem.hpp"
-#include "ChargerStateMachine.hpp"
 
 /**
  * @brief Creates an instance of all systems.
-*/
+ */
 void initializeAllSystems();
 
 extern etl::delegate<bool()> is_120_conditions_ok;
@@ -35,9 +35,9 @@ extern etl::delegate<void()> set_start_charge_high;
 extern etl::delegate<void()> set_start_charge_low;
 extern etl::delegate<void()> reset_startup_time_ms;
 
-::HT_TASK::TaskResponse tickStateMachineTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse tickStateMachineTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
-::HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
 
 
 #endif

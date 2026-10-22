@@ -1,4 +1,5 @@
 #include "DriverlessStateMachine.hpp"
+
 #include <gtest/gtest.h>
 
 // Status rules are DO.1.1. The DSF charts are only the order of the checks:
@@ -11,11 +12,11 @@
 // DSMS off while the emergency brake is not activated is Off, and the
 // driverless system must not keep operating the brakes (DT.1.1.3).
 
-bool dsms_on = false;
+bool           dsms_on = false;
 VehicleState_e vehicle_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
-bool startup_no_ts_ok = false;
-bool startup_ts_ok = false;
-bool ebs_pressure_ok = false;
+bool           startup_no_ts_ok = false;
+bool           startup_ts_ok = false;
+bool           ebs_pressure_ok = false;
 
 int startup_no_ts_calls = 0;
 int startup_ts_calls = 0;
@@ -278,7 +279,7 @@ TEST(DriverlessStateMachine, DsmsOffWhileReadyIsOff)
     ASSERT_EQ(state_machine.tickStateMachine(0), DriverlessSystemState_e::OFF);
 }
 
-//TODO: Think about this with more sleep.
+// TODO: Think about this with more sleep.
 TEST(DriverlessStateMachine, DsmsOffWhileDrivingIsOff)
 {
     reset_state_machine_inputs();

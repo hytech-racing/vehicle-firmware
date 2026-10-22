@@ -89,44 +89,33 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinouts;
+    ADCPinout_s   pinouts;
     ADCChannels_s channels;
-    ADCScales_s scales;
-    ADCOffsets_s offsets;
+    ADCScales_s   scales;
+    ADCOffsets_s  offsets;
 };
 
 class ADCInterface
 {
-public:
-    ADCInterface(ADCPinout_s pinouts,
-                ADCChannels_s channels,
-                ADCScales_s scales,
-                ADCOffsets_s offsets
-    ) : _adc_parameters {
-            .pinouts = pinouts,
-            .channels = channels,
-            .scales = scales,
-            .offsets = offsets
-        },
-        _adc0 (
-            _adc_parameters.pinouts.adc0_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
-            adc0_scales().data(),
-            adc0_offsets().data()
-        ),
-        _adc1 (
-            _adc_parameters.pinouts.adc1_spi_cs_pin,
-            MCP_ADC_DEFAULT_SPI_SDI,
-            MCP_ADC_DEFAULT_SPI_SDO,
-            MCP_ADC_DEFAULT_SPI_CLK,
-            MCP_ADC_DEFAULT_SPI_SPEED,
-            adc1_scales().data(),
-            adc1_offsets().data()
-        )
-    {};
+    public:
+    ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
+        : _adc_parameters{.pinouts = pinouts, .channels = channels, .scales = scales, .offsets = offsets},
+          _adc0(
+              _adc_parameters.pinouts.adc0_spi_cs_pin,
+              MCP_ADC_DEFAULT_SPI_SDI,
+              MCP_ADC_DEFAULT_SPI_SDO,
+              MCP_ADC_DEFAULT_SPI_CLK,
+              MCP_ADC_DEFAULT_SPI_SPEED,
+              adc0_scales().data(),
+              adc0_offsets().data()),
+          _adc1(
+              _adc_parameters.pinouts.adc1_spi_cs_pin,
+              MCP_ADC_DEFAULT_SPI_SDI,
+              MCP_ADC_DEFAULT_SPI_SDO,
+              MCP_ADC_DEFAULT_SPI_CLK,
+              MCP_ADC_DEFAULT_SPI_SPEED,
+              adc1_scales().data(),
+              adc1_offsets().data()) {};
 
     void tickADC0();
 
@@ -137,37 +126,37 @@ public:
 
     /**
      * @return Pedal Reference Reading
-    */
+     */
     AnalogConversion_s getPedalReference();
 
     /**
      * @return Analog Steering Degrees [Steering 1]
-    */
+     */
     AnalogConversion_s getSteeringDegreesCW();
 
     /**
      * @return Analog Steering Degrees [Steering 2]
-    */
+     */
     AnalogConversion_s getSteeringDegreesCCW();
 
     /**
      * @return Acceleration Pedal 1
-    */
+     */
     AnalogConversion_s getAcceleration1();
 
     /**
      * @return Acceleration Pedal 2
-    */
+     */
     AnalogConversion_s getAcceleration2();
 
     /**
      * @return Brake Pedal 1
-    */
+     */
     AnalogConversion_s getBrake1();
 
     /**
      * @return Brake Pedal 2
-    */
+     */
     AnalogConversion_s getBrake2();
 
 
@@ -180,66 +169,65 @@ public:
 
     /**
      * @return SHDN D Voltage Sense
-    */
+     */
     AnalogConversion_s getShutdownD();
 
     /**
      * @return Front Left Load Cell
-    */
+     */
     AnalogConversion_s getFLLoadcell();
 
     /**
      * @return Front Right Load Cell
-    */
+     */
     AnalogConversion_s getFRLoadcell();
 
     /**
      * @return Front Left Suspension Potentiometer Reading
-    */
+     */
     AnalogConversion_s getFLSuspot();
 
     /**
      * @return Front Right Suspension Potentiometer Reading
-    */
+     */
     AnalogConversion_s getFRSuspot();
 
     /**
      * @return Front Brake Pressure
-    */
+     */
     AnalogConversion_s getBrakePressureFront();
 
     /**
      * @return Rear Brake Pressure
-    */
+     */
     AnalogConversion_s getBrakePressureRear();
 
     /**
      * @brief Update the filtered values for the load cells and sus pots. Uses iir filter.
-    */
+     */
     void updateFilteredCalues(float alpha);
 
     /**
      * @return Filtered Front Left Load Cell
-    */
+     */
     float getFilteredFLLoadcell();
 
     /**
      * @return Filtered Front Right Load Cell
-    */
+     */
     float getFilteredFRLoadcell();
 
     /**
      * @return Filtered Front Left Sus Pot
-    */
+     */
     float getFilteredFLSuspot();
 
     /**
      * @return Filtered Front Right Sus Pot
-    */
+     */
     float getFilteredFRSuspot();
 
-private:
-
+    private:
     ADCInterfaceParams_s _adc_parameters = {};
 
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
@@ -261,7 +249,6 @@ private:
      * @return updated filtered value based on given alpha, previous filtered value, and new measured value
      */
     static float _applyIIRFilter(float alpha, float prev_value, float new_value);
-
 };
 
 using ADCInterfaceInstance = etl::singleton<ADCInterface>;

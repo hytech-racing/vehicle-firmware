@@ -14,6 +14,7 @@
 /* Local System Includes */
 #include "ChargerStateMachine.hpp"
 #include "Level2System.hpp"
+
 #include <Arduino.h>
 
 
@@ -27,13 +28,13 @@ namespace charge_system_default_parameters
 {
     constexpr const unsigned long STARTUP_DELAY_MS = 20000; // 20 seconds
 
-    constexpr const float CELL_TEMP_DERATE_THRESH = 40.0F; // celsius
+    constexpr const float CELL_TEMP_DERATE_THRESH = 40.0F;  // celsius
     constexpr const float BOARD_TEMP_DERATE_THRESH = 50.0F; // celsius
-};
+}; // namespace charge_system_default_parameters
 
 struct ChargeSystemData_s
 {
-    float calculated_charge_current;
+    float          calculated_charge_current;
     ChargerState_e current_charger_state;
 };
 
@@ -53,36 +54,28 @@ struct ChargeSystemConfigs_s
 struct ChargeSystemParams_s
 {
     ChargeSystemThresholds_s thresholds;
-    ChargeSystemConfigs_s configs;
-    float max_120V_current_amp;
-    float max_240V_current_amp;
-    float max_cell_cutoff_temp_celcius;
-    float max_board_cutoff_temp_celcius;
+    ChargeSystemConfigs_s    configs;
+    float                    max_120V_current_amp;
+    float                    max_240V_current_amp;
+    float                    max_cell_cutoff_temp_celcius;
+    float                    max_board_cutoff_temp_celcius;
 };
 
-class MainChargeSystem {
-public:
-    MainChargeSystem(float max_120V_current_amp,
-                    float max_240V_current_amp,
-                    float max_cell_cutoff_temp_celcius,
-                    float max_board_cutoff_temp_celcius,
-                    ChargeSystemThresholds_s thresholds =
-                    {
-                        .cell_temp_derate_thresh = charge_system_default_parameters::CELL_TEMP_DERATE_THRESH,
-                        .board_temp_derate_thresh = charge_system_default_parameters::BOARD_TEMP_DERATE_THRESH,
-                    },
-                    ChargeSystemConfigs_s configs =
-                    {
-                        .startup_delay_ms = charge_system_default_parameters::STARTUP_DELAY_MS
-                    }
-    ): _charge_system_parameters {
-        thresholds,
-        configs,
-        max_120V_current_amp,
-        max_240V_current_amp,
-        max_cell_cutoff_temp_celcius,
-        max_board_cutoff_temp_celcius
-    }
+class MainChargeSystem
+{
+    public:
+    MainChargeSystem(
+        float                    max_120V_current_amp,
+        float                    max_240V_current_amp,
+        float                    max_cell_cutoff_temp_celcius,
+        float                    max_board_cutoff_temp_celcius,
+        ChargeSystemThresholds_s thresholds =
+            {
+                .cell_temp_derate_thresh = charge_system_default_parameters::CELL_TEMP_DERATE_THRESH,
+                .board_temp_derate_thresh = charge_system_default_parameters::BOARD_TEMP_DERATE_THRESH,
+            },
+        ChargeSystemConfigs_s configs = {.startup_delay_ms = charge_system_default_parameters::STARTUP_DELAY_MS})
+        : _charge_system_parameters{thresholds, configs, max_120V_current_amp, max_240V_current_amp, max_cell_cutoff_temp_celcius, max_board_cutoff_temp_celcius}
     {
         _charge_data.calculated_charge_current = 0.0F;
     }
@@ -107,7 +100,7 @@ public:
      * @param min_balance_voltage Minimum cell voltage to start balancing (default 3.0V)
      * @return true if balancing should be enabled
      */
-    bool determine_balancing_state(ChargerState_e current_state, float voltage_delta_threshold = 0.02F, float min_balance_voltage = 3.0F );
+    bool determine_balancing_state(ChargerState_e current_state, float voltage_delta_threshold = 0.02F, float min_balance_voltage = 3.0F);
 
     /**
      * @brief Get calculated charge current
@@ -117,10 +110,9 @@ public:
     /**
      * @brief Get the current charge system data
      */
-    const ChargeSystemData_s& get_charge_data() const { return _charge_data; }
+    const ChargeSystemData_s &get_charge_data() const { return _charge_data; }
 
-private:
-
+    private:
     /**
      * @brief timestamp captured in init()
      */
@@ -132,7 +124,7 @@ private:
     bool _startup_complete = false;
 
     const ChargeSystemParams_s _charge_system_parameters = {};
-    ChargeSystemData_s _charge_data;
+    ChargeSystemData_s         _charge_data;
 
     /**
      * @brief Check if it's safe to charge based on safety systems
@@ -163,7 +155,6 @@ private:
      *
      */
     float _startup_derate_factor(unsigned long current_millis);
-
 };
 
 using MainChargeSystemInstance = etl::singleton<MainChargeSystem>;

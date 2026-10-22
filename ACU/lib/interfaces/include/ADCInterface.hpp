@@ -5,8 +5,8 @@
 #include "etl/singleton.h"
 
 /* External Includes*/
-#include "SharedFirmwareTypes.h"
 #include "MAX114XInterface.hpp"
+#include "SharedFirmwareTypes.h"
 
 using pin = uint8_t;
 
@@ -22,7 +22,7 @@ namespace adc_default_parameters
 
     constexpr uint8_t MAX114X_VERSION = 8;
     constexpr uint8_t NUM_MAX1148_CHANNELS = 8;
-};
+}; // namespace adc_default_parameters
 
 struct ADCPinout_s
 {
@@ -63,8 +63,8 @@ struct ADCChannels_s
 struct ADCConfigs_s
 {
     uint16_t imd_startup_time;
-    float teensy41_max_input_voltage;
-    int spiSpeed;
+    float    teensy41_max_input_voltage;
+    int      spiSpeed;
 };
 struct ADCConversions_s
 {
@@ -119,98 +119,90 @@ struct MAX114XChannels_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinout;
-    ADCChannels_s channels;
-    ADCConfigs_s configs;
-    ADCConversions_s conversions;
-    ADCThresholds_s thresholds;
-    ADCScales_s scales;
-    ADCOffsets_s offsets;
+    ADCPinout_s       pinout;
+    ADCChannels_s     channels;
+    ADCConfigs_s      configs;
+    ADCConversions_s  conversions;
+    ADCThresholds_s   thresholds;
+    ADCScales_s       scales;
+    ADCOffsets_s      offsets;
     MAX114XChannels_s pairs;
-    int spiSpeed;
-    float bit_resolution;
+    int               spiSpeed;
+    float             bit_resolution;
 };
 
 class ADCInterface
 {
-public:
-
-    ADCInterface(ADCPinout_s pinout,
-                ADCChannels_s channels,
-                ADCConversions_s conversions,
-                ADCScales_s scales,
-                ADCOffsets_s offsets,
-                MAX114XChannels_s pairs,
-                int spiSpeed,
-                float bit_resolution,
-                ADCConfigs_s configs = {
-                    .imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME,
-                    .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE
-                },
-                ADCThresholds_s thresholds = {
-                    .teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
-                    .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
-                    .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD
-                }
-    ): _adc_parameters {
-            pinout,
-            channels,
-            configs,
-            [=]() mutable {
-                conversions.shutdown_conv_factor            = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.shutdown_conv_factor;
-                conversions.precharge_conv_factor           = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.precharge_conv_factor;
-                conversions.pack_and_ts_out_conv_factor     = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.pack_and_ts_out_conv_factor;
-                conversions.shdn_out_conv_factor            = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.shdn_out_conv_factor;
-                conversions.bspd_current_conv_factor        = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.bspd_current_conv_factor;
-                conversions.glv_conv_factor                 = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.glv_conv_factor;
-                conversions.std_5V_to_3V3_conversion_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.std_5V_to_3V3_conversion_factor;
-                return conversions;
-            }(),
-            thresholds,
-            scales,
-            offsets,
-            pairs,
-            spiSpeed,
-            bit_resolution
-        },
-        _max114x_instance(
-            _adc_parameters.pinout.spiPinCS,
-            _adc_parameters.pinout.spiPinSDI,
-            _adc_parameters.pinout.spiPinSDO,
-            _adc_parameters.pinout.spiPinCLK,
-            _adc_parameters.pinout.adc_not_shdn_pin,
-            _adc_parameters.spiSpeed,
-            std::array<float, adc_default_parameters::NUM_MAX1148_CHANNELS>
-            {
-                _adc_parameters.scales.iso_pack_n_scale,
-                _adc_parameters.scales.iso_pack_p_scale,
-                _adc_parameters.scales.pack_voltage_sense_scale,
-                _adc_parameters.scales.shunt_current_out_scale,
-                _adc_parameters.scales.shunt_current_p_scale,
-                _adc_parameters.scales.shunt_current_n_scale,
-                _adc_parameters.scales.ts_out_filtered_scale,
-                _adc_parameters.scales.pack_out_filtered_scale,
-            }.data(),
-            std::array<float, adc_default_parameters::NUM_MAX1148_CHANNELS>
-            {
-                _adc_parameters.offsets.iso_pack_n_offset,
-                _adc_parameters.offsets.iso_pack_p_offset,
-                _adc_parameters.offsets.pack_voltage_sense_offset,
-                _adc_parameters.offsets.shunt_current_out_offset,
-                _adc_parameters.offsets.shunt_current_p_offset,
-                _adc_parameters.offsets.shunt_current_n_offset,
-                _adc_parameters.offsets.ts_out_filtered_offset,
-                _adc_parameters.offsets.pack_out_filtered_offset,
-            }.data(),
-            std::array<CHANNEL_TYPE_e, adc_default_parameters::NUM_MAX1148_CHANNELS / 2>
-            {
-                _adc_parameters.pairs.channelPair0,
-                _adc_parameters.pairs.channelPair1,
-                _adc_parameters.pairs.channelPair2,
-                _adc_parameters.pairs.channelPair3
-            }
-        )
-    {};
+    public:
+    ADCInterface(
+        ADCPinout_s       pinout,
+        ADCChannels_s     channels,
+        ADCConversions_s  conversions,
+        ADCScales_s       scales,
+        ADCOffsets_s      offsets,
+        MAX114XChannels_s pairs,
+        int               spiSpeed,
+        float             bit_resolution,
+        ADCConfigs_s      configs = {.imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME, .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
+        ADCThresholds_s   thresholds =
+            {.teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
+             .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
+             .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD})
+        : _adc_parameters{
+              pinout,
+              channels,
+              configs,
+              [=]() mutable
+              {
+                  conversions.shutdown_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.shutdown_conv_factor;
+                  conversions.precharge_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.precharge_conv_factor;
+                  conversions.pack_and_ts_out_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.pack_and_ts_out_conv_factor;
+                  conversions.shdn_out_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.shdn_out_conv_factor;
+                  conversions.bspd_current_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.bspd_current_conv_factor;
+                  conversions.glv_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.glv_conv_factor;
+                  conversions.std_5V_to_3V3_conversion_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.std_5V_to_3V3_conversion_factor;
+                  return conversions;
+              }(),
+              thresholds,
+              scales,
+              offsets,
+              pairs,
+              spiSpeed,
+              bit_resolution},
+          _max114x_instance(
+              _adc_parameters.pinout.spiPinCS,
+              _adc_parameters.pinout.spiPinSDI,
+              _adc_parameters.pinout.spiPinSDO,
+              _adc_parameters.pinout.spiPinCLK,
+              _adc_parameters.pinout.adc_not_shdn_pin,
+              _adc_parameters.spiSpeed,
+              std::array<float, adc_default_parameters::NUM_MAX1148_CHANNELS>{
+                  _adc_parameters.scales.iso_pack_n_scale,
+                  _adc_parameters.scales.iso_pack_p_scale,
+                  _adc_parameters.scales.pack_voltage_sense_scale,
+                  _adc_parameters.scales.shunt_current_out_scale,
+                  _adc_parameters.scales.shunt_current_p_scale,
+                  _adc_parameters.scales.shunt_current_n_scale,
+                  _adc_parameters.scales.ts_out_filtered_scale,
+                  _adc_parameters.scales.pack_out_filtered_scale,
+              }
+                  .data(),
+              std::array<float, adc_default_parameters::NUM_MAX1148_CHANNELS>{
+                  _adc_parameters.offsets.iso_pack_n_offset,
+                  _adc_parameters.offsets.iso_pack_p_offset,
+                  _adc_parameters.offsets.pack_voltage_sense_offset,
+                  _adc_parameters.offsets.shunt_current_out_offset,
+                  _adc_parameters.offsets.shunt_current_p_offset,
+                  _adc_parameters.offsets.shunt_current_n_offset,
+                  _adc_parameters.offsets.ts_out_filtered_offset,
+                  _adc_parameters.offsets.pack_out_filtered_offset,
+              }
+                  .data(),
+              std::array<CHANNEL_TYPE_e, adc_default_parameters::NUM_MAX1148_CHANNELS / 2>{
+                  _adc_parameters.pairs.channelPair0,
+                  _adc_parameters.pairs.channelPair1,
+                  _adc_parameters.pairs.channelPair2,
+                  _adc_parameters.pairs.channelPair3}) {};
 
     /**
      * @pre constructor called and instance created
@@ -316,16 +308,15 @@ public:
     /**
      * @return ADC parameters
      */
-    const ADCInterfaceParams_s& get_adc_params() const;
+    const ADCInterfaceParams_s &get_adc_params() const;
 
     /**
      * @return true if still within IMD startup period
      */
     bool is_in_imd_startup_period() const;
 
-private:
-
-    const ADCInterfaceParams_s _adc_parameters = {};
+    private:
+    const ADCInterfaceParams_s                                                                              _adc_parameters = {};
     MAX114XInterface<adc_default_parameters::NUM_MAX1148_CHANNELS, adc_default_parameters::MAX114X_VERSION> _max114x_instance;
 
     /**
@@ -337,7 +328,6 @@ private:
      * @brief timestamp captured in init()
      */
     uint32_t _init_millis = 0;
-
 };
 
 using ADCInterfaceInstance = etl::singleton<ADCInterface>;

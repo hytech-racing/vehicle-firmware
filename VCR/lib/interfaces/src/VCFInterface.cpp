@@ -5,11 +5,9 @@ void VCFInterface::receive_pedals_message(const CAN_message_t &msg, unsigned lon
 {
     PEDALS_SYSTEM_DATA_t pedals_msg;
     Unpack_PEDALS_SYSTEM_DATA_ht_can(&pedals_msg, &msg.buf[0], msg.len);
-    _curr_data.stamped_pedals.pedals_data.implausibility_has_exceeded_max_duration =
-        pedals_msg.implaus_exceeded_max_duration;
+    _curr_data.stamped_pedals.pedals_data.implausibility_has_exceeded_max_duration = pedals_msg.implaus_exceeded_max_duration;
 
-    _curr_data.stamped_pedals.pedals_data.brake_and_accel_pressed_implausibility_high =
-        pedals_msg.brake_accel_implausibility;
+    _curr_data.stamped_pedals.pedals_data.brake_and_accel_pressed_implausibility_high = pedals_msg.brake_accel_implausibility;
 
     _curr_data.stamped_pedals.pedals_data.accel_is_implausible = pedals_msg.accel_implausible;
     _curr_data.stamped_pedals.pedals_data.brake_is_implausible = pedals_msg.brake_implausible;
@@ -18,10 +16,8 @@ void VCFInterface::receive_pedals_message(const CAN_message_t &msg, unsigned lon
     _curr_data.stamped_pedals.pedals_data.brake_is_pressed = pedals_msg.brake_pedal_active;
     _curr_data.stamped_pedals.pedals_data.accel_is_pressed = pedals_msg.accel_pedal_active;
 
-    _curr_data.stamped_pedals.pedals_data.accel_percent =
-        HT_CAN_accel_pedal_ro_fromS(static_cast<float>(pedals_msg.accel_pedal_ro));
-    _curr_data.stamped_pedals.pedals_data.brake_percent =
-        HT_CAN_brake_pedal_ro_fromS(static_cast<float>(pedals_msg.brake_pedal_ro));
+    _curr_data.stamped_pedals.pedals_data.accel_percent = HT_CAN_accel_pedal_ro_fromS(static_cast<float>(pedals_msg.accel_pedal_ro));
+    _curr_data.stamped_pedals.pedals_data.brake_percent = HT_CAN_brake_pedal_ro_fromS(static_cast<float>(pedals_msg.brake_pedal_ro));
     _curr_data.stamped_pedals.last_recv_millis = curr_millis;
 
     // As long as we're using millis() function, loop overrun not a concern
@@ -122,10 +118,7 @@ void VCFInterface::send_buzzer_start_message()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
+    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::send_recalibrate_pedals_message()
@@ -135,10 +128,7 @@ void VCFInterface::send_recalibrate_pedals_message()
     ctrl.in_pedal_calibration_state = true;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
+    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::send_recalibrate_steering_message()
@@ -148,10 +138,7 @@ void VCFInterface::send_recalibrate_steering_message()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = true;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
+    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
@@ -160,11 +147,8 @@ void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
     ctrl.dash_buzzer_flag = false;
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
-    ctrl.torque_limit_enum_value = (uint8_t) torque_limit;
-    CAN_util::enqueue_msg(&ctrl,
-                        &Pack_DASHBOARD_BUZZER_CONTROL_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
+    ctrl.torque_limit_enum_value = (uint8_t)torque_limit;
+    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl)
@@ -173,8 +157,5 @@ void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, D
     state.vehicle_state = static_cast<uint8_t>(vehicle_state);
     state.drivetrain_state = static_cast<uint8_t>(drivetrain_state);
     state.drivebrain_in_control = db_is_in_ctrl;
-    CAN_util::enqueue_msg(&state,
-                        &Pack_CAR_STATES_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer
-    );
+    CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }

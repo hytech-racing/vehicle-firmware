@@ -12,14 +12,13 @@ void DisplayInterface::init(SPI_HandleTypeDef *hspi)
     _display.begin();
 
     _hspi = hspi;
-
 }
 
 void DisplayInterface::startup()
 {
     _display.drawBitmap(hytech_logo_x, hytech_logo_y, epd_bitmap_Hytech_Logo, hytech_logo_size, hytech_logo_size, 0);
-    //hytech_animation();
-    // driver_animation(StartupAnimations::NONE);
+    // hytech_animation();
+    //  driver_animation(StartupAnimations::NONE);
 }
 
 /**
@@ -45,7 +44,7 @@ void DisplayInterface::hytech_animation()
     delay(60);
     _display.setFont(&FreeSans12pt7b);
     String greeting = "NEEEOOOWWMM";
-    int length = greeting.length();
+    int    length = greeting.length();
     _display.setCursor(hytech_logo_x - length * 3, hytech_logo_y + hytech_logo_size + 30);
     _display.setTextColor(_black);
     _display.setTextSize(1);
@@ -79,7 +78,6 @@ void DisplayInterface::draw_background()
     //_display.fillRect(283, 36, 305 - 283, 210 - 36, _black);
     _display.fillRect(283 - 3, (36 + 210 - 36) / 2 + 15, 25, 7, _white);
     _display.fillRect(0, 215, 130, 25, _white);
-
 }
 
 void DisplayInterface::send_display_buffer(SPI_HandleTypeDef *hspi)
@@ -168,7 +166,6 @@ void DisplayInterface::display_mode(int mode)
     _display.println(DisplayInterface::_twoDigits(mode));
 
     // SerialUSB.println(mph);
-
 }
 
 void DisplayInterface::display_min_cell(float min_cell_voltage)

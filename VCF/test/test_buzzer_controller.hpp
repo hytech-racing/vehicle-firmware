@@ -1,12 +1,12 @@
-#include "gtest/gtest.h"
 #include "BuzzerController.hpp"
+
+#include "gtest/gtest.h"
 
 int base = 2500; // arbitrary number greater than 2000
 
 class BuzzerControllerTest : public ::testing::Test
 {
-protected:
-
+    protected:
     void SetUp() override
     {
         BuzzerControllerInstance::create();
@@ -14,7 +14,6 @@ protected:
         // across the whole binary, not just one TEST_F.
         BuzzerControllerInstance::instance().deactivate();
     }
-
 };
 
 TEST_F(BuzzerControllerTest, initial_state)
@@ -27,15 +26,15 @@ TEST_F(BuzzerControllerTest, activate_buzzer)
 {
     auto &buzzer = BuzzerControllerInstance::instance();
     buzzer.activate(base);
-    ASSERT_EQ(buzzer.isBuzzerActive(base+10), true);
-    ASSERT_EQ(buzzer.isBuzzerActive(base+2010), false);
+    ASSERT_EQ(buzzer.isBuzzerActive(base + 10), true);
+    ASSERT_EQ(buzzer.isBuzzerActive(base + 2010), false);
 }
 
 TEST_F(BuzzerControllerTest, interrupt_buzzer)
 {
     auto &buzzer = BuzzerControllerInstance::instance();
     buzzer.activate(base);
-    ASSERT_EQ(buzzer.isBuzzerActive(base+10), true);
+    ASSERT_EQ(buzzer.isBuzzerActive(base + 10), true);
     buzzer.deactivate();
-    ASSERT_EQ(buzzer.isBuzzerActive(base+20), false);
+    ASSERT_EQ(buzzer.isBuzzerActive(base + 20), false);
 }

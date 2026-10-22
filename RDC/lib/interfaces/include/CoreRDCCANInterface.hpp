@@ -8,6 +8,7 @@
 /* External Includes */
 #include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
+
 #include <FlexCAN_T4.h>
 #include <ht_can.h>
 
@@ -26,13 +27,11 @@ using DRIVERLESS_CAN_t = FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16>;
 struct CANInterfaces_s
 {
     explicit CANInterfaces_s(DrivebrainInterface &db_int, FDCInterface &fdc_int, RSSInterface &rss_int)
-        : db_interface(db_int),
-          fdc_interface(fdc_int),
-          rss_interface(rss_int) {};
+        : db_interface(db_int), fdc_interface(fdc_int), rss_interface(rss_int) {};
 
     DrivebrainInterface &db_interface;
-    FDCInterface &fdc_interface;
-    RSSInterface &rss_interface;
+    FDCInterface        &fdc_interface;
+    RSSInterface        &rss_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 
@@ -62,10 +61,10 @@ class CoreRDCCANInterface
     }
 
     void processCANMessages(
-        CANInterfaces_s can_interfaces,
-        unsigned long curr_millis,
+        CANInterfaces_s                                                                                  can_interfaces,
+        unsigned long                                                                                    curr_millis,
         etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)> recvSwitch,
-        CANInterfaceType_e interface_type);
+        CANInterfaceType_e                                                                               interface_type);
 
     private:
     DRIVERLESS_CAN_t DRIVERLESS_CAN;

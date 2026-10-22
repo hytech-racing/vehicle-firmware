@@ -4,14 +4,15 @@
 #include "controls.hpp"
 
 /* External Includes */
-#include <algorithm>
-#include "SharedFirmwareTypes.h"
-#include "hytech_msgs.pb.h"
-#include "ProtobufMsgInterface.h"
 #include "EthernetAddressDefs.h"
-#include <QNEthernet.h>
-#include "ht_can_version.h"
+#include "ProtobufMsgInterface.h"
+#include "SharedFirmwareTypes.h"
 #include "device_fw_version.h"
+#include "ht_can_version.h"
+#include "hytech_msgs.pb.h"
+
+#include <QNEthernet.h>
+#include <algorithm>
 
 /* Local Interface Includes */
 #include "ADCInterface.hpp"
@@ -20,16 +21,15 @@
 #include "VCFInterface.hpp"
 
 /* Local System Includes */
-#include "VehicleStateMachine.hpp"
 #include "DrivetrainSystem.hpp"
+#include "VehicleStateMachine.hpp"
 
 using namespace qindesign::network;
 
 
 class VCREthernetInterface
 {
-public:
-
+    public:
     VCREthernetInterface() = default;
 
     void init_ethernet_device();
@@ -40,17 +40,17 @@ public:
      * @param
      * @return A populated instance of the outgoing protoc struct.
      */
-    hytech_msgs_VCRData_s make_vcr_data_msg(const ADCInterface &adc_interface,
-                                        DrivetrainDynamicReport_s &DrivetrainData,
-                                        const VCFInterface &vcf_interface,
-                                        const VehicleStateMachine &vehicle_state_machine,
-                                        const DrivetrainSystem &drivetrain_system,
-                                        const InverterInterface &fl_inverter,
-                                        const InverterInterface &fr_inverter,
-                                        const InverterInterface &rl_inverter,
-                                        const InverterInterface &rr_inverter,
-                                        const VCRControls &vcr_controls
-    );
+    hytech_msgs_VCRData_s make_vcr_data_msg(
+        const ADCInterface        &adc_interface,
+        DrivetrainDynamicReport_s &DrivetrainData,
+        const VCFInterface        &vcf_interface,
+        const VehicleStateMachine &vehicle_state_machine,
+        const DrivetrainSystem    &drivetrain_system,
+        const InverterInterface   &fl_inverter,
+        const InverterInterface   &fr_inverter,
+        const InverterInterface   &rl_inverter,
+        const InverterInterface   &rr_inverter,
+        const VCRControls         &vcr_controls);
 
     /**
      * Function to take a populated protoc struct from the drivebrain and update the VCR state.
@@ -87,8 +87,7 @@ public:
      * @param destination A reference to an unpopulated instance of veh_vec.
      * @post The destination veh_vec will be populated with the data from the original.
      */
-    template <typename from_T, typename to_T>
-    void copy_veh_vec_members(const from_T& from, to_T& to)
+    template <typename from_T, typename to_T> void copy_veh_vec_members(const from_T &from, to_T &to)
     {
         to.FL = from.FL;
         to.FR = from.FR;
@@ -96,14 +95,12 @@ public:
         to.RR = from.RR;
     };
 
-    EthernetUDP* get_vcr_data_send_socket() { return &vcr_data_send_socket; }
+    EthernetUDP *get_vcr_data_send_socket() { return &vcr_data_send_socket; }
 
-private:
-
+    private:
     /* Ethernet Sockets */
     EthernetUDP vcr_data_send_socket;
     EthernetUDP vcf_data_recv_socket;
-
 };
 
 using VCREthernetInterfaceInstance = etl::singleton<VCREthernetInterface>;

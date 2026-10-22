@@ -7,23 +7,16 @@
 void VCFEthernetInterface::initEthernetDevice()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcf_ip,
-                EthernetIPDefsInstance::instance().car_subnet,
-                EthernetIPDefsInstance::instance().default_gateway
-    );
+    Ethernet.begin(EthernetIPDefsInstance::instance().vcf_ip, EthernetIPDefsInstance::instance().car_subnet, EthernetIPDefsInstance::instance().default_gateway);
     _vcf_send_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
     _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
 }
 
 
-hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_int,
-                                                            DashboardInterface &dash_int,
-                                                            PedalsSystem &pedals_sys,
-                                                            SteeringSystem &steering_sys,
-                                                            BrakeRotorTempInterface &brake_rotor_temp_int
-)
+hytech_msgs_VCFData_s
+VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_int, DashboardInterface &dash_int, PedalsSystem &pedals_sys, SteeringSystem &steering_sys, BrakeRotorTempInterface &brake_rotor_temp_int)
 {
-	auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto                  fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};
 
     // has_value
@@ -69,7 +62,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.dash_input_state.data_btn_is_pressed = dash_int.getDashboardOutputs().data_btn_is_pressed;
     out.dash_input_state.left_paddle_is_pressed = 0;
     out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().BUTTON_2;
-    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e) (dash_int.getDashboardOutputs().dial_state);
+    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e)(dash_int.getDashboardOutputs().dial_state);
 
     // Ethernet link data
     /*** Ethernet link data values initialized to 1 in VCFDataInstance_s ***/
@@ -122,7 +115,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
 
     // working with bytes in nanopb
     std::string_view version_view(version);
-    const size_t version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
+    const size_t     version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
     out.msg_versions.ht_proto_version.size = version_len;
     std::copy(version_view.begin(), version_view.begin() + version_len, std::begin(out.msg_versions.ht_proto_version.bytes));
 
@@ -141,6 +134,5 @@ void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s &dat
         EthernetIPDefsInstance::instance().VCFData_port,
         &_vcf_send_socket,
         data,
-        hytech_msgs_VCFData_s_fields
-    );
+        hytech_msgs_VCFData_s_fields);
 }

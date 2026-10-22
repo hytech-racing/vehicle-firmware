@@ -27,24 +27,20 @@ void initialize_all_interfaces()
     NeopixelControllerInstance::instance().init_neopixels();
 
     /* CAN Interfaces */
-    CANInterfacesInstance::create(
-        VCFInterfaceInstance::instance(),
-        ACUInterfaceInstance::instance(),
-        VCRInterfaceInstance::instance()
-    );
+    CANInterfacesInstance::create(VCFInterfaceInstance::instance(), ACUInterfaceInstance::instance(), VCRInterfaceInstance::instance());
 
     HT_SPI_Init();
     FDCAN_init();
     FDCAN_set_interfaces(CANInterfacesInstance::instance());
 };
 
-HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
     NeopixelControllerInstance::instance().refresh_neopixels(CANInterfacesInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse screen_refresh(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
     if (spi_tx_complete)
     {
@@ -59,7 +55,7 @@ HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_T
         // DisplayInterfaceInstance::instance().set_cursor(65, 50);
         DisplayInterfaceInstance::instance().display_min_cell(ACUInterfaceInstance::instance().get_curr_data().min_cell_voltage);
         DisplayInterfaceInstance::instance().display_max_temps(VCRInterfaceInstance::instance().get_inverter_max_temp(), VCRInterfaceInstance::instance().get_motor_max_temp());
-        //DisplayInterfaceInstance::instance().display_speeds(VCRInterfaceInstance::instance().get_curr_wheel_data().actual_speed);
+        // DisplayInterfaceInstance::instance().display_speeds(VCRInterfaceInstance::instance().get_curr_wheel_data().actual_speed);
 
         if (ACUInterfaceInstance::instance().get_curr_data().imd_ok == false || ACUInterfaceInstance::instance().get_curr_data().bms_ok == false)
         {
@@ -91,7 +87,7 @@ HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_T
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse can_read(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse can_read(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 {
     // CAN messages are now processed in interrupt handler
     // This task just yields - interrupts handle message reception

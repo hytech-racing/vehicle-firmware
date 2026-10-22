@@ -1,11 +1,9 @@
 #include "SOCKalmanFilter.hpp"
 
 
-SOCKalmanFilter::SOCKalmanFilter() : _state{soc_ekf_constants::INITIAL_SOC, soc_ekf_constants::INITIAL_V1},
-                                    _PMatrix{ {soc_ekf_constants::P_SOC_INITIAL, soc_ekf_constants::P_CROSS_INITIAL},
-                                              {soc_ekf_constants::P_CROSS_INITIAL, soc_ekf_constants::P_V1_INITIAL}
-                                    }
-{};
+SOCKalmanFilter::SOCKalmanFilter()
+    : _state{soc_ekf_constants::INITIAL_SOC, soc_ekf_constants::INITIAL_V1},
+      _PMatrix{{soc_ekf_constants::P_SOC_INITIAL, soc_ekf_constants::P_CROSS_INITIAL}, {soc_ekf_constants::P_CROSS_INITIAL, soc_ekf_constants::P_V1_INITIAL}} {};
 
 void SOCKalmanFilter::init(float initial_voltage)
 {
@@ -23,10 +21,10 @@ void SOCKalmanFilter::init(float initial_voltage)
     {
         for (size_t i = 0; i < table_size - 1; i++)
         {
-            if (initial_voltage <= VOLTAGE_LOOKUP_TABLE[i] && initial_voltage > VOLTAGE_LOOKUP_TABLE[i + 1]) //NOLINT
+            if (initial_voltage <= VOLTAGE_LOOKUP_TABLE[i] && initial_voltage > VOLTAGE_LOOKUP_TABLE[i + 1]) // NOLINT
             {
-                float v_high = VOLTAGE_LOOKUP_TABLE[i]; //NOLINT
-                float v_low = VOLTAGE_LOOKUP_TABLE[i + 1]; //NOLINT
+                float v_high = VOLTAGE_LOOKUP_TABLE[i];    // NOLINT
+                float v_low = VOLTAGE_LOOKUP_TABLE[i + 1]; // NOLINT
                 float soc_high = (float)(table_size - 1 - i) / (table_size - 1);
                 float soc_low = (float)(table_size - 1 - (i + 1)) / (table_size - 1);
 
@@ -141,7 +139,7 @@ EKFState_s SOCKalmanFilter::update(float current, float voltage, float dt, bool 
     float term2_10 = K1 * soc_ekf_constants::R_V1 * K0;
     float term2_11 = K1 * soc_ekf_constants::R_V1 * K1;
 
-    //Add term1 and term2 to get the new P matrix
+    // Add term1 and term2 to get the new P matrix
     _PMatrix[0][0] = term1_00 + term2_00;
     _PMatrix[0][1] = term1_01 + term2_01;
     _PMatrix[1][0] = term1_10 + term2_10;
@@ -188,7 +186,7 @@ float SOCKalmanFilter::_get_ocv_from_soc(float soc) const
         return VOLTAGE_LOOKUP_TABLE[table_size - 1];
     }
 
-    float index_float = (1.0f - soc) * 100.0f;
+    float  index_float = (1.0f - soc) * 100.0f;
     size_t idx_low = (size_t)index_float;
     size_t idx_high = idx_low + 1;
 
@@ -199,7 +197,7 @@ float SOCKalmanFilter::_get_ocv_from_soc(float soc) const
     }
 
     float fraction = index_float - (float)idx_low;
-    return VOLTAGE_LOOKUP_TABLE[idx_low] + fraction * (VOLTAGE_LOOKUP_TABLE[idx_high] - VOLTAGE_LOOKUP_TABLE[idx_low]); //NOLINT
+    return VOLTAGE_LOOKUP_TABLE[idx_low] + fraction * (VOLTAGE_LOOKUP_TABLE[idx_high] - VOLTAGE_LOOKUP_TABLE[idx_low]); // NOLINT
 }
 
 float SOCKalmanFilter::get_soe_percentage() const
@@ -217,7 +215,7 @@ float SOCKalmanFilter::get_soe_percentage() const
         return ENERGY_LOOKUP_TABLE[0];
     }
 
-    float index_float = soc * 100.0f;
+    float  index_float = soc * 100.0f;
     size_t idx_low = (size_t)index_float;
     size_t idx_high = idx_low + 1;
 
@@ -228,7 +226,7 @@ float SOCKalmanFilter::get_soe_percentage() const
     }
 
     float fraction = index_float - (float)idx_low;
-    return ENERGY_LOOKUP_TABLE[idx_low] + fraction * (ENERGY_LOOKUP_TABLE[idx_high] - ENERGY_LOOKUP_TABLE[idx_low]); //NOLINT
+    return ENERGY_LOOKUP_TABLE[idx_low] + fraction * (ENERGY_LOOKUP_TABLE[idx_high] - ENERGY_LOOKUP_TABLE[idx_low]); // NOLINT
 }
 
 float SOCKalmanFilter::_get_docv_dsoc(float soc) const

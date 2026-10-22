@@ -2,10 +2,11 @@
 #define TORQUECONTROLLERMUX
 
 /* External Includes */
+#include "SharedFirmwareTypes.h"
+
 #include <array>
 #include <functional>
 #include <unordered_map>
-#include "SharedFirmwareTypes.h"
 
 /* Local Controller Includes */
 #include "PhysicalParameters.hpp"
@@ -69,8 +70,7 @@ template <std::size_t num_controllers> class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 
-public:
-
+    public:
     TorqueControllerMux() = delete;
 
     /// @brief constructor for the TC mux
@@ -88,18 +88,19 @@ public:
     /// TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT
     /// @param num_motors the number of motors. defaults to 4.
     /// @note TC Mux must be created with at least 1 controller.
-    explicit TorqueControllerMux(std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
-                            std::array<bool, num_controllers> mux_bypass_limits,
-                            float max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
-                            float max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
-                            float max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT, size_t num_motors = 4
-    ) : _controller_evals(controller_evals),
-        _mux_bypass_limits(mux_bypass_limits),
-        _max_change_speed(max_change_speed),
-        _max_torque_pos_change_delta(max_torque_pos_change_delta),
-        _max_power_limit(max_power_limit),
-        _num_motors(num_motors)
-    {};
+    explicit TorqueControllerMux(
+        std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> controller_evals,
+        std::array<bool, num_controllers>                                                                                  mux_bypass_limits,
+        float                                                                                                              max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
+        float  max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
+        float  max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT,
+        size_t num_motors = 4)
+        : _controller_evals(controller_evals),
+          _mux_bypass_limits(mux_bypass_limits),
+          _max_change_speed(max_change_speed),
+          _max_torque_pos_change_delta(max_torque_pos_change_delta),
+          _max_power_limit(max_power_limit),
+          _num_motors(num_motors) {};
 
     const TorqueControllerMuxStatus_s &get_tc_mux_status() const { return _active_status; }
 
@@ -109,13 +110,9 @@ public:
     /// @param input_state the active state of the car
     /// @return the active DrivetrainCommand_s to be sent to the drivetrain to command increases and
     /// decreases in torque
-    DrivetrainCommand_s get_drivetrain_command(ControllerMode_e requested_controller_type,
-                                               TorqueLimit_e controller_command_torque_limit,
-                                               const VCRData_s &input_state
-    );
+    DrivetrainCommand_s get_drivetrain_command(ControllerMode_e requested_controller_type, TorqueLimit_e controller_command_torque_limit, const VCRData_s &input_state);
 
-private:
-
+    private:
     std::array<std::function<DrivetrainCommand_s(const VCRData_s &state, unsigned long curr_millis)>, num_controllers> _controller_evals;
 
     std::array<bool, num_controllers> _mux_bypass_limits;
@@ -123,20 +120,15 @@ private:
     std::unordered_map<TorqueLimit_e, float> _torque_limit_map = {
         {TorqueLimit_e::TCMUX_FULL_TORQUE, PhysicalParameters::AMK_MAX_TORQUE},
         {TorqueLimit_e::TCMUX_MID_TORQUE, 15.0f},
-        {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}
-    };
+        {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}};
 
-    float _max_change_speed;
-    float _max_torque_pos_change_delta;
-    float _max_power_limit;
-    size_t _num_motors;
-    DrivetrainCommand_s _prev_command = {};
+    float                       _max_change_speed;
+    float                       _max_torque_pos_change_delta;
+    float                       _max_power_limit;
+    size_t                      _num_motors;
+    DrivetrainCommand_s         _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
-    TorqueControllerMuxError_e
-    can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
-                          DrivetrainCommand_s previous_controller_command,
-                          DrivetrainCommand_s desired_controller_out
-    );
+    TorqueControllerMuxError_e  can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data, DrivetrainCommand_s previous_controller_command, DrivetrainCommand_s desired_controller_out);
 
     /// @brief Clamps negative rpms to 0f
     /// @param const DrivetrainCommand_s &command provides the rpm info as a DrivetrainCommand_s
@@ -164,10 +156,7 @@ private:
     /// @param float max_torque is used to indirectly specifiy the max power
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_power_limit(const DrivetrainCommand_s &command,
-                                          const DrivetrainDynamicReport_s &drivetrain,
-                                          float power_limit, float max_torque
-    );
+    DrivetrainCommand_s _apply_power_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain, float power_limit, float max_torque);
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit
     /// regen at fullRegenLimitKPH (hardcoded in func)
@@ -175,11 +164,7 @@ private:
     /// @param const DrivetrainDynamicReport_s &drivetrain_data provides RPMs
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_regen_limit(const DrivetrainCommand_s &command,
-                                          const DrivetrainDynamicReport_s &drivetrain_data,
-                                          const ACUCoreData_s acu_data
-    );
-
+    DrivetrainCommand_s _apply_regen_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain_data, const ACUCoreData_s acu_data);
 };
 
 const int number_of_controllers = 5;

@@ -19,7 +19,7 @@ void ACUInterface::receiveBMSStatusCANMsg(const CAN_message_t &msg, unsigned lon
     _curr_data.acu_state = static_cast<ACUState_e>(bms_status_msg.acu_state);
 
     // As long as we're using millis() function, loop overrun not a concern
-    if(_curr_data.last_recv_status_ms == 0)
+    if (_curr_data.last_recv_status_ms == 0)
     {
         _first_received_message_heartbeat_init = true;
     }
@@ -27,7 +27,7 @@ void ACUInterface::receiveBMSStatusCANMsg(const CAN_message_t &msg, unsigned lon
     _curr_data.last_recv_status_ms = curr_millis;
 }
 
-void ACUInterface::receiveBMSVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSVoltagesCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     BMS_VOLTAGES_t voltages_msg;
     Unpack_BMS_VOLTAGES_ht_can(&voltages_msg, &msg.buf[0], msg.len);
@@ -37,22 +37,20 @@ void ACUInterface::receiveBMSVoltagesCANMsg(const CAN_message_t& msg, unsigned l
     _curr_data.pack_voltage = HT_CAN_total_pack_voltage_ro_fromS(static_cast<float>(voltages_msg.total_pack_voltage_ro));
 }
 
-void ACUInterface::receiveBMSDetailedVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSDetailedVoltagesCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     BMS_DETAILED_VOLTAGES_t voltages_msg;
     Unpack_BMS_DETAILED_VOLTAGES_ht_can(&voltages_msg, &msg.buf[0], msg.len);
     uint8_t group_id = voltages_msg.group_id;
     uint8_t ic_id = voltages_msg.ic_id;
-    size_t cell_base_index = (ic_id / 2) * default_acu_params::NUM_CELLS_PER_SEGMENT +
-                            ((ic_id % 2 != 0) ? default_acu_params::NUM_CHIPS : 0) +
-                            group_id * default_acu_params::NUM_DATA_PER_GROUP;
+    size_t  cell_base_index = (ic_id / 2) * default_acu_params::NUM_CELLS_PER_SEGMENT + ((ic_id % 2 != 0) ? default_acu_params::NUM_CHIPS : 0) + group_id * default_acu_params::NUM_DATA_PER_GROUP;
 
     _curr_data.cell_voltages[cell_base_index + 0] = HT_CAN_voltage_0_ro_fromS(voltages_msg.voltage_0_ro);
     _curr_data.cell_voltages[cell_base_index + 1] = HT_CAN_voltage_1_ro_fromS(voltages_msg.voltage_1_ro);
     _curr_data.cell_voltages[cell_base_index + 2] = HT_CAN_voltage_2_ro_fromS(voltages_msg.voltage_2_ro);
 }
 
-void ACUInterface::receiveBMSTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSTempsCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     BMS_TEMPS_t board_temps;
     Unpack_BMS_TEMPS_ht_can(&board_temps, &msg.buf[0], msg.len);
@@ -61,14 +59,13 @@ void ACUInterface::receiveBMSTempsCANMsg(const CAN_message_t& msg, unsigned long
     _curr_data.max_cell_temp = HT_CAN_max_cell_temp_ro_fromS(board_temps.max_cell_temp_ro);
 }
 
-void ACUInterface::receiveBMSDetailedTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSDetailedTempsCANMsg(const CAN_message_t &msg, unsigned long curr_millis)
 {
     BMS_DETAILED_TEMPS_t detailed_temps;
     Unpack_BMS_DETAILED_TEMPS_ht_can(&detailed_temps, &msg.buf[0], msg.len);
     uint8_t group_id = detailed_temps.group_id;
     uint8_t ic_id = detailed_temps.ic_id;
-    size_t cell_base_index = ic_id * default_acu_params::NUM_CELL_TEMPS_PER_CHIP +
-                            group_id * default_acu_params::NUM_DATA_PER_GROUP;
+    size_t  cell_base_index = ic_id * default_acu_params::NUM_CELL_TEMPS_PER_CHIP + group_id * default_acu_params::NUM_DATA_PER_GROUP;
 
     if (cell_base_index >= default_acu_params::NUM_CELL_TEMPS)
     {
@@ -84,7 +81,7 @@ void ACUInterface::receiveBMSDetailedTempsCANMsg(const CAN_message_t& msg, unsig
     }
 }
 
-void ACUInterface::receiveBMSBoardTemps(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSBoardTemps(const CAN_message_t &msg, unsigned long curr_millis)
 {
     BMS_BOARD_DETAILED_TEMPS_t onboard_detailed_temps{};
     Unpack_BMS_BOARD_DETAILED_TEMPS_ht_can(&onboard_detailed_temps, &msg.buf[0], msg.len);
@@ -92,7 +89,7 @@ void ACUInterface::receiveBMSBoardTemps(const CAN_message_t& msg, unsigned long 
     _curr_data.board_temps[ic_id] = HT_CAN_temp_0_ro_fromS(onboard_detailed_temps.temp_0_ro);
 }
 
-void ACUInterface::receiveStateOfChargeCANMSG(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveStateOfChargeCANMSG(const CAN_message_t &msg, unsigned long curr_millis)
 {
     STATE_OF_CHARGE_t soc_msg{};
     Unpack_STATE_OF_CHARGE_ht_can(&soc_msg, &msg.buf[0], msg.len);

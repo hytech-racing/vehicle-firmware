@@ -13,8 +13,8 @@ namespace CCUInterfaces
     /* General Interface Constants */
     constexpr uint32_t SERIAL_BAUDRATE = 115200;
     constexpr uint32_t DISPLAY_BAUDRATE = 10000000;
-    constexpr uint8_t ANALOG_READ_RESOLUTION = 12;
-    constexpr float BIT_RESOLUTION = 4096.0f;
+    constexpr uint8_t  ANALOG_READ_RESOLUTION = 12;
+    constexpr float    BIT_RESOLUTION = 4096.0f;
 
     /* ADC Interface Constants */
     constexpr pin SHDN_A_PIN = 9;
@@ -32,10 +32,10 @@ namespace CCUInterfaces
     constexpr pin SCALED_24V_PIN = 33;
     constexpr pin TEENSY_240_OK_PIN = 36;
 
-    constexpr float GLV_CONV_FACTOR = 0.106699751861F;             // 4.3K / (4.3K + 36K)
-    constexpr float CONTROL_PILOT_CONV_FACTOR = 0.358695652174;    // 3.3K / (3.3K + 5.9K)
-    constexpr float PROXIMITY_PILOT_CONV_FACTOR = 0.62962962963F;  // 5.1K / (5.1K + 3K)
-    constexpr float JUMPER_OUT_CONV_FACTOR = 0.106699751861F;      // 4.3K / (4.3K + 36K)
+    constexpr float GLV_CONV_FACTOR = 0.106699751861F;            // 4.3K / (4.3K + 36K)
+    constexpr float CONTROL_PILOT_CONV_FACTOR = 0.358695652174;   // 3.3K / (3.3K + 5.9K)
+    constexpr float PROXIMITY_PILOT_CONV_FACTOR = 0.62962962963F; // 5.1K / (5.1K + 3K)
+    constexpr float JUMPER_OUT_CONV_FACTOR = 0.106699751861F;     // 4.3K / (4.3K + 36K)
 
     /* Display Interface Constants */
     constexpr pin LCD_CS_PIN = 39;
@@ -58,20 +58,20 @@ namespace CCUInterfaces
     /* Watchdog Interface Constants */
     constexpr pin WATCHDOG_KICK_PIN = 35;
     constexpr pin SOFTWARE_OK_PIN = 34; // Watchdog's !RESET pin
-}
+} // namespace CCUInterfaces
 
 namespace CCUSystems
 {
     constexpr float MAX_120V_CURRENT_AMP = 3.5;  // 3.5 A = 35 A in the charger CAN format
     constexpr float MAX_240V_CURRENT_AMP = 11.0; // 11 A = 110 A in the charger CAN format
-}
+} // namespace CCUSystems
 namespace CCUConstants
 {
     /* General Information */
-    constexpr volt MIN_PACK_VOLTAGE = 403;
-    constexpr volt MAX_PACK_VOLTAGE = 530;
-    constexpr volt MIN_CELL_CUTOFF_VOLTAGE = 3.2F;
-    constexpr volt MAX_CELL_CUTOFF_VOLTAGE = 4.25F;
+    constexpr volt    MIN_PACK_VOLTAGE = 403;
+    constexpr volt    MAX_PACK_VOLTAGE = 530;
+    constexpr volt    MIN_CELL_CUTOFF_VOLTAGE = 3.2F;
+    constexpr volt    MAX_CELL_CUTOFF_VOLTAGE = 4.25F;
     constexpr celsius MAX_CELL_CUTOFF_TEMP_CELSIUS = 45.0F;
     constexpr celsius MAX_BOARD_CUTOFF_TEMP_CELSIUS = 60.0F;
 
@@ -111,9 +111,9 @@ namespace CCUConstants
     constexpr uint8_t REFRESH_DISPLAY_PRIORITY = 12;
 
     /* CAN Constants */
-    const uint32_t ACU_CAN_BAUDRATE = 1000000; // CAN for ACU
+    const uint32_t ACU_CAN_BAUDRATE = 1000000;    // CAN for ACU
     const uint32_t CHARGER_CAN_BAUDRATE = 500000; // CAN for charger
-};
+}; // namespace CCUConstants
 
 
 #endif

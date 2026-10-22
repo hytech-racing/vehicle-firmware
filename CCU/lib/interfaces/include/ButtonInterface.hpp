@@ -5,8 +5,9 @@
 #include <etl/singleton.h>
 
 /* External Dependencies */
-#include <Arduino.h>
 #include "SharedFirmwareTypes.h"
+
+#include <Arduino.h>
 
 
 namespace default_button_params
@@ -29,14 +30,9 @@ struct ButtonState_s
 
 class ButtonInterface
 {
-public:
-
-    ButtonInterface(size_t pin,
-                    uint8_t debounce_ms = default_button_params::DEBOUNCE_MS,
-                    bool active_low = true
-    ) : _pin(pin),
-        _debounce_ms(debounce_ms),
-        _active_low(active_low)
+    public:
+    ButtonInterface(size_t pin, uint8_t debounce_ms = default_button_params::DEBOUNCE_MS, bool active_low = true)
+        : _pin(pin), _debounce_ms(debounce_ms), _active_low(active_low)
     {
         pinMode(_pin, INPUT);
     };
@@ -51,13 +47,11 @@ public:
 
     unsigned long getHoldDurationMs(unsigned long current_millis);
 
-private:
-
+    private:
     const uint8_t _pin;
     const uint8_t _debounce_ms;
-    const bool _active_low;
+    const bool    _active_low;
     ButtonState_s _button_state;
-
 };
 
 #endif // BUTTONINTERFACE_H

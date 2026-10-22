@@ -2,10 +2,11 @@
 #define CCUETHERNETINTERFACE_H
 
 /* External Includes */
+#include "EthernetAddressDefs.h"
+#include "ProtobufMsgInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "hytech_msgs.pb.h"
-#include "ProtobufMsgInterface.h"
-#include "EthernetAddressDefs.h"
+
 #include <QNEthernet.h>
 #include <algorithm>
 #include <cstddef>
@@ -20,7 +21,7 @@ using namespace qindesign::network;
 struct CCUOutput_s
 {
     float current_setpoint;
-    bool allow_balance;
+    bool  allow_balance;
 };
 
 namespace CCUEthernetInterface
@@ -30,18 +31,15 @@ namespace CCUEthernetInterface
 
 class CCUEthernettInterface
 {
-public:
-
+    public:
     void initEthernetDevice();
 
     void handle_recv_ethernet_acu_all_data(const hytech_msgs_ACUAllData &data);
 
-private:
-
+    private:
     /* Ethernet Sockets */
     EthernetUDP _acu_core_data_recv_socket;
     EthernetUDP _acu_all_data_recv_socket;
-
 };
 
 

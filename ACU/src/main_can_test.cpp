@@ -1,12 +1,13 @@
-#include <Arduino.h>
 #include "CANInterface.h"
+
+#include <Arduino.h>
 
 const FlexCAN_T4<CAN3> MAIN_CAN;
 
 const size_t CAN_BAUDRATE = 500000;
 
 const uint32_t MSG_ID = 0x11;
-const uint8_t MSG_DATA = 0x45;
+const uint8_t  MSG_DATA = 0x45;
 
 const uint32_t DELAY = 10;
 
@@ -14,16 +15,22 @@ const uint32_t DELAY = 10;
 void on_recv(const CAN_message_t &msg)
 {
     Serial.println("msg recvd");
-    Serial.print("MB: "); Serial.print(msg.mb);
-    Serial.print("  ID: 0x"); Serial.print(msg.id, HEX);
-    Serial.print("  EXT: "); Serial.print(msg.flags.extended);
-    Serial.print("  LEN: "); Serial.print(msg.len);
+    Serial.print("MB: ");
+    Serial.print(msg.mb);
+    Serial.print("  ID: 0x");
+    Serial.print(msg.id, HEX);
+    Serial.print("  EXT: ");
+    Serial.print(msg.flags.extended);
+    Serial.print("  LEN: ");
+    Serial.print(msg.len);
     Serial.print(" DATA: ");
     for (auto b : msg.buf)
     {
-      Serial.print(b); Serial.print(" ");
+        Serial.print(b);
+        Serial.print(" ");
     }
-    Serial.print("  TS: "); Serial.println(msg.timestamp);
+    Serial.print("  TS: ");
+    Serial.println(msg.timestamp);
 }
 
 void setup()

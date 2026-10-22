@@ -25,20 +25,14 @@ struct WatchdogPinout_s
 struct WatchdogInterfaceParams_s
 {
     WatchdogPinout_s pinout;
-    uint32_t watchdog_kick_interval;
+    uint32_t         watchdog_kick_interval;
 };
 
 class WatchdogInterface
 {
-public:
-
-    WatchdogInterface(WatchdogPinout_s pinout,
-                    uint32_t watchdog_kick_interval = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL
-    ): _watchdog_parameters {
-            pinout,
-            watchdog_kick_interval
-        }
-    {};
+    public:
+    WatchdogInterface(WatchdogPinout_s pinout, uint32_t watchdog_kick_interval = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL)
+        : _watchdog_parameters{pinout, watchdog_kick_interval} {};
 
     /**
      * @pre constructor called and instance created
@@ -74,8 +68,7 @@ public:
     void set_sw_not_ok_pin_low();
     void set_sw_not_ok_pin_high();
 
-private:
-
+    private:
     const WatchdogInterfaceParams_s _watchdog_parameters = {};
 
     // @brief timestamp of the last watchdog kick

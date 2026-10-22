@@ -1,4 +1,5 @@
 #include "MainChargeSystem.hpp"
+
 #include <algorithm>
 
 void MainChargeSystem::init(unsigned long init_millis)
@@ -10,10 +11,10 @@ void MainChargeSystem::init(unsigned long init_millis)
 void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis)
 {
     // Get battery data from ACU
-    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
-    float max_cell_voltage = acu_data.high_voltage; // the highest voltage in any of the cells
-    float total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
-    auto current_state = ChargerStateMachineInstance::instance().getState();
+    const auto &acu_data = ACUInterfaceInstance::instance().getLatestData();
+    float       max_cell_voltage = acu_data.high_voltage;   // the highest voltage in any of the cells
+    float       total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
+    auto        current_state = ChargerStateMachineInstance::instance().getState();
 
     // Check safety conditions first
     if (!_is_safety_conditions_valid())
@@ -52,11 +53,10 @@ bool MainChargeSystem::_is_safety_conditions_valid()
      * If acu_state = 2, we should/are safe to be charging
      * ACU States for Reference: STARTUP = 0, ACTIVE = 1, CHARGING = 2, FAULTED = 3, WELDED = 4, WELDCHECK = 5
      */
-    is_acu_shutdown_low = ACUInterfaceInstance::instance().getLatestData().acu_state != ACUState_e::CHARGING; //NOLINT
+    is_acu_shutdown_low = ACUInterfaceInstance::instance().getLatestData().acu_state != ACUState_e::CHARGING; // NOLINT
 
     // Check for error state from state machine
-    is_ccu_shutdown_low = !(ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_120 ||
-                            ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_240);
+    is_ccu_shutdown_low = !(ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_120 || ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_240);
 
     if (is_shutdown_low || is_acu_shutdown_low || is_ccu_shutdown_low)
     {
@@ -70,9 +70,9 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
 {
     float limited_current = requested_current;
 
-    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
-    float curr_max_cell_temp = acu_data.max_cell_temp;
-    float curr_max_board_temp = acu_data.max_board_temp;
+    const auto &acu_data = ACUInterfaceInstance::instance().getLatestData();
+    float       curr_max_cell_temp = acu_data.max_cell_temp;
+    float       curr_max_board_temp = acu_data.max_board_temp;
 
 
     // Cell temp derate (stop completely at 45°C, 40°C start derating)
@@ -88,44 +88,68 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
     limited_current *= startup_delay_factor;
     limited_current *= std::min(cell_temp_factor, board_temp_factor);
 
-    return std::max(0.0F,limited_current);
+    return std::max(0.0F, limited_current);
 }
 
 float MainChargeSystem::_get_current_for_state(ChargerState_e state)
 {
     switch (state)
     {
-        case ChargerState_e::CHARGING_120:
-        {
-            // 120V Charging, max set at 3.5 amps
-            return _charge_system_parameters.max_120V_current_amp;
-        }
-        case ChargerState_e::CHARGING_240:
-        {
-            // 240V charging, max set at 11 amps
-            return _charge_system_parameters.max_240V_current_amp;
-        }
-        default:
-        {
-            return 0.0F;
-        }
+    case ChargerState_e::CHARGING_120:
+    {
+        // 120V Charging, max set at 3.5 amps
+        return _charge_system_parameters.max_120V_current_amp;
+    }
+    case ChargerState_e::CHARGING_240:
+    {
+        // 240V charging, max set at 11 amps
+        return _charge_system_parameters.max_240V_current_amp;
+    }
+    default:
+    {
+        return 0.0F;
+    }
     }
 }
 
 float MainChargeSystem::_calculate_cell_temp_derate_factor(float curr_temp)
 {
-    if (curr_temp < _charge_system_parameters.thresholds.cell_temp_derate_thresh) {return 1.0F;}  // No derating
-    if (curr_temp >= _charge_system_parameters.max_cell_cutoff_temp_celcius) {return 0.0F;}   // Stop charging immediatly if above max threshold
+    if (curr_temp < _charge_system_parameters.thresholds.cell_temp_derate_thresh)
+    {
+        return 1.0F;
+    } // No derating
+    if (curr_temp >= _charge_system_parameters.max_cell_cutoff_temp_celcius)
+    {
+        return 0.0F;
+    } // Stop charging immediatly if above max threshold
 
-    return 1.0F - std::max(std::min(((curr_temp - _charge_system_parameters.thresholds.cell_temp_derate_thresh) / (_charge_system_parameters.max_cell_cutoff_temp_celcius - _charge_system_parameters.thresholds.cell_temp_derate_thresh)), 1.0F), 0.0F);
+    return 1.0F
+           - std::max(
+               std::min(
+                   ((curr_temp - _charge_system_parameters.thresholds.cell_temp_derate_thresh)
+                    / (_charge_system_parameters.max_cell_cutoff_temp_celcius - _charge_system_parameters.thresholds.cell_temp_derate_thresh)),
+                   1.0F),
+               0.0F);
 }
 
 float MainChargeSystem::_calculate_board_temp_derate_factor(float curr_temp)
 {
-    if (curr_temp < _charge_system_parameters.thresholds.board_temp_derate_thresh) {return 1.0F;}  // No derating
-    if (curr_temp >= _charge_system_parameters.max_board_cutoff_temp_celcius) {return 0.0F;}   // Stop charging immediatly if above max threshold
+    if (curr_temp < _charge_system_parameters.thresholds.board_temp_derate_thresh)
+    {
+        return 1.0F;
+    } // No derating
+    if (curr_temp >= _charge_system_parameters.max_board_cutoff_temp_celcius)
+    {
+        return 0.0F;
+    } // Stop charging immediatly if above max threshold
 
-    return 1.0F - std::max(std::min(((curr_temp - _charge_system_parameters.thresholds.board_temp_derate_thresh) / (_charge_system_parameters.max_board_cutoff_temp_celcius - _charge_system_parameters.thresholds.board_temp_derate_thresh)), 1.0F), 0.0F);
+    return 1.0F
+           - std::max(
+               std::min(
+                   ((curr_temp - _charge_system_parameters.thresholds.board_temp_derate_thresh)
+                    / (_charge_system_parameters.max_board_cutoff_temp_celcius - _charge_system_parameters.thresholds.board_temp_derate_thresh)),
+                   1.0F),
+               0.0F);
 }
 
 float MainChargeSystem::_startup_derate_factor(unsigned long current_millis)
