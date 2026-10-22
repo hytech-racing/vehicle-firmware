@@ -41,9 +41,13 @@ AllowShortLambdasOnASingleLine: Inline
 # 5. Alignment, Qualifiers & Comments
 # ==============================================================================
 QualifierAlignment: Left
-AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: false
 AlignTrailingComments: true
 FixNamespaceComments: true
+DerivePointerAlignment: false
+Pointeralignemtn: Left
+ReferenceAlignment: Left
 
 # ==============================================================================
 # 6. Includes & Vertical Whitespace
