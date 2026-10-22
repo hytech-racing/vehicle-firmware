@@ -29,16 +29,17 @@ namespace ccu_ethernet_params
   constexpr const uint8_t NUM_CHIPS = 12;
 };
 
-struct CCUParams_s
+struct CCUEthernetParams_s
 {
   uint8_t num_cells;
   uint8_t num_celltemps;
   uint8_t num_chips;
 };
 
-class CCUEthernetInterface {
+class CCUEthernetInterface 
+{
     public:
-    CCUEthernetInterface(CCUParams_s params = {
+    CCUEthernetInterface(CCUEthernetParams_s params = {
                                 .num_cells = ccu_ethernet_params::NUM_CELLS,
                                 .num_celltemps = ccu_ethernet_params::NUM_CELLTEMPS,
                                 .num_chips = ccu_ethernet_params::NUM_CHIPS
@@ -53,10 +54,9 @@ class CCUEthernetInterface {
     hytech_msgs_CCUData makeCCUDataMsg();
 
     void sendCCUDataMsg(const hytech_msgs_CCUData &data);
-    void sendCCUTest(void);
     
     private:
-    const CCUParams_s _ccu_params = {};
+    const CCUEthernetParams_s _ccu_params = {};
     EthernetUDP _acu_all_data_recv_socket;
     EthernetUDP _ccu_data_send_socket;
 };
