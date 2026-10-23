@@ -71,7 +71,7 @@ void setup()
     HT_SCHED::Scheduler::getInstance().schedule(steering_calibration_task);
     HT_SCHED::Scheduler::getInstance().schedule(ethernet_send_task);
 
-    HT_SCHED::Scheduler::getInstance().schedule(debug_state_print_task);
+    // HT_SCHED::Scheduler::getInstance().schedule(debug_state_print_task);
 }
 
 void loop()
