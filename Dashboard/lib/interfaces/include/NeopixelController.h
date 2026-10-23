@@ -16,9 +16,10 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <Adafruit_NeoPixel.h>
-#include "SharedFirmwareTypes.h"
 #include "DashCANInterfaceImpl.h"
+#include "SharedFirmwareTypes.h"
+
+#include <Adafruit_NeoPixel.h>
 
 enum LED_ID_e
 {
@@ -54,31 +55,24 @@ enum class LED_color_e
 
 class NeopixelController
 {
-public:
-
+  public:
     NeopixelController() = delete;
 
-    NeopixelController(uint32_t neopixel_count,
-                    uint32_t neopixel_pin
-    ) : _neopixels(neopixel_count, neopixel_pin, NEO_GRBW + NEO_KHZ800),
-        _current_brightness(50),
-        _neopixel_count(neopixel_count)
-    {};
+    NeopixelController(uint32_t neopixel_count, uint32_t neopixel_pin)
+        : _neopixels(neopixel_count, neopixel_pin, NEO_GRBW + NEO_KHZ800), _current_brightness(50), _neopixel_count(neopixel_count) {};
 
     void init_neopixels();
 
     void dim_neopixels();
 
-    void refresh_neopixels(CANInterfaces_s &interfaces);
+    void refresh_neopixels(CANInterfaces_s& interfaces);
 
     void set_neopixel_color(LED_ID_e led, LED_color_e color);
 
-private:
-
+  private:
     Adafruit_NeoPixel _neopixels;
     uint8_t _current_brightness;
     uint8_t _neopixel_count;
-
 };
 
 using NeopixelControllerInstance = etl::singleton<NeopixelController>;
