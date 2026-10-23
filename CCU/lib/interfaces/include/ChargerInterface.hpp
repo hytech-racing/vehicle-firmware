@@ -15,6 +15,11 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 
+namespace default_charger_params
+{
+    constexpr uint8_t BYTE_SHIFT = 8;
+    constexpr float DATA_SCALAR = 10.0F; // charger reports values in units of 0.1
+}; // namespace default_charger_params
 
 struct ChargerData_s
 {
@@ -40,7 +45,17 @@ class ChargerInterface
 
     ChargerData_s get_latest_charger_data() { return _charger_data; };
 
+    /* Charger values are sent as high/low bytes of a 16-bit int in units of 0.1 */
+    float getOutputCurrentA() const { return combineBytes(_charger_data.output_current_high, _charger_data.output_current_low); };
+    float getDCOutputVoltageV() const { return combineBytes(_charger_data.output_dc_voltage_high, _charger_data.output_dc_voltage_low); };
+    float getACInputVoltageV() const { return combineBytes(_charger_data.input_ac_voltage_high, _charger_data.input_ac_voltage_low); };
+
   private:
+    static float combineBytes(uint8_t high, uint8_t low)
+    {
+        return static_cast<float>((high << default_charger_params::BYTE_SHIFT) | low) / default_charger_params::DATA_SCALAR;
+    };
+
     ChargerData_s _charger_data;
     ACUInterface& _acu_interface;
 };

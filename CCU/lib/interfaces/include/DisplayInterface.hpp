@@ -24,8 +24,6 @@ namespace default_display_params
     constexpr unsigned long DISPLAY_UPDATE_INTERVAL_MS = 100UL;       // ms
     constexpr unsigned long CYCLE_BUTTON_HOLD_TIME_RESET_MS = 2000UL; // ms
     constexpr unsigned long SLIDING_WINDOW_DISPLAY_INTERVAL_MS = 2500UL;
-    constexpr float DATA_SCALAR = 10.0F;
-    constexpr uint8_t BYTE_SHIFT = 8;
 }; // namespace default_display_params
 
 enum DisplayView_e
