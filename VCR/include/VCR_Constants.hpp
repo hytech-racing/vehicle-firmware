@@ -4,6 +4,8 @@
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 
+#include <array>
+
 using pin = uint8_t;
 using time_us = uint32_t;
 
@@ -95,6 +97,40 @@ namespace VCRInterfaces
     constexpr const float TEST_TEMP_OFFSET = 386;
 
 
+    /* ---------- Maintenance Panel ADC (ADS112U04, on Serial8) ---------- */
+    constexpr int MPB_ADC_NUM_CHANNELS = 4;
+
+    // Channels
+    constexpr int LV_BAT_CURRENT_SENSOR_CHANNEL = 0;
+    constexpr int MAINTENANCE_AUX_1_CHANNEL = 1;
+    constexpr int SHDN_P_CHANNEL = 2;
+    constexpr int SHDN_Q_CHANNEL = 3;
+
+    // Raw ADS112 voltage: V_adc = raw * 5.0 / 32768
+    constexpr float MPB_ADC_FULL_SCALE_COUNTS = 32768.0f;
+    constexpr float MPB_ADC_REFERENCE_VOLTAGE = 5.0f;
+    constexpr float MPB_ADC_VOLTAGE_SCALE = MPB_ADC_REFERENCE_VOLTAGE / MPB_ADC_FULL_SCALE_COUNTS;
+    constexpr float MPB_ADC_VOLTAGE_OFFSET = 0.0f;
+
+    // LV battery current sensor: 2.5 V at 0 A, 100 mV / A
+    constexpr float LV_BAT_CURRENT_SENSOR_ZERO_CURRENT_VOLTAGE = 2.5f;
+    constexpr float LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A = 0.100f;
+    constexpr float LV_BAT_CURRENT_SENSOR_SCALE = MPB_ADC_VOLTAGE_SCALE / LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A;
+    constexpr float LV_BAT_CURRENT_SENSOR_OFFSET = -1.0f * (LV_BAT_CURRENT_SENSOR_ZERO_CURRENT_VOLTAGE / LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A);
+
+    // Shutdown sense voltage dividers
+    constexpr float SHDN_VOLTAGE_DIVIDER_SCALE = 0.136f;
+    constexpr float MPB_SHDN_VOLTAGE_SCALE = MPB_ADC_VOLTAGE_SCALE * SHDN_VOLTAGE_DIVIDER_SCALE;
+    constexpr float MPB_SHDN_VOLTAGE_OFFSET = 0.0f;
+
+    // Indexed by channel
+    constexpr std::array<float, MPB_ADC_NUM_CHANNELS> MPB_ADC_SCALES =
+        {LV_BAT_CURRENT_SENSOR_SCALE, MPB_ADC_VOLTAGE_SCALE, MPB_SHDN_VOLTAGE_SCALE, MPB_SHDN_VOLTAGE_SCALE};
+
+    constexpr std::array<float, MPB_ADC_NUM_CHANNELS> MPB_ADC_OFFSETS =
+        {LV_BAT_CURRENT_SENSOR_OFFSET, MPB_ADC_VOLTAGE_OFFSET, MPB_SHDN_VOLTAGE_OFFSET, MPB_SHDN_VOLTAGE_OFFSET};
+
+
     /* ---------- IOExpander Interface ---------- */
     constexpr uint8_t IOEXPANDER_I2C_ADDRESS = 0x20;
 
@@ -171,6 +207,9 @@ namespace VCRConstants
 
     constexpr uint8_t IOEXPANDER_PRIORITY = 15;
     constexpr time_us IOEXPANDER_SAMPLE_PERIOD_US = 5000; // 5 000 us = 200 Hz
+
+    constexpr uint8_t MPB_ADC_PRIORITY = 16;
+    constexpr time_us MPB_ADC_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t DEBUG_PRIORITY = 50;
     constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
