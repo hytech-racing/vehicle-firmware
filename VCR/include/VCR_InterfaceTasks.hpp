@@ -15,6 +15,7 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
+#include "ADS112Interface.hpp"
 #include "DrivebrainInterface.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
@@ -48,6 +49,13 @@ void initialize_all_interfaces();
  * defined in VCRGlobals.h.
  */
 ::HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Task will tick the maintenance panel ADC (ADS112U04) state machine
+ * @note Non-blocking: each tick advances one step, so a full 4-channel sweep takes several ticks
+ *       (~70 ms conversion wait per channel at 20 SPS)
+ */
+::HT_TASK::TaskResponse run_read_mpb_adc_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * This task will tick the AMS system and will update the software shutdown if necessary.

@@ -50,7 +50,8 @@ class VCREthernetInterface
         const InverterInterface& fr_inverter,
         const InverterInterface& rl_inverter,
         const InverterInterface& rr_inverter,
-        const VCRControls& vcr_controls);
+        const VCRControls& vcr_controls,
+        float lv_bat_current_sensor_amp);
 
     /**
      * Function to take a populated protoc struct from the drivebrain and update the VCR state.

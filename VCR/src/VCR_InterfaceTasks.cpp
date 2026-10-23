@@ -79,6 +79,10 @@ void initialize_all_interfaces()
     VCREthernetInterfaceInstance::create();
     VCREthernetInterfaceInstance::instance().init_ethernet_device();
 
+    /* ---------- Maintenance Panel ADC Interface ---------- */
+    ADS112InterfaceInstance::create(Serial8, VCRInterfaces::MPB_ADC_SCALES, VCRInterfaces::MPB_ADC_OFFSETS);
+    ADS112InterfaceInstance::instance().init();
+
     /* ---------- Drivebrain Interface ---------- */
     DrivebrainInterfaceInstance::create(
         EthernetIPDefsInstance::instance().drivebrain_ip,
@@ -125,6 +129,12 @@ HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const H
 HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ADCInterfaceInstance::instance().tick_adc1();
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse run_read_mpb_adc_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    ADS112InterfaceInstance::instance().tick();
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -270,7 +280,8 @@ HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicr
             fr_inverter_interface,
             rl_inverter_interface,
             rr_inverter_interface,
-            VCRControlsInstance::instance()));
+            VCRControlsInstance::instance(),
+            ADS112InterfaceInstance::instance().get_channel(VCRInterfaces::LV_BAT_CURRENT_SENSOR_CHANNEL).conversion));
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -476,6 +487,13 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     Serial.print("SusPot RL: ");
     Serial.println(ADCInterfaceInstance::instance().get_RL_sus_pot().conversion);
+
+    /* Maintenance Panel ADC (ADS112U04) */
+    const AnalogConversion_s lv_bat_current = ADS112InterfaceInstance::instance().get_channel(VCRInterfaces::LV_BAT_CURRENT_SENSOR_CHANNEL);
+    Serial.print("LV Battery Current (A): ");
+    Serial.print(lv_bat_current.conversion);
+    Serial.print("\traw: ");
+    Serial.println(lv_bat_current.raw);
 
     // /* Drivebrain data */
     // Serial.print("Latest Drivebrain data: ");
