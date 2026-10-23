@@ -18,7 +18,7 @@
 
 struct MessageLatencyInfo_s
 {
-    bool          timing_failure;
+    bool timing_failure;
     unsigned long worst_period_millis;
 };
 
@@ -51,12 +51,12 @@ class DrivebrainController
   private:
     struct
     {
-        unsigned long    allowed_latency = {};
+        unsigned long allowed_latency = {};
         ControllerMode_e assigned_controller_mode = {};
     } _params;
 
-    bool                 _should_run_controller = true;
-    bool                 _last_reset_worse_latency_clock = 0;
+    bool _should_run_controller = true;
+    bool _last_reset_worse_latency_clock = 0;
     MessageLatencyInfo_s _aux_latency_info = {false, 0};
     MessageLatencyInfo_s _telem_latency_info = {false, 0};
 

@@ -85,10 +85,10 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s   pinouts;
+    ADCPinout_s pinouts;
     ADCChannels_s channels;
-    ADCScales_s   scales;
-    ADCOffsets_s  offsets;
+    ADCScales_s scales;
+    ADCOffsets_s offsets;
 };
 
 inline ADCPinout_s schematicADCPinout()
@@ -170,7 +170,7 @@ class ADCInterface
     const ADCInterfaceParams_s getADCParams() const;
 
   private:
-    ADCInterfaceParams_s               _adc_parameters;
+    ADCInterfaceParams_s _adc_parameters;
     std::array<AnalogConversion_s, 14> _converted_values;
 };
 

@@ -59,11 +59,11 @@ class SimpleLaunchController
     LaunchStates_e get_launch_state() { return _launch_state; }
 
   private:
-    float          _launch_rate_target_m_per_sec_sq;
-    uint32_t       _time_of_launch;
+    float _launch_rate_target_m_per_sec_sq;
+    uint32_t _time_of_launch;
     LaunchStates_e _launch_state = LaunchStates_e::LAUNCH_NOT_READY;
-    float          _launch_speed_target_rpm;
-    int16_t        _init_speed_target_rpm;
+    float _launch_speed_target_rpm;
+    int16_t _init_speed_target_rpm;
 
     /// @brief calculates how speed target (the speed the car is trying to achieve during launch) is set and/or increased during launch
     /// This updates internal speed target variable _launch_speed_target_rpm

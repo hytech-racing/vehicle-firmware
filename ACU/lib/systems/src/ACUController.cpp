@@ -29,12 +29,12 @@ void ACUController::restore_lifetime_throughput(double restored_ah)
 }
 
 ACUControllerData_s ACUController::evaluate_accumulator(
-    time_ms              current_millis,
+    time_ms current_millis,
     const BMSCoreData_s& input_state,
-    size_t               max_consecutive_invalid_packet_count,
-    float                em_current,
-    size_t               num_of_voltage_cells,
-    bool                 voltage_is_fresh)
+    size_t max_consecutive_invalid_packet_count,
+    float em_current,
+    size_t num_of_voltage_cells,
+    bool voltage_is_fresh)
 {
     // _acu_state.charging_enabled = input_state.charging_enabled;
 
@@ -49,7 +49,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     _acu_state.V1 = _soc_ekf.get_voltage();
 
     // State of Health via Ah throughput model
-    float  dt = static_cast<float>(current_millis - _acu_state.prev_bms_time_stamp) / _ms_to_seconds;
+    float dt = static_cast<float>(current_millis - _acu_state.prev_bms_time_stamp) / _ms_to_seconds;
     double ah_step = (fabs(static_cast<double>(em_current)) * static_cast<double>(dt)) / _seconds_per_hour;
     _acu_state.lifetime_ah_throughput += ah_step;
 

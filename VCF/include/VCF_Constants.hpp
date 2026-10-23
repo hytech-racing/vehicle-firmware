@@ -130,8 +130,8 @@ namespace VCFSystems
 
     // Steering System Constants
     /* Steering */
-    constexpr float  ANALOG_TOLERANCE = 0.05f;               // +/- 5% sensor tolerance
-    constexpr float  DIGITAL_TOLERANCE = 0.05f;              // +/- 0.2 degree error
+    constexpr float ANALOG_TOLERANCE = 0.05f;                // +/- 5% sensor tolerance
+    constexpr float DIGITAL_TOLERANCE = 0.05f;               // +/- 0.2 degree error
     constexpr degree ERROR_BETWEEN_SENSORS_TOLERANCE = 5.0f; // degrees
     constexpr degree MAX_DTHETA_THRESHOLD = 50.0f;           // max angle change per sample (degrees)
     constexpr degree DEG_PER_COUNT_DIGITAL = 360.0f / 16384.0f;

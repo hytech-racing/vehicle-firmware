@@ -5,7 +5,7 @@ FDCAN_HandleTypeDef hfdcan1;
 
 // Static pointers for interrupt handler
 static CANInterfaces_s* global_interfaces = nullptr;
-static unsigned long    global_last_millis = 0;
+static unsigned long global_last_millis = 0;
 
 
 int FDCAN_init()
@@ -188,7 +188,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef* hfdcan, uint32_t RxFifo0ITs)
         {
 
             FDCAN_RxHeaderTypeDef rxHeader;
-            uint8_t               rxData[8];
+            uint8_t rxData[8];
 
             // Retrieve the message from FIFO 0
             if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rxHeader, rxData) == HAL_OK)

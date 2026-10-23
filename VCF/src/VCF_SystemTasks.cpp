@@ -7,8 +7,8 @@ void initializeAllSystems()
     etl::delegate<void(uint16_t, uint32_t)> setPixelColor =
         etl::delegate<void(uint16_t, uint32_t)>::create<NeopixelInterface, &NeopixelInterface::setPixelColor>(NeopixelInterfaceInstance::instance());
     etl::delegate<void(uint8_t)> setBrightness = etl::delegate<void(uint8_t)>::create<NeopixelInterface, &NeopixelInterface::setBrightness>(NeopixelInterfaceInstance::instance());
-    etl::delegate<void()>        show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
-    NeopixelControllerInputs_s   controller_inputs = {
+    etl::delegate<void()> show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
+    NeopixelControllerInputs_s controller_inputs = {
         .are_pedals_calibrating = VCRInterfaceInstance::instance().arePedalsCalibrating(),
         .is_steering_calibrating = VCRInterfaceInstance::instance().isSteeringCalibrating(),
         .torque_limit_mode = VCRInterfaceInstance::instance().getTorqueLimitMode(),
@@ -163,7 +163,7 @@ HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const
 
 HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    STEERING_DATA_t      msg_out;
+    STEERING_DATA_t msg_out;
     SteeringSystemData_s steering_system_data = SteeringSystemInstance::instance().getSteeringSystemData();
 
     msg_out.steering_analog_oor = steering_system_data.analog_oor_implausibility;

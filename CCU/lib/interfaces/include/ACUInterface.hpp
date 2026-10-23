@@ -32,9 +32,9 @@ namespace default_acu_params
 struct ACUInterfaceData_s
 {
     /* ACU Status Message */
-    time_ms    last_recv_status_ms;
+    time_ms last_recv_status_ms;
     ACUState_e acu_state;
-    bool       heartbeat_ok;
+    bool heartbeat_ok;
 
     /* BMS Voltages */
     volt average_voltage;
@@ -49,12 +49,12 @@ struct ACUInterfaceData_s
     celsius max_board_temp;
 
     /* BMS Detailed Data */
-    std::array<etl::optional<volt>, default_acu_params::NUM_CELLS>          cell_voltages;
-    std::array<etl::optional<celsius>, default_acu_params::NUM_CELL_TEMPS>  cell_temps;
+    std::array<etl::optional<volt>, default_acu_params::NUM_CELLS> cell_voltages;
+    std::array<etl::optional<celsius>, default_acu_params::NUM_CELL_TEMPS> cell_temps;
     std::array<etl::optional<celsius>, default_acu_params::NUM_BOARD_TEMPS> board_temps;
 
     /* Elcon Charger Status */
-    bool  is_charging_enabled;
+    bool is_charging_enabled;
     float SoC;
 };
 
@@ -130,8 +130,8 @@ class ACUInterface
 
   private:
     ACUInterfaceData_s _curr_data;
-    unsigned long      _max_heartbeat_interval_ms;
-    bool               _first_received_message_heartbeat_init = false;
+    unsigned long _max_heartbeat_interval_ms;
+    bool _first_received_message_heartbeat_init = false;
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

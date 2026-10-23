@@ -189,7 +189,7 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_
 
 HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto&       adc = ADCInterfaceInstance::instance();
+    auto& adc = ADCInterfaceInstance::instance();
     const auto& sg1 = adc.getStrainGauge1();
     const auto& sg2 = adc.getStrainGauge2();
     const auto& sg3 = adc.getStrainGauge3();

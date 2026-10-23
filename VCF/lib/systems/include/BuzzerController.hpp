@@ -25,7 +25,7 @@ class BuzzerController
 
   private:
     const unsigned long _BUZZER_PERIOD_MS = 2000;
-    unsigned long       _last_activation_time_ms;
+    unsigned long _last_activation_time_ms;
 };
 
 using BuzzerControllerInstance = etl::singleton<BuzzerController>;

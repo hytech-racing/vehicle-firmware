@@ -24,8 +24,8 @@ namespace default_display_params
     constexpr unsigned long DISPLAY_UPDATE_INTERVAL_MS = 100UL;       // ms
     constexpr unsigned long CYCLE_BUTTON_HOLD_TIME_RESET_MS = 2000UL; // ms
     constexpr unsigned long SLIDING_WINDOW_DISPLAY_INTERVAL_MS = 2500UL;
-    constexpr float         DATA_SCALAR = 10.0F;
-    constexpr uint8_t       BYTE_SHIFT = 8;
+    constexpr float DATA_SCALAR = 10.0F;
+    constexpr uint8_t BYTE_SHIFT = 8;
 }; // namespace default_display_params
 
 enum DisplayView_e
@@ -53,8 +53,8 @@ struct DisplayPinout_s
 struct DisplayInterfaceParams_s
 {
     DisplayPinout_s pinout;
-    float           display_time;
-    float           display_update_interval;
+    float display_time;
+    float display_update_interval;
 };
 
 struct DisplayConfig_s
@@ -92,11 +92,11 @@ class DisplayInterface
 
   private:
     Adafruit_ILI9341 _display;
-    DisplayPinout_s  _pinout;
-    DisplayConfig_s  _config;
-    unsigned long    _display_time;
-    ButtonInterface  _cycle_display_view_button;
-    DisplayView_e    _display_view;
+    DisplayPinout_s _pinout;
+    DisplayConfig_s _config;
+    unsigned long _display_time;
+    ButtonInterface _cycle_display_view_button;
+    DisplayView_e _display_view;
 
     void _handleButtonEvents(unsigned long current_millis);
 

@@ -87,12 +87,12 @@ class InverterInterface
     InverterFeedbackData_s get_all_inverter_data() const;
 
   private:
-    InverterCANIds_s        inverter_ids;
-    InverterControlInput_s  _inverter_control_inputs;
-    InverterControlWord_s   _inverter_control_word;
+    InverterCANIds_s inverter_ids;
+    InverterControlInput_s _inverter_control_inputs;
+    InverterControlWord_s _inverter_control_word;
     InverterControlParams_s _inverter_control_params;
-    InverterFeedbackData_s  _feedback_data;
-    InverterParams_s        _inverter_params;
+    InverterFeedbackData_s _feedback_data;
+    InverterParams_s _inverter_params;
 };
 
 

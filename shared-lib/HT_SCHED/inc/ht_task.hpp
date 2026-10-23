@@ -23,16 +23,16 @@ namespace HT_TASK
     class TaskInfo
     {
       public:
-        TaskState    state;
-        uint32_t     executionIntervalMicros;
-        uint32_t     lastExecutionMicros;
-        uint32_t     nextExecutionMicros;
-        uint32_t     filteredExecutionDurationMicros;
-        uint32_t     executions;
+        TaskState state;
+        uint32_t executionIntervalMicros;
+        uint32_t lastExecutionMicros;
+        uint32_t nextExecutionMicros;
+        uint32_t filteredExecutionDurationMicros;
+        uint32_t executions;
         unsigned int id;
         // use priority to enforce ordering when multiple tasks execute on the same scheduling cycle
         unsigned int priority; // 0 is highest priority.
-        bool         isIntervalFunction;
+        bool isIntervalFunction;
 
         TaskInfo()
             : state(TaskState::UNINITIALIZED),
@@ -57,7 +57,7 @@ namespace HT_TASK
     class Task
     {
       public:
-        TaskInfo                                                      _taskInfo;
+        TaskInfo _taskInfo;
         std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _setup;
         std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _loop;
 

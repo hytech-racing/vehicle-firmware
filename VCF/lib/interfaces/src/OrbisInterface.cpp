@@ -99,8 +99,8 @@ void OrbisInterface::setOffset()
     uint8_t position_low_byte = _serial->read();
 
     uint16_t current_raw_position = ((((uint16_t)position_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)position_low_byte) >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
-    byte     offset_pos_high_byte = (current_raw_position >> orbis_constants::OFFSET_HIGH_BYTE_SHIFT) & orbis_bitmasks::OFFSET_RECOMBINING_MASK; // b15 - b8.
-    byte     offset_pos_low_byte = current_raw_position & orbis_bitmasks::OFFSET_RECOMBINING_MASK;                                               // b7 - b0
+    byte offset_pos_high_byte = (current_raw_position >> orbis_constants::OFFSET_HIGH_BYTE_SHIFT) & orbis_bitmasks::OFFSET_RECOMBINING_MASK; // b15 - b8.
+    byte offset_pos_low_byte = current_raw_position & orbis_bitmasks::OFFSET_RECOMBINING_MASK;                                               // b7 - b0
     // Current raw position is 14 bit integer, we parse two bytes to remove warning/error bits.
     // Offset command only takes in position data as individual bytes (8 bit integer). Break 14 bit integer into two bytes.
 

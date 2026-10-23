@@ -17,8 +17,8 @@ namespace brake_rotor_temp_default_params
 
 struct BrakeRotorTempData_s
 {
-    float                                                                                 max_temp;
-    float                                                                                 avg_temp;
+    float max_temp;
+    float avg_temp;
     std::array<float, brake_rotor_temp_default_params::channels_within_brake_temp_sensor> channel_data;
 };
 

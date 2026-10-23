@@ -90,10 +90,10 @@ template <std::size_t num_controllers> class TorqueControllerMux
     /// @note TC Mux must be created with at least 1 controller.
     explicit TorqueControllerMux(
         std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, num_controllers> controller_evals,
-        std::array<bool, num_controllers>                                                                                  mux_bypass_limits,
-        float                                                                                                              max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
-        float  max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
-        float  max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT,
+        std::array<bool, num_controllers> mux_bypass_limits,
+        float max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
+        float max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
+        float max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT,
         size_t num_motors = 4)
         : _controller_evals(controller_evals),
           _mux_bypass_limits(mux_bypass_limits),
@@ -122,13 +122,13 @@ template <std::size_t num_controllers> class TorqueControllerMux
         {TorqueLimit_e::TCMUX_MID_TORQUE, 15.0f},
         {TorqueLimit_e::TCMUX_LOW_TORQUE, 10.0f}};
 
-    float                       _max_change_speed;
-    float                       _max_torque_pos_change_delta;
-    float                       _max_power_limit;
-    size_t                      _num_motors;
-    DrivetrainCommand_s         _prev_command = {};
+    float _max_change_speed;
+    float _max_torque_pos_change_delta;
+    float _max_power_limit;
+    size_t _num_motors;
+    DrivetrainCommand_s _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
-    TorqueControllerMuxError_e  can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data, DrivetrainCommand_s previous_controller_command, DrivetrainCommand_s desired_controller_out);
+    TorqueControllerMuxError_e can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data, DrivetrainCommand_s previous_controller_command, DrivetrainCommand_s desired_controller_out);
 
     /// @brief Clamps negative rpms to 0f
     /// @param const DrivetrainCommand_s &command provides the rpm info as a DrivetrainCommand_s

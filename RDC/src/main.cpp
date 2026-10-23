@@ -17,7 +17,7 @@ HT_TASK::Task collect_async_data_task(HT_TASK::DUMMY_FUNCTION, &handleAsyncMain,
 HT_TASK::Task kick_watchdog_task(&initWatchdog, &runKickWatchdog, RDCConstants::KICK_WATCHDOG_PRIORITY, RDCConstants::KICK_WATCHDOG_PERIOD_US);
 
 HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrint, RDCConstants::DEBUG_PRINT_PRIORITY, RDCConstants::DEBUG_PRINT_PERIOD_US);
-void          setup()
+void setup()
 {
     initializeAllInterfaces();
     initializeDriverless();

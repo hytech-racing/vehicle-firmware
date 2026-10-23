@@ -44,7 +44,7 @@ void DisplayInterface::hytech_animation()
     delay(60);
     _display.setFont(&FreeSans12pt7b);
     String greeting = "NEEEOOOWWMM";
-    int    length = greeting.length();
+    int length = greeting.length();
     _display.setCursor(hytech_logo_x - length * 3, hytech_logo_y + hytech_logo_size + 30);
     _display.setTextColor(_black);
     _display.setTextSize(1);

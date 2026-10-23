@@ -14,8 +14,8 @@
 struct TorqueControllerSimpleParams_s
 {
   public:
-    float     rear_torque_scale = {};
-    float     rear_regen_torque_scale = {};
+    float rear_torque_scale = {};
+    float rear_regen_torque_scale = {};
     speed_rpm amk_max_rpm = {};
     torque_nm amk_max_torque = {};
     torque_nm amk_max_regen_torque = {};

@@ -16,9 +16,9 @@ namespace orbis_constants
 {
     constexpr uint32_t DEFAULT_BAUD_RATE = 115200;
     constexpr uint16_t SELF_CALIB_MAX_TIME_MS = 10000;
-    constexpr uint8_t  TIMEOUT_MS = 10;
-    constexpr uint8_t  FACTORY_RESET_DELAY_MS = 200;
-    constexpr uint8_t  SAVE_CONFIG_DELAY_MS = 200;
+    constexpr uint8_t TIMEOUT_MS = 10;
+    constexpr uint8_t FACTORY_RESET_DELAY_MS = 200;
+    constexpr uint8_t SAVE_CONFIG_DELAY_MS = 200;
 
     constexpr uint8_t OFFSET_HIGH_BYTE_SHIFT = 8;
     constexpr uint8_t POSITION_DATA_HIGH_BYTE_SHIFT = 8;
@@ -27,7 +27,7 @@ namespace orbis_constants
     constexpr degree ANGLE_WRAPAROUND_THRESHOLD = 180.0f;
     constexpr degree FULL_ROTATION_DEGREES = 360.0f;
     constexpr degree DEGREES_PER_REVOLUTION = 360.0f;
-    constexpr float  ENCODER_RESOLUTION = 16384.0f; // 14-bit resolution = 2^14 counts per revolution
+    constexpr float ENCODER_RESOLUTION = 16384.0f; // 14-bit resolution = 2^14 counts per revolution
 } // namespace orbis_constants
 
 /**
@@ -101,9 +101,9 @@ class OrbisInterface
     SteeringEncoderReading_s getLastReading() { return _last_reading; }
 
   private:
-    HardwareSerial*          _serial;
+    HardwareSerial* _serial;
     SteeringEncoderReading_s _last_reading; // Most recently sampled encoder reading.
-    OrbisErrorFlags_s        _orbis_errors;
+    OrbisErrorFlags_s _orbis_errors;
 
     void _decodeErrors(uint8_t general, uint8_t detailed);
 

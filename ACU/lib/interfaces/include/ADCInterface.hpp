@@ -63,8 +63,8 @@ struct ADCChannels_s
 struct ADCConfigs_s
 {
     uint16_t imd_startup_time;
-    float    teensy41_max_input_voltage;
-    int      spiSpeed;
+    float teensy41_max_input_voltage;
+    int spiSpeed;
 };
 struct ADCConversions_s
 {
@@ -119,32 +119,32 @@ struct MAX114XChannels_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s       pinout;
-    ADCChannels_s     channels;
-    ADCConfigs_s      configs;
-    ADCConversions_s  conversions;
-    ADCThresholds_s   thresholds;
-    ADCScales_s       scales;
-    ADCOffsets_s      offsets;
+    ADCPinout_s pinout;
+    ADCChannels_s channels;
+    ADCConfigs_s configs;
+    ADCConversions_s conversions;
+    ADCThresholds_s thresholds;
+    ADCScales_s scales;
+    ADCOffsets_s offsets;
     MAX114XChannels_s pairs;
-    int               spiSpeed;
-    float             bit_resolution;
+    int spiSpeed;
+    float bit_resolution;
 };
 
 class ADCInterface
 {
   public:
     ADCInterface(
-        ADCPinout_s       pinout,
-        ADCChannels_s     channels,
-        ADCConversions_s  conversions,
-        ADCScales_s       scales,
-        ADCOffsets_s      offsets,
+        ADCPinout_s pinout,
+        ADCChannels_s channels,
+        ADCConversions_s conversions,
+        ADCScales_s scales,
+        ADCOffsets_s offsets,
         MAX114XChannels_s pairs,
-        int               spiSpeed,
-        float             bit_resolution,
-        ADCConfigs_s      configs = {.imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME, .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
-        ADCThresholds_s   thresholds =
+        int spiSpeed,
+        float bit_resolution,
+        ADCConfigs_s configs = {.imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME, .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
+        ADCThresholds_s thresholds =
             {.teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
              .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
              .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD})
@@ -316,7 +316,7 @@ class ADCInterface
     bool is_in_imd_startup_period() const;
 
   private:
-    const ADCInterfaceParams_s                                                                              _adc_parameters = {};
+    const ADCInterfaceParams_s _adc_parameters = {};
     MAX114XInterface<adc_default_parameters::NUM_MAX1148_CHANNELS, adc_default_parameters::MAX114X_VERSION> _max114x_instance;
 
     /**

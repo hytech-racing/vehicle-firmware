@@ -40,9 +40,9 @@ bool DrivetrainSystem::drivetrain_ready()
 
 void DrivetrainSystem::reset_dt_error()
 {
-    DrivetrainResetError_s       reset_cmd = {true};
+    DrivetrainResetError_s reset_cmd = {true};
     DrivetrainSystem::CmdVariant var = reset_cmd;
-    auto                         state = evaluate_drivetrain(reset_cmd).state;
+    auto state = evaluate_drivetrain(reset_cmd).state;
 }
 
 DrivetrainStatus_s DrivetrainSystem::evaluate_drivetrain(DrivetrainSystem::CmdVariant cmd)
@@ -334,7 +334,7 @@ bool DrivetrainSystem::_check_inverter_flags(std::function<bool(const InverterSt
 void DrivetrainSystem::_set_drivetrain_disabled()
 {
     InverterControlWord_s disabled_control_word = {.inverter_enable = false, .hv_enable = false, .driver_enable = false, .remove_error = false};
-    auto                  funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.as_array();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(disabled_control_word);

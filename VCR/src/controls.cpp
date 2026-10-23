@@ -16,7 +16,7 @@ void VCRControls::handle_drivetrain_command(bool wanting_ready_to_drive, bool re
 {
     if (_dt_system != nullptr)
     {
-        ControllerMode_e   mode = vcr_data.interface_data.dash_input_state.dial_state;
+        ControllerMode_e mode = vcr_data.interface_data.dash_input_state.dial_state;
         DrivetrainStatus_s drivetrain_status;
 
         if (ready_to_drive)

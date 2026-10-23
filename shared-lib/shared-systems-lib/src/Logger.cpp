@@ -16,7 +16,7 @@ void hal_println(const char s[])
 // Don't print more than 256 chars at a time
 void hal_printf(const char format[], ...)
 {
-    char    buf[1024];
+    char buf[1024];
     va_list ap;
     va_start(ap, format);
     vsprintf(buf, format, ap);

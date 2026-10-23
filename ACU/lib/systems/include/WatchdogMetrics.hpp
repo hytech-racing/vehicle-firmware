@@ -31,9 +31,9 @@ class WatchdogMetrics
     WatchdogMetricsData_s get_watchdog_metrics();
 
   private:
-    static constexpr float    VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
+    static constexpr float VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
     static constexpr uint32_t MIN_ALLOWED_INVALID_SHDN_OUT_MS = 10;
-    WatchdogMetricsData_s     _watchdog_metrics_data;
+    WatchdogMetricsData_s _watchdog_metrics_data;
 };
 
 using WatchdogMetricsInstance = etl::singleton<WatchdogMetrics>;

@@ -33,7 +33,7 @@ struct CANInterfaces_s
     }
 
     CCUInterface& ccu_interface;
-    EMInterface&  em_interface;
+    EMInterface& em_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 
@@ -48,11 +48,11 @@ struct ACUCANInterface_s
     }
 
     FlexCAN_t<CAN2> CCU_CAN;
-    CANRXBuffer_t   ccu_can_rx_buffer;
-    CANTXBuffer_t   ccu_can_tx_buffer;
+    CANRXBuffer_t ccu_can_rx_buffer;
+    CANTXBuffer_t ccu_can_tx_buffer;
 
     FlexCAN_t<CAN3> EM_CAN;
-    CANRXBuffer_t   em_can_rx_buffer;
+    CANRXBuffer_t em_can_rx_buffer;
 
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> can_recv_switch;
 };

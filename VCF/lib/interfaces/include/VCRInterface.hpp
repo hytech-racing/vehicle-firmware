@@ -63,12 +63,12 @@ class VCRInterface
     bool isInverterErrored();
 
   private:
-    bool               _is_in_pedals_calibration_state = false;
-    bool               _is_in_steering_calibration_state = false;
-    bool               _is_db_in_ctrl;
-    VehicleState_e     _vehicle_state_value;
-    DrivetrainState_e  _drivetrain_state_value;
-    TorqueLimit_e      _torque_limit = TorqueLimit_e::TCMUX_LOW_TORQUE;
+    bool _is_in_pedals_calibration_state = false;
+    bool _is_in_steering_calibration_state = false;
+    bool _is_db_in_ctrl;
+    VehicleState_e _vehicle_state_value;
+    DrivetrainState_e _drivetrain_state_value;
+    TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_LOW_TORQUE;
     InverterBusVolts_s _bus_voltages;
 
     // Creates object that reflects the inverter error status...the object holds the error flags for each inverter,

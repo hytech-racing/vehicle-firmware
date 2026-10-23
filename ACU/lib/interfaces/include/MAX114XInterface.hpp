@@ -42,14 +42,14 @@ template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterfa
      * corresponds to a pair of channels.
      */
     MAX114XInterface(
-        int                                                             spiPinCS,
-        const int                                                       spiPinSDI,
-        const int                                                       spiPinSDO,
-        const int                                                       spiPinCLK,
-        const int                                                       adc_not_shdn_pin,
-        const int                                                       spiSpeed,
-        const float                                                     scales[MAX114X_ADC_NUM_CHANNELS],
-        const float                                                     offsets[MAX114X_ADC_NUM_CHANNELS],
+        int spiPinCS,
+        const int spiPinSDI,
+        const int spiPinSDO,
+        const int spiPinCLK,
+        const int adc_not_shdn_pin,
+        const int spiSpeed,
+        const float scales[MAX114X_ADC_NUM_CHANNELS],
+        const float offsets[MAX114X_ADC_NUM_CHANNELS],
         const std::array<CHANNEL_TYPE_e, MAX114X_ADC_NUM_CHANNELS / 2>& channelTypes);
 
     /* Functions */
@@ -88,7 +88,7 @@ template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterfa
     const int _spiPinCLK;
     const int _adc_not_shdn_pin;
     const int _spiSpeed;
-    int       _currentChannel;
+    int _currentChannel;
 
     bool _dma_busy;
 #ifdef ARDUINO

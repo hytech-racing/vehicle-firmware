@@ -22,7 +22,7 @@ class WatchdogSystem
 
     /* Watchdog last kicked time */
     unsigned long _watchdog_time;
-    bool          _watchdog_state;
+    bool _watchdog_state;
     unsigned long _watchdog_kick_interval;
     /* Watchdog output state */
 

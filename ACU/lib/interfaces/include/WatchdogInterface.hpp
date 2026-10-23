@@ -25,7 +25,7 @@ struct WatchdogPinout_s
 struct WatchdogInterfaceParams_s
 {
     WatchdogPinout_s pinout;
-    uint32_t         watchdog_kick_interval;
+    uint32_t watchdog_kick_interval;
 };
 
 class WatchdogInterface

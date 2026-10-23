@@ -31,11 +31,11 @@ class DataLoggingInterface
     void log_data();
 
   private:
-    File        data_file;
+    File data_file;
     std::string file_name;
 
-    static constexpr int      _eeprom_counter_address = 0;
-    static constexpr int      _eeprom_magic_address = 4;
+    static constexpr int _eeprom_counter_address = 0;
+    static constexpr int _eeprom_magic_address = 4;
     static constexpr uint32_t _magic_number = 0x12345678;
 };
 

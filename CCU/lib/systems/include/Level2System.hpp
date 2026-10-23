@@ -76,9 +76,9 @@ class Level2System
     bool check_state_C2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
   private:
-    Level2Interface&         _level2_interface;
-    ADCInterface&            _adc_interface;
-    WatchdogInterface&       _watchdog_interface;
+    Level2Interface& _level2_interface;
+    ADCInterface& _adc_interface;
+    WatchdogInterface& _watchdog_interface;
     Level2SystemThresholds_s _thresholds;
 };
 

@@ -95,7 +95,7 @@ namespace HT_SCHED
                     || ((task->_taskInfo.isIntervalFunction == false) && (task->_taskInfo.filteredExecutionDurationMicros + _microsFunction() < _timeOfNextExec)))
                 {
                     // run its loop function
-                    uint32_t              dt = (uint32_t)_microsFunction();
+                    uint32_t dt = (uint32_t)_microsFunction();
                     HT_TASK::TaskResponse result = task->_loop(nowMicros, task->_taskInfo);
                     dt = _microsFunction() - dt;
                     if (result == HT_TASK::EXIT)

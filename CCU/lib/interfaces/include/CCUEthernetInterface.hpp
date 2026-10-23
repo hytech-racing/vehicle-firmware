@@ -21,7 +21,7 @@ using namespace qindesign::network;
 struct CCUOutput_s
 {
     float current_setpoint;
-    bool  allow_balance;
+    bool allow_balance;
 };
 
 namespace CCUEthernetInterface

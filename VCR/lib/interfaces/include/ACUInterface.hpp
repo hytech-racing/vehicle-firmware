@@ -12,8 +12,8 @@
 
 struct ACUCANInterfaceData_s
 {
-    bool     bms_ok;
-    bool     imd_ok;
+    bool bms_ok;
+    bool imd_ok;
     uint64_t last_recv_millis;
 
     float em_current;
@@ -51,8 +51,8 @@ class ACUInterface
 
   private:
     ACUCANInterfaceData_s _curr_data;
-    bool                  _received_first_acu_heartbeat = false;
-    const uint32_t        _max_heartbeat_interval_ms;
+    bool _received_first_acu_heartbeat = false;
+    const uint32_t _max_heartbeat_interval_ms;
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

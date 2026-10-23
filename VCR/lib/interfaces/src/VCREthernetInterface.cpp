@@ -12,18 +12,18 @@ void VCREthernetInterface::init_ethernet_device()
 }
 
 hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(
-    const ADCInterface&        adc_interface,
+    const ADCInterface& adc_interface,
     DrivetrainDynamicReport_s& DrivetrainData,
-    const VCFInterface&        vcf_interface,
+    const VCFInterface& vcf_interface,
     const VehicleStateMachine& vehicle_state_machine,
-    const DrivetrainSystem&    drivetrain_system,
-    const InverterInterface&   fl_inverter,
-    const InverterInterface&   fr_inverter,
-    const InverterInterface&   rl_inverter,
-    const InverterInterface&   rr_inverter,
-    const VCRControls&         vcr_controls)
+    const DrivetrainSystem& drivetrain_system,
+    const InverterInterface& fl_inverter,
+    const InverterInterface& fr_inverter,
+    const InverterInterface& rl_inverter,
+    const InverterInterface& rr_inverter,
+    const VCRControls& vcr_controls)
 {
-    auto                  fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCRData_s out;
 
     // has_data
@@ -120,7 +120,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(
 
     // working with bytes in nanopb
     std::string_view version_view(version);
-    const size_t     version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
+    const size_t version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
     out.msg_versions.ht_proto_version.size = version_len;
     std::copy(version_view.begin(), version_view.begin() + version_len, std::begin(out.msg_versions.ht_proto_version.bytes));
 

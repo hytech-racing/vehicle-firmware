@@ -8,18 +8,18 @@
 
 struct FdcCommand
 {
-    bool    toggle;
+    bool toggle;
     uint8_t solenoid;
 };
 
-DriverlessMission_e      mission = DriverlessMission_e::OFF;
-EBSData_s                ebs_data = {};
-bool                     supervisor_ok = false;
-unsigned long            current_millis = 0;
+DriverlessMission_e mission = DriverlessMission_e::OFF;
+EBSData_s ebs_data = {};
+bool supervisor_ok = false;
+unsigned long current_millis = 0;
 BrakeFluidPressureData_s brake_data = {};
-std::vector<FdcCommand>  fdc_commands;
+std::vector<FdcCommand> fdc_commands;
 
-bool           eval_dsms_on = false;
+bool eval_dsms_on = false;
 VehicleState_e eval_vehicle_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
 
 void reset_driverless_inputs()
@@ -198,8 +198,8 @@ TEST(DriverlessSystem, StartupTsActiveChecksEachSolenoidInItsOwnWindow)
 {
     reset_driverless_inputs();
     DriverlessSystem system = make_driverless_system();
-    const uint16_t   at_threshold = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
-    const uint16_t   above = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI + 1;
+    const uint16_t at_threshold = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
+    const uint16_t above = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI + 1;
 
     // Past the old boot-anchored window. The solenoid timer has to start on this call.
     current_millis = 20000;
@@ -239,7 +239,7 @@ TEST(DriverlessSystem, StartupTsActiveWindowsExpireUntilReset)
 {
     reset_driverless_inputs();
     DriverlessSystem system = make_driverless_system();
-    const uint16_t   above = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI + 1;
+    const uint16_t above = RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI + 1;
 
     current_millis = 30000;
     set_brake_pressure(0, 0);
@@ -299,7 +299,7 @@ TEST(DriverlessSystem, BrakePressureWellAboveTheExpectedLevelStillPasses)
 TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
 {
     reset_driverless_inputs();
-    DriverlessSystem       system = make_driverless_system();
+    DriverlessSystem system = make_driverless_system();
     DriverlessStateMachine state_machine = DriverlessStateMachine(
         mock_eval_dsms_on,
         mock_eval_vehicle_state,
@@ -353,7 +353,7 @@ TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
 TEST(DriverlessEvaluation, DsmsOffDuringStartupIsOff)
 {
     reset_driverless_inputs();
-    DriverlessSystem       system = make_driverless_system();
+    DriverlessSystem system = make_driverless_system();
     DriverlessStateMachine state_machine = DriverlessStateMachine(
         mock_eval_dsms_on,
         mock_eval_vehicle_state,

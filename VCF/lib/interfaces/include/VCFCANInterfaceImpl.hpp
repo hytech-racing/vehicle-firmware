@@ -33,10 +33,10 @@ struct CANInterfaces_s
     explicit CANInterfaces_s(ACUInterface& acu_int, BrakeRotorTempInterface& brake_rotor_temp_int, DashboardInterface& dash_int, VCRInterface& vcr_int)
         : acu_interface(acu_int), brake_rotor_temp_interface(brake_rotor_temp_int), dash_interface(dash_int), vcr_interface(vcr_int) {};
 
-    ACUInterface&            acu_interface;
+    ACUInterface& acu_interface;
     BrakeRotorTempInterface& brake_rotor_temp_interface;
-    DashboardInterface&      dash_interface;
-    VCRInterface&            vcr_interface;
+    DashboardInterface& dash_interface;
+    VCRInterface& vcr_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 
@@ -51,12 +51,12 @@ struct VCFCANInterface_s
     }
 
     FlexCAN_t<CAN1> TELEM_CAN;
-    CANRXBuffer_t   telem_can_rx_buffer;
-    CANTXBuffer_t   telem_can_tx_buffer;
+    CANRXBuffer_t telem_can_rx_buffer;
+    CANTXBuffer_t telem_can_tx_buffer;
 
     FlexCAN_t<CAN2> FRONT_AUX_CAN;
-    CANRXBuffer_t   front_aux_can_rx_buffer;
-    CANTXBuffer_t   front_aux_can_tx_buffer;
+    CANRXBuffer_t front_aux_can_rx_buffer;
+    CANTXBuffer_t front_aux_can_tx_buffer;
 
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> can_recv_switch;
 };

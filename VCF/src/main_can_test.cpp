@@ -6,7 +6,7 @@ FlexCAN_T4<CAN2> FAUX_CAN;
 const uint32_t CAN_BAUDRATE = 1000000;
 
 const uint32_t MSG_ID = 0x11;
-const uint8_t  MSG_DATA = 0x45;
+const uint8_t MSG_DATA = 0x45;
 
 const uint32_t DELAY = 10;
 

@@ -12,9 +12,9 @@ void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float ce
 {
     // Get battery data from ACU
     const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
-    float       max_cell_voltage = acu_data.high_voltage;   // the highest voltage in any of the cells
-    float       total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
-    auto        current_state = ChargerStateMachineInstance::instance().getState();
+    float max_cell_voltage = acu_data.high_voltage;   // the highest voltage in any of the cells
+    float total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
+    auto current_state = ChargerStateMachineInstance::instance().getState();
 
     // Check safety conditions first
     if (!_is_safety_conditions_valid())
@@ -71,8 +71,8 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
     float limited_current = requested_current;
 
     const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
-    float       curr_max_cell_temp = acu_data.max_cell_temp;
-    float       curr_max_board_temp = acu_data.max_board_temp;
+    float curr_max_cell_temp = acu_data.max_cell_temp;
+    float curr_max_board_temp = acu_data.max_board_temp;
 
 
     // Cell temp derate (stop completely at 45°C, 40°C start derating)

@@ -18,8 +18,8 @@
 
 namespace acu_controller_default_parameters
 {
-    constexpr const size_t  MAX_INVALID_PACKET_FAULT_COUNT = 1000; // Same as voltage fault count
-    constexpr const time_ms MAX_VOLTAGE_FAULT_DUR = 1000;          // At 15 Hz, we'll know if there is an error within 3 seconds of startup
+    constexpr const size_t MAX_INVALID_PACKET_FAULT_COUNT = 1000; // Same as voltage fault count
+    constexpr const time_ms MAX_VOLTAGE_FAULT_DUR = 1000;         // At 15 Hz, we'll know if there is an error within 3 seconds of startup
     constexpr const time_ms MAX_TEMP_FAULT_DUR = 1000;
     constexpr const time_ms MAX_INVALID_PACKET_FAULT_DUR = 1000; // In cases in EMI, we will need more leniency with invalid packet faults
 
@@ -32,42 +32,42 @@ namespace acu_controller_default_parameters
 
 struct ACUControllerData_s
 {
-    time_ms  last_time_uv_fault_not_present;
-    time_ms  last_time_ov_fault_not_present;
-    time_ms  last_time_cell_ot_fault_not_present;
-    time_ms  last_time_board_ot_fault_not_present;
-    time_ms  last_time_pack_uv_fault_not_present;
-    time_ms  last_time_invalid_packet_present;
-    time_ms  prev_bms_time_stamp;
-    time_ms  prev_em_time_stamp;
-    time_ms  first_zero_current_time_stamp;
-    float    SoC;
-    double   lifetime_ah_throughput;
-    float    SoH;
-    float    SoE_percentage;
-    float    V1;
-    float    remaining_pack_wh;
-    bool     has_fault;
-    bool     bms_ok;
+    time_ms last_time_uv_fault_not_present;
+    time_ms last_time_ov_fault_not_present;
+    time_ms last_time_cell_ot_fault_not_present;
+    time_ms last_time_board_ot_fault_not_present;
+    time_ms last_time_pack_uv_fault_not_present;
+    time_ms last_time_invalid_packet_present;
+    time_ms prev_bms_time_stamp;
+    time_ms prev_em_time_stamp;
+    time_ms first_zero_current_time_stamp;
+    float SoC;
+    double lifetime_ah_throughput;
+    float SoH;
+    float SoE_percentage;
+    float V1;
+    float remaining_pack_wh;
+    bool has_fault;
+    bool bms_ok;
     uint32_t last_bms_not_ok_eval;
-    bool     charging_enabled;
-    bool     balancing_enabled;
-    bool     high_side_contactor_welded;
-    bool     low_side_contactor_welded;
+    bool charging_enabled;
+    bool balancing_enabled;
+    bool high_side_contactor_welded;
+    bool low_side_contactor_welded;
 };
 
 struct ACUControllerThresholds_s
 {
-    volt    min_discharge_voltage_thresh = 0;
-    volt    cell_overvoltage_thresh_v = 0;
-    volt    cell_undervoltage_thresh_v = 0;
+    volt min_discharge_voltage_thresh = 0;
+    volt cell_overvoltage_thresh_v = 0;
+    volt cell_undervoltage_thresh_v = 0;
     celsius charging_ot_thresh_c = 0;
     celsius running_ot_thresh_c = 0;
-    volt    min_pack_total_v = 0;
-    volt    v_diff_to_init_cb = 0;
+    volt min_pack_total_v = 0;
+    volt v_diff_to_init_cb = 0;
     celsius balance_temp_limit_c = 0;
     celsius balance_enable_temp_c = 0;
-    volt    ts_isolation_voltage = 0;
+    volt ts_isolation_voltage = 0;
 };
 
 struct ACUControllerFaultDurations_s
@@ -87,10 +87,10 @@ struct ACUControllerPackSpecs_s
 
 struct ACUControllerParameters_s
 {
-    ACUControllerThresholds_s     thresholds;
-    size_t                        invalid_packet_count_thresh = 0;
+    ACUControllerThresholds_s thresholds;
+    size_t invalid_packet_count_thresh = 0;
     ACUControllerFaultDurations_s fault_durations;
-    ACUControllerPackSpecs_s      pack_specs;
+    ACUControllerPackSpecs_s pack_specs;
 };
 class ACUController
 {
@@ -108,8 +108,8 @@ class ACUController
      * @param max_temp_fault_dur max number of temp faults allowed
      */
     ACUController(
-        ACUControllerThresholds_s     thresholds,
-        size_t                        invalid_packet_count_thresh = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_COUNT,
+        ACUControllerThresholds_s thresholds,
+        size_t invalid_packet_count_thresh = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_COUNT,
         ACUControllerFaultDurations_s fault_durations =
             {.max_allowed_voltage_fault_dur = acu_controller_default_parameters::MAX_VOLTAGE_FAULT_DUR,
              .max_allowed_temp_fault_dur = acu_controller_default_parameters::MAX_TEMP_FAULT_DUR,
@@ -150,12 +150,12 @@ class ACUController
      * @param pack_current current flowing from the pack in amps (negative during discharge, positive during charge)
      */
     ACUControllerData_s evaluate_accumulator(
-        time_ms              current_millis,
+        time_ms current_millis,
         const BMSCoreData_s& bms_core_data,
-        size_t               max_consecutive_invalid_packet_count,
-        float                em_current,
-        size_t               num_of_voltage_cells,
-        bool                 voltage_is_fresh = false);
+        size_t max_consecutive_invalid_packet_count,
+        float em_current,
+        size_t num_of_voltage_cells,
+        bool voltage_is_fresh = false);
 
     /**
      * Calculate Cell Balancing values
@@ -204,7 +204,7 @@ class ACUController
      * This will replace the coulomb counting method for SoC tracking and will be used to track SoC of the pack
      */
     SOCKalmanFilter _soc_ekf;
-    bool            _ekf_initialized = false;
+    bool _ekf_initialized = false;
 
     static constexpr size_t NUM_CELLS = 126;
 
@@ -212,7 +212,7 @@ class ACUController
      * @brief Minimum current and voltage thresholds for the car to be considered stabilized
      *
      */
-    static constexpr float    STABILIZED_CURRENT_THRESH = 0.5f;             // Absolute value threshold
+    static constexpr float STABILIZED_CURRENT_THRESH = 0.5f;                // Absolute value threshold
     static constexpr uint32_t MIN_STABILIZED_CURRENT_DURATION_MS = 1800000; // 30 minutes in milliseconds
 
     /**

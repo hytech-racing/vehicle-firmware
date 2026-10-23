@@ -46,7 +46,7 @@ class LoadCellVectoringTorqueController
     const float _rear_regen_limit = 3.5f;
     const float _front_regen_limit = 13.0f;
 
-    const size_t    _max_error_count = 25;
+    const size_t _max_error_count = 25;
     veh_vec<size_t> _load_cell_error_counts = {};
 };
 

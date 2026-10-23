@@ -28,20 +28,20 @@ namespace HT_SCHED
         HT_TASK::TaskResponse initSchedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo);
         // loop for SchedMon task
         HT_TASK::TaskResponse schedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo);
-        const float&          getPeriodicUtilization();
-        const float&          getIdleUtilization();
-        const float&          getSchedulerUtilization();
+        const float& getPeriodicUtilization();
+        const float& getIdleUtilization();
+        const float& getSchedulerUtilization();
 
       private:
         Scheduler();
 
-        HT_TASK::Task*            _taskQueue[HT_SCHED_MAX_TASKS]; // ordered list of task object pointers
-        uint32_t                  _numTasks;
+        HT_TASK::Task* _taskQueue[HT_SCHED_MAX_TASKS]; // ordered list of task object pointers
+        uint32_t _numTasks;
         std::function<uint32_t()> _microsFunction;
-        uint32_t                  _timeOfNextExec;     // time at which the next scheduled function must trigger
-        uint32_t                  _intervalExecTimer;  // accumulation of time spent executing scheduled tasks
-        uint32_t                  _idleExecTimer;      // accumulation of time spent executing idle tasks
-        uint32_t                  _schedulerExecTimer; // accumulation of time spent in the scheduler
+        uint32_t _timeOfNextExec;     // time at which the next scheduled function must trigger
+        uint32_t _intervalExecTimer;  // accumulation of time spent executing scheduled tasks
+        uint32_t _idleExecTimer;      // accumulation of time spent executing idle tasks
+        uint32_t _schedulerExecTimer; // accumulation of time spent in the scheduler
 
         // variables for SchedMon
         float periodicUtilization;  // CPU utilization of periodic tasks

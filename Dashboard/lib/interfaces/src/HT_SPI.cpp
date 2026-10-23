@@ -1,6 +1,6 @@
 #include "HT_SPI.h"
 
-extern bool       spi_tx_complete;
+extern bool spi_tx_complete;
 SPI_HandleTypeDef hspi2;
 DMA_HandleTypeDef hdma_spi2_tx;
 
@@ -62,7 +62,7 @@ void SPI2_IRQHandler(void)
 
 void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
     if (hspi->Instance == SPI2)

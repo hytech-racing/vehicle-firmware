@@ -51,11 +51,11 @@ namespace VCRInterfaces
 
     // Scaling and Offsets
     constexpr float GLV_SENSE_SCALE = (float)(24.0 / ((2.77149877 / 3.3) * 4096.0));   // unsure about the multiplication by 4.0865
-    constexpr int   GLV_SENSE_OFFSET = 0;                                              // No offset for GLV
+    constexpr int GLV_SENSE_OFFSET = 0;                                                // No offset for GLV
     constexpr float CURRENT_SENSE_SCALE = (float)(24 / ((2.77149877 / 3.3) * 4096));   // unsure about the multiplication by 4.0865
-    constexpr int   CURRENT_SENSE_OFFSET = 0;                                          // No offset for CURRENT_SENSE
+    constexpr int CURRENT_SENSE_OFFSET = 0;                                            // No offset for CURRENT_SENSE
     constexpr float REFERENCE_SENSE_SCALE = (float)(24 / ((2.77149877 / 3.3) * 4096)); // unsure about the multiplication by 4.0865
-    constexpr int   REFERENCE_SENSE_OFFSET = 0;                                        // No offset for REFERENCE_SENSE
+    constexpr int REFERENCE_SENSE_OFFSET = 0;                                          // No offset for REFERENCE_SENSE
 
     constexpr float LOADCELL_IIR_FILTER_ALPHA = 0.01f;
     constexpr float LBS_TO_NEWTONS = 4.4482216153;
@@ -114,12 +114,12 @@ namespace VCRInterfaces
     constexpr int SOFTWARE_OK_PIN = 27; // Watchdog's !RESET pin
     // NOTE: Consider moving hearbeat's into their respective interfaces
     constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL; // 20ms at 60mph is about 0.5 meters
-    constexpr uint64_t      ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
+    constexpr uint64_t ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
 } // namespace VCRInterfaces
 
 namespace VCRSystems
 {
-    constexpr int           INVERTER_MINIMUM_HV_VOLTAGE = 60;
+    constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 60;
     constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40; // milliseconds
 } // namespace VCRSystems
 

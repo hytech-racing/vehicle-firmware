@@ -9,17 +9,17 @@
 /* Timing: the steering task runs at 1 kHz; the filter and rates update every other call (~500 Hz) */
 constexpr uint32_t TASK_PERIOD_US = 1000;
 constexpr uint32_t SAMPLE_PERIOD_US = 2000;
-constexpr float    SAMPLE_PERIOD_SEC = 0.002f;
+constexpr float SAMPLE_PERIOD_SEC = 0.002f;
 
 /* Analog sensor: 12-bit, 360 deg over 4096 counts */
 constexpr uint32_t ANALOG_MIN_RAW = 1024;
 constexpr uint32_t ANALOG_MAX_RAW = 3072;
-constexpr float    ANALOG_DEG_PER_COUNT = 360.0f / 4096.0f; // 0.087890625
+constexpr float ANALOG_DEG_PER_COUNT = 360.0f / 4096.0f; // 0.087890625
 
 /* Digital sensor: 14-bit, 360 deg over 16384 counts, mounted reversed */
 constexpr uint32_t DIGITAL_MIN_RAW = 1000;
 constexpr uint32_t DIGITAL_MAX_RAW = 9000;
-constexpr float    DIGITAL_DEG_PER_COUNT = 360.0f / 16384.0f; // 0.02197265625 (exactly 1/4 of analog)
+constexpr float DIGITAL_DEG_PER_COUNT = 360.0f / 16384.0f; // 0.02197265625 (exactly 1/4 of analog)
 
 constexpr float OOR_TOLERANCE_FRACTION = 0.005f;
 constexpr float MAX_STEERING_RATE_DEG_PER_S = 1000.0f;
@@ -28,15 +28,15 @@ constexpr float MAX_SENSOR_DISAGREEMENT_DEG = 5.0f;
 /* Expected derived values for the default params */
 constexpr uint32_t ANALOG_CENTER_RAW = 2048;
 constexpr uint32_t DIGITAL_CENTER_RAW = 5000;
-constexpr int32_t  ANALOG_MIN_VALID_RAW = 1013;  // 1024 - (2048 * 0.005 = 10.24), truncated
-constexpr int32_t  ANALOG_MAX_VALID_RAW = 3082;  // 3072 + 10.24, truncated
-constexpr int32_t  DIGITAL_MIN_VALID_RAW = 960;  // 1000 - (8000 * 0.005 = 40)
-constexpr int32_t  DIGITAL_MAX_VALID_RAW = 9040; // 9000 + 40
+constexpr int32_t ANALOG_MIN_VALID_RAW = 1013;  // 1024 - (2048 * 0.005 = 10.24), truncated
+constexpr int32_t ANALOG_MAX_VALID_RAW = 3082;  // 3072 + 10.24, truncated
+constexpr int32_t DIGITAL_MIN_VALID_RAW = 960;  // 1000 - (8000 * 0.005 = 40)
+constexpr int32_t DIGITAL_MAX_VALID_RAW = 9040; // 9000 + 40
 
 /* Same physical angle on both sensors: +100 analog counts == -400 digital counts == +8.7890625 deg */
 constexpr uint32_t ANALOG_RAW_AT_8_79_DEG = 2148;
 constexpr uint32_t DIGITAL_RAW_AT_8_79_DEG = 4600;
-constexpr float    ANGLE_8_79_DEG = 8.7890625f;
+constexpr float ANGLE_8_79_DEG = 8.7890625f;
 
 /* Mirrors SteeringSystem::ANALOG_RAW_LIMITS / DIGITAL_RAW_LIMITS (private). Update if those change. */
 constexpr uint32_t ANALOG_MIN_UNCLIPPED_RAW = 5;
@@ -118,8 +118,8 @@ class SteeringSystemTest : public ::testing::Test
 {
   protected:
     SteeringSystemParams_s _params = gen_default_params();
-    SteeringSystem         _steering{_params};
-    uint32_t               _last_time_us = 0;
+    SteeringSystem _steering{_params};
+    uint32_t _last_time_us = 0;
 
     /** One call of the steering task at an explicit time. */
     void evaluateAt(const uint32_t analog_raw, const uint32_t digital_raw, const uint32_t time_us, const SteeringEncoderStatus_e status = SteeringEncoderStatus_e::NOMINAL)
@@ -133,7 +133,7 @@ class SteeringSystemTest : public ::testing::Test
         evaluateAt(analog_raw, digital_raw, _last_time_us + SAMPLE_PERIOD_US, status);
     }
 
-    const SteeringSystemData_s&   data() const { return _steering.getSteeringSystemData(); }
+    const SteeringSystemData_s& data() const { return _steering.getSteeringSystemData(); }
     const SteeringSystemParams_s& currentParams() const { return _steering.getSteeringParams(); }
 };
 

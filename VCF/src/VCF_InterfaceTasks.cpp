@@ -167,7 +167,7 @@ HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_
 
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    CANInterfaces_s  can_interfaces = CANInterfacesInstance::instance();
+    CANInterfaces_s can_interfaces = CANInterfacesInstance::instance();
     DashInputState_s dash_outputs = can_interfaces.dash_interface.getDashboardOutputs();
 
     DASH_INPUT_t msg_out;
@@ -238,7 +238,7 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    bool             was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
+    bool was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
     DashInputState_s current_state = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
     if (!current_state.preset_btn_is_pressed) // preset btn tied to brightness control on schematic

@@ -40,7 +40,7 @@ class ChargerStateMachine
         etl::delegate<void()> setStartChargeHigh,
         etl::delegate<void()> setStartChargeLow,
         etl::delegate<void()> resetStartupTimeMs,
-        uint32_t              current_millis)
+        uint32_t current_millis)
         : _current_state(ChargerState_e::STARTUP),
           _last_state_changed_time(current_millis),
           _is120ConditionsOK(is120ConditionsOK),
@@ -87,7 +87,7 @@ class ChargerStateMachine
     void _handleExitLogic(ChargerState_e prev_state, unsigned long current_millis);
 
     ChargerState_e _current_state;
-    unsigned long  _last_state_changed_time; // time of last state change
+    unsigned long _last_state_changed_time; // time of last state change
 
     // Lamdas for state machine abstraction, functions defined in main
     etl::delegate<bool()> _is120ConditionsOK;

@@ -90,7 +90,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         constexpr size_t total_rows = (total_cells + cells_per_row - 1) / cells_per_row;
 
         static size_t start_voltage_row = 0;
-        const size_t  start_index = start_voltage_row * cells_per_row;
+        const size_t start_index = start_voltage_row * cells_per_row;
 
         for (size_t i = 0; i < cells_per_page; i++)
         {
@@ -197,7 +197,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         constexpr size_t total_rows = (total_cell_temps + temps_per_row - 1) / temps_per_row;
 
         static size_t start_temps_row = 0;
-        const size_t  start_index = start_temps_row * temps_per_row;
+        const size_t start_index = start_temps_row * temps_per_row;
 
         for (size_t i = 0; i < temps_per_page; i++)
         {

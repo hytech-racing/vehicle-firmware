@@ -65,14 +65,14 @@ class DashboardInterface
     bool isBMSOk() const { return _bms_ok; };
 
   private:
-    bool              _bms_ok = true;
-    bool              _imd_ok = true;
-    DashboardGPIOs_s  _dashboard_gpios;
-    DashInputState_s  _dashboard_outputs;      // curr state, what the buttons are doing right now
-    DashInputState_s  _dashboard_stored_state; // previous state, what the buttons were doing last tick
-    TwoWire&          _i2c_bus;
+    bool _bms_ok = true;
+    bool _imd_ok = true;
+    DashboardGPIOs_s _dashboard_gpios;
+    DashInputState_s _dashboard_outputs;      // curr state, what the buttons are doing right now
+    DashInputState_s _dashboard_stored_state; // previous state, what the buttons were doing last tick
+    TwoWire& _i2c_bus;
     MCP23017Interface _io_expander; // must be declared after _i2c_bus (init order follows declaration order)
-    unsigned long     _dash_created_millis;
+    unsigned long _dash_created_millis;
 };
 
 using DashboardInterfaceInstance = etl::singleton<DashboardInterface>;

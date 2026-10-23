@@ -39,13 +39,13 @@ class MockInverterInterface
         inverter_functs.get_motor_mechanics = std::bind(&MockInverterInterface::get_motor_mechanics, this);
     }
 
-    InverterControlWord_s  get_control_word() { return _last_control_word; }
+    InverterControlWord_s get_control_word() { return _last_control_word; }
     InverterControlInput_s get_control_input() { return _last_control_input; }
 
   private:
-    InverterStatus_s&      inverter_status;
-    MotorMechanics_s&      motor_mechanics;
-    InverterControlWord_s  _last_control_word;
+    InverterStatus_s& inverter_status;
+    MotorMechanics_s& motor_mechanics;
+    InverterControlWord_s _last_control_word;
     InverterControlInput_s _last_control_input;
 
     void set_speed(float desired_rpm, float torque_limit_nm)
@@ -80,8 +80,8 @@ MockInverterInterface RR(RR_status, RR_motor_mechanics);
 
 veh_vec<DrivetrainSystem::InverterFuncts_s> mock_inverter_functs = {FL.inverter_functs, FR.inverter_functs, RL.inverter_functs, RR.inverter_functs};
 
-DrivetrainInit_s             init = {DrivetrainModeRequest_e::INIT_DRIVE_MODE};
-DrivetrainResetError_s       reset = {true};
+DrivetrainInit_s init = {DrivetrainModeRequest_e::INIT_DRIVE_MODE};
+DrivetrainResetError_s reset = {true};
 DrivetrainSystem::CmdVariant cmd = init;
 
 void ASSERT_CONTROL_WORD_EQ(InverterControlWord_s actual, InverterControlWord_s expected)

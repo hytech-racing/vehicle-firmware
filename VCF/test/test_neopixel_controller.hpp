@@ -9,8 +9,8 @@ struct FakeNeopixelStrip
     static constexpr uint16_t NEOPIXEL_COUNT = 16;
 
     std::array<uint32_t, NEOPIXEL_COUNT> pixel_colors{};
-    uint8_t                              brightness = 0;
-    int                                  show_count = 0;
+    uint8_t brightness = 0;
+    int show_count = 0;
 
     void setPixelColor(uint16_t id, uint32_t color) { pixel_colors.at(id) = color; } // .at() fails the test on a bad id
     void setBrightness(uint8_t value) { brightness = value; }

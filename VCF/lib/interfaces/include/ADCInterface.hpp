@@ -89,10 +89,10 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s   pinouts;
+    ADCPinout_s pinouts;
     ADCChannels_s channels;
-    ADCScales_s   scales;
-    ADCOffsets_s  offsets;
+    ADCScales_s scales;
+    ADCOffsets_s offsets;
 };
 
 class ADCInterface

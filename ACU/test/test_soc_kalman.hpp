@@ -57,7 +57,7 @@ TEST(SOCKalmanFilterTesting, coulomb_counting_accuracy)
 TEST(SOCKalmanFilterTesting, v1_dynamics_time_constant)
 {
     SOCKalmanFilter ekf;
-    float           start_voltage = 3.7f;
+    float start_voltage = 3.7f;
     ekf.init(start_voltage);
 
     float current = 100.0f;

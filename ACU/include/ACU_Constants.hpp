@@ -11,14 +11,14 @@ using time_us = uint32_t;
 namespace ACUInterfaces
 {
     /* General Interface Constants */
-    const uint8_t  ANALOG_READ_RESOLUTION = 12;
+    const uint8_t ANALOG_READ_RESOLUTION = 12;
     const uint32_t SERIAL_BAUDRATE = 115200;
 
-    constexpr pin      ADC0_NOT_SHDN_PIN = 9;
-    constexpr pin      ADC0_CS_PIN = 10;
-    constexpr pin      ADC0_MOSI_PIN = 11;
-    constexpr pin      ADC0_MISO_PIN = 12;
-    constexpr pin      ADC0_CLK_PIN = 13;
+    constexpr pin ADC0_NOT_SHDN_PIN = 9;
+    constexpr pin ADC0_CS_PIN = 10;
+    constexpr pin ADC0_MOSI_PIN = 11;
+    constexpr pin ADC0_MISO_PIN = 12;
+    constexpr pin ADC0_CLK_PIN = 13;
     constexpr uint32_t ADC0_SPEED = 1000000; // 1 MHz
 
     /* ADC Versions*/
@@ -85,16 +85,16 @@ namespace ACUInterfaces
 
 namespace ACUSystems
 {
-    constexpr const volt    MIN_DISCHARGE_VOLTAGE_THRESH = 3.8F; // Minimum voltage for a cell to be discharged
-    constexpr const volt    CELL_OVERVOLTAGE_THRESH = 4.2;       // Cell overvoltage threshold in Volts
-    constexpr const volt    CELL_UNDERVOLTAGE_THRESH = 3.05;     // Cell undervoltage threshold in Volts
-    constexpr const volt    MIN_PACK_TOTAL_VOLTAGE = 420.0;
+    constexpr const volt MIN_DISCHARGE_VOLTAGE_THRESH = 3.8F; // Minimum voltage for a cell to be discharged
+    constexpr const volt CELL_OVERVOLTAGE_THRESH = 4.2;       // Cell overvoltage threshold in Volts
+    constexpr const volt CELL_UNDERVOLTAGE_THRESH = 3.05;     // Cell undervoltage threshold in Volts
+    constexpr const volt MIN_PACK_TOTAL_VOLTAGE = 420.0;
     constexpr const celsius CHARGING_OT_THRESH = 60.0;
     constexpr const celsius RUNNING_OT_THRESH = 60.0;
-    constexpr const volt    VOLTAGE_DIFF_TO_INIT_CB = 0.02; // differential with lowest cell voltage to enable cell balancing for a cell
+    constexpr const volt VOLTAGE_DIFF_TO_INIT_CB = 0.02; // differential with lowest cell voltage to enable cell balancing for a cell
     constexpr const celsius BALANCE_TEMP_LIMIT_C = 50.0;
     constexpr const celsius BALANCE_ENABLE_TEMP_THRESH_C = 35.0;
-    constexpr const volt    TS_ISOLATION_VOLTAGE = 100;
+    constexpr const volt TS_ISOLATION_VOLTAGE = 100;
 } // namespace ACUSystems
 namespace ACUConstants
 {
@@ -103,13 +103,13 @@ namespace ACUConstants
     constexpr size_t NUM_CELL_TEMPS = 48;
     constexpr size_t NUM_CHIP_SELECTS = 2;
 
-    const float    VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
+    const float VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
     const uint32_t MIN_ALLOWED_INVALID_SHDN_OUT_MS = 10; // 10 ms -- requies 100 Hz samp freq.
 
     // Initialize chip_select, chip_select_per_chip, and address
     constexpr std::array<int, NUM_CHIP_SELECTS> CS = {36, 38};
-    constexpr std::array<int, NUM_CHIPS>        CS_PER_CHIP = {36, 36, 36, 36, 36, 36, 38, 38, 38, 38, 38, 38};
-    constexpr std::array<int, NUM_CHIPS>        ADDR = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}; // only for addressable bms chips
+    constexpr std::array<int, NUM_CHIPS> CS_PER_CHIP = {36, 36, 36, 36, 36, 36, 38, 38, 38, 38, 38, 38};
+    constexpr std::array<int, NUM_CHIPS> ADDR = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}; // only for addressable bms chips
 
     /* Task Times */
     constexpr uint8_t IDLE_SAMPLE_PRIORITY = 0;

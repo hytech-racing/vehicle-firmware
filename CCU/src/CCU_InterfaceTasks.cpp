@@ -159,7 +159,7 @@ HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK
     const auto acu_data = ACUInterfaceInstance::instance().getLatestData();
     const auto charger_data = ChargerInterfaceInstance::instance().get_latest_charger_data();
     const auto level2_data = Level2InterfaceInstance::instance().getLevel2Data();
-    auto&      adc = ADCInterfaceInstance::instance();
+    auto& adc = ADCInterfaceInstance::instance();
 
     /* ----- General Status ----- */
     Serial.println(Level2SystemInstance::instance().is_120_switched(adc) ? "Set to 120 V Charging" : "Set to 240 V Charging");

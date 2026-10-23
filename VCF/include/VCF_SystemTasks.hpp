@@ -24,9 +24,9 @@
 #include "SteeringSystem.hpp"
 
 extern etl::delegate<void(uint16_t, uint32_t)> setPixelColor;
-extern etl::delegate<void(uint8_t)>            setBrightness;
-extern etl::delegate<void()>                   show;
-extern etl::delegate<bool()>                   arePedalsCalibrating;
+extern etl::delegate<void(uint8_t)> setBrightness;
+extern etl::delegate<void()> show;
+extern etl::delegate<bool()> arePedalsCalibrating;
 
 /**
  * @brief Creates an instance of all systems.

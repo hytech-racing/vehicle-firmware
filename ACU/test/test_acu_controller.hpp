@@ -7,7 +7,7 @@
 #include <stddef.h>
 
 constexpr size_t num_cells = 12; // local test convenience
-bool             charging_enabled;
+bool charging_enabled;
 
 constexpr float ZERO_PACK_CURRENT = 0.0f; // No current flow (idle state)
 
@@ -35,7 +35,7 @@ TEST(ACUControllerTesting, initial_state)
 
 
     BMSCoreData_s data{}; // zeros
-    auto          status = controller.evaluate_accumulator(start_time, data, 0, ZERO_PACK_CURRENT, num_cells);
+    auto status = controller.evaluate_accumulator(start_time, data, 0, ZERO_PACK_CURRENT, num_cells);
 
     ASSERT_EQ(status.has_fault, false);
     ASSERT_EQ(status.charging_enabled, false);
@@ -54,8 +54,8 @@ TEST(ACUControllerTesting, charging_state)
 
     charging_enabled = true;
     std::array<bool, num_cells> cb = {0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0}; // 0b001100010010
-    const uint32_t              init_time = 2450;
-    const uint32_t              start_time = 3500;
+    const uint32_t init_time = 2450;
+    const uint32_t start_time = 3500;
 
     controller.init(init_time, 430.0);
 
@@ -99,8 +99,8 @@ TEST(ACUControllerTesting, faulted_state)
 
     charging_enabled = false; // or true doesn't matter
     std::array<bool, num_cells> cb = {0};
-    const uint32_t              init_time = 2450;
-    const uint32_t              start_time = 3500;
+    const uint32_t init_time = 2450;
+    const uint32_t start_time = 3500;
 
     controller.init(init_time, 430.0);
 
@@ -136,8 +136,8 @@ TEST(ACUControllerTesting, ir_compensation_discharge)
 
     charging_enabled = false;
     std::array<bool, num_cells> cb = {0};
-    const uint32_t              init_time = 2450;
-    const uint32_t              start_time = 3500;
+    const uint32_t init_time = 2450;
+    const uint32_t start_time = 3500;
 
     controller.init(init_time, 430.0);
 
@@ -181,8 +181,8 @@ TEST(ACUControllerTesting, ir_compensation_charge)
 
     charging_enabled = false;             // Disable balancing to focus on IR compensation test
     std::array<bool, num_cells> cb = {0}; // No balancing
-    const uint32_t              init_time = 2450;
-    const uint32_t              start_time = 3500;
+    const uint32_t init_time = 2450;
+    const uint32_t start_time = 3500;
 
     controller.init(init_time, 430.0);
 
@@ -227,9 +227,9 @@ TEST(ACUControllerTesting, cell_overvoltage_fault_persistence)
 
     charging_enabled = false;
     std::array<bool, num_cells> cb = {0};
-    const uint32_t              init_time = 1000;
-    const uint32_t              before_fault_time = 1500; // 500ms after init - should NOT fault yet
-    const uint32_t              after_fault_time = 2100;  // 1100ms after init - should fault (> 1000ms threshold)
+    const uint32_t init_time = 1000;
+    const uint32_t before_fault_time = 1500; // 500ms after init - should NOT fault yet
+    const uint32_t after_fault_time = 2100;  // 1100ms after init - should fault (> 1000ms threshold)
 
     controller.init(init_time, 430.0);
 
@@ -268,9 +268,9 @@ TEST(ACUControllerTesting, cell_undervoltage_fault_persistence)
 
     charging_enabled = false;
     std::array<bool, num_cells> cb = {0};
-    const uint32_t              init_time = 1000;
-    const uint32_t              before_fault_time = 1500; // 500ms after init - should NOT fault yet
-    const uint32_t              after_fault_time = 2100;  // 1100ms after init - should fault (> 1000ms threshold)
+    const uint32_t init_time = 1000;
+    const uint32_t before_fault_time = 1500; // 500ms after init - should NOT fault yet
+    const uint32_t after_fault_time = 2100;  // 1100ms after init - should fault (> 1000ms threshold)
 
     controller.init(init_time, 430.0);
 

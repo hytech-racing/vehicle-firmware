@@ -179,7 +179,7 @@ struct RXStats_s
     uint32_t rx_corrupt = 0;      // number of frames where the payload didn't match expected pattern
     uint32_t rx_out_of_order = 0; // number of frames that arrived out of order
 
-    bool     has_last_sequence = false;
+    bool has_last_sequence = false;
     uint16_t last_sequence_num = 0;
 
     uint32_t last_rx_ms = 0;
@@ -194,8 +194,8 @@ struct RXStats_s
  */
 struct BusStats_s
 {
-    const char* name;         // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
-    uint32_t    tx_count = 0; // number of frames THIS_BOARD has transmitted on this bus
+    const char* name;      // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
+    uint32_t tx_count = 0; // number of frames THIS_BOARD has transmitted on this bus
 
     // Toggle to print every received frame. Yet to be tested but this might just flood the serial monitor
     // and brick everything if left on during a burst test.
@@ -226,10 +226,10 @@ struct ArbIdStats_s
  */
 struct ArbBusState_s
 {
-    ArbIdStats_s  high_priority_stats; // stats for the high-priority (low numeric ID) test frame
-    ArbIdStats_s  low_priority_stats;  // stats for the low-priority (high numeric ID) test frame
+    ArbIdStats_s high_priority_stats; // stats for the high-priority (low numeric ID) test frame
+    ArbIdStats_s low_priority_stats;  // stats for the low-priority (high numeric ID) test frame
     volatile bool is_arb_test_running = false;
-    uint16_t      frames_sent = 0;
+    uint16_t frames_sent = 0;
 };
 ArbBusState_s CAN_1_arb;
 ArbBusState_s CAN_2_arb;
@@ -237,9 +237,9 @@ ArbBusState_s CAN_3_arb;
 
 // Global test-mode toggles (shared across buses), changed live via serial
 // commands - see print_help().
-bool     g_variable_len_mode = false; // cycle DLC 3..8 instead of fixed len = 3
-bool     g_extended_id_mode = false;  // send frames with extended (29-bit) IDs instead of standard (11-bit)
-uint16_t g_sequence_count = 0;        // shared outgoing seq counter for this board, incremented per frame sent (regardless of which bus it goes out on)
+bool g_variable_len_mode = false; // cycle DLC 3..8 instead of fixed len = 3
+bool g_extended_id_mode = false;  // send frames with extended (29-bit) IDs instead of standard (11-bit)
+uint16_t g_sequence_count = 0;    // shared outgoing seq counter for this board, incremented per frame sent (regardless of which bus it goes out on)
 
 
 // ---------------------------------------------------------------------
@@ -870,7 +870,7 @@ void loop()
 
     static uint32_t last_tx = 0;
     static uint32_t last_report = 0;
-    uint32_t        now = millis();
+    uint32_t now = millis();
 
     // Periodic send: one frame per enabled bus, every TX_PERIOD_MS, all
     // sharing the same sequence number so multi-bus outgoing traffic

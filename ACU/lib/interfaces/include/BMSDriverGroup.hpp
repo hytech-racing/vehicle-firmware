@@ -84,30 +84,30 @@ enum class ADC_MODE_e : uint8_t
 
 namespace bms_driver_defaults
 {
-    constexpr const bool     DEVICE_REFUP_MODE = true;
-    constexpr const bool     ADCOPT = false;
+    constexpr const bool DEVICE_REFUP_MODE = true;
+    constexpr const bool ADCOPT = false;
     constexpr const uint16_t GPIOS_ENABLED = 0x1F; // 5 GPIOs, all used
-    constexpr const bool     DCTO_READ = true;
-    constexpr const bool     DCTO_WRITE = false;
-    constexpr const int      ADC_CONVERSION_CELL_SELECT_MODE = 0;
-    constexpr const int      ADC_CONVERSION_GPIO_SELECT_MODE = 0;
-    constexpr const uint8_t  DISCHARGE_PERMITTED = 0x0;
-    constexpr const uint8_t  ADC_MODE_CV_CONVERSION = 0x1;
-    constexpr const uint8_t  ADC_MODE_GPIO_CONVERSION = 0x1;
+    constexpr const bool DCTO_READ = true;
+    constexpr const bool DCTO_WRITE = false;
+    constexpr const int ADC_CONVERSION_CELL_SELECT_MODE = 0;
+    constexpr const int ADC_CONVERSION_GPIO_SELECT_MODE = 0;
+    constexpr const uint8_t DISCHARGE_PERMITTED = 0x0;
+    constexpr const uint8_t ADC_MODE_CV_CONVERSION = 0x1;
+    constexpr const uint8_t ADC_MODE_GPIO_CONVERSION = 0x1;
     constexpr const uint16_t UNDER_VOLTAGE_THRESHOLD = 1874; // 3.0V (datasheet formula) Comparison Voltage = (VUV + 1) • 16 • 100μV
     constexpr const uint16_t OVER_VOLTAGE_THRESHOLD = 2625;  // 4.2V (datasheet formula) Comparison Voltage = VOV • 16 • 100μV
     constexpr const uint16_t GPIO_ENABLE = 0x1F;
     constexpr const uint16_t CRC15_POLY = 0x4599; // Used for calculating the PEC table for LTC6811
     constexpr const uint16_t CV_ADC_CONVERSION_TIME_US = 1200;
     constexpr const uint16_t GPIO_ADC_CONVERSION_TIME_US = 1200;
-    constexpr const float    CV_ADC_LSB_VOLTAGE = 0.0001f; // Cell voltage ADC resolution: 100μV per LSB (1/10000 V)
+    constexpr const float CV_ADC_LSB_VOLTAGE = 0.0001f; // Cell voltage ADC resolution: 100μV per LSB (1/10000 V)
 } // namespace bms_driver_defaults
 
 namespace ref_max_min_defaults
 {
-    constexpr const volt    TOTAL_VOLTAGE = 0;
-    constexpr const volt    MAX_CELL_VOLTAGE = 0;
-    constexpr const volt    MIN_CELL_VOLTAGE = 10;
+    constexpr const volt TOTAL_VOLTAGE = 0;
+    constexpr const volt MAX_CELL_VOLTAGE = 0;
+    constexpr const volt MIN_CELL_VOLTAGE = 10;
     constexpr const celsius MIN_CELL_TEMP = 80;
     constexpr const celsius MAX_CELL_TEMP = 0;
     constexpr const celsius MAX_BOARD_TEMP = 0;
@@ -125,32 +125,32 @@ struct ValidPacketData_s
 
 template <size_t num_chips, size_t num_cells, size_t num_board_thermistors> struct BMSData_s
 {
-    array<ValidPacketData_s, num_chips>   valid_read_packets;
-    array<volt, num_cells>                voltages;
-    array<celsius, 4 * num_chips>         cell_temperatures;
+    array<ValidPacketData_s, num_chips> valid_read_packets;
+    array<volt, num_cells> voltages;
+    array<celsius, 4 * num_chips> cell_temperatures;
     array<celsius, num_board_thermistors> board_temperatures;
-    volt                                  min_cell_voltage;
-    volt                                  max_cell_voltage;
-    celsius                               max_cell_temp;
-    celsius                               min_cell_temp;
-    celsius                               max_board_temp;
-    size_t                                min_cell_voltage_id;              // 0 - 125
-    size_t                                max_cell_voltage_id;              // 0 - 125
-    size_t                                max_board_temperature_segment_id; // 0 - 11
-    size_t                                max_cell_temperature_cell_id;     // 0 - 47
-    size_t                                min_cell_temperature_cell_id;     // 0 - 47
-    volt                                  total_voltage;
-    volt                                  avg_cell_voltage;
-    celsius                               average_cell_temperature;
+    volt min_cell_voltage;
+    volt max_cell_voltage;
+    celsius max_cell_temp;
+    celsius min_cell_temp;
+    celsius max_board_temp;
+    size_t min_cell_voltage_id;              // 0 - 125
+    size_t max_cell_voltage_id;              // 0 - 125
+    size_t max_board_temperature_segment_id; // 0 - 11
+    size_t max_cell_temperature_cell_id;     // 0 - 47
+    size_t min_cell_temperature_cell_id;     // 0 - 47
+    volt total_voltage;
+    volt avg_cell_voltage;
+    celsius average_cell_temperature;
 
     size_t cs_index;
 };
 
 struct ReferenceMaxMin_s
 {
-    volt    total_voltage;
-    volt    max_cell_voltage;
-    volt    min_cell_voltage;
+    volt total_voltage;
+    volt max_cell_voltage;
+    volt min_cell_voltage;
     celsius min_cell_temp;
     celsius max_cell_temp;
     celsius max_board_temp;
@@ -159,23 +159,23 @@ struct ReferenceMaxMin_s
 
 struct BMSDriverGroupConfig_s
 {
-    bool     device_refup_mode;
-    bool     adcopt;
+    bool device_refup_mode;
+    bool adcopt;
     uint16_t gpios_enabled;
-    bool     dcto_read;
-    bool     dcto_write;
-    int      adc_conversion_cell_select_mode;
-    int      adc_conversion_gpio_select_mode;
-    uint8_t  discharge_permitted;
-    uint8_t  adc_mode_cv_conversion;
-    uint8_t  adc_mode_gpio_conversion;
+    bool dcto_read;
+    bool dcto_write;
+    int adc_conversion_cell_select_mode;
+    int adc_conversion_gpio_select_mode;
+    uint8_t discharge_permitted;
+    uint8_t adc_mode_cv_conversion;
+    uint8_t adc_mode_gpio_conversion;
     uint16_t under_voltage_threshold;
     uint16_t over_voltage_threshold;
     uint16_t gpio_enable;
     uint16_t CRC15_POLY;
-    float    cv_adc_conversion_time_us;
-    float    gpio_adc_conversion_time_us;
-    float    cv_adc_lsb_voltage;
+    float cv_adc_conversion_time_us;
+    float gpio_adc_conversion_time_us;
+    float cv_adc_lsb_voltage;
 };
 
 
@@ -524,10 +524,10 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
 
     array<uint8_t, cmd_and_data_buffer_size> _tx_read_buffer;
     array<uint8_t, cmd_and_data_buffer_size> _rx_read_buffer;
-    array<uint8_t, cmd_only_buffer_size>     _tx_write_buffer;
-    array<uint8_t, cmd_only_buffer_size>     _rx_write_buffer;
+    array<uint8_t, cmd_only_buffer_size> _tx_write_buffer;
+    array<uint8_t, cmd_only_buffer_size> _rx_write_buffer;
 
-    bool                   _requested_write_configuration;
+    bool _requested_write_configuration;
     array<bool, num_cells> _requested_cell_balance_flags;
 
     // Says if voltage data is fresh for the state of charge estimator

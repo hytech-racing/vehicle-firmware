@@ -63,8 +63,8 @@ struct SteeringSensorParams_s
     SteeringSensorObservedExtremes_s observed_extremes{};
 
     /* Derived by recalibrateSteering() */
-    SteeringSensorCalibration_s      calibration_snapshot{};
-    float                            oor_tolerance_raw = 0.0f; // span_raw * oor_tolerance_fraction
+    SteeringSensorCalibration_s calibration_snapshot{};
+    float oor_tolerance_raw = 0.0f; // span_raw * oor_tolerance_fraction
     SteeringSensorOutOfRangeBounds_s oor_bounds{};
 };
 
@@ -98,8 +98,8 @@ class SteeringSystem
 
     /* Getters */
     const SteeringSystemParams_s& getSteeringParams() const { return _params; }
-    const SteeringSystemData_s&   getSteeringSystemData() const { return _system_data; }
-    float                         getUnfilteredAnalogSteeringDeg() const { return _analog_angle_unfiltered_deg; }
+    const SteeringSystemData_s& getSteeringSystemData() const { return _system_data; }
+    float getUnfilteredAnalogSteeringDeg() const { return _analog_angle_unfiltered_deg; }
 
     /* Setters */
     void setSteeringParams(const SteeringSystemParams_s& params) { _params = params; }
@@ -107,8 +107,8 @@ class SteeringSystem
 
   private:
     SteeringSystemParams_s _params;
-    SteeringSystemData_s   _system_data{};
-    bool                   _is_first_tick = true; // no history yet, so rate checks are skipped
+    SteeringSystemData_s _system_data{};
+    bool _is_first_tick = true; // no history yet, so rate checks are skipped
 
     /**
      * @note Filter and steering-rate calculations run every other call of the 1 kHz steering task because
@@ -116,10 +116,10 @@ class SteeringSystem
      * @note We gate at 1500 us (1.5 task periods) instead of 2000 us so scheduler jitter can't skip a sample
      */
     static constexpr uint32_t INTERNAL_SAMPLE_THRESHOLD_US = 1500;
-    static constexpr float    US_PER_SECOND = 1.0e6f;
+    static constexpr float US_PER_SECOND = 1.0e6f;
 
     uint32_t _last_internal_sample_us = 0;
-    float    _digital_angle_at_last_internal_sample_deg = 0.0f; // reference angle for digital velocity
+    float _digital_angle_at_last_internal_sample_deg = 0.0f; // reference angle for digital velocity
 
     float _analog_angle_unfiltered_deg = 0.0f;
     float _analog_angle_filtered_deg = 0.0f; // filter output, held between updates; also the reference for analog velocity
@@ -139,9 +139,9 @@ class SteeringSystem
     static constexpr float LOWPASS_B2 = 0.00235721f;
     static constexpr float LOWPASS_A1 = -1.85804330f;
     static constexpr float LOWPASS_A2 = 0.86747213f;
-    float                  _lowpass_state_1 = 0.0f; // equivalent to b1·x[n-1] − a1·y[n-1] + b2·x[n-2] − a2·y[n-2]
-    float                  _lowpass_state_2 = 0.0f; // equivalent to b2·x[n-1] − a2·y[n-1]
-    bool                   _is_lowpass_initialized = false;
+    float _lowpass_state_1 = 0.0f; // equivalent to b1·x[n-1] − a1·y[n-1] + b2·x[n-2] − a2·y[n-2]
+    float _lowpass_state_2 = 0.0f; // equivalent to b2·x[n-1] − a2·y[n-1]
+    bool _is_lowpass_initialized = false;
 
     /**
      * @brief Takes one raw reading and updates a sensor's running min/max (works for digital and analog)

@@ -30,7 +30,7 @@ class ACUStateMachine
         etl::delegate<void()> reinitialize_watchdog,
         etl::delegate<void()> reset_latch,
         etl::delegate<void()> disable_n_latch_en,
-        uint32_t              curr_millis)
+        uint32_t curr_millis)
         : _charge_state_requested(charge_state_requested),
           _has_bms_fault(has_bms_fault),
           _has_imd_fault(has_imd_fault),
@@ -71,7 +71,7 @@ class ACUStateMachine
      */
     void _handle_exit_logic(ACUState_e prev_state, unsigned long curr_millis);
 
-    ACUState_e    _current_state;
+    ACUState_e _current_state;
     unsigned long _last_state_changed_time; // time of last state change
 
 

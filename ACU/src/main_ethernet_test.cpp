@@ -12,7 +12,7 @@ const EthernetUDP send_socket;
 const EthernetUDP recv_socket;
 
 const uint32_t delay_ms = 10;
-const size_t   buf_len = 8;
+const size_t buf_len = 8;
 
 void init_ethernet_device()
 {
@@ -27,7 +27,7 @@ void test_ethernet()
     if (packet_size > 0)
     {
         std::array<uint8_t, buf_len> buffer;
-        size_t                       read_bytes = recv_socket.read(buffer.data(), buffer.size());
+        size_t read_bytes = recv_socket.read(buffer.data(), buffer.size());
         recv_socket.read(buffer.data(), buf_len);
         Serial.println("recvd data: ");
         for (uint8_t i = 0; i < buf_len; i++)

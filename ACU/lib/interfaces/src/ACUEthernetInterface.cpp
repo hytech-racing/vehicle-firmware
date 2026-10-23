@@ -69,7 +69,7 @@ hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCo
 
 hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_s& shared_state)
 {
-    auto                   fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_ACUAllData out = {};
     out.has_core_data = true;
     out.core_data = make_acu_core_data_msg(shared_state.core_data);
@@ -104,7 +104,7 @@ hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllD
 
     // for working with bytes in nanopb
     std::string_view version_view(version);
-    const size_t     version_len = [&]() -> size_t
+    const size_t version_len = [&]() -> size_t
     {
         return std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
     }();

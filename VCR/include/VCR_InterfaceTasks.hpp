@@ -120,7 +120,7 @@ void initialize_all_interfaces();
 namespace async_tasks
 {
     ::HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-    VCRInterfaceData_s      gather_latest_interface_data(CANInterfaces_s& can_interfaces);
+    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces);
 } // namespace async_tasks
 
 

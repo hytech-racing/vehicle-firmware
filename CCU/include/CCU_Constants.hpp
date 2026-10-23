@@ -13,8 +13,8 @@ namespace CCUInterfaces
     /* General Interface Constants */
     constexpr uint32_t SERIAL_BAUDRATE = 115200;
     constexpr uint32_t DISPLAY_BAUDRATE = 10000000;
-    constexpr uint8_t  ANALOG_READ_RESOLUTION = 12;
-    constexpr float    BIT_RESOLUTION = 4096.0f;
+    constexpr uint8_t ANALOG_READ_RESOLUTION = 12;
+    constexpr float BIT_RESOLUTION = 4096.0f;
 
     /* ADC Interface Constants */
     constexpr pin SHDN_A_PIN = 9;
@@ -68,10 +68,10 @@ namespace CCUSystems
 namespace CCUConstants
 {
     /* General Information */
-    constexpr volt    MIN_PACK_VOLTAGE = 403;
-    constexpr volt    MAX_PACK_VOLTAGE = 530;
-    constexpr volt    MIN_CELL_CUTOFF_VOLTAGE = 3.2F;
-    constexpr volt    MAX_CELL_CUTOFF_VOLTAGE = 4.25F;
+    constexpr volt MIN_PACK_VOLTAGE = 403;
+    constexpr volt MAX_PACK_VOLTAGE = 530;
+    constexpr volt MIN_CELL_CUTOFF_VOLTAGE = 3.2F;
+    constexpr volt MAX_CELL_CUTOFF_VOLTAGE = 4.25F;
     constexpr celsius MAX_CELL_CUTOFF_TEMP_CELSIUS = 45.0F;
     constexpr celsius MAX_BOARD_CUTOFF_TEMP_CELSIUS = 60.0F;
 

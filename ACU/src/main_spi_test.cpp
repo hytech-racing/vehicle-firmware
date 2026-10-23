@@ -24,22 +24,22 @@ elapsedMicros read_timer = 0;
 
 using chip_type = LTC6811_Type_e;
 
-const size_t   sample_period_ms = 100; // 300 Hz - reads one group per call
+const size_t sample_period_ms = 100; // 300 Hz - reads one group per call
 const uint32_t spi_baudrate = 115200;
-const uint8_t  num_cells_per_board = 21;
+const uint8_t num_cells_per_board = 21;
 
 const size_t spi1_mosi_pin = 26;
 const size_t spi1_sck_pin = 27;
 const size_t spi1_miso_pin = 39;
 
 // Initialize chip_select, chip_select_per_chip, and address
-const constexpr int                     num_cells_per_chip = 21;
-const constexpr int                     num_groups = 6;
-const constexpr int                     num_chips = 2;
-const constexpr int                     num_chip_selects = 1;
+const constexpr int num_cells_per_chip = 21;
+const constexpr int num_groups = 6;
+const constexpr int num_chips = 2;
+const constexpr int num_chip_selects = 1;
 const std::array<int, num_chip_selects> cs = {38};
-const std::array<int, num_chips>        cs_per_chip = {38, 38}; // , 38, 38, 38, 38, 36, 36, 36, 36, 36, 36};
-const std::array<int, num_chips>        addr = {0, 1};          //, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+const std::array<int, num_chips> cs_per_chip = {38, 38}; // , 38, 38, 38, 38, 36, 36, 36, 36, 36, 36};
+const std::array<int, num_chips> addr = {0, 1};          //, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 // Instantiate BMS Driver Group (non-const so we can call non-const methods)
 BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1> BMSGroup = BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1>(cs, cs_per_chip, addr);
@@ -56,8 +56,8 @@ struct ReadGroupStats
 };
 
 std::array<ReadGroupStats, num_groups> group_stats;
-uint32_t                               cycle_count = 0;
-bool                                   cycle_complete = false;
+uint32_t cycle_count = 0;
+bool cycle_complete = false;
 
 template <typename driver_data> void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e current_group)
 {
@@ -350,7 +350,7 @@ void loop()
 
         // Get the group that WILL BE read by this call
         ReadGroup_e group_before_read = BMSGroup.get_current_read_group();
-        uint32_t    group_index = static_cast<uint32_t>(group_before_read);
+        uint32_t group_index = static_cast<uint32_t>(group_before_read);
 
         // Start timing the read
         read_timer = 0;

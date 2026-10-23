@@ -186,7 +186,7 @@ float SOCKalmanFilter::_get_ocv_from_soc(float soc) const
         return VOLTAGE_LOOKUP_TABLE[table_size - 1];
     }
 
-    float  index_float = (1.0f - soc) * 100.0f;
+    float index_float = (1.0f - soc) * 100.0f;
     size_t idx_low = (size_t)index_float;
     size_t idx_high = idx_low + 1;
 
@@ -215,7 +215,7 @@ float SOCKalmanFilter::get_soe_percentage() const
         return ENERGY_LOOKUP_TABLE[0];
     }
 
-    float  index_float = soc * 100.0f;
+    float index_float = soc * 100.0f;
     size_t idx_low = (size_t)index_float;
     size_t idx_high = idx_low + 1;
 

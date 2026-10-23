@@ -33,8 +33,8 @@ struct CANInterfaces_s
     explicit CANInterfaces_s(ACUInterface& acu_int, ChargerInterface& charger_int, EnergyMeterInterface& em_int)
         : acu_interface(acu_int), charger_interface(charger_int), em_interface(em_int) {};
 
-    ACUInterface&         acu_interface;
-    ChargerInterface&     charger_interface;
+    ACUInterface& acu_interface;
+    ChargerInterface& charger_interface;
     EnergyMeterInterface& em_interface;
 
     float max_pack_voltage = 0.0f;
@@ -49,12 +49,12 @@ struct CCUCANInterface_s
     }
 
     FlexCAN_t<CAN1> ACU_CAN;
-    CANRXBuffer_t   acu_can_rx_buffer;
-    CANTXBuffer_t   acu_can_tx_buffer;
+    CANRXBuffer_t acu_can_rx_buffer;
+    CANTXBuffer_t acu_can_tx_buffer;
 
     FlexCAN_t<CAN3> CHARGER_CAN;
-    CANRXBuffer_t   charger_can_rx_buffer;
-    CANTXBuffer_t   charger_can_tx_buffer;
+    CANRXBuffer_t charger_can_rx_buffer;
+    CANTXBuffer_t charger_can_tx_buffer;
 
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> can_recv_switch;
 };

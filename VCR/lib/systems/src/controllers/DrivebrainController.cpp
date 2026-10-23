@@ -75,7 +75,7 @@ void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrive
     bool torque_limit_message_too_latent = (torque_setpoint_latency > (int)_params.allowed_latency);
 
     // 3. if the relative latency is too high (time between the message members) -> (allowed latency / 2)
-    int  relative_latency = ::abs((int)(static_cast<int64_t>(last_speed_setpoint_timestamp) - static_cast<int64_t>(last_torque_lim_timestamp)));
+    int relative_latency = ::abs((int)(static_cast<int64_t>(last_speed_setpoint_timestamp) - static_cast<int64_t>(last_torque_lim_timestamp)));
     bool latency_diff_too_high = (relative_latency > ((int)_params.allowed_latency / 2));
 
     bool timing_failure = (speed_setpoint_msg_too_latent || torque_limit_message_too_latent || not_all_messages_recvd || latency_diff_too_high);

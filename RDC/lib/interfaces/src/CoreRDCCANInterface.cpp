@@ -62,10 +62,10 @@ void CoreRDCCANInterface::onDVCANRecv(const CAN_message_t& msg)
 }
 
 void CoreRDCCANInterface::processCANMessages(
-    CANInterfaces_s                                                                                can_interfaces,
-    unsigned long                                                                                  curr_millis,
+    CANInterfaces_s can_interfaces,
+    unsigned long curr_millis,
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recv_switch,
-    CANInterfaceType_e                                                                             interface_type)
+    CANInterfaceType_e interface_type)
 {
     process_ring_buffer(_driverless_can_rx_buffer, can_interfaces, curr_millis, recv_switch, interface_type);
 }
@@ -73,7 +73,7 @@ void CoreRDCCANInterface::sendAllCanMsgs()
 {
     while (_driverless_can_tx_buffer.available())
     {
-        CAN_message_t                              msg;
+        CAN_message_t msg;
         std::array<uint8_t, sizeof(CAN_message_t)> buf;
         _driverless_can_tx_buffer.pop_front(buf.data(), sizeof(CAN_message_t));
         memmove(&msg, buf.data(), sizeof(msg)); // NOLINT

@@ -50,7 +50,7 @@ class ButtonInterface
   private:
     const uint8_t _pin;
     const uint8_t _debounce_ms;
-    const bool    _active_low;
+    const bool _active_low;
     ButtonState_s _button_state;
 };
 

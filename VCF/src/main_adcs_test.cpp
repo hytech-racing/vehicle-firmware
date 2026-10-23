@@ -2,7 +2,7 @@
 #include "VCF_Constants.hpp"
 
 const unsigned long DELAY = 100;
-unsigned long       last = millis();
+unsigned long last = millis();
 
 void setup()
 {

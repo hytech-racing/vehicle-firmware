@@ -131,7 +131,7 @@ TEST(PedalsSystemTesting, test_good_pedals)
 // T.4.3.4, T.4.2.7, T.4.2.10 FSAE rules 2025 v1
 TEST(PedalsSystemTesting, test_accel_and_brake_limits_plausibility)
 {
-    auto         params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(params, params);
 
     // Create test pedal data
@@ -179,8 +179,8 @@ TEST(PedalsSystemTesting, test_accel_and_brake_limits_plausibility)
 // T.4.2.4 FSAE rules 2025 v1 (accel vals not within 10 percent of each other)
 TEST(PedalsSystemTesting, test_accel_and_brake_percentages_implausibility)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     PedalSensorData_s test_pedal_half_pressed_one = {2045, 94, 94, 3996};
@@ -198,7 +198,7 @@ TEST(PedalsSystemTesting, test_accel_and_brake_percentages_implausibility)
     for (const auto& test_case : test_cases)
     {
         const auto& sensor_data = std::get<0>(test_case);
-        bool        expected_result = std::get<1>(test_case);
+        bool expected_result = std::get<1>(test_case);
 
         bool res = get_result_of_double_brake_test(pedals, sensor_data);
         EXPECT_EQ(res, expected_result);
@@ -209,8 +209,8 @@ TEST(PedalsSystemTesting, test_accel_and_brake_percentages_implausibility)
 // EV.4.7.1 and EV 4.7.2 FSAE rules 2025 v1
 TEST(PedalsSystemTesting, test_accel_and_brake_pressed_at_same_time_and_activation)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     // testing with example half pressed values
@@ -234,8 +234,8 @@ TEST(PedalsSystemTesting, test_accel_and_brake_pressed_at_same_time_and_activati
 // T.4.2.5 FSAE rules 2025 v1
 TEST(PedalsSystemTesting, test_implausibility_duration)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     PedalSensorData_s test_pedal_data = {2045, 2045, 2045, 2045};
@@ -254,8 +254,8 @@ TEST(PedalsSystemTesting, test_implausibility_duration)
 // EV.4.7.2 a FSAE rules 2025 v1
 TEST(PedalsSystemTesting, implausibility_latching_until_accel_released_double_brake)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     // create test data with both pedals pressed
@@ -279,8 +279,8 @@ TEST(PedalsSystemTesting, implausibility_latching_until_accel_released_double_br
 
 TEST(PedalsSystemTesting, implausibility_latching_and_accel_is_zero)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     // create test data with both pedals pressed
@@ -357,8 +357,8 @@ TEST(PedalsSystemTesting, implausibility_latching_and_accel_is_zero)
 // testing accel and brake pedal percentage accuracies with deadzone
 TEST(PedalsSystemTesting, deadzone_removal_calc_double_brake_ped)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     // Test accel pedal with good values (0%, 100%)
@@ -392,7 +392,7 @@ TEST(PedalsSystemTesting, deadzone_removal_calc_double_brake_ped)
 TEST(PedalsSystemTesting, brake_value_testing_double)
 {
     PedalSensorData_s test_pedal_data = {94, 3996, 872, 3218};
-    auto              params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
 
     params.deadzone_margin = 0;
     PedalsSystem pedals(params, params);
@@ -413,7 +413,7 @@ TEST(PedalsSystemTesting, brake_value_testing_double)
 TEST(PedalsSystemTesting, check_accel_never_negative_double)
 {
     PedalSensorData_s test_pedal_data = {static_cast<uint32_t>(-1000), static_cast<uint32_t>(-3000), 94, 3996};
-    auto              params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
 
     PedalsSystem pedals(params, params);
     params.deadzone_margin = 0;
@@ -427,7 +427,7 @@ TEST(PedalsSystemTesting, check_accel_never_negative_double)
 TEST(PedalsSystemTesting, check_accel_pressed)
 {
     PedalSensorData_s test_pedal_data = {2045, 2045, 94, 3996};
-    auto              params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
     params.deadzone_margin = .0;
 
     PedalsSystem pedals(params, params);
@@ -484,7 +484,7 @@ TEST(PedalsSystemTesting, check_accel_pressed)
 TEST(PedalsSystemTesting, check_brake_pressed)
 {
     PedalSensorData_s test_pedal_data = {94, 3996, 2045, 2045};
-    auto              params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
     params.deadzone_margin = .0;
 
     PedalsSystem pedals(params, params);
@@ -506,7 +506,7 @@ TEST(PedalsSystemTesting, check_accel_oor)
     PedalSensorData_s test_pedal_oor_hi_val_accel = {5000, 0, 94, 3996};
     PedalSensorData_s test_pedal_oor_lo_val_accel = {0, 5000, 94, 3996};
 
-    auto         params = gen_positive_and_negative_slope_params();
+    auto params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(params, params);
 
     pedals.evaluatePedals(test_pedal_oor_hi_val_accel, 1000);
@@ -520,8 +520,8 @@ TEST(PedalsSystemTesting, check_accel_oor)
 // T.4.2.4 FSAE rules 2025 v1 (accel vals not within 10 percent of each other) and no time has passed
 TEST(PedalsSystemTesting, test_accel_and_brake_percentages_implausibility_immediate_zero)
 {
-    auto         accel_params = gen_positive_and_negative_slope_params();
-    auto         brake_params = gen_positive_and_negative_slope_params();
+    auto accel_params = gen_positive_and_negative_slope_params();
+    auto brake_params = gen_positive_and_negative_slope_params();
     PedalsSystem pedals(accel_params, brake_params);
 
     PedalSensorData_s test_pedal_half_pressed_one = {2045, 94, 94, 3996};

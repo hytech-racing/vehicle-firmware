@@ -19,7 +19,7 @@ namespace default_encoder_params
     constexpr float MAX_VALUE = 100.F;
     constexpr float MIN_VALUE = 0.F;
 
-    constexpr float   STEP_SIZE = 1.F;
+    constexpr float STEP_SIZE = 1.F;
     constexpr uint8_t INIT_ENCODING = 0b00;
 
     // Valid quadrature transition keys.
@@ -104,8 +104,8 @@ class RotaryEncoderInterface
 
   private:
     RotaryEncoderPinout_s _pinout;
-    RotaryEncoderState_s  _state;
-    ButtonInterface       _enc_switch_button;
+    RotaryEncoderState_s _state;
+    ButtonInterface _enc_switch_button;
 
     // This implementation supports one active encoder instance.
     // That is fine for your current use case.

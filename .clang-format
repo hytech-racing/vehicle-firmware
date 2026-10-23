@@ -41,7 +41,7 @@ AllowShortLambdasOnASingleLine: Inline
 # 5. Alignment, Qualifiers & Comments
 # ==============================================================================
 QualifierAlignment: Left
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveAssignments: false
 AlignTrailingComments: true
 FixNamespaceComments: true

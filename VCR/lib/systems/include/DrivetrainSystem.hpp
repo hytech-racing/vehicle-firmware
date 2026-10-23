@@ -38,10 +38,10 @@ enum class DrivetrainCmdResponse_e
  */
 struct DrivetrainStatus_s
 {
-    bool                      all_inverters_connected;
+    bool all_inverters_connected;
     veh_vec<InverterStatus_s> inverter_statuses;
-    DrivetrainCmdResponse_e   cmd_resp;
-    DrivetrainState_e         state;
+    DrivetrainCmdResponse_e cmd_resp;
+    DrivetrainState_e state;
 };
 
 /**
@@ -95,22 +95,22 @@ class DrivetrainSystem
      * Drivetrain state machine (DSM) functions
      */
     DrivetrainStatus_s evaluate_drivetrain(CmdVariant cmd);
-    DrivetrainState_e  get_state() const;
+    DrivetrainState_e get_state() const;
     DrivetrainStatus_s get_status() const;
 
     struct InverterFuncts_s
     {
         std::function<void(float desired_rpm, float torque_limit_nm)> set_speed;
-        std::function<void()>                                         set_idle;
-        std::function<void(InverterControlWord_s control_word)>       set_inverter_control_word;
-        std::function<InverterStatus_s()>                             get_status;
-        std::function<MotorMechanics_s()>                             get_motor_mechanics;
+        std::function<void()> set_idle;
+        std::function<void(InverterControlWord_s control_word)> set_inverter_control_word;
+        std::function<InverterStatus_s()> get_status;
+        std::function<MotorMechanics_s()> get_motor_mechanics;
     };
 
     DrivetrainSystem(
         veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
-        etl::delegate<void(bool)>                   set_ef_active_pin,
-        unsigned long                               ef_pin_enable_delay_ms = 50); // why not make delay a constant that can easily be changed elsewhere where other constants are changed
+        etl::delegate<void(bool)> set_ef_active_pin,
+        unsigned long ef_pin_enable_delay_ms = 50); // why not make delay a constant that can easily be changed elsewhere where other constants are changed
 
   private:
     /**
@@ -126,11 +126,11 @@ class DrivetrainSystem
     void _set_drivetrain_error_reset();
     void _set_drivetrain_command(DrivetrainCommand_s cmd);
 
-    DrivetrainState_e  _evaluate_state_machine(CmdVariant cmd);
-    DrivetrainState_e  _state;
+    DrivetrainState_e _evaluate_state_machine(CmdVariant cmd);
+    DrivetrainState_e _state;
     DrivetrainStatus_s _status;
 
-    const float               _active_rpm_level = 100;
+    const float _active_rpm_level = 100;
     veh_vec<InverterFuncts_s> _inverter_interfaces;
 
     /**
@@ -148,9 +148,9 @@ class DrivetrainSystem
      * Delegate function for setting ef active
      */
     etl::delegate<void(bool)> _set_ef_active_pin;
-    unsigned long             _last_toggled_ef_active = 0;
-    unsigned long             _ef_pin_enable_delay_ms;
-    unsigned long             _precharge_wait_start = 0;
+    unsigned long _last_toggled_ef_active = 0;
+    unsigned long _ef_pin_enable_delay_ms;
+    unsigned long _precharge_wait_start = 0;
 };
 
 using DrivetrainInstance = etl::singleton<DrivetrainSystem>;

@@ -7,9 +7,9 @@
 
 struct VCRCANInterfaceData_s
 {
-    bool          imd_ok;
-    bool          latch_ok;
-    bool          bms_ok;
+    bool imd_ok;
+    bool latch_ok;
+    bool bms_ok;
     unsigned long last_time_msg_sent;
 };
 

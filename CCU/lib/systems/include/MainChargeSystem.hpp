@@ -34,7 +34,7 @@ namespace charge_system_default_parameters
 
 struct ChargeSystemData_s
 {
-    float          calculated_charge_current;
+    float calculated_charge_current;
     ChargerState_e current_charger_state;
 };
 
@@ -54,21 +54,21 @@ struct ChargeSystemConfigs_s
 struct ChargeSystemParams_s
 {
     ChargeSystemThresholds_s thresholds;
-    ChargeSystemConfigs_s    configs;
-    float                    max_120V_current_amp;
-    float                    max_240V_current_amp;
-    float                    max_cell_cutoff_temp_celcius;
-    float                    max_board_cutoff_temp_celcius;
+    ChargeSystemConfigs_s configs;
+    float max_120V_current_amp;
+    float max_240V_current_amp;
+    float max_cell_cutoff_temp_celcius;
+    float max_board_cutoff_temp_celcius;
 };
 
 class MainChargeSystem
 {
   public:
     MainChargeSystem(
-        float                    max_120V_current_amp,
-        float                    max_240V_current_amp,
-        float                    max_cell_cutoff_temp_celcius,
-        float                    max_board_cutoff_temp_celcius,
+        float max_120V_current_amp,
+        float max_240V_current_amp,
+        float max_cell_cutoff_temp_celcius,
+        float max_board_cutoff_temp_celcius,
         ChargeSystemThresholds_s thresholds =
             {
                 .cell_temp_derate_thresh = charge_system_default_parameters::CELL_TEMP_DERATE_THRESH,
@@ -124,7 +124,7 @@ class MainChargeSystem
     bool _startup_complete = false;
 
     const ChargeSystemParams_s _charge_system_parameters = {};
-    ChargeSystemData_s         _charge_data;
+    ChargeSystemData_s _charge_data;
 
     /**
      * @brief Check if it's safe to charge based on safety systems

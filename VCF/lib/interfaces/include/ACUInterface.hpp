@@ -23,7 +23,7 @@ class ACUInterface
 
   private:
     ACUCoreData_s _last_recvd_data;
-    float         _min_cell_voltage = 0;
+    float _min_cell_voltage = 0;
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

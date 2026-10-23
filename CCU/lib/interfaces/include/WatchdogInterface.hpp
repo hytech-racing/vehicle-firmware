@@ -24,7 +24,7 @@ struct WatchdogPinout_s
 struct WatchdogInterfaceParams_s
 {
     WatchdogPinout_s pinout;
-    unsigned long    watchdog_kick_interval_ms;
+    unsigned long watchdog_kick_interval_ms;
 };
 
 class WatchdogInterface

@@ -44,7 +44,7 @@ void ACUInterface::receiveBMSDetailedVoltagesCANMsg(const CAN_message_t& msg, un
     Unpack_BMS_DETAILED_VOLTAGES_ht_can(&voltages_msg, &msg.buf[0], msg.len);
     uint8_t group_id = voltages_msg.group_id;
     uint8_t ic_id = voltages_msg.ic_id;
-    size_t  cell_base_index = (ic_id / 2) * default_acu_params::NUM_CELLS_PER_SEGMENT + ((ic_id % 2 != 0) ? default_acu_params::NUM_CHIPS : 0) + group_id * default_acu_params::NUM_DATA_PER_GROUP;
+    size_t cell_base_index = (ic_id / 2) * default_acu_params::NUM_CELLS_PER_SEGMENT + ((ic_id % 2 != 0) ? default_acu_params::NUM_CHIPS : 0) + group_id * default_acu_params::NUM_DATA_PER_GROUP;
 
     _curr_data.cell_voltages[cell_base_index + 0] = HT_CAN_voltage_0_ro_fromS(voltages_msg.voltage_0_ro);
     _curr_data.cell_voltages[cell_base_index + 1] = HT_CAN_voltage_1_ro_fromS(voltages_msg.voltage_1_ro);
@@ -66,7 +66,7 @@ void ACUInterface::receiveBMSDetailedTempsCANMsg(const CAN_message_t& msg, unsig
     Unpack_BMS_DETAILED_TEMPS_ht_can(&detailed_temps, &msg.buf[0], msg.len);
     uint8_t group_id = detailed_temps.group_id;
     uint8_t ic_id = detailed_temps.ic_id;
-    size_t  cell_base_index = ic_id * default_acu_params::NUM_CELL_TEMPS_PER_CHIP + group_id * default_acu_params::NUM_DATA_PER_GROUP;
+    size_t cell_base_index = ic_id * default_acu_params::NUM_CELL_TEMPS_PER_CHIP + group_id * default_acu_params::NUM_DATA_PER_GROUP;
 
     if (cell_base_index >= default_acu_params::NUM_CELL_TEMPS)
     {

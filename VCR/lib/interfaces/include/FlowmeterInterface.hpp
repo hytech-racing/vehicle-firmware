@@ -26,7 +26,7 @@ class FlowmeterInterface
   private:
     unsigned long _last_sample_timestamp_ms;
     unsigned long _pulse_count = 0;
-    size_t        _pin;
+    size_t _pin;
 };
 
 using FlowmeterInterfaceInstance = etl::singleton<FlowmeterInterface>;

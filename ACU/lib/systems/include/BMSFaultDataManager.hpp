@@ -23,9 +23,9 @@ template <size_t num_chips> class BMSFaultDataManager
 
     struct BMSFaultData_s
     {
-        std::array<size_t, num_chips>              consecutive_invalid_packet_counts{};
-        float                                      valid_packet_rate = 0.0f;
-        size_t                                     max_consecutive_invalid_packet_count = 0;
+        std::array<size_t, num_chips> consecutive_invalid_packet_counts{};
+        float valid_packet_rate = 0.0f;
+        size_t max_consecutive_invalid_packet_count = 0;
         std::array<BMSFaultCountData_s, num_chips> chip_invalid_cmd_counts{};
     };
 

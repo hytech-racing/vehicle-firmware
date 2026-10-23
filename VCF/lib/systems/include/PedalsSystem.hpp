@@ -11,7 +11,7 @@
 #include <tuple>
 
 
-const int   IMPLAUSIBILITY_DURATION = 100;                         // max duration of implausibility in milliseconds. FSAE Rules T.4.3.3
+const int IMPLAUSIBILITY_DURATION = 100;                           // max duration of implausibility in milliseconds. FSAE Rules T.4.3.3
 const float IMPLAUSIBILITY_PERCENT = static_cast<float>(0.10);     // 10 percent implausibility margin. FSAE Rules T.4.2.5
 const float ACCELERATION_PERCENT_LIMIT = static_cast<float>(0.05); // acceleration percent limit to start implausibility time
 
@@ -24,19 +24,19 @@ const float ACCELERATION_PERCENT_LIMIT = static_cast<float>(0.05); // accelerati
  */
 struct PedalsParams
 {
-    uint32_t min_pedal_1;                      // Sensor 1 value at min pedal travel (analog 0-4095)
-    uint32_t min_pedal_2;                      // Sensor 2 value at min pedal travel (analog 0-4095)
-    uint32_t max_pedal_1;                      // Sensor 1 value at max pedal travel (analog 0-4095)
-    uint32_t max_pedal_2;                      // Sensor 2 value at max pedal travel (analog 0-4095)
-    float    activation_percentage;            // Percent value (range from 0.0 to 1.0)
-    uint32_t min_sensor_pedal_1;               // Min value that the sensor can output (if ADC reads less than this, sensor is likely unplugged)
-    uint32_t min_sensor_pedal_2;               // Min value that the sensor can output (if ADC reads less than this, sensor is likely unplugged)
-    uint32_t max_sensor_pedal_1;               // Max value that the sensor can output (if ADC reads more than this, sensor is likely unplugged)
-    uint32_t max_sensor_pedal_2;               // Max value that the sensor can output (if ADC reads more than this, sensor is likely unplugged)
-    float    deadzone_margin;                  // "Deadzone" margin on each side, in percent. (i.e. if deadzone_margin = 0.05, then the range 0.05-0.95 will be scaled up to 0.0-1.0)
-    float    implausibility_margin;            // Out-of-range implausibility margin (0.0 to 1.0). If margin is 0.10, then the pedal can travel 10% beyond the measured min/max
-                                               // before triggering an OOR implausibility.
-    float    mechanical_activation_percentage; // Ranges from 0.0 to 1.0. For brake pedal, this is the percent at which the mechanical brake engages.
+    uint32_t min_pedal_1;                   // Sensor 1 value at min pedal travel (analog 0-4095)
+    uint32_t min_pedal_2;                   // Sensor 2 value at min pedal travel (analog 0-4095)
+    uint32_t max_pedal_1;                   // Sensor 1 value at max pedal travel (analog 0-4095)
+    uint32_t max_pedal_2;                   // Sensor 2 value at max pedal travel (analog 0-4095)
+    float activation_percentage;            // Percent value (range from 0.0 to 1.0)
+    uint32_t min_sensor_pedal_1;            // Min value that the sensor can output (if ADC reads less than this, sensor is likely unplugged)
+    uint32_t min_sensor_pedal_2;            // Min value that the sensor can output (if ADC reads less than this, sensor is likely unplugged)
+    uint32_t max_sensor_pedal_1;            // Max value that the sensor can output (if ADC reads more than this, sensor is likely unplugged)
+    uint32_t max_sensor_pedal_2;            // Max value that the sensor can output (if ADC reads more than this, sensor is likely unplugged)
+    float deadzone_margin;                  // "Deadzone" margin on each side, in percent. (i.e. if deadzone_margin = 0.05, then the range 0.05-0.95 will be scaled up to 0.0-1.0)
+    float implausibility_margin;            // Out-of-range implausibility margin (0.0 to 1.0). If margin is 0.10, then the pedal can travel 10% beyond the measured min/max
+                                            // before triggering an OOR implausibility.
+    float mechanical_activation_percentage; // Ranges from 0.0 to 1.0. For brake pedal, this is the percent at which the mechanical brake engages.
 };
 
 
@@ -106,11 +106,11 @@ class PedalsSystem
 
   private:
     PedalsSystemData_s _system_data{};
-    PedalSensorData_s  _sensor_data{};
-    PedalsParams       _accel_params{};
-    PedalsParams       _brake_params{};
-    bool               _implausibility_occured = false;
-    unsigned long      _implausibility_start_time;
+    PedalSensorData_s _sensor_data{};
+    PedalsParams _accel_params{};
+    PedalsParams _brake_params{};
+    bool _implausibility_occured = false;
+    unsigned long _implausibility_start_time;
 
     /// @brief function to determine the percentage of pedal pressed
     /// @param scaled_pedal_1 the value of the first pedal without deadzone removed (analog 0-4095)

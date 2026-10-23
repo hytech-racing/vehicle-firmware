@@ -51,7 +51,7 @@ class VCFEthernetInterface
 
   private:
     static constexpr size_t VER_HASH_LEN = 9;
-    static constexpr float  SHDN_HIGH_THRESHOLD = 12.0f; // threshold for shutdown being considered high
+    static constexpr float SHDN_HIGH_THRESHOLD = 12.0f; // threshold for shutdown being considered high
 
     /* Ethernet Sockets */
     EthernetUDP _vcf_send_socket;

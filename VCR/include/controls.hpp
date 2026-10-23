@@ -63,13 +63,13 @@ class VCRControls
     TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.get_tc_mux_status(); }
 
   private:
-    TorqueControllerSimple            _mode0; // this needs to be first for tc_mux to have a valid capture
+    TorqueControllerSimple _mode0; // this needs to be first for tc_mux to have a valid capture
     LoadCellVectoringTorqueController _mode1;
-    SimpleLaunchController            _mode3;
-    DrivebrainController              _mode4;
-    TCMuxType                         _tc_mux;
-    TorqueLimit_e                     _torque_limit = TorqueLimit_e::TCMUX_FULL_TORQUE;
-    DrivetrainSystem*                 _dt_system = nullptr;
+    SimpleLaunchController _mode3;
+    DrivebrainController _mode4;
+    TCMuxType _tc_mux;
+    TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_FULL_TORQUE;
+    DrivetrainSystem* _dt_system = nullptr;
 };
 
 using VCRControlsInstance = etl::singleton<VCRControls>;

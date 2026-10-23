@@ -47,7 +47,7 @@ TEST(TorqueControllerMuxTesting, test_invalid_controller_request_error)
         return {};
     };
     TorqueControllerMux<2> test({test_func, nullptr}, {false, false});
-    auto                   res = test.get_drivetrain_command(ControllerMode_e::MODE_2, TorqueLimit_e::TCMUX_FULL_TORQUE, {});
+    auto res = test.get_drivetrain_command(ControllerMode_e::MODE_2, TorqueLimit_e::TCMUX_FULL_TORQUE, {});
 
     ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS);
     for (int i = 0; i < 4; i++)
@@ -86,7 +86,7 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
     };
 
     TorqueControllerMux<2> test({test_func_1, test_func_2}, {false, false});
-    VCRData_s              state;
+    VCRData_s state;
     set_four_outputs(state.system_data.drivetrain_data.measuredSpeeds, 10000.0);
 
     auto res1 = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
@@ -109,7 +109,7 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
 TEST(TorqueControllerMuxTesting, test_torque_diff_swap_limit)
 {
     DrivetrainCommand_s inst1, inst2;
-    auto                test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return inst1;
     };
@@ -120,7 +120,7 @@ TEST(TorqueControllerMuxTesting, test_torque_diff_swap_limit)
     set_outputs(inst1, 0.1, 1);
     set_outputs(inst2, 3, 10);
     TorqueControllerMux<2> test({test_func_1, test_func_2}, {false, false});
-    VCRData_s              state;
+    VCRData_s state;
 
     state.system_data.drivetrain_data = {};
 
@@ -177,8 +177,8 @@ TEST(TorqueControllerMuxTesting, test_mode0_evaluation)
 
     // mode 0
     TorqueControllerSimpleParams_s standard_params;
-    float                          max_torque = standard_params.amk_max_torque;
-    TorqueControllerSimple         tc_simple(standard_params);
+    float max_torque = standard_params.amk_max_torque;
+    TorqueControllerSimple tc_simple(standard_params);
     //     // mode 1
     //     TorqueControllerLoadCellVectoring tc_vec;
     //     // mode 2
@@ -223,8 +223,8 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
 {
     // mode 0
     TorqueControllerSimpleParams_s standard_params;
-    float                          max_torque = standard_params.amk_max_torque;
-    TorqueControllerSimple         tc_simple(standard_params);
+    float max_torque = standard_params.amk_max_torque;
+    TorqueControllerSimple tc_simple(standard_params);
 
     DrivetrainDynamicReport_s drivetrain_data = {};
     set_four_outputs(drivetrain_data.measuredSpeeds, 1000.0f);
@@ -234,7 +234,7 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.5f;
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.brake_percent = 0.0f;
 
-    float                  new_power_lim = 20000.0f;
+    float new_power_lim = 20000.0f;
     TorqueControllerMux<1> torque_controller_mux(
         {std::bind(&TorqueControllerSimple::evaluate, std::ref(tc_simple), std::placeholders::_1, std::placeholders::_2)},
         {false},
@@ -283,7 +283,7 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
 
     // TestControllerType inst1;
     DrivetrainCommand_s inst1;
-    auto                test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return inst1;
     };
@@ -325,8 +325,8 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
 TEST(TorqueControllerMuxTesting, test_null_pointer_error_state)
 {
     TorqueControllerMux<1> test({nullptr}, {true});
-    VCRData_s              state;
-    auto                   res = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, state);
+    VCRData_s state;
+    auto res = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, state);
     for (int i = 0; i < 4; i++)
     {
         ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0f);
@@ -338,7 +338,7 @@ TEST(TorqueControllerMuxTesting, test_null_pointer_error_state)
 TEST(TorqueControllerMuxTesting, test_drivebrain_and_simple_controller_integration)
 {
     TorqueControllerSimple simple_controller;
-    DrivebrainController   db_controller(10);
+    DrivebrainController db_controller(10);
 
     StampedDrivetrainCommand_s data;
     data.desired_speeds.last_recv_millis = 1000;

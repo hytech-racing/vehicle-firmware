@@ -50,9 +50,9 @@ bool DriverlessSystem::startupCheckTSActive()
         return true;
     }
 
-    const unsigned long            now = _getCurrentMillisDelegate();
+    const unsigned long now = _getCurrentMillisDelegate();
     const BrakeFluidPressureData_s brake_data = _getCurrentBrakeDataDelegate();
-    const bool                     brakes_pressurized =
+    const bool brakes_pressurized =
         brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI && brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
 
     if (!_ebs_line_2_ok)

@@ -42,15 +42,15 @@ class SoHPersistenceInterface
 
   private:
     // EEPROM byte memory map
-    static constexpr int      EEPROM_MAGIC_ADDR = 16;
-    static constexpr int      EEPROM_THROUGHPUT_ADDR = 20;
+    static constexpr int EEPROM_MAGIC_ADDR = 16;
+    static constexpr int EEPROM_THROUGHPUT_ADDR = 20;
     static constexpr uint32_t MAGIC_NUMBER = 0x50484F53;
 
     static constexpr time_ms MIN_WRITE_INTERVAL_MS = 60000; // 1 minute
-    static constexpr float   MIN_DELTA_AH = 0.5f;
+    static constexpr float MIN_DELTA_AH = 0.5f;
 
-    double  _lifetime_ah_throughput = 0.0f;
-    double  _last_saved_ah = 0.0f;
+    double _lifetime_ah_throughput = 0.0f;
+    double _last_saved_ah = 0.0f;
     time_ms _last_write_ms = 0;
 };
 

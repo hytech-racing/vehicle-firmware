@@ -70,22 +70,22 @@ struct ADCThresholds_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s      pinout;
-    ADCConfigs_s     configs;
+    ADCPinout_s pinout;
+    ADCConfigs_s configs;
     ADCConversions_s conversions;
-    ADCThresholds_s  thresholds;
-    float            bit_resolution;
+    ADCThresholds_s thresholds;
+    float bit_resolution;
 };
 
 class ADCInterface
 {
   public:
     ADCInterface(
-        ADCPinout_s      pinout,
+        ADCPinout_s pinout,
         ADCConversions_s conversions,
-        float            bit_resolution,
-        ADCConfigs_s     configs = {.teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
-        ADCThresholds_s  thresholds =
+        float bit_resolution,
+        ADCConfigs_s configs = {.teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
+        ADCThresholds_s thresholds =
             {.teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
              .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
              .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD})
@@ -207,7 +207,7 @@ class ADCInterface
 
   private:
     const ADCInterfaceParams_s _adc_parameters = {};
-    ButtonInterface            _reset_error_button;
+    ButtonInterface _reset_error_button;
 
     /**
      * @brief timestamp captured in init()

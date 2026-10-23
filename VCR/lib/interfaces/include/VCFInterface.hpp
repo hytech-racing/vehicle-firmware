@@ -16,11 +16,11 @@
 
 struct VCFCANInterfaceData_s
 {
-    StampedPedalsSystemData_s   stamped_pedals;
+    StampedPedalsSystemData_s stamped_pedals;
     StampedSteeringSystemData_s stamped_steering;
-    DashInputState_s            dash_input_state;
-    FrontLoadCellData_s         front_loadcell_data;
-    FrontSusPotData_s           front_suspot_data;
+    DashInputState_s dash_input_state;
+    FrontLoadCellData_s front_loadcell_data;
+    FrontSusPotData_s front_suspot_data;
 };
 
 class VCFInterface
@@ -77,8 +77,8 @@ class VCFInterface
 
   private:
     mutable VCFCANInterfaceData_s _curr_data;
-    unsigned long                 _max_heartbeat_interval_ms;
-    mutable bool                  _first_received_message_heartbeat_init = false;
+    unsigned long _max_heartbeat_interval_ms;
+    mutable bool _first_received_message_heartbeat_init = false;
 };
 
 using VCFInterfaceInstance = etl::singleton<VCFInterface>;

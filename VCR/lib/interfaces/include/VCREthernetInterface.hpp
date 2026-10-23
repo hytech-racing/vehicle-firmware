@@ -41,16 +41,16 @@ class VCREthernetInterface
      * @return A populated instance of the outgoing protoc struct.
      */
     hytech_msgs_VCRData_s make_vcr_data_msg(
-        const ADCInterface&        adc_interface,
+        const ADCInterface& adc_interface,
         DrivetrainDynamicReport_s& DrivetrainData,
-        const VCFInterface&        vcf_interface,
+        const VCFInterface& vcf_interface,
         const VehicleStateMachine& vehicle_state_machine,
-        const DrivetrainSystem&    drivetrain_system,
-        const InverterInterface&   fl_inverter,
-        const InverterInterface&   fr_inverter,
-        const InverterInterface&   rl_inverter,
-        const InverterInterface&   rr_inverter,
-        const VCRControls&         vcr_controls);
+        const DrivetrainSystem& drivetrain_system,
+        const InverterInterface& fl_inverter,
+        const InverterInterface& fr_inverter,
+        const InverterInterface& rl_inverter,
+        const InverterInterface& rr_inverter,
+        const VCRControls& vcr_controls);
 
     /**
      * Function to take a populated protoc struct from the drivebrain and update the VCR state.

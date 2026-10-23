@@ -47,8 +47,8 @@ class DrivebrainInterface
     StampedDrivetrainCommand_s get_latest_auxillary_drivebrain_command();
 
   private:
-    IPAddress                        _drivebrain_ip;
-    uint16_t                         _vcr_data_port;
+    IPAddress _drivebrain_ip;
+    uint16_t _vcr_data_port;
     qindesign::network::EthernetUDP* _udp_socket;
 
     StampedDrivetrainCommand_s _latest_drivebrain_command_telem = {};

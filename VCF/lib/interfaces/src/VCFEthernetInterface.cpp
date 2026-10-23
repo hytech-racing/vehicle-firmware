@@ -17,7 +17,7 @@ void VCFEthernetInterface::initEthernetDevice()
 hytech_msgs_VCFData_s
 VCFEthernetInterface::make_vcf_data_msg(ADCInterface& adc_int, DashboardInterface& dash_int, PedalsSystem& pedals_sys, SteeringSystem& steering_sys, BrakeRotorTempInterface& brake_rotor_temp_int)
 {
-    auto                  fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};
 
     // has_value
@@ -116,7 +116,7 @@ VCFEthernetInterface::make_vcf_data_msg(ADCInterface& adc_int, DashboardInterfac
 
     // working with bytes in nanopb
     std::string_view version_view(version);
-    const size_t     version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
+    const size_t version_len = std::min(version_view.size(), sizeof(out.msg_versions.ht_proto_version.bytes));
     out.msg_versions.ht_proto_version.size = version_len;
     std::copy(version_view.begin(), version_view.begin() + version_len, std::begin(out.msg_versions.ht_proto_version.bytes));
 

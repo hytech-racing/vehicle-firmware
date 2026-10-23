@@ -117,7 +117,7 @@ void PedalsSystem::updateObservedPedalLimits(const PedalSensorData_s& curr_value
 float PedalsSystem::_pedalPercentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams& params)
 {
     const float divider = 2.0;
-    float       percent = (static_cast<float>(scaled_pedal_1) + static_cast<float>(scaled_pedal_2)) / divider;
+    float percent = (static_cast<float>(scaled_pedal_1) + static_cast<float>(scaled_pedal_2)) / divider;
     return _removeDeadzone(percent, params.deadzone_margin);
 }
 
@@ -161,7 +161,7 @@ bool PedalsSystem::_evaluatePedalOOR(int pedal_data, int min, int max)
 
 bool PedalsSystem::_evaluateMinMaxPedalImplausibilities(int pedal_data, int min, int max, float implaus_margin_scale)
 {
-    bool  pedal_swapped = false;
+    bool pedal_swapped = false;
     float pedal_margin = static_cast<float>(::abs(max - min)) * implaus_margin_scale;
     if (min > max)
     {
@@ -173,8 +173,8 @@ bool PedalsSystem::_evaluateMinMaxPedalImplausibilities(int pedal_data, int min,
     float float_pedal_data = static_cast<float>(pedal_data);
     float min_float = static_cast<float>(min);
     float max_float = static_cast<float>(max);
-    bool  pedal_less_than_min = pedal_swapped ? (float_pedal_data > (min_float + pedal_margin)) : (float_pedal_data < (min_float - pedal_margin));
-    bool  pedal_greater_than_max = pedal_swapped ? (float_pedal_data < (max_float - pedal_margin)) : (float_pedal_data > (max_float + pedal_margin));
+    bool pedal_less_than_min = pedal_swapped ? (float_pedal_data > (min_float + pedal_margin)) : (float_pedal_data < (min_float - pedal_margin));
+    bool pedal_greater_than_max = pedal_swapped ? (float_pedal_data < (max_float - pedal_margin)) : (float_pedal_data > (max_float + pedal_margin));
     return pedal_less_than_min || pedal_greater_than_max;
 }
 
@@ -182,7 +182,7 @@ float PedalsSystem::_removeDeadzone(float conversion_input, float deadzone)
 {
     // Your conversion input is basically pedal data over abs(max-min) to get it betwen 0-1. Then deadzone is removed from it.
     const float onner = 1.0;
-    float       range = onner - (deadzone * 2);
+    float range = onner - (deadzone * 2);
     // e.g. vals from 0 to 1, deadzone is .05, range is .9
     // subtract deadzone to be -.05 to .95 & clamp at 0
     float _system_data = std::max(conversion_input - deadzone, 0.0f); // max(1010 - 0.03, 0)

@@ -14,8 +14,8 @@ struct EMData_s
 {
     uint32_t prev_time_stamp_ms = 0;
     uint32_t time_since_prev_msg_ms = 0;
-    volt     em_voltage = 0;
-    float    em_current = 0;
+    volt em_voltage = 0;
+    float em_current = 0;
 };
 
 class EMInterface
