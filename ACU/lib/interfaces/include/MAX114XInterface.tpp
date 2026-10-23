@@ -4,7 +4,7 @@
  * Page 15: channel codes
  */
 
-#include "MAX114XInterface.h"
+#include "MAX114XInterface.hpp"
 
 
 template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion>

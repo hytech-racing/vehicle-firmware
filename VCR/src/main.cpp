@@ -1,7 +1,7 @@
-#include "VCR_Constants.h"
-#include "VCR_Globals.h"
-#include "VCR_InterfaceTasks.h"
-#include "VCR_SystemTasks.h"
+#include "VCR_Constants.hpp"
+#include "VCR_Globals.hpp"
+#include "VCR_InterfaceTasks.hpp"
+#include "VCR_SystemTasks.hpp"
 
 /* Schedular Dependencies */
 #include "ht_sched.hpp"
@@ -18,7 +18,7 @@ HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &run_kick_watchdog, VCRConstants::WATCHDOG_PRIORITY, VCRConstants::WATCHDOG_KICK_PERIOD_US);
 HT_TASK::Task async_main_task(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCRConstants::ASYNC_MAIN_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
 HT_TASK::Task send_CAN_task(HT_TASK::DUMMY_FUNCTION, handle_send_all_CAN_data, VCRConstants::SEND_CAN_PRIORITY, VCRConstants::SEND_CAN_PERIOD_US); // Sends all messages from the CAN queue
-HT_TASK::Task ams_system_task(HT_TASK::DUMMY_FUNCTION, update_acu_heartbeat, VCRConstants::AMS_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task ams_system_task(HT_TASK::DUMMY_FUNCTION, update_acu_heartbeat, VCRConstants::AMS_PRIORITY, VCRConstants::AMS_UPDATE_PERIOD_US);
 HT_TASK::Task enqueue_suspension_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_suspension_CAN_data, VCRConstants::SUSPENSION_PRIORITY, VCRConstants::SUSPENSION_CAN_PERIOD_US);
 HT_TASK::Task enqueue_inverter_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_inverter_CAN_data, VCRConstants::INVERTER_SEND_PRIORITY, VCRConstants::INVERTER_SEND_PERIOD_US);
 HT_TASK::Task vcr_data_ethernet_send(HT_TASK::DUMMY_FUNCTION, handle_send_VCR_ethernet_data, VCRConstants::ETHERNET_SEND_PRIORITY, VCRConstants::ETHERNET_SEND_PERIOD_US);
@@ -58,31 +58,20 @@ void setup()
     // Schedule scheduler tasks
     scheduler.schedule(adc_0_sample_task);
     scheduler.schedule(adc_1_sample_task);
-
     scheduler.schedule(kick_watchdog_task);
-
     scheduler.schedule(ams_system_task); // ensure ACU connection
     scheduler.schedule(enqueue_suspension_CAN_task);
     scheduler.schedule(enqueue_dashboard_CAN_task);
-
     scheduler.schedule(send_CAN_task);
-
     scheduler.schedule(vcr_data_ethernet_send);
-
     scheduler.schedule(enqueue_inverter_CAN_task);
     scheduler.schedule(enqueue_coolant_temp_CAN_task);
     scheduler.schedule(async_main_task);
-
     scheduler.schedule(enqueue_controls_CAN_task);
-
-    // scheduler.schedule(debug_state_print_task);
-
+    scheduler.schedule(debug_state_print_task);
     scheduler.schedule(update_brakelight_task);
-
     // scheduler.schedule(update_sample_flowmeter);
-
     scheduler.schedule(IOExpander_read_task);
-
     scheduler.schedule(run_enable_motor_cooling);
     scheduler.schedule(run_enable_inverter_cooling);
 }

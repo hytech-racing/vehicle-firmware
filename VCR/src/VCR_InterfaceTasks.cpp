@@ -1,4 +1,4 @@
-#include "VCR_InterfaceTasks.h"
+#include "VCR_InterfaceTasks.hpp"
 
 void initialize_all_interfaces()
 {
@@ -22,7 +22,12 @@ void initialize_all_interfaces()
 
     /* ---------- ADC Interface ---------- */
     ADCInterfaceInstance::create(
-        ADCPinout_s{VCRInterfaces::ADC0_CS, VCRInterfaces::ADC1_CS, VCRInterfaces::BRAKE_HIGH_SENSE_PIN, VCRInterfaces::CURRENT_HIGH_SENSE_PIN},
+        ADCPinout_s{
+            VCRInterfaces::ADC0_CS,
+            VCRInterfaces::ADC1_CS,
+            VCRInterfaces::BRAKE_HIGH_SENSE_PIN,
+            VCRInterfaces::CURRENT_HIGH_SENSE_PIN
+        },
         ADCChannels_s{
             VCRInterfaces::GLV_SENSE_CHANNEL,
             VCRInterfaces::CURRENT_SENSE_CHANNEL,
@@ -75,6 +80,10 @@ void initialize_all_interfaces()
             VCRInterfaces::COOLANT_TEMP_OFFSET});
     ADCInterfaceInstance::instance().init();
 
+    /* ---------- Ethernet Interface ---------- */
+    VCREthernetInterfaceInstance::create();
+    VCREthernetInterfaceInstance::instance().init_ethernet_device();
+
     /* ---------- Drivebrain Interface ---------- */
     DrivebrainInterfaceInstance::create(
         EthernetIPDefsInstance::instance().drivebrain_ip,
@@ -101,10 +110,6 @@ void initialize_all_interfaces()
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
-
-    /* ---------- Ethernet Interface ---------- */
-    VCREthernetInterfaceInstance::create();
-    VCREthernetInterfaceInstance::instance().init_ethernet_device();
 
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(
@@ -154,24 +159,24 @@ HT_TASK::TaskResponse read_ioexpander(const unsigned long &sysMicros, const HT_T
     IOExpanderInterfaceInstance::instance().read();
 
     // Inputs on Port A (0)
-    vcr_data.interface_data.shutdown_sensing_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_a(0);
+    vcr_data.interface_data.shutdown_sensing_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);
     // nothing = IOExpanderInterfaceInstance::instance().getBitPortA(1);
-    // vcr_data.interface_data.shutdown_sensing_data.bspd_fault = IOExpanderInterfaceInstance::instance().get_bit_port_a(2);
-    vcr_data.interface_data.ethernet_is_linked.vn_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(3);
-    vcr_data.interface_data.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(4);
-    vcr_data.interface_data.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(5);
-    // vcr_data.interface_data.shutdown_sensing_data.bspd_missing = IOExpanderInterfaceInstance::instance().get_bit_port_a(6);
-    // nothing = IOExpanderInterfaceInstance::instance().get_bit_port_a(7);
+    // vcr_data.interface_data.shutdown_sensing_data.bspd_fault = IOExpanderInterfaceInstance::instance().getBitPortA(2);
+    vcr_data.interface_data.ethernet_is_linked.vn_link = IOExpanderInterfaceInstance::instance().getBitPortA(3);
+    vcr_data.interface_data.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().getBitPortA(4);
+    vcr_data.interface_data.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().getBitPortA(5);
+    // vcr_data.interface_data.shutdown_sensing_data.bspd_missing = IOExpanderInterfaceInstance::instance().getBitPortA(6);
+    // nothing = IOExpanderInterfaceInstance::instance().getBitPortA(7);
 
     // Inputs on Port B (1)
-    // vcr_data.interface_data.shutdown_sensing_data.lv_present = IOExpanderInterfaceInstance::instance().get_bit_port_b(0);
-    vcr_data.interface_data.shutdown_sensing_data.bms_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(1);
-    vcr_data.interface_data.shutdown_sensing_data.imd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(2);
-    vcr_data.interface_data.shutdown_sensing_data.vcr_sw_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(3);
-    vcr_data.interface_data.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(4);
-    vcr_data.interface_data.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(5);
-    vcr_data.interface_data.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(6);
-    // nothing = IOExpanderInterfaceInstance::instance().get_bit_port_b(7);
+    // vcr_data.interface_data.shutdown_sensing_data.lv_present = IOExpanderInterfaceInstance::instance().getBitPortB(0);
+    vcr_data.interface_data.shutdown_sensing_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);
+    vcr_data.interface_data.shutdown_sensing_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);
+    vcr_data.interface_data.shutdown_sensing_data.vcr_sw_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3);
+    vcr_data.interface_data.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4);
+    vcr_data.interface_data.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().getBitPortB(5);
+    vcr_data.interface_data.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);
+    // nothing = IOExpanderInterfaceInstance::instance().getBitPortB(7);
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -314,7 +319,7 @@ namespace async_tasks
 
     VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s &can_interfaces)
     {
-        VCRInterfaceData_s ret;
+        VCRInterfaceData_s ret = vcr_data.interface_data;
 
         auto vcf_data = can_interfaces.vcf_interface.get_latest_data();
         auto acu_data = can_interfaces.acu_interface.get_latest_data(sys_time::hal_millis());
@@ -342,6 +347,7 @@ namespace async_tasks
         ret.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
 
         ret.recvd_pedals_data = vcf_data.stamped_pedals;
+        ret.recvd_steering_data = vcf_data.stamped_steering;
         ret.front_loadcell_data = vcf_data.front_loadcell_data;
         ret.front_suspot_data = vcf_data.front_suspot_data;
         ret.dash_input_state = vcf_data.dash_input_state;
@@ -355,7 +361,7 @@ namespace async_tasks
     {
         handle_async_recvs();
 
-        bool torque_mode_cycle_button_was_pressed = VCFInterfaceInstance::instance().get_latest_data().dash_input_state.BUTTON_2;
+        bool torque_mode_cycle_button_was_pressed = vcr_data.interface_data.dash_input_state.BUTTON_2;
 
         VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
 
@@ -386,53 +392,53 @@ namespace async_tasks
 
 HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
 {
-    // Serial.println("time\t:\taccel\t:\tbrake");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.last_recv_millis);
-    // Serial.print("\t:\t");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.accel_percent);
-    // Serial.print("\t:\t");
-    // Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.brake_percent);
-    // Serial.println();
-    // Serial.print("pedals heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
-    // Serial.println();
-    // Serial.print("steering heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
-    // Serial.println();
-    // Serial.print("Pedals Brake Is Active: "); Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
-    // Serial.println();
-    // Serial.print("Is Start Button Active: "); Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
-    // Serial.println();
+    Serial.println("time\t:\taccel\t:\tbrake");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.last_recv_millis);
+    Serial.print("\t:\t");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.accel_percent);
+    Serial.print("\t:\t");
+    Serial.print(vcr_data.interface_data.recvd_pedals_data.pedals_data.brake_percent);
+    Serial.println();
+    Serial.print("pedals heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_pedals_data.heartbeat_ok);
+    Serial.println();
+    Serial.print("steering heartbeat good: "); Serial.print(vcr_data.interface_data.recvd_steering_data.heartbeat_ok);
+    Serial.println();
+    Serial.print("Pedals Brake Is Active: "); Serial.print(VCFInterfaceInstance::instance().is_brake_pressed() ? "YES" : "NO");
+    Serial.println();
+    Serial.print("Is Start Button Active: "); Serial.print(VCFInterfaceInstance::instance().is_start_button_pressed() ? "YES" : "NO");
+    Serial.println();
 
     // Serial.println();
     // Serial.println();
 
-    // Serial.print("Drivetrain system state: ");
-    // Serial.println(static_cast<int>(DrivetrainInstance::instance().get_state()));
-    // Serial.print("Diagnostic FL #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FL.diagnostic_number);
-    // Serial.print(" FR #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FR.diagnostic_number);
-    // Serial.print(" RL #: ");
-    // Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.RL.diagnostic_number);
-    // Serial.print(" RR #: ");
-    // Serial.println(DrivetrainInstance::instance().get_status().inverter_statuses.RR.diagnostic_number);
+    Serial.print("Drivetrain system state: ");
+    Serial.println(static_cast<int>(DrivetrainInstance::instance().get_state()));
+    Serial.print("Diagnostic FL #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FL.diagnostic_number);
+    Serial.print(" FR #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.FR.diagnostic_number);
+    Serial.print(" RL #: ");
+    Serial.print(DrivetrainInstance::instance().get_status().inverter_statuses.RL.diagnostic_number);
+    Serial.print(" RR #: ");
+    Serial.println(DrivetrainInstance::instance().get_status().inverter_statuses.RR.diagnostic_number);
 
-    // Serial.print("Vehicle state machine state: ");
-    // Serial.println(static_cast<int>(VehicleStateMachineInstance::instance().get_state()));
-    // Serial.println();
-    // Serial.print("launch controller state: ");
-    // Serial.println(static_cast<int>(VCRControlsInstance::instance().get_launch_controller().get_launch_state()));
+    Serial.print("Vehicle state machine state: ");
+    Serial.println(static_cast<int>(VehicleStateMachineInstance::instance().get_state()));
+    Serial.println();
+    Serial.print("launch controller state: ");
+    Serial.println(static_cast<int>(VCRControlsInstance::instance().get_launch_controller().get_launch_state()));
 
-    // Serial.print("Start button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.start_btn_is_pressed);
+    Serial.print("Start button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.start_btn_is_pressed);
 
-    // Serial.print("pedal recalibrate button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.preset_btn_is_pressed);
+    Serial.print("pedal recalibrate button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.preset_btn_is_pressed);
 
-    // Serial.print("mc reset button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.mc_reset_btn_is_pressed);
+    Serial.print("mc reset button pressed: ");
+    Serial.println(vcr_data.interface_data.dash_input_state.mc_reset_btn_is_pressed);
 
     // Serial.print("torque mode cycle button pressed: ");
-    // Serial.println(vcr_data.interface_data.dash_input_state.mode_btn_is_pressed);
+    // Serial.println(vcr_data.interface_data.dash_input_state.);
 
     // Serial.println("IOExpander testing");
     // auto& s = vcr_data.interface_data.shutdown_sensing_data;
@@ -445,7 +451,7 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
 
     // snprintf(buf, sizeof(buf),
     //     "%-10d %-14d %-13d %-10d %-8d %-6d",
-    //     s.bspd_is_ok, s.bspd_missing, s.bspd_fault,
+    //     s.bspd_is_ok, s.bs, s.bspd_fault,
     //     s.watchdog_is_ok, s.bms_is_ok, s.imd_is_ok
     // );
     // Serial.println(buf);
@@ -468,16 +474,16 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
     // Serial.println();
 
     Serial.print("Load Cell RR: ");
-    Serial.println(vcr_data.interface_data.rear_loadcell_data.RR_loadcell_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_filtered_RR_load_cell());
 
     Serial.print("Load Cell RL: ");
-    Serial.println(vcr_data.interface_data.rear_loadcell_data.RL_loadcell_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_filtered_RL_load_cell());
 
     Serial.print("SusPot RR: ");
-    Serial.println(vcr_data.interface_data.rear_suspot_data.RR_sus_pot_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_RR_sus_pot().conversion);
 
     Serial.print("SusPot RL: ");
-    Serial.println(vcr_data.interface_data.rear_suspot_data.RL_sus_pot_analog);
+    Serial.println(ADCInterfaceInstance::instance().get_RL_sus_pot().conversion);
 
     // /* Drivebrain data */
     // Serial.print("Latest Drivebrain data: ");
@@ -489,25 +495,21 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
     // Serial.print(" ");
     // Serial.println(vcr_data.interface_data.inverter_data.RR.commanded_torque);
 
-    // Serial.println("desired speeds, torq lim");
-    // Serial.print("FL:   ");
-    // Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.FL); Serial.print(" ");
-    // Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.FL);
-
-    Serial.print("FR:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.FR);
-    Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.FR);
-
-    Serial.print("RL:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.RL);
-    Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.RL);
-
-    Serial.print("RR:   ");
-    Serial.print(VCRControlsInstance::instance()._debug_dt_command.desired_speeds.RR);
-    Serial.print(" ");
-    Serial.println(VCRControlsInstance::instance()._debug_dt_command.torque_limits.RR);
+    /* Drivetrain command sent to the inverters (zero unless the controller is commanding, e.g. READY_TO_DRIVE) */
+    const auto &dt_command = VCRControlsInstance::instance()._debug_dt_command;
+    Serial.println("Drivetrain Command:");
+    Serial.println("\t\tFL\tFR\tRL\tRR");
+    Serial.print("Speed (rpm)\t");
+    Serial.print(dt_command.desired_speeds.FL); Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.FR); Serial.print("\t");
+    Serial.print(dt_command.desired_speeds.RL); Serial.print("\t");
+    Serial.println(dt_command.desired_speeds.RR);
+    Serial.print("Torque Lim (Nm)\t");
+    Serial.print(dt_command.torque_limits.FL); Serial.print("\t");
+    Serial.print(dt_command.torque_limits.FR); Serial.print("\t");
+    Serial.print(dt_command.torque_limits.RL); Serial.print("\t");
+    Serial.println(dt_command.torque_limits.RR);
+    Serial.println();
 
     Serial.print("Current Controller Mode: ");
     Serial.println(static_cast<uint8_t>(vcr_data.interface_data.dash_input_state.dial_state));

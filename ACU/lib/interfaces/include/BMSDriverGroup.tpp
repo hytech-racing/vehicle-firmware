@@ -1,6 +1,6 @@
 /* Library Includes */
-#include "BMSDriverGroup.h"
-#include "LTCSPIInterface.h"
+#include "BMSDriverGroup.hpp"
+#include "LTCSPIInterface.hpp"
 #include <array>
 #include <string>
 #include <cmath>

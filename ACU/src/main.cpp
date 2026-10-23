@@ -1,6 +1,6 @@
-#include "ACU_Constants.h"
-#include "ACU_InterfaceTasks.h"
-#include "ACU_SystemTasks.h"
+#include "ACU_Constants.hpp"
+#include "ACU_InterfaceTasks.hpp"
+#include "ACU_SystemTasks.hpp"
 
 /* Schedular Dependencies */
 #include "ht_sched.hpp"

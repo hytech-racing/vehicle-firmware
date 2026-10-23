@@ -1,4 +1,4 @@
-#include "VCREthernetInterface.h"
+#include "VCREthernetInterface.hpp"
 #include "hytech_msgs_version.h"
 
 
@@ -63,18 +63,18 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
 
     IOExpanderInterfaceInstance::instance().read();
 
-    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_a(0);       // GPA0 = BSPD_OK_SENSE
-    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(3);   // GPB3 = VCR_OK_SENSE
-    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(1);        // GPB1 = BMS_OK_SENSE
-    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().get_bit_port_b(2);        // GPB2 = IMD_OK_SENSE
+    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);       // GPA0 = BSPD_OK_SENSE
+    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3);   // GPB3 = VCR_OK_SENSE
+    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);        // GPB1 = BMS_OK_SENSE
+    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);        // GPB2 = IMD_OK_SENSE
 
     // VCREthernetLinkData_s
-    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(4);        // GPB4 = ACU_LINK_SENSE
+    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4);        // GPB4 = ACU_LINK_SENSE
     // out.ethernet_is_linked.debug_link = shared_state.interface_data.ethernet_is_linked.debug_link; // TODO: fix this still
-    out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(4); // GPA4 = DB_LINK_SENSE
-    out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(5);     // GPB5 = TEENSY_LINK_SENSE
-    out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().get_bit_port_a(5);   // GPA5 = Ubiquiti_LINK_SENSE
-    out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().get_bit_port_b(6);        // GPB6 = VCF_LINK_SENSE
+    out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().getBitPortA(4); // GPA4 = DB_LINK_SENSE
+    out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().getBitPortB(5);     // GPB5 = TEENSY_LINK_SENSE
+    out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().getBitPortA(5);   // GPA5 = Ubiquiti_LINK_SENSE
+    out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);        // GPB6 = VCF_LINK_SENSE
 
     // veh_vec<InverterData>
     copy_inverter_data(fl_inverter.get_all_inverter_data(), out.inverter_data.FL);
@@ -118,7 +118,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(const ADCInterface
     out.firmware_version_info.project_on_main_or_master = device_status_t::project_on_main_or_master;
     std::copy(fw_version_hash.begin(), fw_version_hash.end(), out.firmware_version_info.git_hash);
     out.has_msg_versions = true;
-    out.msg_versions.ht_can_version = HT_CAN_LIB_VERSION;
+    out.msg_versions.ht_can_version = HT_CAN_VERSION;
 
     // working with bytes in nanopb
     std::string_view version_view(version);

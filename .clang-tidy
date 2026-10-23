@@ -2,7 +2,22 @@ Checks: 'bugprone-*, cppcoreguidelines-*, readability-identifier-naming, -cppcor
 WarningsAsErrors: 'cppcoreguidelines-*, bugprone-*, readability-identifier-naming'
 FormatStyle: 'file'
 SystemHeaders: false
+HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
 CheckOptions:
-  - { key: readability-identifier-naming.ClassMemberCase, value: 'lower_case' }
-  - { key: readability-identifier-naming.ClassMemberPrefix, value: '_' }
-  - { key: readability-identifier-naming.FunctionCase, value: 'lower_case' }
+  # Variables: snake_case
+  - { key: readability-identifier-naming.VariableCase,      value: 'lower_case' }
+  - { key: readability-identifier-naming.ParameterCase,     value: 'lower_case' }
+  - { key: readability-identifier-naming.MemberCase,        value: 'lower_case' }
+  - { key: readability-identifier-naming.ClassMemberCase,   value: 'lower_case' }
+
+  # Free functions: snake_case (from your existing config)
+  - { key: readability-identifier-naming.FunctionCase,      value: 'lower_case' }
+
+  # Methods: lowerCamelCase
+  - { key: readability-identifier-naming.MethodCase,        value: 'camelBack' }
+
+  # Private members and methods: leading underscore
+  - { key: readability-identifier-naming.PrivateMemberCase,   value: 'lower_case' }
+  - { key: readability-identifier-naming.PrivateMemberPrefix, value: '_' }
+  - { key: readability-identifier-naming.PrivateMethodCase,   value: 'camelBack' }
+  - { key: readability-identifier-naming.PrivateMethodPrefix, value: '_' }
