@@ -1,13 +1,11 @@
-#include <Arduino.h>
-#include <SPI.h>
-#include <EventResponder.h>
-
-#include <array>
-
 #include "ACU_Constants.hpp"
-
-#include "SystemTimeInterface.h"
 #include "BMSDriverGroup.hpp"
+#include "SystemTimeInterface.h"
+
+#include <Arduino.h>
+#include <EventResponder.h>
+#include <SPI.h>
+#include <array>
 
 using namespace std;
 
@@ -50,7 +48,8 @@ void async_event_responder(EventResponderRef event_responder)
         Serial.println("RX DATA after Callback:");
         for (size_t i = 0; i < buffer_size; i++)
         {
-            Serial.print(read_rx_buf[i], HEX); Serial.print(" ");
+            Serial.print(read_rx_buf[i], HEX);
+            Serial.print(" ");
         }
         Serial.println();
         dma_busy = false;
@@ -81,11 +80,13 @@ void loop()
 {
     if (timer > 3)
     {
-        Serial.print("TIMER AT: "); Serial.println(timer);
+        Serial.print("TIMER AT: ");
+        Serial.println(timer);
         timer = 0;
         if (!dma_busy)
         {
-            auto send = [&](auto* tx, auto* rx, size_t len) {
+            auto send = [&](auto* tx, auto* rx, size_t len)
+            {
                 ltc_spi_interface::write_and_delay_low(ACUConstants::CS[1], pulse_time);
                 ltc_spi_interface::write_and_delay_high(ACUConstants::CS[1], pulse_time);
                 SPI1.beginTransaction(SPISettings(spi_baudrate, MSBFIRST, SPI_MODE3));

@@ -21,30 +21,25 @@
 
 struct Level2SystemThresholds_s
 {
-    const float state_B2_control_voltage_min      = 6.36F;
-    const float state_B2_control_voltage_max      = 9.59F;
-    const float state_B2_proximity_voltage_min    = 1.23F;
-    const float state_B2_proximity_voltage_max    = 1.82F;
-    const float state_C2_control_voltage_min      = 4.00F;
-    const float state_C2_control_voltage_max      = 6.53F;
-    const float state_C2_proximity_voltage_min    = 1.23F;
-    const float state_C2_proximity_voltage_max    = 1.82F;
+    const float state_B2_control_voltage_min = 6.36F;
+    const float state_B2_control_voltage_max = 9.59F;
+    const float state_B2_proximity_voltage_min = 1.23F;
+    const float state_B2_proximity_voltage_max = 1.82F;
+    const float state_C2_control_voltage_min = 4.00F;
+    const float state_C2_control_voltage_max = 6.53F;
+    const float state_C2_proximity_voltage_min = 1.23F;
+    const float state_C2_proximity_voltage_max = 1.82F;
 };
 
 class Level2System
 {
-public:
-
-    Level2System(Level2Interface& level2_interface,
-                ADCInterface& adc_interface,
-                WatchdogInterface& watchdog_interface,
-                Level2SystemThresholds_s thresholds = {}
-    ) :
-        _level2_interface(level2_interface),
-        _adc_interface(adc_interface),
-        _watchdog_interface(watchdog_interface),
-        _thresholds(thresholds)
-    {};
+  public:
+    Level2System(
+        Level2Interface& level2_interface,
+        ADCInterface& adc_interface,
+        WatchdogInterface& watchdog_interface,
+        Level2SystemThresholds_s thresholds = {})
+        : _level2_interface(level2_interface), _adc_interface(adc_interface), _watchdog_interface(watchdog_interface), _thresholds(thresholds) {};
 
     /**
      * Function check for the expected startup/120V Charging Conditions (4):
@@ -84,13 +79,11 @@ public:
      */
     bool check_state_C2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
-private:
-
+  private:
     Level2Interface& _level2_interface;
     ADCInterface& _adc_interface;
     WatchdogInterface& _watchdog_interface;
     Level2SystemThresholds_s _thresholds;
-
 };
 
 using Level2SystemInstance = etl::singleton<Level2System>;

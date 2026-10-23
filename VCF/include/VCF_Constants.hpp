@@ -2,11 +2,11 @@
 #define VCF_CONSTANTS
 
 /* External Includes */
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 using pin = uint8_t;
-using degree  = float;
+using degree = float;
 using time_us = uint32_t;
 
 
@@ -25,71 +25,71 @@ namespace VCFInterfaces
     /* ADC Versions*/
     /* Channels on ADC_0 */
     // constexpr int UNUSED_CHANNEL         = 0;
-    constexpr int PEDAL_REF_2V5_CHANNEL     = 1;
-    constexpr int STEERING_1_CHANNEL        = 2;
-    constexpr int STEERING_2_CHANNEL        = 3;
-    constexpr int ACCEL_1_CHANNEL           = 4;
-    constexpr int ACCEL_2_CHANNEL           = 5;
-    constexpr int BRAKE_1_CHANNEL           = 6;
-    constexpr int BRAKE_2_CHANNEL           = 7;
+    constexpr int PEDAL_REF_2V5_CHANNEL = 1;
+    constexpr int STEERING_1_CHANNEL = 2;
+    constexpr int STEERING_2_CHANNEL = 3;
+    constexpr int ACCEL_1_CHANNEL = 4;
+    constexpr int ACCEL_2_CHANNEL = 5;
+    constexpr int BRAKE_1_CHANNEL = 6;
+    constexpr int BRAKE_2_CHANNEL = 7;
 
     /* Channels on ADC_1 */
-    constexpr int SHDN_H_CHANNEL                = 0;
-    constexpr int SHDN_D_CHANNEL                = 1;
-    constexpr int FL_LOADCELL_CHANNEL           = 2;
-    constexpr int FR_LOADCELL_CHANNEL           = 3;
-    constexpr int FR_SUS_POT_CHANNEL            = 4;
-    constexpr int FL_SUS_POT_CHANNEL            = 5;
-    constexpr int BRAKE_PRESSURE_FRONT_CHANNEL  = 6;
-    constexpr int BRAKE_PRESSURE_REAR_CHANNEL   = 7;
+    constexpr int SHDN_H_CHANNEL = 0;
+    constexpr int SHDN_D_CHANNEL = 1;
+    constexpr int FL_LOADCELL_CHANNEL = 2;
+    constexpr int FR_LOADCELL_CHANNEL = 3;
+    constexpr int FR_SUS_POT_CHANNEL = 4;
+    constexpr int FL_SUS_POT_CHANNEL = 5;
+    constexpr int BRAKE_PRESSURE_FRONT_CHANNEL = 6;
+    constexpr int BRAKE_PRESSURE_REAR_CHANNEL = 7;
 
     /* ADC scaling and offsets */
-    constexpr float PEDAL_REF_2V5_SCALE    = 1.0f;
-    constexpr float PEDAL_REF_2V5_OFFSET   = 0.0f;
+    constexpr float PEDAL_REF_2V5_SCALE = 1.0f;
+    constexpr float PEDAL_REF_2V5_OFFSET = 0.0f;
 
-    constexpr float STEERING_1_SCALE       = 1.0f; // TODO: calibrate
-    constexpr float STEERING_1_OFFSET      = 0.0f;
-    constexpr float STEERING_2_SCALE       = 1.0f; // TODO: calibrate
-    constexpr float STEERING_2_OFFSET      = 0.0f;
+    constexpr float STEERING_1_SCALE = 1.0f; // TODO: calibrate
+    constexpr float STEERING_1_OFFSET = 0.0f;
+    constexpr float STEERING_2_SCALE = 1.0f; // TODO: calibrate
+    constexpr float STEERING_2_OFFSET = 0.0f;
 
-    constexpr float ACCEL_1_SCALE          = 1.0f; // TODO: calibrate
-    constexpr float ACCEL_1_OFFSET         = 0.0f;
-    constexpr float ACCEL_2_SCALE          = 1.0f;
-    constexpr float ACCEL_2_OFFSET         = 0.0f;
+    constexpr float ACCEL_1_SCALE = 1.0f; // TODO: calibrate
+    constexpr float ACCEL_1_OFFSET = 0.0f;
+    constexpr float ACCEL_2_SCALE = 1.0f;
+    constexpr float ACCEL_2_OFFSET = 0.0f;
 
-    constexpr float BRAKE_1_SCALE          = 1.0f;
-    constexpr float BRAKE_1_OFFSET         = 0.0f;
-    constexpr float BRAKE_2_SCALE          = 1.0f;
-    constexpr float BRAKE_2_OFFSET         = 0.0f;
+    constexpr float BRAKE_1_SCALE = 1.0f;
+    constexpr float BRAKE_1_OFFSET = 0.0f;
+    constexpr float BRAKE_2_SCALE = 1.0f;
+    constexpr float BRAKE_2_OFFSET = 0.0f;
 
-    constexpr float SHDN_D_SCALE           = 0.00697841165926f;
-    constexpr float SHDN_D_OFFSET          = 0.0f;
-    constexpr float SHDN_H_SCALE           = 0.00697841165926f; // ADC read → shutdown voltage
-    constexpr float SHDN_H_OFFSET          = 0.0f;
+    constexpr float SHDN_D_SCALE = 0.00697841165926f;
+    constexpr float SHDN_D_OFFSET = 0.0f;
+    constexpr float SHDN_H_SCALE = 0.00697841165926f; // ADC read → shutdown voltage
+    constexpr float SHDN_H_OFFSET = 0.0f;
 
-    constexpr float FL_LOADCELL_SCALE      = 1.0f; // TODO: calibrate
-    constexpr float FL_LOADCELL_OFFSET     = 0.0f;
-    constexpr float FR_LOADCELL_SCALE      = 1.0f; // TODO: calibrate
-    constexpr float FR_LOADCELL_OFFSET     = 0.0f;
+    constexpr float FL_LOADCELL_SCALE = 1.0f; // TODO: calibrate
+    constexpr float FL_LOADCELL_OFFSET = 0.0f;
+    constexpr float FR_LOADCELL_SCALE = 1.0f; // TODO: calibrate
+    constexpr float FR_LOADCELL_OFFSET = 0.0f;
 
-    constexpr float FR_SUS_POT_SCALE       = 0.01396f; // mm between mounting bolts
-    constexpr float FR_SUS_POT_OFFSET      = 150.8f;
-    constexpr float FL_SUS_POT_SCALE       = 0.01396f;
-    constexpr float FL_SUS_POT_OFFSET      = 150.8f;
+    constexpr float FR_SUS_POT_SCALE = 0.01396f; // mm between mounting bolts
+    constexpr float FR_SUS_POT_OFFSET = 150.8f;
+    constexpr float FL_SUS_POT_SCALE = 0.01396f;
+    constexpr float FL_SUS_POT_OFFSET = 150.8f;
 
-    constexpr float BRAKE_PRESSURE_FRONT_SCALE  = 1.0f;
+    constexpr float BRAKE_PRESSURE_FRONT_SCALE = 1.0f;
     constexpr float BRAKE_PRESSURE_FRONT_OFFSET = 0.0f;
-    constexpr float BRAKE_PRESSURE_REAR_SCALE   = 1.0f;
-    constexpr float BRAKE_PRESSURE_REAR_OFFSET  = 0.0f;
+    constexpr float BRAKE_PRESSURE_REAR_SCALE = 1.0f;
+    constexpr float BRAKE_PRESSURE_REAR_OFFSET = 0.0f;
 
     /* Dashboard GPIO */
-    constexpr int BRIGHTNESS_CONTROL_PIN  = 26; // BUTTON_1 on schematic
-    constexpr int BUTTON_2                = 27; // BUTTON_2 on schematic
-    constexpr int BTN_PRESET_READ         = 28; // Pedals recal button
-    constexpr int BTN_START_READ          = 29; // RTD on schematic
-    constexpr int BTN_DATA_READ           = 30; // DATA_MARK on schematic
-    constexpr int BTN_MC_CYCLE_READ       = 31; // DB/MC_RESET on schematic
-    constexpr int BUZZER_CONTROL_PIN      = 32;
+    constexpr int BRIGHTNESS_CONTROL_PIN = 26; // BUTTON_1 on schematic
+    constexpr int BUTTON_2 = 27;               // BUTTON_2 on schematic
+    constexpr int BTN_PRESET_READ = 28;        // Pedals recal button
+    constexpr int BTN_START_READ = 29;         // RTD on schematic
+    constexpr int BTN_DATA_READ = 30;          // DATA_MARK on schematic
+    constexpr int BTN_MC_CYCLE_READ = 31;      // DB/MC_RESET on schematic
+    constexpr int BUZZER_CONTROL_PIN = 32;
 
     /* Watchdog Interface */
     constexpr pin WATCHDOG_KICK_PIN = 36;
@@ -97,7 +97,7 @@ namespace VCFInterfaces
 
     /* Neopixel Interface */
     constexpr int NEOPIXEL_CONTROL_PIN = 33;
-}
+} // namespace VCFInterfaces
 namespace VCFSystems
 {
     /* IO Expander */
@@ -130,10 +130,10 @@ namespace VCFSystems
 
     // Steering System Constants
     /* Steering */
-    constexpr float ANALOG_TOLERANCE = 0.05f;  // +/- 5% sensor tolerance
-    constexpr float DIGITAL_TOLERANCE = 0.05f;  // +/- 0.2 degree error
-    constexpr degree ERROR_BETWEEN_SENSORS_TOLERANCE = 5.0f;   // degrees
-    constexpr degree MAX_DTHETA_THRESHOLD = 50.0f;  // max angle change per sample (degrees)
+    constexpr float ANALOG_TOLERANCE = 0.05f;                // +/- 5% sensor tolerance
+    constexpr float DIGITAL_TOLERANCE = 0.05f;               // +/- 0.2 degree error
+    constexpr degree ERROR_BETWEEN_SENSORS_TOLERANCE = 5.0f; // degrees
+    constexpr degree MAX_DTHETA_THRESHOLD = 50.0f;           // max angle change per sample (degrees)
     constexpr degree DEG_PER_COUNT_DIGITAL = 360.0f / 16384.0f;
     constexpr degree DEG_PER_COUNT_ANALOG = 360.0f / 3686.4f;
 
@@ -148,17 +148,17 @@ namespace VCFSystems
     constexpr int32_t DIGITAL_MAX_WITH_MARGINS_ADDR = 52;
 
     /* Pedals System */
-    constexpr float ACCEL_ACTIVATION_PERCENTAGE            = 0.10f;
-    constexpr float ACCEL_DEADZONE_MARGIN                  = 0.03f;
+    constexpr float ACCEL_ACTIVATION_PERCENTAGE = 0.10f;
+    constexpr float ACCEL_DEADZONE_MARGIN = 0.03f;
     constexpr float ACCEL_MECHANICAL_ACTIVATION_PERCENTAGE = 0.05f;
-    constexpr float BRAKE_ACTIVATION_PERCENTAGE            = 0.50f;
-    constexpr float BRAKE_DEADZONE_MARGIN                  = 0.04f;
+    constexpr float BRAKE_ACTIVATION_PERCENTAGE = 0.50f;
+    constexpr float BRAKE_DEADZONE_MARGIN = 0.04f;
     constexpr float BRAKE_MECHANICAL_ACTIVATION_PERCENTAGE = 0.5f;
 
     /* Load cells */
     constexpr float LBS_TO_NEWTONS = 4.4482216153f;
 
-}
+} // namespace VCFSystems
 
 // software configuration constants
 namespace VCFConstants
@@ -217,7 +217,7 @@ namespace VCFConstants
 
     /* CAN Constants */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000; // 1 000 000 = 1 Mbit/s
-    constexpr uint32_t FAUX_CAN_BAUDRATE = 500000; // 500 000 = 500 Kbit/s
-}
+    constexpr uint32_t FAUX_CAN_BAUDRATE = 500000;   // 500 000 = 500 Kbit/s
+} // namespace VCFConstants
 
 #endif /* VCF_CONSTANTS */

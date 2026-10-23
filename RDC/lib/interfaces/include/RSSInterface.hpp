@@ -4,6 +4,7 @@
 #include "CANInterface.h"
 #include "FlexCAN_T4.h"
 #include "ht_can.h"
+
 #include <etl/singleton.h>
 
 constexpr uint8_t OPERATIONAL_MODE_STATE = 0x01;
@@ -21,15 +22,15 @@ struct RSSData_s
 
 class RSSInterface
 {
-    public:
+  public:
     RSSInterface() = delete;
     RSSInterface(uint8_t node_id)
         : _node_id(node_id)
     {
     }
 
-    void receiveRSSBootCANmsg(const CAN_message_t &msg, unsigned long long millis);
-    void receiveRSSStatusCANMsg(const CAN_message_t &msg, unsigned long long millis);
+    void receiveRSSBootCANmsg(const CAN_message_t& msg, unsigned long long millis);
+    void receiveRSSStatusCANMsg(const CAN_message_t& msg, unsigned long long millis);
     void enqueueSetOperationalCANMsg();
 
     bool isGoButtonPressed() const { return _data.is_go_button_pressed; }
@@ -41,7 +42,7 @@ class RSSInterface
     uint64_t getLastRecvMillis() const { return _data.last_recv_millis; }
     uint8_t getNodeID() const { return _node_id; }
 
-    private:
+  private:
     uint8_t _node_id;
     RSSData_s _data;
 };

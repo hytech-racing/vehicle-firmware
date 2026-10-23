@@ -1,6 +1,7 @@
 #include "DriverlessStateMachine.hpp"
 #include "DriverlessSystem.hpp"
 #include "RDC_Constants.hpp"
+
 #include <gtest/gtest.h>
 #include <stddef.h>
 #include <vector>
@@ -40,12 +41,12 @@ void record_fdc_command(bool toggle, uint8_t solenoid)
     fdc_commands.push_back(FdcCommand{toggle, solenoid});
 }
 
-#define ASSERT_FDC(index, expected_toggle, expected_solenoid)                                                                                                                                          \
-    do                                                                                                                                                                                                 \
-    {                                                                                                                                                                                                  \
-        ASSERT_LT(static_cast<size_t>(index), fdc_commands.size());                                                                                                                                    \
-        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].toggle, (expected_toggle));                                                                                                                 \
-        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].solenoid, static_cast<uint8_t>(expected_solenoid));                                                                                         \
+#define ASSERT_FDC(index, expected_toggle, expected_solenoid)                                                                                                  \
+    do                                                                                                                                                         \
+    {                                                                                                                                                          \
+        ASSERT_LT(static_cast<size_t>(index), fdc_commands.size());                                                                                            \
+        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].toggle, (expected_toggle));                                                                         \
+        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].solenoid, static_cast<uint8_t>(expected_solenoid));                                                 \
     } while (0)
 
 etl::delegate<void(bool, uint8_t)> mock_command_fdc = etl::delegate<void(bool, uint8_t)>::create<record_fdc_command>();
@@ -58,14 +59,16 @@ etl::delegate<bool()> mock_supervisor_ok = etl::delegate<bool()>::create([]() ->
 
 etl::delegate<unsigned long()> mock_millis = etl::delegate<unsigned long()>::create([]() -> unsigned long { return current_millis; });
 
-etl::delegate<BrakeFluidPressureData_s()> mock_brake_data = etl::delegate<BrakeFluidPressureData_s()>::create([]() -> BrakeFluidPressureData_s { return brake_data; });
+etl::delegate<BrakeFluidPressureData_s()> mock_brake_data =
+    etl::delegate<BrakeFluidPressureData_s()>::create([]() -> BrakeFluidPressureData_s { return brake_data; });
 
 etl::delegate<bool()> mock_eval_dsms_on = etl::delegate<bool()>::create([]() -> bool { return eval_dsms_on; });
 
 etl::delegate<VehicleState_e()> mock_eval_vehicle_state = etl::delegate<VehicleState_e()>::create([]() -> VehicleState_e { return eval_vehicle_state; });
 
-etl::delegate<bool()> mock_eval_ebs_pressure_ok =
-    etl::delegate<bool()>::create([]() -> bool { return ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; });
+etl::delegate<bool()> mock_eval_ebs_pressure_ok = etl::delegate<bool()>::create(
+    []() -> bool
+    { return ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; });
 
 DriverlessSystem make_driverless_system()
 {

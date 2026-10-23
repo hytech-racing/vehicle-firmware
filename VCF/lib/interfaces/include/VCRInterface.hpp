@@ -5,13 +5,14 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <Arduino.h>
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
+
+#include <Arduino.h>
 #include <FlexCAN_T4.h>
 
 /* Internal System Includes */
-#include "BuzzerController.hpp" 
+#include "BuzzerController.hpp"
 
 
 struct InverterErrorFlags_s
@@ -26,28 +27,30 @@ struct InverterBusVolts_s
 
 class VCRInterface
 {
-public:
+  public:
+    void receiveDashboardControlData(const CAN_message_t& can_msg);
 
-    void receiveDashboardControlData(const CAN_message_t &can_msg);
+    void recieveCarStatesCANMsg(const CAN_message_t& can_msg);
 
-    void recieveCarStatesCANMsg(const CAN_message_t &can_msg);
+    void receiveINV1StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV1StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV2StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV2StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV3StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV3StatusCANMsg(const CAN_message_t &can_msg);
-
-    void receiveINV4StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV4StatusCANMsg(const CAN_message_t& can_msg);
 
     /* State Observation + Control */
     bool arePedalsCalibrating() { return _is_in_pedals_calibration_state; }
 
-    bool isSteeringCalibrating() { return _is_in_steering_calibration_state; } //steering and pedals calibration states are the same, so we can use the same variable for both
+    bool isSteeringCalibrating()
+    {
+        return _is_in_steering_calibration_state;
+    } // steering and pedals calibration states are the same, so we can use the same variable for both
 
-    void disablePedalsCalibration() {_is_in_pedals_calibration_state = false;}
+    void disablePedalsCalibration() { _is_in_pedals_calibration_state = false; }
 
-    void disableSteeringCalibration() {_is_in_steering_calibration_state = false;}
+    void disableSteeringCalibration() { _is_in_steering_calibration_state = false; }
 
     /* Getters */
     VehicleState_e getVehicleState() const { return _vehicle_state_value; }
@@ -62,8 +65,7 @@ public:
 
     bool isInverterErrored();
 
-private:
-
+  private:
     bool _is_in_pedals_calibration_state = false;
     bool _is_in_steering_calibration_state = false;
     bool _is_db_in_ctrl;
@@ -75,7 +77,6 @@ private:
     // Creates object that reflects the inverter error status...the object holds the error flags for each inverter,
     // the getter above returns True if there's an error in any of the 4
     InverterErrorFlags_s _inv_error_status;
-
 };
 
 using VCRInterfaceInstance = etl::singleton<VCRInterface>;

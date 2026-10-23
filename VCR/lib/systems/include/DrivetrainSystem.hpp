@@ -5,16 +5,17 @@
 #include <stdint.h>
 
 /* ETL Library */
-#include <etl/variant.h>
 #include <etl/delegate.h>
 #include <etl/singleton.h>
+#include <etl/variant.h>
 
 /* External Includes */
+#include "SharedFirmwareTypes.h"
+#include "shared_types.hpp"
+
+#include <SysClock.h>
 #include <array>
 #include <functional>
-#include <SysClock.h>
-#include "shared_types.hpp"
-#include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
@@ -72,8 +73,7 @@ struct DrivetrainInit_s
 
 class DrivetrainSystem
 {
-public:
-
+  public:
     /**
      * etl::variants allow multiple types to be treated as a single type-- almost like an enum of types.
      * Here, we're just saying that when we refer to CmdVariant, the parameter can be any one of these
@@ -107,10 +107,12 @@ public:
         std::function<MotorMechanics_s()> get_motor_mechanics;
     };
 
-    DrivetrainSystem(veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces, etl::delegate<void(bool)> set_ef_active_pin, unsigned long ef_pin_enable_delay_ms = 50); //why not make delay a constant that can easily be changed elsewhere where other constants are changed
+    DrivetrainSystem(
+        veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+        etl::delegate<void(bool)> set_ef_active_pin,
+        unsigned long ef_pin_enable_delay_ms = 50); // why not make delay a constant that can easily be changed elsewhere where other constants are changed
 
-private:
-
+  private:
     /**
      * Internal functions for handling DSM state transitions.
      */
@@ -134,13 +136,13 @@ private:
     /**
      * Lambda functions defined on construction for the DSM state transitions.
      */
-    std::function<bool(const InverterStatus_s &)> _check_inverter_ready_flag;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_connected_flag;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_quit_dc_flag;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_no_errors_present;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_hv_present_flag;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_hv_not_present_flag;
-    std::function<bool(const InverterStatus_s &)> _check_inverter_enabled;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_ready_flag;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_connected_flag;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_quit_dc_flag;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_no_errors_present;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_hv_present_flag;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_hv_not_present_flag;
+    std::function<bool(const InverterStatus_s&)> _check_inverter_enabled;
 
     /**
      * Delegate function for setting ef active
@@ -149,7 +151,6 @@ private:
     unsigned long _last_toggled_ef_active = 0;
     unsigned long _ef_pin_enable_delay_ms;
     unsigned long _precharge_wait_start = 0;
-    
 };
 
 using DrivetrainInstance = etl::singleton<DrivetrainSystem>;

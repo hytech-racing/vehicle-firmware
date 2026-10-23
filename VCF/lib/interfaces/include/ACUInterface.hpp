@@ -5,27 +5,25 @@
 #include <etl/singleton.h>
 
 /* External Includes */
+#include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
-#include "CANInterface.h"
+
 #include <FlexCAN_T4.h>
 
 
 class ACUInterface
 {
-public:
-
+  public:
     ACUCoreData_s getLastReceivedData() { return _last_recvd_data; }
 
     float getMinCellVoltage() { return _min_cell_voltage; }
 
-    void receiveACUVoltages(const CAN_message_t &can_msg);
+    void receiveACUVoltages(const CAN_message_t& can_msg);
 
-private:
-
+  private:
     ACUCoreData_s _last_recvd_data;
     float _min_cell_voltage = 0;
-
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

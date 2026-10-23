@@ -5,8 +5,9 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <array>
 #include "SharedFirmwareTypes.h"
+
+#include <array>
 
 /* Local Interface Includes */
 #include "InverterInterface.hpp"

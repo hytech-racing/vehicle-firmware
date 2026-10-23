@@ -6,6 +6,7 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
+
 #include <EEPROM.h>
 
 
@@ -17,8 +18,7 @@
  */
 class SoHPersistenceInterface
 {
-public:
-
+  public:
     SoHPersistenceInterface() = default;
 
     /**
@@ -40,8 +40,7 @@ public:
      */
     bool save(double lifetime_ah_throughput, time_ms now, bool force = false);
 
-private:
-
+  private:
     // EEPROM byte memory map
     static constexpr int EEPROM_MAGIC_ADDR = 16;
     static constexpr int EEPROM_THROUGHPUT_ADDR = 20;
@@ -53,7 +52,6 @@ private:
     double _lifetime_ah_throughput = 0.0f;
     double _last_saved_ah = 0.0f;
     time_ms _last_write_ms = 0;
-
 };
 
 using SoHPersistenceInterfaceInstance = etl::singleton<SoHPersistenceInterface>;

@@ -2,13 +2,14 @@
 #define CHARGERINTERFACE_H
 
 /* ETL Library Includes */
-#include <etl/singleton.h>
 #include <etl/delegate.h>
+#include <etl/singleton.h>
 
 /* External Dependencies */
+#include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
-#include "CANInterface.h"
+
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
@@ -28,21 +29,20 @@ struct ChargerData_s
 
 class ChargerInterface
 {
-public:
+  public:
+    ChargerInterface(ACUInterface& acu_interface)
+        : _acu_interface(acu_interface) {};
 
-    ChargerInterface(ACUInterface& acu_interface) : _acu_interface(acu_interface) {};
-
-    void receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
+    void
+    receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
 
     void enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current);
 
-    ChargerData_s get_latest_charger_data() {return _charger_data;};
+    ChargerData_s get_latest_charger_data() { return _charger_data; };
 
-private:
-
+  private:
     ChargerData_s _charger_data;
     ACUInterface& _acu_interface;
-
 };
 
 using ChargerInterfaceInstance = etl::singleton<ChargerInterface>;

@@ -10,7 +10,8 @@
  * USAGE INSTRUCTIONS: In your implementation, create an instance of this
  * struct and use the default definitions for each IP.
  */
-struct EthernetIPDefs_s {
+struct EthernetIPDefs_s
+{
     const IPAddress debug_ip{192, 168, 3, 21};
     const IPAddress drivebrain_ip{192, 168, 3, 30};
     const IPAddress vcr_ip{192, 168, 3, 31};
