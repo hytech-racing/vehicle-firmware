@@ -57,13 +57,10 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
     }
     case DisplayView_e::VIEW_CHARGER:
     {
-        auto charger_data = ChargerInterfaceInstance::instance().get_latest_charger_data();
-        auto dc_output_V = ((charger_data.output_dc_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.output_dc_voltage_low)
-                           / default_display_params::DATA_SCALAR;
-        auto ac_input_V = ((charger_data.input_ac_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.input_ac_voltage_low)
-                          / default_display_params::DATA_SCALAR;
-        auto current_output_A =
-            ((charger_data.output_current_high << default_display_params::BYTE_SHIFT) | charger_data.output_current_low) / default_display_params::DATA_SCALAR;
+        auto& charger = ChargerInterfaceInstance::instance();
+        auto dc_output_V = charger.getDCOutputVoltageV();
+        auto ac_input_V = charger.getACInputVoltageV();
+        auto current_output_A = charger.getOutputCurrentA();
         _display.setTextSize(2);
 
         _display.print("Charger Output Current (A): ");

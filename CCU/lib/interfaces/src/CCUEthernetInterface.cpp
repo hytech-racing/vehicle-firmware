@@ -39,7 +39,7 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg()
     out.pack_voltage = latest_acu_data.pack_voltage;
     out.min_cell_temp = latest_acu_data.min_cell_temp;
     out.max_cell_temp = latest_acu_data.max_cell_temp;
-    out.avg_cell_temp = latest_acu_data.max_cell_temp;
+    out.avg_cell_temp = latest_acu_data.avg_cell_temp;
     out.max_board_temp = latest_acu_data.max_board_temp;
 
     out.cell_voltages_count = _ccu_params.num_cells;
@@ -70,11 +70,10 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg()
         (charge_system_data.current_charger_state == ChargerState_e::CHARGING_120
          || charge_system_data.current_charger_state == ChargerState_e::CHARGE_120_UNLATCHED); // this is very chud
 
-    ChargerData_s charger_data = ChargerInterfaceInstance::instance().get_latest_charger_data();
-    out.charger_current_output_A = ((charger_data.output_current_high >> 8) | charger_data.output_current_low) / 10.0f;
-    out.charger_dc_output_V = ((charger_data.output_dc_voltage_high >> 8) | charger_data.output_dc_voltage_low) / 10.0f;
-    out.charger_ac_input_V = ((charger_data.input_ac_voltage_high >> 8) | charger_data.input_ac_voltage_low) / 10.0f;
-    ;
+    auto& charger = ChargerInterfaceInstance::instance();
+    out.charger_current_output_A = charger.getOutputCurrentA();
+    out.charger_dc_output_V = charger.getDCOutputVoltageV();
+    out.charger_ac_input_V = charger.getACInputVoltageV();
 
     out.em_current_A = EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps;
     return out;
