@@ -84,7 +84,8 @@ void DrivebrainInterface::handle_enqueue_suspension_CAN_data(const ADCInterface&
 {
     REAR_SUSPENSION_t rear_sus_msg;
 
-    rear_sus_msg.rl_load_cell = adc_instance.get_filtered_RL_load_cell(); // TODO: probably want to make the CAN msg preserve some decimal points like the sus pots
+    rear_sus_msg.rl_load_cell =
+        adc_instance.get_filtered_RL_load_cell(); // TODO: probably want to make the CAN msg preserve some decimal points like the sus pots
     rear_sus_msg.rr_load_cell = adc_instance.get_filtered_RR_load_cell();
     rear_sus_msg.rl_shock_pot_ro = HT_CAN_rl_shock_pot_ro_toS(adc_instance.get_filtered_RL_sus_pot());
     rear_sus_msg.rr_shock_pot_ro = HT_CAN_rr_shock_pot_ro_toS(adc_instance.get_filtered_RR_sus_pot());

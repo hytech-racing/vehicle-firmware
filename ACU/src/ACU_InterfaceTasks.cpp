@@ -30,7 +30,10 @@ static ACUAllDataType_s make_acu_all_data()
 
     // Faults and packet stats
     out.max_consecutive_invalid_packet_count = fault_data.max_consecutive_invalid_packet_count;
-    std::copy(fault_data.consecutive_invalid_packet_counts.begin(), fault_data.consecutive_invalid_packet_counts.end(), out.consecutive_invalid_packet_counts.begin());
+    std::copy(
+        fault_data.consecutive_invalid_packet_counts.begin(),
+        fault_data.consecutive_invalid_packet_counts.end(),
+        out.consecutive_invalid_packet_counts.begin());
     out.valid_packet_rate = fault_data.valid_packet_rate;
 
     auto watchdog = WatchdogMetricsInstance::instance().get_watchdog_metrics();
@@ -81,7 +84,8 @@ void initialize_all_interfaces()
     Serial.begin(ACUInterfaces::SERIAL_BAUDRATE);
     analogReadResolution(ACUInterfaces::ANALOG_READ_RESOLUTION);
     /* Watchdog Interface */
-    WatchdogInstance::create(WatchdogPinout_s{ACUInterfaces::TEENSY_OK_PIN, ACUInterfaces::WD_KICK_PIN, ACUInterfaces::N_FAULTED_STATE_PIN, ACUInterfaces::SW_NOT_OK_PIN});
+    WatchdogInstance::create(
+        WatchdogPinout_s{ACUInterfaces::TEENSY_OK_PIN, ACUInterfaces::WD_KICK_PIN, ACUInterfaces::N_FAULTED_STATE_PIN, ACUInterfaces::SW_NOT_OK_PIN});
     WatchdogInstance::instance().init();
 
     /* ADC Interface */
@@ -183,7 +187,8 @@ void initialize_all_interfaces()
     /* CAN Interfaces Construct */
     CANInterfacesInstance::create(CCUInterfaceInstance::instance(), EMInterfaceInstance::instance());
 
-    ACUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
+    ACUCANInterfaceInstance::create(
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
 
 
     handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
@@ -202,7 +207,10 @@ HT_TASK::TaskResponse sample_bms_data(const unsigned long& sysMicros, const HT_T
     // Serial.print("PREVIOUS SPI STATE: "); Serial.println(BMSDriverInstance_t::instance().get_spi_state_name());
     BMSDriverInstance_t::instance().read_data();
     auto data = BMSDriverInstance_t::instance().get_bms_data();
-    BMSFaultDataManagerInstance_t::instance().update_from_valid_packets(data.valid_read_packets, BMSDriverInstance_t::instance().get_current_read_group(), data.cs_index);
+    BMSFaultDataManagerInstance_t::instance().update_from_valid_packets(
+        data.valid_read_packets,
+        BMSDriverInstance_t::instance().get_current_read_group(),
+        data.cs_index);
 
     // Serial.print("CURRENT READ GROUP: "); Serial.println(BMSDriverInstance_t::instance().get_current_read_group_name());
     // Serial.print("CURRENT SPI STATE:  "); Serial.println(BMSDriverInstance_t::instance().get_spi_state_name());
@@ -245,7 +253,8 @@ HT_TASK::TaskResponse sample_adc(const unsigned long& sysMicros, const HT_TASK::
 HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto data = make_acu_all_data();
-    ACUEthernetInterfaceInstance::instance().handle_send_ethernet_acu_core_data(ACUEthernetInterfaceInstance::instance().make_acu_core_data_msg(data.core_data));
+    ACUEthernetInterfaceInstance::instance().handle_send_ethernet_acu_core_data(
+        ACUEthernetInterfaceInstance::instance().make_acu_core_data_msg(data.core_data));
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -277,7 +286,9 @@ HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, c
 HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FaultLatchManagerInstance::instance().clear_if_not_faulted(ACUStateMachineInstance::instance().get_state() == ACUState_e::FAULTED);
-    FaultLatchManagerInstance::instance().update_imd_and_bms_latches(ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()), ACUControllerInstance::instance().get_status().bms_ok);
+    FaultLatchManagerInstance::instance().update_imd_and_bms_latches(
+        ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()),
+        ACUControllerInstance::instance().get_status().bms_ok);
 
     // TODO: Where should I get veh_shdn_out_latched from?
     VCRInterfaceInstance::instance().set_monitoring_data(
@@ -576,8 +587,8 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.println("V");
     // Serial.println();
 
-    // Serial.print("Is charging enabled: "); Serial.print(ACUControllerInstance::instance().get_status().balancing_enabled ? "YES" : "NO"); Serial.println(" Balancing status : ");
-    // for(bool status : check_and_get_balancing_status()) {
+    // Serial.print("Is charging enabled: "); Serial.print(ACUControllerInstance::instance().get_status().balancing_enabled ? "YES" : "NO"); Serial.println("
+    // Balancing status : "); for(bool status : check_and_get_balancing_status()) {
     //     Serial.print(status);
     //     Serial.print(" ");
     // }

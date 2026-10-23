@@ -3,7 +3,8 @@
 
 SOCKalmanFilter::SOCKalmanFilter()
     : _state{soc_ekf_constants::INITIAL_SOC, soc_ekf_constants::INITIAL_V1},
-      _PMatrix{{soc_ekf_constants::P_SOC_INITIAL, soc_ekf_constants::P_CROSS_INITIAL}, {soc_ekf_constants::P_CROSS_INITIAL, soc_ekf_constants::P_V1_INITIAL}} {};
+      _PMatrix{{soc_ekf_constants::P_SOC_INITIAL, soc_ekf_constants::P_CROSS_INITIAL}, {soc_ekf_constants::P_CROSS_INITIAL, soc_ekf_constants::P_V1_INITIAL}} {
+      };
 
 void SOCKalmanFilter::init(float initial_voltage)
 {

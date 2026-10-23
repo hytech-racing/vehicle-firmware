@@ -42,7 +42,9 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         _display.print("Min Cell Temp (C): ");
         _display.println(ACUInterfaceInstance::instance().getLatestData().min_cell_temp, 3);
         _display.print("Avg Cell Temp (C): ");
-        _display.println((ACUInterfaceInstance::instance().getLatestData().max_cell_temp + ACUInterfaceInstance::instance().getLatestData().min_cell_temp) / 2, 3);
+        _display.println(
+            (ACUInterfaceInstance::instance().getLatestData().max_cell_temp + ACUInterfaceInstance::instance().getLatestData().min_cell_temp) / 2,
+            3);
         _display.print("Current Scalar: ");
         _display.print(RotaryEncoderInterfaceInstance::instance().getValue());
         _display.println("%");
@@ -56,9 +58,12 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
     case DisplayView_e::VIEW_CHARGER:
     {
         auto charger_data = ChargerInterfaceInstance::instance().get_latest_charger_data();
-        auto dc_output_V = ((charger_data.output_dc_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.output_dc_voltage_low) / default_display_params::DATA_SCALAR;
-        auto ac_input_V = ((charger_data.input_ac_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.input_ac_voltage_low) / default_display_params::DATA_SCALAR;
-        auto current_output_A = ((charger_data.output_current_high << default_display_params::BYTE_SHIFT) | charger_data.output_current_low) / default_display_params::DATA_SCALAR;
+        auto dc_output_V = ((charger_data.output_dc_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.output_dc_voltage_low)
+                           / default_display_params::DATA_SCALAR;
+        auto ac_input_V = ((charger_data.input_ac_voltage_high << default_display_params::BYTE_SHIFT) | charger_data.input_ac_voltage_low)
+                          / default_display_params::DATA_SCALAR;
+        auto current_output_A =
+            ((charger_data.output_current_high << default_display_params::BYTE_SHIFT) | charger_data.output_current_low) / default_display_params::DATA_SCALAR;
         _display.setTextSize(2);
 
         _display.print("Charger Output Current (A): ");

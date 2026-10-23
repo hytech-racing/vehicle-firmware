@@ -75,7 +75,13 @@ class DisplayInterface
              .cycle_button_hold_time_reset_ms = default_display_params::CYCLE_BUTTON_HOLD_TIME_RESET_MS,
              .last_display_timestamp = 0,
              .sliding_window_display_interval_ms = default_display_params::SLIDING_WINDOW_DISPLAY_INTERVAL_MS})
-        : _display(pinout.teensy_lcd_cs_pin, pinout.teensy_lcd_dc_pin, pinout.teensy_lcd_mosi_pin, pinout.teensy_lcd_sck_pin, pinout.teensy_lcd_reset_pin, pinout.teensy_lcd_miso_pin),
+        : _display(
+              pinout.teensy_lcd_cs_pin,
+              pinout.teensy_lcd_dc_pin,
+              pinout.teensy_lcd_mosi_pin,
+              pinout.teensy_lcd_sck_pin,
+              pinout.teensy_lcd_reset_pin,
+              pinout.teensy_lcd_miso_pin),
           _pinout(pinout),
           _config(config),
           _display_time(0),

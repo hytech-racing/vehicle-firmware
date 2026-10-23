@@ -1,6 +1,9 @@
 #include <DrivetrainSystem.hpp>
 
-DrivetrainSystem::DrivetrainSystem(veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces, etl::delegate<void(bool)> set_ef_active_pin, unsigned long ef_pin_enable_delay_ms)
+DrivetrainSystem::DrivetrainSystem(
+    veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+    etl::delegate<void(bool)> set_ef_active_pin,
+    unsigned long ef_pin_enable_delay_ms)
     : _inverter_interfaces(inverter_interfaces),
       _state(DrivetrainState_e::NOT_CONNECTED),
       _check_inverter_ready_flag([](const InverterStatus_s& status) -> bool { return status.system_ready; }),
@@ -56,9 +59,14 @@ DrivetrainStatus_s DrivetrainSystem::evaluate_drivetrain(DrivetrainSystem::CmdVa
          && _inverter_interfaces.RL.get_status().connected
          && _inverter_interfaces.RR.get_status().connected);
     // while not all inverters are connected, some may still be here so we can return the entire status for partially connected drivetrain.
-    status.inverter_statuses = {_inverter_interfaces.FL.get_status(), _inverter_interfaces.FR.get_status(), _inverter_interfaces.RL.get_status(), _inverter_interfaces.RR.get_status()};
+    status.inverter_statuses = {
+        _inverter_interfaces.FL.get_status(),
+        _inverter_interfaces.FR.get_status(),
+        _inverter_interfaces.RL.get_status(),
+        _inverter_interfaces.RR.get_status()};
 
-    bool attempting_init_while_not_connected = ((state == DrivetrainState_e::NOT_CONNECTED) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED));
+    bool attempting_init_while_not_connected =
+        ((state == DrivetrainState_e::NOT_CONNECTED) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED));
 
     if (attempting_init_while_not_connected)
     {
@@ -150,7 +158,8 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
         inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
 
         bool requesting_init = false;
-        requesting_init = etl::holds_alternative<DrivetrainInit_s>(cmd) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED);
+        requesting_init =
+            etl::holds_alternative<DrivetrainInit_s>(cmd) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED);
 
         bool inverters_ready = false;
         inverters_ready = _check_inverter_flags(_check_inverter_ready_flag);
@@ -169,7 +178,8 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
         {
             _set_state(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
         }
-        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::hal_millis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2 seconds
+        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::hal_millis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2
+                                                                                                                            // seconds
         {
             _last_toggled_ef_active = sys_time::hal_millis();
             _set_ef_active_pin(true);

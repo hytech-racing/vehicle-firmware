@@ -83,7 +83,12 @@ class NeopixelController
         etl::delegate<void()> show,
         NeopixelControllerInputs_s controller_inputs,
         uint32_t neopixel_count)
-        : _setPixelColor(setPixelColor), _setBrightness(setBrightness), _show(show), _controller_inputs(controller_inputs), _current_brightness(64), _neopixel_count(neopixel_count) {};
+        : _setPixelColor(setPixelColor),
+          _setBrightness(setBrightness),
+          _show(show),
+          _controller_inputs(controller_inputs),
+          _current_brightness(64),
+          _neopixel_count(neopixel_count) {};
 
     void init();
 

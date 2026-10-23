@@ -37,7 +37,8 @@ namespace HT_SCHED
         while ((i > 0)
                && (
                    // check tasks are the same type and priority of shifting task is higher
-                   ((task._taskInfo.priority < _taskQueue[i - 1]->_taskInfo.priority) && (task._taskInfo.isIntervalFunction == _taskQueue[i - 1]->_taskInfo.isIntervalFunction))
+                   ((task._taskInfo.priority < _taskQueue[i - 1]->_taskInfo.priority)
+                    && (task._taskInfo.isIntervalFunction == _taskQueue[i - 1]->_taskInfo.isIntervalFunction))
                    // check shifting task is interval ask and compared task is idle
                    || ((_taskQueue[i - 1]->_taskInfo.isIntervalFunction == false) && (task._taskInfo.isIntervalFunction == true))))
         {
@@ -90,9 +91,11 @@ namespace HT_SCHED
                 // check if it's time to execute
                 if (
                     // for interval functions, see if nextExecutionMicros has passed
-                    ((task->_taskInfo.isIntervalFunction == true) && (task->_taskInfo.nextExecutionMicros - nowMicros >= task->_taskInfo.executionIntervalMicros))
+                    ((task->_taskInfo.isIntervalFunction == true)
+                     && (task->_taskInfo.nextExecutionMicros - nowMicros >= task->_taskInfo.executionIntervalMicros))
                     // for idle functions, see if time might conflict with interval function
-                    || ((task->_taskInfo.isIntervalFunction == false) && (task->_taskInfo.filteredExecutionDurationMicros + _microsFunction() < _timeOfNextExec)))
+                    || ((task->_taskInfo.isIntervalFunction == false)
+                        && (task->_taskInfo.filteredExecutionDurationMicros + _microsFunction() < _timeOfNextExec)))
                 {
                     // run its loop function
                     uint32_t dt = (uint32_t)_microsFunction();

@@ -56,7 +56,9 @@ bool MainChargeSystem::_is_safety_conditions_valid()
     is_acu_shutdown_low = ACUInterfaceInstance::instance().getLatestData().acu_state != ACUState_e::CHARGING; // NOLINT
 
     // Check for error state from state machine
-    is_ccu_shutdown_low = !(ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_120 || ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_240);
+    is_ccu_shutdown_low =
+        !(ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_120
+          || ChargerStateMachineInstance::instance().getState() == ChargerState_e::CHARGING_240);
 
     if (is_shutdown_low || is_acu_shutdown_low || is_ccu_shutdown_low)
     {

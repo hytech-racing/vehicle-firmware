@@ -45,7 +45,12 @@ void PedalsSystem::evaluatePedals(PedalSensorData_s pedals_data, unsigned long c
     bool brake_pedal_oor =
         (_evaluatePedalOOR(brake_1, static_cast<int>(_brake_params.min_sensor_pedal_1), static_cast<int>(_brake_params.max_sensor_pedal_1))
          || _evaluatePedalOOR(brake_2, static_cast<int>(_brake_params.min_sensor_pedal_2), static_cast<int>(_brake_params.max_sensor_pedal_2)));
-    bool implausibility = (_system_data.accel_is_implausible || _system_data.brake_and_accel_pressed_implausibility_high || _system_data.brake_is_implausible || brake_pedal_oor || accel_pedal_oor);
+    bool implausibility =
+        (_system_data.accel_is_implausible
+         || _system_data.brake_and_accel_pressed_implausibility_high
+         || _system_data.brake_is_implausible
+         || brake_pedal_oor
+         || accel_pedal_oor);
 
     // std::c_systemData << "implaus " << implausibility <<std::endl;
     // std::c_systemData << "accel_pedal_oor " << accel_pedal_oor <<std::endl;
@@ -145,10 +150,24 @@ bool PedalsSystem::_maxDurationOfImplausibilityExceeded(unsigned long curr_milli
     }
 }
 
-bool PedalsSystem::_evaluatePedalImplausibilities(float pedal_1_scaled, float pedal_2_scaled, int pedal_data1_analog, int pedal_data2_analog, const PedalsParams& params, float max_percent_diff)
+bool PedalsSystem::_evaluatePedalImplausibilities(
+    float pedal_1_scaled,
+    float pedal_2_scaled,
+    int pedal_data1_analog,
+    int pedal_data2_analog,
+    const PedalsParams& params,
+    float max_percent_diff)
 {
-    bool pedal1_min_max_implaus = _evaluateMinMaxPedalImplausibilities(pedal_data1_analog, static_cast<int>(params.min_pedal_1), static_cast<int>(params.max_pedal_1), params.implausibility_margin);
-    bool pedal2_min_max_implaus = _evaluateMinMaxPedalImplausibilities(pedal_data2_analog, static_cast<int>(params.min_pedal_2), static_cast<int>(params.max_pedal_2), params.implausibility_margin);
+    bool pedal1_min_max_implaus = _evaluateMinMaxPedalImplausibilities(
+        pedal_data1_analog,
+        static_cast<int>(params.min_pedal_1),
+        static_cast<int>(params.max_pedal_1),
+        params.implausibility_margin);
+    bool pedal2_min_max_implaus = _evaluateMinMaxPedalImplausibilities(
+        pedal_data2_analog,
+        static_cast<int>(params.min_pedal_2),
+        static_cast<int>(params.max_pedal_2),
+        params.implausibility_margin);
 
     bool sens_not_within_req_percent = ((::fabs(pedal_1_scaled - pedal_2_scaled)) > max_percent_diff); // DIVIDE BY 100
     return pedal1_min_max_implaus || pedal2_min_max_implaus || sens_not_within_req_percent;

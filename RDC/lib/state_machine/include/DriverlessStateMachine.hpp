@@ -35,7 +35,8 @@ class DriverlessStateMachine
 
   private:
     void _setState(DriverlessSystemState_e new_state, unsigned long curr_millis);
-    //@brief _handleEntryLogic runs whenever you enter a new state to clear values to their defaults. This way if we need to run startup checks multiple times we dont need to cycle LV.
+    //@brief _handleEntryLogic runs whenever you enter a new state to clear values to their defaults. This way if we need to run startup checks multiple times
+    //we dont need to cycle LV.
     void _handleEntryLogic(DriverlessSystemState_e new_state, unsigned long curr_millis);
 
     void _handleExitLogic(DriverlessSystemState_e prev_state, unsigned long curr_millis);

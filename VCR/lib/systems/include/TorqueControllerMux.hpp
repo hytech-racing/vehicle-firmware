@@ -111,7 +111,8 @@ class TorqueControllerMux
     /// @param input_state the active state of the car
     /// @return the active DrivetrainCommand_s to be sent to the drivetrain to command increases and
     /// decreases in torque
-    DrivetrainCommand_s get_drivetrain_command(ControllerMode_e requested_controller_type, TorqueLimit_e controller_command_torque_limit, const VCRData_s& input_state);
+    DrivetrainCommand_s
+    get_drivetrain_command(ControllerMode_e requested_controller_type, TorqueLimit_e controller_command_torque_limit, const VCRData_s& input_state);
 
   private:
     std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, num_controllers> _controller_evals;
@@ -129,7 +130,10 @@ class TorqueControllerMux
     size_t _num_motors;
     DrivetrainCommand_s _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
-    TorqueControllerMuxError_e can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data, DrivetrainCommand_s previous_controller_command, DrivetrainCommand_s desired_controller_out);
+    TorqueControllerMuxError_e can_switch_controller(
+        DrivetrainDynamicReport_s active_drivetrain_data,
+        DrivetrainCommand_s previous_controller_command,
+        DrivetrainCommand_s desired_controller_out);
 
     /// @brief Clamps negative rpms to 0f
     /// @param const DrivetrainCommand_s &command provides the rpm info as a DrivetrainCommand_s
@@ -157,7 +161,8 @@ class TorqueControllerMux
     /// @param float max_torque is used to indirectly specifiy the max power
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_power_limit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain, float power_limit, float max_torque);
+    DrivetrainCommand_s
+    _apply_power_limit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain, float power_limit, float max_torque);
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit
     /// regen at fullRegenLimitKPH (hardcoded in func)

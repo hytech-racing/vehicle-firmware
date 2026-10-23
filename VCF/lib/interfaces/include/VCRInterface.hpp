@@ -43,7 +43,10 @@ class VCRInterface
     /* State Observation + Control */
     bool arePedalsCalibrating() { return _is_in_pedals_calibration_state; }
 
-    bool isSteeringCalibrating() { return _is_in_steering_calibration_state; } // steering and pedals calibration states are the same, so we can use the same variable for both
+    bool isSteeringCalibrating()
+    {
+        return _is_in_steering_calibration_state;
+    } // steering and pedals calibration states are the same, so we can use the same variable for both
 
     void disablePedalsCalibration() { _is_in_pedals_calibration_state = false; }
 

@@ -16,7 +16,10 @@ const size_t buf_len = 8;
 
 void init_ethernet_device()
 {
-    Ethernet.begin(EthernetIPDefsInstance::instance().acu_ip, EthernetIPDefsInstance::instance().car_subnet, EthernetIPDefsInstance::instance().default_gateway);
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().acu_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     send_socket.begin(EthernetIPDefsInstance::instance().ACUCoreData_port);
     recv_socket.begin(EthernetIPDefsInstance::instance().DBData_port);
 }

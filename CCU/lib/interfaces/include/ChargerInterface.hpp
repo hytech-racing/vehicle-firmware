@@ -33,7 +33,8 @@ class ChargerInterface
     ChargerInterface(ACUInterface& acu_interface)
         : _acu_interface(acu_interface) {};
 
-    void receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
+    void
+    receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_milli, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage);
 
     void enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current);
 

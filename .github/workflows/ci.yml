@@ -167,7 +167,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format --dry-run --Werror "${files[@]}"
+          clang-format-20 --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 3 — build

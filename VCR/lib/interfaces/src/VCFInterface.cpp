@@ -42,7 +42,8 @@ void VCFInterface::receive_steering_message(const CAN_message_t& msg, unsigned l
     _curr_data.stamped_steering.steering_data.dtheta_exceeded_analog = steering_msg.steering_dtheta_exceeded_analog;
     _curr_data.stamped_steering.steering_data.dtheta_exceeded_digital = steering_msg.steering_dtheta_exceeded_digital;
     _curr_data.stamped_steering.steering_data.interface_sensor_error = steering_msg.steering_interface_sensor_error;
-    _curr_data.stamped_steering.steering_data.output_steering_angle = HT_CAN_steering_output_steering_angle_ro_fromS(steering_msg.steering_output_steering_angle_ro);
+    _curr_data.stamped_steering.steering_data.output_steering_angle =
+        HT_CAN_steering_output_steering_angle_ro_fromS(steering_msg.steering_output_steering_angle_ro);
     _curr_data.stamped_steering.steering_data.analog_raw = steering_msg.steering_analog_raw;
     _curr_data.stamped_steering.steering_data.digital_raw = steering_msg.steering_digital_raw;
 

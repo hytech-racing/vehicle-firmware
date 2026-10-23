@@ -199,7 +199,9 @@ TEST(TorqueControllerMuxTesting, test_mode0_evaluation)
     //                                                   static_cast<Controller *>(&simple_launch),
     //                                                   static_cast<Controller *>(&slip_launch)},
     //                                                  {false, true, false, false, false});
-    TorqueControllerMux<1> torque_controller_mux({std::bind(&TorqueControllerSimple::evaluate, std::ref(tc_simple), std::placeholders::_1, std::placeholders::_2)}, {false});
+    TorqueControllerMux<1> torque_controller_mux(
+        {std::bind(&TorqueControllerSimple::evaluate, std::ref(tc_simple), std::placeholders::_1, std::placeholders::_2)},
+        {false});
 
     VCRData_s mode_0_input_state;
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.5f;

@@ -122,7 +122,11 @@ class SteeringSystemTest : public ::testing::Test
     uint32_t _last_time_us = 0;
 
     /** One call of the steering task at an explicit time. */
-    void evaluateAt(const uint32_t analog_raw, const uint32_t digital_raw, const uint32_t time_us, const SteeringEncoderStatus_e status = SteeringEncoderStatus_e::NOMINAL)
+    void evaluateAt(
+        const uint32_t analog_raw,
+        const uint32_t digital_raw,
+        const uint32_t time_us,
+        const SteeringEncoderStatus_e status = SteeringEncoderStatus_e::NOMINAL)
     {
         _steering.evaluateSteering(analog_raw, hardcode_digital_data(digital_raw, status), time_us);
         _last_time_us = time_us;

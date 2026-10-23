@@ -3,7 +3,12 @@
 #include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
 
 
-void ChargerInterface::receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_millis, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage)
+void ChargerInterface::receiveChargerCANMsg(
+    const CAN_message_t& msg,
+    unsigned long curr_millis,
+    ACUInterface& acu_interface,
+    float max_pack_voltage,
+    float cell_cutoff_voltage)
 {
     CHARGER_DATA_t charger_data_msg;
     // charger_data_s charger_data; //NOLINT - needed for initialization
@@ -32,9 +37,9 @@ void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float 
 
     // NOTE: The "high" and "low" values are not max and min-- rather, they are the "high" and "low" bytes of a 16-bit integer.
     CHARGER_CONTROL_t charger_control = {};
-    charger_control.max_charging_voltage_high = 0x14;                                                // NOLINT (see comment) - need to change this in PCAN library
-    charger_control.max_charging_voltage_low = 0xB4;                                                 // NOLINT (see comment)
-    charger_control.max_charging_current_high = 0;                                                   // only "low" is being used/harnessed in
+    charger_control.max_charging_voltage_high = 0x14; // NOLINT (see comment) - need to change this in PCAN library
+    charger_control.max_charging_voltage_low = 0xB4;  // NOLINT (see comment)
+    charger_control.max_charging_current_high = 0;    // only "low" is being used/harnessed in
     charger_control.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
     CAN_util::enqueue_msg(&charger_control, &Pack_CHARGER_CONTROL_ht_can, CCUCANInterfaceInstance::instance().charger_can_tx_buffer);
 }

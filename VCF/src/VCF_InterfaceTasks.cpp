@@ -93,9 +93,14 @@ void initializeAllInterfaces()
     VCRInterfaceInstance::create();
 
     /* CAN Interfaces */
-    CANInterfacesInstance::create(ACUInterfaceInstance::instance(), BrakeRotorTempInterfaceInstance::instance(), DashboardInterfaceInstance::instance(), VCRInterfaceInstance::instance());
+    CANInterfacesInstance::create(
+        ACUInterfaceInstance::instance(),
+        BrakeRotorTempInterfaceInstance::instance(),
+        DashboardInterfaceInstance::instance(),
+        VCRInterfaceInstance::instance());
 
-    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
+    VCFCANInterfaceInstance::create(
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
 
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
@@ -229,8 +234,8 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 // }
 
 // HT_TASK::TaskResponse run_handle_receive_vcr_ethernet_data() {
-//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&VCFEthernetInterface::VCF_socket,
-//     &hytech_msgs_VCRData_s_msg);
+//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size,
+//     hytech_msgs_VCRData_s>(&VCFEthernetInterface::VCF_socket, &hytech_msgs_VCRData_s_msg);
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }
@@ -238,7 +243,8 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    bool was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
+    bool was_dim_btn_pressed =
+        DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
     DashInputState_s current_state = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
     if (!current_state.preset_btn_is_pressed) // preset btn tied to brightness control on schematic

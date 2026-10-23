@@ -23,7 +23,11 @@ void initializeAllInterfaces()
             CCUInterfaces::JUMPER_OUT_PIN,
             CCUInterfaces::BUTTON2_READ_PIN,
         },
-        ADCConversions_s{CCUInterfaces::GLV_CONV_FACTOR, CCUInterfaces::CONTROL_PILOT_CONV_FACTOR, CCUInterfaces::PROXIMITY_PILOT_CONV_FACTOR, CCUInterfaces::JUMPER_OUT_CONV_FACTOR},
+        ADCConversions_s{
+            CCUInterfaces::GLV_CONV_FACTOR,
+            CCUInterfaces::CONTROL_PILOT_CONV_FACTOR,
+            CCUInterfaces::PROXIMITY_PILOT_CONV_FACTOR,
+            CCUInterfaces::JUMPER_OUT_CONV_FACTOR},
         CCUInterfaces::BIT_RESOLUTION);
     ADCInterfaceInstance::instance().init(sys_time::hal_millis());
 
@@ -66,7 +70,8 @@ void initializeAllInterfaces()
     /* CAN Interfaces  */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(), ChargerInterfaceInstance::instance(), EnergyMeterInterfaceInstance::instance());
 
-    CCUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::CCUReceiveIDSwitch>());
+    CCUCANInterfaceInstance::create(
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::CCUReceiveIDSwitch>());
 
     handle_CAN_setup(CCUCANInterfaceInstance::instance().ACU_CAN, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
     handle_CAN_setup(CCUCANInterfaceInstance::instance().CHARGER_CAN, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);

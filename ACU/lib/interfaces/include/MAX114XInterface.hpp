@@ -39,8 +39,8 @@ class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
     /* Constructors */
     /**
      * Constructs a MAX114X ADC interface of the specified ADC model, number of channels, and channel types.
-     * @param channelTypes Constructs an array of channel types (Single, Differential, Inverse Differential) that is half the length of the ADC's channels. This is because each element of the array
-     * corresponds to a pair of channels.
+     * @param channelTypes Constructs an array of channel types (Single, Differential, Inverse Differential) that is half the length of the ADC's channels. This
+     * is because each element of the array corresponds to a pair of channels.
      */
     MAX114XInterface(
         int spiPinCS,

@@ -8,14 +8,21 @@
 void VCFEthernetInterface::initEthernetDevice()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcf_ip, EthernetIPDefsInstance::instance().car_subnet, EthernetIPDefsInstance::instance().default_gateway);
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().vcf_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     _vcf_send_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
     _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
 }
 
 
-hytech_msgs_VCFData_s
-VCFEthernetInterface::make_vcf_data_msg(ADCInterface& adc_int, DashboardInterface& dash_int, PedalsSystem& pedals_sys, SteeringSystem& steering_sys, BrakeRotorTempInterface& brake_rotor_temp_int)
+hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
+    ADCInterface& adc_int,
+    DashboardInterface& dash_int,
+    PedalsSystem& pedals_sys,
+    SteeringSystem& steering_sys,
+    BrakeRotorTempInterface& brake_rotor_temp_int)
 {
     auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};

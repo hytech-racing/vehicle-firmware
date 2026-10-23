@@ -18,7 +18,10 @@ namespace EEPROMUtilities
      */
     inline uint32_t read_eeprom_32bit(uint32_t address)
     {
-        return (((uint32_t)EEPROM.read(address)) << 24) | (((uint32_t)EEPROM.read(address + 1)) << 16) | (((uint32_t)EEPROM.read(address + 2)) << 8) | EEPROM.read(address + 3);
+        return (((uint32_t)EEPROM.read(address)) << 24)
+               | (((uint32_t)EEPROM.read(address + 1)) << 16)
+               | (((uint32_t)EEPROM.read(address + 2)) << 8)
+               | EEPROM.read(address + 3);
     }
 
     /**

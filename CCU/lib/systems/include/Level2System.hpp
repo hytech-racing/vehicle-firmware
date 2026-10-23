@@ -34,7 +34,11 @@ struct Level2SystemThresholds_s
 class Level2System
 {
   public:
-    Level2System(Level2Interface& level2_interface, ADCInterface& adc_interface, WatchdogInterface& watchdog_interface, Level2SystemThresholds_s thresholds = {})
+    Level2System(
+        Level2Interface& level2_interface,
+        ADCInterface& adc_interface,
+        WatchdogInterface& watchdog_interface,
+        Level2SystemThresholds_s thresholds = {})
         : _level2_interface(level2_interface), _adc_interface(adc_interface), _watchdog_interface(watchdog_interface), _thresholds(thresholds) {};
 
     /**

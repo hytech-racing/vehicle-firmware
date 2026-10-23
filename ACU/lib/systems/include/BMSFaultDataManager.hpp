@@ -30,7 +30,8 @@ class BMSFaultDataManager
         std::array<BMSFaultCountData_s, num_chips> chip_invalid_cmd_counts{};
     };
 
-    void update_from_valid_packets(const std::array<ValidPacketData_s, num_chips>& valid_read_packets, const ReadGroup_e read_group, const size_t chip_select_index);
+    void
+    update_from_valid_packets(const std::array<ValidPacketData_s, num_chips>& valid_read_packets, const ReadGroup_e read_group, const size_t chip_select_index);
 
     const BMSFaultData_s& get_fault_data() const;
 

@@ -15,8 +15,13 @@ bool spi_tx_complete = true;
 
 /* Task Declarations */
 HT_TASK::Task can_task(HT_TASK::DUMMY_FUNCTION, &can_read, 80, 10000); // 10 ms period
-// HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &run_update_neopixels_task, DashConstants::NEOPIXEL_UPDATE_PRIORITY, DashConstants::NEOPIXEL_UPDATE_PERIOD_US);
-HT_TASK::Task refresh_screen_task(HT_TASK::DUMMY_FUNCTION, &screen_refresh, DashConstants::SCREEN_REFRESH_PRIORITY, DashConstants::SCREEN_REFRESH_PERIOD_US); // 100 ms period
+// HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &run_update_neopixels_task, DashConstants::NEOPIXEL_UPDATE_PRIORITY,
+// DashConstants::NEOPIXEL_UPDATE_PERIOD_US);
+HT_TASK::Task refresh_screen_task(
+    HT_TASK::DUMMY_FUNCTION,
+    &screen_refresh,
+    DashConstants::SCREEN_REFRESH_PRIORITY,
+    DashConstants::SCREEN_REFRESH_PERIOD_US); // 100 ms period
 
 
 void setup()

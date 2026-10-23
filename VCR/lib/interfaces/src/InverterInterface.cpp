@@ -148,8 +148,16 @@ void InverterInterface::send_INV_SETPOINT_COMMAND()
     msg_out.positive_torque_limit_ro = HT_CAN_positive_torque_limit_ro_toS(_inverter_control_inputs.positive_torque_limit);
     msg_out.negative_torque_limit_ro = HT_CAN_negative_torque_limit_ro_toS(_inverter_control_inputs.negative_torque_limit);
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_INV1_CONTROL_INPUT_ht_can, VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, inverter_ids.inv_control_input_id);
-    CAN_util::enqueue_msg(&msg_out, &Pack_INV1_CONTROL_INPUT_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, inverter_ids.inv_control_input_id);
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_CONTROL_INPUT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        inverter_ids.inv_control_input_id);
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_CONTROL_INPUT_ht_can,
+        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
+        inverter_ids.inv_control_input_id);
 }
 
 void InverterInterface::send_INV_CONTROL_WORD()
@@ -161,7 +169,11 @@ void InverterInterface::send_INV_CONTROL_WORD()
     msg_out.inverter_enable = _inverter_control_word.inverter_enable;
     msg_out.remove_error = _inverter_control_word.remove_error;
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_INV1_CONTROL_WORD_ht_can, VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, inverter_ids.inv_control_word_id);
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_CONTROL_WORD_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        inverter_ids.inv_control_word_id);
 }
 
 void InverterInterface::send_INV_CONTROL_PARAMS()
@@ -172,7 +184,11 @@ void InverterInterface::send_INV_CONTROL_PARAMS()
     msg_out.speed_control_ki = _inverter_control_params.speed_control_ki;
     msg_out.speed_control_kd = _inverter_control_params.speed_control_kd;
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_INV1_CONTROL_PARAMETER_ht_can, VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, inverter_ids.inv_control_parameter_id);
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_CONTROL_PARAMETER_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        inverter_ids.inv_control_parameter_id);
 }
 
 /**

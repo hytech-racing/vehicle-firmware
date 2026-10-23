@@ -17,10 +17,10 @@
 /// LAUNCH_NOT_READY keeps speed at 0 and makes sure pedals are not pressed, the launch controller begins in this state
 /// From this state the launch can only progress forwards to LAUNCH_READY
 /// LAUNCH_READY keeps speed at 0, below the speed threshold(5 m/s) and makes sure brake is not pressed harder than the threshold of .2(20% pushed)
-/// From this state the launch can progress forwards to LAUNCHING according to the two conditions defined above or backwards to LAUNCH_NOT_READY if those conditions are not met
-/// LAUNCHING uses respective algorithm to set speed set point and requests torque from motors to reach it
-/// From this state the launch can fully begin and set speed set points above 0.0 m/s and the maximum available torque can be requested from the inverters
-/// This launch state can be terminated if the brake is pressed above the threshold(.2(20% pushed)) or if the accelerator is not pressed enough (<= .5(50% pushed))
+/// From this state the launch can progress forwards to LAUNCHING according to the two conditions defined above or backwards to LAUNCH_NOT_READY if those
+/// conditions are not met LAUNCHING uses respective algorithm to set speed set point and requests torque from motors to reach it From this state the launch can
+/// fully begin and set speed set points above 0.0 m/s and the maximum available torque can be requested from the inverters This launch state can be terminated
+/// if the brake is pressed above the threshold(.2(20% pushed)) or if the accelerator is not pressed enough (<= .5(50% pushed))
 enum class LaunchStates_e
 {
     NO_LAUNCH_MODE,
@@ -29,7 +29,8 @@ enum class LaunchStates_e
     LAUNCHING
 };
 
-/// @brief contains constants for tick behavior/progression(_threshold variables used to determine when to move to the next step) and defaults(DEFAULT_launch_speed_target_rpm)
+/// @brief contains constants for tick behavior/progression(_threshold variables used to determine when to move to the next step) and
+/// defaults(DEFAULT_launch_speed_target_rpm)
 namespace LaunchControllerParams
 {
     const int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
@@ -68,7 +69,8 @@ class SimpleLaunchController
     /// @brief calculates how speed target (the speed the car is trying to achieve during launch) is set and/or increased during launch
     /// This updates internal speed target variable _launch_speed_target_rpm
     /// @param vn_data vector data needed for calulations eg. speed and coordinates
-    /// @note defines important variation in launch controller tick/evaluation as the launch controllers share a tick method defined in this parent class implementation
+    /// @note defines important variation in launch controller tick/evaluation as the launch controllers share a tick method defined in this parent class
+    /// implementation
     /// @note all launch algorithms are implemented in LaunchControllerAlgos.cpp
     float calc_launch_algo(uint32_t curr_millis)
     {

@@ -19,21 +19,28 @@ bool initialize_all_systems()
     /* State Machine Initialization */
 
     /* Delegate Function Definitions */
-    etl::delegate<bool()> charge_state_request = etl::delegate<bool()>::create([]() -> bool { return CCUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis()).charging_requested; });
+    etl::delegate<bool()> charge_state_request =
+        etl::delegate<bool()>::create([]() -> bool { return CCUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis()).charging_requested; });
 
     etl::delegate<bool()> has_bms_fault = etl::delegate<bool()>::create([]() -> bool { return !ACUControllerInstance::instance().get_status().bms_ok; });
 
-    etl::delegate<bool()> has_imd_fault = etl::delegate<bool()>::create([]() -> bool { return !ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()); });
+    etl::delegate<bool()> has_imd_fault =
+        etl::delegate<bool()>::create([]() -> bool { return !ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()); });
 
     etl::delegate<bool()> contactor_welded = etl::delegate<bool()>::create(
         []() -> bool
-        { return ACUControllerInstance::instance().check_is_contactor_welded(ADCInterfaceInstance::instance().read_pack_out_filtered(), ADCInterfaceInstance::instance().read_ts_out_filtered()); });
+        {
+            return ACUControllerInstance::instance().check_is_contactor_welded(
+                ADCInterfaceInstance::instance().read_pack_out_filtered(),
+                ADCInterfaceInstance::instance().read_ts_out_filtered());
+        });
 
     etl::delegate<void()> set_sw_not_ok_pin_high = etl::delegate<void()>::create([]() -> void { WatchdogInstance::instance().set_sw_not_ok_pin_high(); });
 
     etl::delegate<void()> set_sw_not_ok_pin_low = etl::delegate<void()>::create([]() -> void { WatchdogInstance::instance().set_sw_not_ok_pin_low(); });
 
-    etl::delegate<void()> disable_watchdog = etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_teensy_ok_low>(WatchdogInstance::instance());
+    etl::delegate<void()> disable_watchdog =
+        etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_teensy_ok_low>(WatchdogInstance::instance());
 
     etl::delegate<bool()> received_valid_shdn_out = etl::delegate<bool()>::create<ADCInterface, &ADCInterface::read_shdn_out>(ADCInterfaceInstance::instance());
 
@@ -41,9 +48,11 @@ bool initialize_all_systems()
 
     etl::delegate<void()> disable_cell_balancing = etl::delegate<void()>::create([]() -> void { ACUControllerInstance::instance().disableCharging(); });
 
-    etl::delegate<void()> reinitialize_watchdog = etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_teensy_ok_high>(WatchdogInstance::instance());
+    etl::delegate<void()> reinitialize_watchdog =
+        etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_teensy_ok_high>(WatchdogInstance::instance());
 
-    etl::delegate<void()> disable_n_latch_en = etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_n_latch_en_low>(WatchdogInstance::instance());
+    etl::delegate<void()> disable_n_latch_en =
+        etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_n_latch_en_low>(WatchdogInstance::instance());
 
     etl::delegate<void()> reset_latch = etl::delegate<void()>::create<WatchdogInterface, &WatchdogInterface::set_n_latch_en_high>(WatchdogInstance::instance());
 

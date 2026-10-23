@@ -39,7 +39,8 @@ bool ADCInterface::read_imd_ok(uint32_t curr_millis)
         }
         return true;
     }
-    return static_cast<float>(analogRead(_adc_parameters.pinout.teensy_imd_ok_pin)) * (_adc_parameters.configs.teensy41_max_input_voltage / _adc_parameters.bit_resolution)
+    return static_cast<float>(analogRead(_adc_parameters.pinout.teensy_imd_ok_pin))
+               * (_adc_parameters.configs.teensy41_max_input_voltage / _adc_parameters.bit_resolution)
            > _adc_parameters.thresholds.teensy41_min_digital_read_voltage_thresh; // idk if this would actually work, like if a LOW is a threshold or smth
 }
 
@@ -52,7 +53,8 @@ volt ADCInterface::read_shdn_voltage()
 
 bool ADCInterface::read_shdn_out()
 {
-    bool data = read_shdn_voltage() > _adc_parameters.thresholds.shutdown_voltage_digital_threshold; // read shdn out goes high if shutdown voltage is > 12 volts
+    bool data =
+        read_shdn_voltage() > _adc_parameters.thresholds.shutdown_voltage_digital_threshold; // read shdn out goes high if shutdown voltage is > 12 volts
     return data;
 }
 
@@ -90,13 +92,15 @@ volt ADCInterface::read_main_ok_voltage()
 
 volt ADCInterface::read_main_under_threshold_voltage()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_main_under_thresh_pin)) * _adc_parameters.conversions.std_5V_to_3V3_conversion_factor;
+    volt data =
+        static_cast<float>(analogRead(_adc_parameters.pinout.teensy_main_under_thresh_pin)) * _adc_parameters.conversions.std_5V_to_3V3_conversion_factor;
     return data;
 }
 
 volt ADCInterface::read_precharge_under_threshold_voltage()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_precharge_under_thresh_pin)) * _adc_parameters.conversions.std_5V_to_3V3_conversion_factor;
+    volt data =
+        static_cast<float>(analogRead(_adc_parameters.pinout.teensy_precharge_under_thresh_pin)) * _adc_parameters.conversions.std_5V_to_3V3_conversion_factor;
     return data;
 }
 
@@ -116,13 +120,15 @@ volt ADCInterface::read_pack_out_filtered()
 volt ADCInterface::read_bspd_current()
 {
     // 3.3 V for pin voltage cap. and 4095 for bit resolution
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_bspd_current_pin)) * _adc_parameters.conversions.bspd_current_conv_factor; //((24.16 / 5.0) * (4.3 / 36.0));
+    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_bspd_current_pin))
+                * _adc_parameters.conversions.bspd_current_conv_factor; //((24.16 / 5.0) * (4.3 / 36.0));
     return data;
 }
 
 volt ADCInterface::read_global_lv_value()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24V_pin)) * _adc_parameters.conversions.glv_conv_factor; // input before voltage divider (4.3k / (4.3k + 36k))
+    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24V_pin))
+                * _adc_parameters.conversions.glv_conv_factor; // input before voltage divider (4.3k / (4.3k + 36k))
     return data;
 }
 

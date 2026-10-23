@@ -60,10 +60,12 @@ void CCUInterface::handle_enqueue_acu_voltages_CAN_message()
 
     if (_curr_data.detailed_voltages_group_id == 0)
     {
-        _curr_data.detailed_voltages_ic_id = (_curr_data.detailed_voltages_ic_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_voltages_ic_id + 1;
+        _curr_data.detailed_voltages_ic_id =
+            (_curr_data.detailed_voltages_ic_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_voltages_ic_id + 1;
     }
 
-    _curr_data.detailed_voltages_cell_id = (_curr_data.detailed_voltages_cell_id == ccu_interface_defaults::NUM_CELLS - 3) ? 0 : _curr_data.detailed_voltages_cell_id + 3;
+    _curr_data.detailed_voltages_cell_id =
+        (_curr_data.detailed_voltages_cell_id == ccu_interface_defaults::NUM_CELLS - 3) ? 0 : _curr_data.detailed_voltages_cell_id + 3;
 
     CAN_util::enqueue_msg(&detailed_msg, &Pack_BMS_DETAILED_VOLTAGES_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 }
@@ -100,9 +102,11 @@ void CCUInterface::handle_enqueue_acu_temps_CAN_message()
     _curr_data.detailed_temps_group_id = (_curr_data.detailed_temps_group_id == 1) ? 0 : _curr_data.detailed_temps_group_id + 1;
     if (_curr_data.detailed_temps_group_id == 0)
     {
-        _curr_data.detailed_temps_ic_id = (_curr_data.detailed_temps_ic_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_temps_ic_id + 1;
+        _curr_data.detailed_temps_ic_id =
+            (_curr_data.detailed_temps_ic_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_temps_ic_id + 1;
     }
-    _curr_data.detailed_temps_cell_id = (_curr_data.detailed_temps_cell_id == (ccu_interface_defaults::NUM_CELLTEMPS - 3)) ? 0 : _curr_data.detailed_temps_cell_id + 3;
+    _curr_data.detailed_temps_cell_id =
+        (_curr_data.detailed_temps_cell_id == (ccu_interface_defaults::NUM_CELLTEMPS - 3)) ? 0 : _curr_data.detailed_temps_cell_id + 3;
     CAN_util::enqueue_msg(&detailed_msg, &Pack_BMS_DETAILED_TEMPS_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 
     BMS_TEMPS_t temp_msg = {};
@@ -114,7 +118,8 @@ void CCUInterface::handle_enqueue_acu_temps_CAN_message()
     BMS_BOARD_DETAILED_TEMPS_t detailed_board_temp_msg = {};
     detailed_board_temp_msg.ic_id = _curr_data.detailed_temps_board_id;
     detailed_board_temp_msg.temp_0_ro = HT_CAN_temp_0_ro_toS(_acu_all_data.board_temps[_curr_data.detailed_temps_board_id]);
-    _curr_data.detailed_temps_board_id = (_curr_data.detailed_temps_board_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_temps_board_id + 1;
+    _curr_data.detailed_temps_board_id =
+        (_curr_data.detailed_temps_board_id == (ccu_interface_defaults::NUM_CHIPS - 1)) ? 0 : _curr_data.detailed_temps_board_id + 1;
     CAN_util::enqueue_msg(&detailed_board_temp_msg, &Pack_BMS_BOARD_DETAILED_TEMPS_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 }
 

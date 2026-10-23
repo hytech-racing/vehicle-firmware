@@ -98,7 +98,8 @@ void OrbisInterface::setOffset()
         ; // wait until bytes are available
     uint8_t position_low_byte = _serial->read();
 
-    uint16_t current_raw_position = ((((uint16_t)position_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)position_low_byte) >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
+    uint16_t current_raw_position = ((((uint16_t)position_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)position_low_byte)
+                                    >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
     byte offset_pos_high_byte = (current_raw_position >> orbis_constants::OFFSET_HIGH_BYTE_SHIFT) & orbis_bitmasks::OFFSET_RECOMBINING_MASK; // b15 - b8.
     byte offset_pos_low_byte = current_raw_position & orbis_bitmasks::OFFSET_RECOMBINING_MASK;                                               // b7 - b0
     // Current raw position is 14 bit integer, we parse two bytes to remove warning/error bits.
@@ -176,7 +177,8 @@ void OrbisInterface::sample()
     _decodeErrors(general_status, detailed);
     // Decode errors using the extracted general status bits + detailed errors byte
 
-    uint16_t raw_position = ((((uint16_t)general_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)general_low_byte) >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
+    uint16_t raw_position = ((((uint16_t)general_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)general_low_byte)
+                            >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
     _last_reading.rawValue = raw_position;
 
     float angle = ((float)raw_position / orbis_constants::ENCODER_RESOLUTION) * orbis_constants::DEGREES_PER_REVOLUTION;

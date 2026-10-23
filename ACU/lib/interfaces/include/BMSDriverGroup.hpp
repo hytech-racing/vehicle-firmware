@@ -197,13 +197,18 @@ class BMSDriverGroup
     constexpr static size_t num_cells = (num_chips / 2) * 21;
     constexpr static size_t num_cell_temps = (num_chips * 4);
     constexpr static size_t num_board_temps = num_chips;
-    constexpr static size_t cmd_and_data_buffer_size =
-        (chip_type == LTC6811_Type_e::LTC6811_1) ? 4 + ((num_chips / num_chip_selects) * 8) : ((12 * num_chips)); // 4 (cmd+pec) + 8 (data+pec) = 12 total bytes per chip per command
+    constexpr static size_t cmd_and_data_buffer_size = (chip_type == LTC6811_Type_e::LTC6811_1)
+                                                           ? 4 + ((num_chips / num_chip_selects) * 8)
+                                                           : ((12 * num_chips)); // 4 (cmd+pec) + 8 (data+pec) = 12 total bytes per chip per command
     constexpr static size_t cmd_only_buffer_size = 4;
 
     using BMSDriverData = BMSData_s<num_chips, num_cells, num_chips>;
 
-    BMSDriverGroup(const array<int, num_chip_selects>& cs, const array<int, num_chips>& cs_per_chip, const array<int, num_chips>& addr, const BMSDriverGroupConfig_s default_params);
+    BMSDriverGroup(
+        const array<int, num_chip_selects>& cs,
+        const array<int, num_chips>& cs_per_chip,
+        const array<int, num_chips>& addr,
+        const BMSDriverGroupConfig_s default_params);
 
 
   public:
@@ -381,7 +386,12 @@ class BMSDriverGroup
      */
     void _read_data_through_address();
 
-    void _store_temperature_humidity_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, const uint16_t& gpio_in, uint8_t gpio_index, uint8_t chip_index);
+    void _store_temperature_humidity_data(
+        BMSDriverData& bms_data,
+        ReferenceMaxMin_s& max_min_reference,
+        const uint16_t& gpio_in,
+        uint8_t gpio_index,
+        uint8_t chip_index);
 
     void _store_voltage_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, volt voltage_in, uint8_t cell_index);
 
@@ -408,9 +418,19 @@ class BMSDriverGroup
 
     void _start_ADC_conversion_through_address(const array<uint8_t, 2>& cmd_code);
 
-    void _load_cell_voltages(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_ref, const array<uint8_t, 6>& data_in_cv_group, uint8_t chip_index, uint8_t start_cell_index);
+    void _load_cell_voltages(
+        BMSDriverData& bms_data,
+        ReferenceMaxMin_s& max_min_ref,
+        const array<uint8_t, 6>& data_in_cv_group,
+        uint8_t chip_index,
+        uint8_t start_cell_index);
 
-    void _load_auxillaries(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_ref, const array<uint8_t, 6>& data_in_gpio_group, uint8_t chip_index, uint8_t start_gpio_index);
+    void _load_auxillaries(
+        BMSDriverData& bms_data,
+        ReferenceMaxMin_s& max_min_ref,
+        const array<uint8_t, 6>& data_in_gpio_group,
+        uint8_t chip_index,
+        uint8_t start_gpio_index);
 
     void _dma_callback();
 

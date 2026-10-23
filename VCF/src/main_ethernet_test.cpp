@@ -56,7 +56,8 @@ void setup()
 
 void loop()
 {
-    etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&socket, &hytech_msgs_VCRData_s_msg);
+    etl::optional<hytech_msgs_VCRData_s> protoc_struct =
+        handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&socket, &hytech_msgs_VCRData_s_msg);
 
     if (protoc_struct)
     {

@@ -11,8 +11,9 @@ AccessModifierOffset: -2
 # ==============================================================================
 # 2. Column Limit & Line Wrapping (Expressions & Operators)
 # ==============================================================================
-ColumnLimit: 200
+ColumnLimit: 160
 BreakBeforeBinaryOperators: NonAssignment
+BreakBinaryOperations: RespectPrecedence
 AlignOperands: Align
 
 # ==============================================================================

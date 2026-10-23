@@ -75,7 +75,13 @@ class MainChargeSystem
                 .board_temp_derate_thresh = charge_system_default_parameters::BOARD_TEMP_DERATE_THRESH,
             },
         ChargeSystemConfigs_s configs = {.startup_delay_ms = charge_system_default_parameters::STARTUP_DELAY_MS})
-        : _charge_system_parameters{thresholds, configs, max_120V_current_amp, max_240V_current_amp, max_cell_cutoff_temp_celcius, max_board_cutoff_temp_celcius}
+        : _charge_system_parameters{
+              thresholds,
+              configs,
+              max_120V_current_amp,
+              max_240V_current_amp,
+              max_cell_cutoff_temp_celcius,
+              max_board_cutoff_temp_celcius}
     {
         _charge_data.calculated_charge_current = 0.0F;
     }

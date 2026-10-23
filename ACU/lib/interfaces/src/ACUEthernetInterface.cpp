@@ -6,7 +6,10 @@
 void ACUEthernetInterface::init_ethernet_device()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().acu_ip, EthernetIPDefsInstance::instance().car_subnet, EthernetIPDefsInstance::instance().default_gateway);
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().acu_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     _acu_core_data_send_socket.begin(EthernetIPDefsInstance::instance().ACUCoreData_port);
     _acu_all_data_send_socket.begin(EthernetIPDefsInstance::instance().ACUAllData_port);
     _vcr_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
@@ -81,7 +84,10 @@ hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllD
     std::copy(shared_state.cell_temps.data(), shared_state.cell_temps.data() + _acu_params.num_celltemps, out.cell_temperatures);
 
     out.invalid_packet_chip_counts_count = _acu_params.num_chips;
-    std::copy(shared_state.consecutive_invalid_packet_counts.data(), shared_state.consecutive_invalid_packet_counts.data() + _acu_params.num_chips, out.invalid_packet_chip_counts);
+    std::copy(
+        shared_state.consecutive_invalid_packet_counts.data(),
+        shared_state.consecutive_invalid_packet_counts.data() + _acu_params.num_chips,
+        out.invalid_packet_chip_counts);
 
     out.board_temperatures_count = _acu_params.num_chips;
     std::copy(shared_state.board_temps.data(), shared_state.board_temps.data() + _acu_params.num_chips, out.board_temperatures);

@@ -34,7 +34,12 @@ class VCFEthernetInterface
      * @param shared_state The current VCF state, which includes both interface and system data.
      * @return A populated instance of the outgoing protoc struct.
      */
-    hytech_msgs_VCFData_s make_vcf_data_msg(ADCInterface& adc_int, DashboardInterface& dash_int, PedalsSystem& pedals_sys, SteeringSystem& steering_sys, BrakeRotorTempInterface& brake_rotor_temp_int);
+    hytech_msgs_VCFData_s make_vcf_data_msg(
+        ADCInterface& adc_int,
+        DashboardInterface& dash_int,
+        PedalsSystem& pedals_sys,
+        SteeringSystem& steering_sys,
+        BrakeRotorTempInterface& brake_rotor_temp_int);
 
     /**
      * Function to take a populated protoc struct from VCR and update the VCF state. This is ONLY critical

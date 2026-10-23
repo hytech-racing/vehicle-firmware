@@ -1,7 +1,12 @@
 #include "WatchdogMetrics.hpp"
 
 
-void WatchdogMetrics::update_metrics(volt measured_glv, volt measured_pack_out_voltage, volt measured_ts_out_voltage, volt shdn_out_voltage, unsigned long millis)
+void WatchdogMetrics::update_metrics(
+    volt measured_glv,
+    volt measured_pack_out_voltage,
+    volt measured_ts_out_voltage,
+    volt shdn_out_voltage,
+    unsigned long millis)
 {
     if (measured_glv > _watchdog_metrics_data.max_measured_glv)
     {

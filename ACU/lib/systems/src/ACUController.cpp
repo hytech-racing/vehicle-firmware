@@ -86,7 +86,8 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     if (input_state.max_cell_voltage >= _acu_parameters.thresholds.cell_overvoltage_thresh_v)
     {
         // Only calculate IR compensation when approaching OV threshold
-        internal_resistance_max_cell_voltage = input_state.max_cell_voltage + (_acu_parameters.pack_specs.pack_internal_resistance / static_cast<float>(num_of_voltage_cells) * discharge_current);
+        internal_resistance_max_cell_voltage =
+            input_state.max_cell_voltage + (_acu_parameters.pack_specs.pack_internal_resistance / static_cast<float>(num_of_voltage_cells) * discharge_current);
     }
     if (internal_resistance_max_cell_voltage < _acu_parameters.thresholds.cell_overvoltage_thresh_v || has_invalid_packet)
     {
@@ -98,7 +99,8 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     if (input_state.min_cell_voltage <= _acu_parameters.thresholds.cell_undervoltage_thresh_v)
     {
         // Only calculate IR compensation when approaching UV threshold
-        min_cell_voltage_to_check = input_state.min_cell_voltage + (_acu_parameters.pack_specs.pack_internal_resistance / static_cast<float>(num_of_voltage_cells) * discharge_current);
+        min_cell_voltage_to_check =
+            input_state.min_cell_voltage + (_acu_parameters.pack_specs.pack_internal_resistance / static_cast<float>(num_of_voltage_cells) * discharge_current);
     }
     if (min_cell_voltage_to_check > _acu_parameters.thresholds.cell_undervoltage_thresh_v || has_invalid_packet)
     {
@@ -138,7 +140,8 @@ void ACUController::calculate_cell_balance_statuses(bool* output, const volt* vo
     for (size_t cell = 0; cell < num_of_voltage_cells; cell++)
     {
         volt cell_voltage = voltages[cell]; // NOLINT
-        if (((cell_voltage - min_voltage) > _acu_parameters.thresholds.v_diff_to_init_cb) && (cell_voltage > _acu_parameters.thresholds.min_discharge_voltage_thresh))
+        if (((cell_voltage - min_voltage) > _acu_parameters.thresholds.v_diff_to_init_cb)
+            && (cell_voltage > _acu_parameters.thresholds.min_discharge_voltage_thresh))
         {
             output[cell] = true; // NOLINT
         }
@@ -278,7 +281,8 @@ bool ACUController::_check_temperature_faults(time_ms current_millis)
 
 bool ACUController::_check_invalid_packet_faults(time_ms current_millis)
 {
-    bool invalid_packet_fault = (current_millis - _acu_state.last_time_invalid_packet_present) > _acu_parameters.fault_durations.max_allowed_invalid_packet_fault_dur;
+    bool invalid_packet_fault =
+        (current_millis - _acu_state.last_time_invalid_packet_present) > _acu_parameters.fault_durations.max_allowed_invalid_packet_fault_dur;
     return invalid_packet_fault;
 }
 

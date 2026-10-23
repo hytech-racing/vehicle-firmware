@@ -26,8 +26,10 @@ class DrivebrainController
 {
   public:
     /// @brief constructor for the drivebrain controller class
-    /// @param allowed_latency the allowed latency in milliseconds for which if the most recent packet has a timestamp older than this measure of time we fail safe
-    /// @param assigned_controller_mode the controller mode that the drivebrain controller is assigned to. is required for evaluating whether or not we are active or not
+    /// @param allowed_latency the allowed latency in milliseconds for which if the most recent packet has a timestamp older than this measure of time we fail
+    /// safe
+    /// @param assigned_controller_mode the controller mode that the drivebrain controller is assigned to. is required for evaluating whether or not we are
+    /// active or not
     explicit DrivebrainController(unsigned long allowed_latency, ControllerMode_e assigned_controller_mode = ControllerMode_e::MODE_4)
         : _emergency_control()
     {

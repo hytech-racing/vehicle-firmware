@@ -62,7 +62,11 @@ namespace HT_TASK
         std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _loop;
 
         // Interval task constructor
-        Task(std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup, std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop, int priority, uint32_t executionIntervalMicros)
+        Task(
+            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup,
+            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop,
+            int priority,
+            uint32_t executionIntervalMicros)
             : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
         {
             _taskInfo.executionIntervalMicros = executionIntervalMicros;
@@ -71,7 +75,10 @@ namespace HT_TASK
         };
 
         // Idle task constructor with priority
-        Task(std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup, std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop, int priority)
+        Task(
+            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup,
+            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop,
+            int priority)
             : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
         {
             _taskInfo.isIntervalFunction = false;

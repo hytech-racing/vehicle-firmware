@@ -43,7 +43,11 @@ class FDCInterface
 
     void resetEbsHeartbeat() { _current_ebs_data.pressure_heartbeat_ok = true; }
 
-    bool getEbsPressureOk() const { return _current_ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && _current_ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; }
+    bool getEbsPressureOk() const
+    {
+        return _current_ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI
+               && _current_ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI;
+    }
 
     FDCControl_s getFDCControl() const { return _fdc_control; }
     EBSData_s getEbsData() const { return _current_ebs_data; }

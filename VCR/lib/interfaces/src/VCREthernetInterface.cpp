@@ -6,7 +6,10 @@
 void VCREthernetInterface::init_ethernet_device()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcr_ip, EthernetIPDefsInstance::instance().car_subnet, EthernetIPDefsInstance::instance().default_gateway);
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().vcr_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
     vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
 }

@@ -6,7 +6,8 @@ void initializeAllSystems()
     /* Neopixel Controller */
     etl::delegate<void(uint16_t, uint32_t)> setPixelColor =
         etl::delegate<void(uint16_t, uint32_t)>::create<NeopixelInterface, &NeopixelInterface::setPixelColor>(NeopixelInterfaceInstance::instance());
-    etl::delegate<void(uint8_t)> setBrightness = etl::delegate<void(uint8_t)>::create<NeopixelInterface, &NeopixelInterface::setBrightness>(NeopixelInterfaceInstance::instance());
+    etl::delegate<void(uint8_t)> setBrightness =
+        etl::delegate<void(uint8_t)>::create<NeopixelInterface, &NeopixelInterface::setBrightness>(NeopixelInterfaceInstance::instance());
     etl::delegate<void()> show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
     NeopixelControllerInputs_s controller_inputs = {
         .are_pedals_calibrating = VCRInterfaceInstance::instance().arePedalsCalibrating(),

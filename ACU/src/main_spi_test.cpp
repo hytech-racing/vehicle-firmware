@@ -42,7 +42,8 @@ const std::array<int, num_chips> cs_per_chip = {38, 38}; // , 38, 38, 38, 38, 36
 const std::array<int, num_chips> addr = {0, 1};          //, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
 // Instantiate BMS Driver Group (non-const so we can call non-const methods)
-BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1> BMSGroup = BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1>(cs, cs_per_chip, addr);
+BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1> BMSGroup =
+    BMSDriverGroup<num_chips, num_chip_selects, chip_type::LTC6811_1>(cs, cs_per_chip, addr);
 
 // std::array<BMSFaultCountData_s, num_chips> chip_invalid_cmd_counts;
 
@@ -191,12 +192,15 @@ void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e cur
     // Serial.println("--- Validity Status (Current Read) ---");
     // for (size_t chip = 0; chip < num_chips; chip++)
     // {
-    //     chip_invalid_cmd_counts[chip].invalid_cell_1_to_3_count = (!data.valid_read_packets[chip].valid_read_cells_1_to_3) ? chip_invalid_cmd_counts[chip].invalid_cell_1_to_3_count+1 : 0;
-    //     chip_invalid_cmd_counts[chip].invalid_cell_4_to_6_count = (!data.valid_read_packets[chip].valid_read_cells_4_to_6) ? chip_invalid_cmd_counts[chip].invalid_cell_4_to_6_count+1 : 0;
-    //     chip_invalid_cmd_counts[chip].invalid_cell_7_to_9_count = (!data.valid_read_packets[chip].valid_read_cells_7_to_9) ? chip_invalid_cmd_counts[chip].invalid_cell_7_to_9_count+1 : 0;
-    //     chip_invalid_cmd_counts[chip].invalid_cell_10_to_12_count = (!data.valid_read_packets[chip].valid_read_cells_10_to_12) ? chip_invalid_cmd_counts[chip].invalid_cell_10_to_12_count+1 : 0;
-    //     chip_invalid_cmd_counts[chip].invalid_gpio_1_to_3_count = (!data.valid_read_packets[chip].valid_read_gpios_1_to_3) ? chip_invalid_cmd_counts[chip].invalid_gpio_1_to_3_count+1 : 0;
-    //     chip_invalid_cmd_counts[chip].invalid_gpio_4_to_6_count = (!data.valid_read_packets[chip].valid_read_gpios_4_to_6) ? chip_invalid_cmd_counts[chip].invalid_gpio_4_to_6_count+1 : 0;
+    //     chip_invalid_cmd_counts[chip].invalid_cell_1_to_3_count = (!data.valid_read_packets[chip].valid_read_cells_1_to_3) ?
+    //     chip_invalid_cmd_counts[chip].invalid_cell_1_to_3_count+1 : 0; chip_invalid_cmd_counts[chip].invalid_cell_4_to_6_count =
+    //     (!data.valid_read_packets[chip].valid_read_cells_4_to_6) ? chip_invalid_cmd_counts[chip].invalid_cell_4_to_6_count+1 : 0;
+    //     chip_invalid_cmd_counts[chip].invalid_cell_7_to_9_count = (!data.valid_read_packets[chip].valid_read_cells_7_to_9) ?
+    //     chip_invalid_cmd_counts[chip].invalid_cell_7_to_9_count+1 : 0; chip_invalid_cmd_counts[chip].invalid_cell_10_to_12_count =
+    //     (!data.valid_read_packets[chip].valid_read_cells_10_to_12) ? chip_invalid_cmd_counts[chip].invalid_cell_10_to_12_count+1 : 0;
+    //     chip_invalid_cmd_counts[chip].invalid_gpio_1_to_3_count = (!data.valid_read_packets[chip].valid_read_gpios_1_to_3) ?
+    //     chip_invalid_cmd_counts[chip].invalid_gpio_1_to_3_count+1 : 0; chip_invalid_cmd_counts[chip].invalid_gpio_4_to_6_count =
+    //     (!data.valid_read_packets[chip].valid_read_gpios_4_to_6) ? chip_invalid_cmd_counts[chip].invalid_gpio_4_to_6_count+1 : 0;
 
     //     Serial.print("Chip ");
     //     Serial.print(chip);
@@ -276,7 +280,8 @@ void print_performance_stats()
     Serial.println("=== PERFORMANCE STATISTICS ===");
     Serial.println("========================================");
 
-    const char* group_names[] = {"GROUP_A (Cells 0-2)", "GROUP_B (Cells 3-5)", "GROUP_C (Cells 6-8)", "GROUP_D (Cells 9-11)", "AUX_A (GPIO 0-2)", "AUX_B (GPIO 3-4)"};
+    const char* group_names[] =
+        {"GROUP_A (Cells 0-2)", "GROUP_B (Cells 3-5)", "GROUP_C (Cells 6-8)", "GROUP_D (Cells 9-11)", "AUX_A (GPIO 0-2)", "AUX_B (GPIO 3-4)"};
 
     for (size_t i = 0; i < num_groups; i++)
     {

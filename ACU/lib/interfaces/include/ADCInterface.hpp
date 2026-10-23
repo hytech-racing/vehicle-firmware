@@ -143,7 +143,8 @@ class ADCInterface
         MAX114XChannels_s pairs,
         int spiSpeed,
         float bit_resolution,
-        ADCConfigs_s configs = {.imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME, .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
+        ADCConfigs_s configs =
+            {.imd_startup_time = adc_default_parameters::IMD_STARTUP_TIME, .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
         ADCThresholds_s thresholds =
             {.teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
              .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
@@ -160,7 +161,8 @@ class ADCInterface
                   conversions.shdn_out_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.shdn_out_conv_factor;
                   conversions.bspd_current_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.bspd_current_conv_factor;
                   conversions.glv_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.glv_conv_factor;
-                  conversions.std_5V_to_3V3_conversion_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.std_5V_to_3V3_conversion_factor;
+                  conversions.std_5V_to_3V3_conversion_factor =
+                      (configs.teensy41_max_input_voltage / bit_resolution) / conversions.std_5V_to_3V3_conversion_factor;
                   return conversions;
               }(),
               thresholds,
