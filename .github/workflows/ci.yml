@@ -151,7 +151,8 @@ jobs:
           # the same code slightly differently. Developers should use the
           # same version locally (pip install clang-format==23.1.1).
           # .clang-format uses options that need clang-format 20 or newer.
-          pip install --quiet clang-format==23.1.1
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang-format-20
 
           # Only check tracked files inside the subsystem folders, so
           # build output and downloaded libraries are never checked.
