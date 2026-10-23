@@ -11,8 +11,6 @@ void DashboardInterface::init()
     pinMode(_dashboard_gpios.BUTTON_2, INPUT_PULLUP);
 
     _dash_created_millis = sys_time::hal_millis();
-
-    _i2c_bus.begin();
 }
 
 void DashboardInterface::syncDashboardStoredState()

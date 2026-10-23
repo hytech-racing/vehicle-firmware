@@ -5,6 +5,7 @@ void initializeAllInterfaces()
 {
     SPI.begin();
     Serial.begin(VCFInterfaces::SERIAL_BAUDRATE); // NOLINT
+    Wire2.begin();
 
     /* Watchdog Interface */
     WatchdogInterfaceInstance::create(WatchdogPinout_s{VCFInterfaces::WATCHDOG_KICK_PIN, VCFInterfaces::SOFTWARE_OK_PIN});
