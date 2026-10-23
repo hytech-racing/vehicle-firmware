@@ -63,7 +63,7 @@ struct ChargeSystemParams_s
 
 class MainChargeSystem
 {
-    public:
+  public:
     MainChargeSystem(
         float                    max_120V_current_amp,
         float                    max_240V_current_amp,
@@ -110,9 +110,9 @@ class MainChargeSystem
     /**
      * @brief Get the current charge system data
      */
-    const ChargeSystemData_s &get_charge_data() const { return _charge_data; }
+    const ChargeSystemData_s& get_charge_data() const { return _charge_data; }
 
-    private:
+  private:
     /**
      * @brief timestamp captured in init()
      */

@@ -13,11 +13,11 @@
 
 class WatchdogSystem
 {
-    public:
+  public:
     WatchdogSystem(const unsigned long kick_interval_ms = 10UL)
         : _watchdog_time(0), _watchdog_state(false), _watchdog_kick_interval(kick_interval_ms) {};
 
-    private:
+  private:
     /*Private constructor*/
 
     /* Watchdog last kicked time */
@@ -26,7 +26,7 @@ class WatchdogSystem
     unsigned long _watchdog_kick_interval;
     /* Watchdog output state */
 
-    public:
+  public:
     /* Get/update watchdog state */
     bool getRDCWatchdogState(unsigned long curr_millis);
 };

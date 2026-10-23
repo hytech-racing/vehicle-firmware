@@ -12,7 +12,7 @@ void ACUEthernetInterface::init_ethernet_device()
     _db_data_recv_socket.begin(EthernetIPDefsInstance::instance().DBData_port);
 }
 
-void ACUEthernetInterface::handle_send_ethernet_acu_all_data(const hytech_msgs_ACUAllData &data)
+void ACUEthernetInterface::handle_send_ethernet_acu_all_data(const hytech_msgs_ACUAllData& data)
 {
     handle_ethernet_socket_send_pb<hytech_msgs_ACUAllData_size>(
         EthernetIPDefsInstance::instance().drivebrain_ip,
@@ -22,7 +22,7 @@ void ACUEthernetInterface::handle_send_ethernet_acu_all_data(const hytech_msgs_A
         hytech_msgs_ACUAllData_fields);
 }
 
-void ACUEthernetInterface::handle_send_ethernet_acu_core_data(const hytech_msgs_ACUCoreData &data)
+void ACUEthernetInterface::handle_send_ethernet_acu_core_data(const hytech_msgs_ACUCoreData& data)
 {
     // no TCP Ethernet, just UDP
     handle_ethernet_socket_send_pb<hytech_msgs_ACUCoreData_size>(
@@ -33,7 +33,7 @@ void ACUEthernetInterface::handle_send_ethernet_acu_core_data(const hytech_msgs_
         hytech_msgs_ACUCoreData_fields);
 }
 
-hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCoreData_s &shared_state)
+hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCoreData_s& shared_state)
 {
     hytech_msgs_ACUCoreData out;
 
@@ -66,7 +66,7 @@ hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCo
     return out;
 }
 
-hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_s &shared_state)
+hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_s& shared_state)
 {
     auto                   fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_ACUAllData out = {};

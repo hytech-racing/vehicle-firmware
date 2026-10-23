@@ -191,7 +191,7 @@ constexpr ReadGroup_e advance_read_group(ReadGroup_e current)
 
 template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> class BMSDriverGroup
 {
-    public:
+  public:
     constexpr static size_t num_cells = (num_chips / 2) * 21;
     constexpr static size_t num_cell_temps = (num_chips * 4);
     constexpr static size_t num_board_temps = num_chips;
@@ -201,10 +201,10 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
 
     using BMSDriverData = BMSData_s<num_chips, num_cells, num_chips>;
 
-    BMSDriverGroup(const array<int, num_chip_selects> &cs, const array<int, num_chips> &cs_per_chip, const array<int, num_chips> &addr, const BMSDriverGroupConfig_s default_params);
+    BMSDriverGroup(const array<int, num_chip_selects>& cs, const array<int, num_chips>& cs_per_chip, const array<int, num_chips>& addr, const BMSDriverGroupConfig_s default_params);
 
 
-    public:
+  public:
     /* -------------------- SETUP FUNCTIONS -------------------- */
     /**
      * INIT: ONLY CALLED ONCE at initialization. LTC6811 only needs to set up the PEC table
@@ -242,12 +242,12 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @pre needs access to undervoltage, overvoltage, configuration MACROS, and discharge data
      * @post sends packaged data over SPI
      */
-    void write_configuration(uint8_t dcto_mode, const array<uint16_t, num_chips> &cell_balance_statuses);
+    void write_configuration(uint8_t dcto_mode, const array<uint16_t, num_chips>& cell_balance_statuses);
 
     /**
      * Alternative header for configuration function call
      */
-    void write_configuration(const array<bool, num_cells> &cell_balance_statuses);
+    void write_configuration(const array<bool, num_cells>& cell_balance_statuses);
 
     /* -------------------- OBSERVABILITY FUNCTIONS -------------------- */
 
@@ -270,9 +270,9 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @return String name (e.g., "GROUP_A", "AUX_B")
      * @note Useful for logging and debugging
      */
-    const char *get_current_read_group_name();
+    const char* get_current_read_group_name();
 
-    const char *get_spi_state_name();
+    const char* get_spi_state_name();
 
     /**
      * @brief Get validity status for all chips from last read
@@ -280,7 +280,7 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @note Each chip has 6 validity flags (cells 1-3, 4-6, 7-9, 10-12, GPIO 1-3, 4-6)
      * @note Useful for fault detection and EMI resilience monitoring
      */
-    const array<ValidPacketData_s, num_chips> &get_validity_data() { return _bms_data.valid_read_packets; }
+    const array<ValidPacketData_s, num_chips>& get_validity_data() { return _bms_data.valid_read_packets; }
 
     /**
      * @brief Check if all packets were valid in last read_data() call
@@ -302,14 +302,14 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @note Each bit represents one cell's balance enable status
      * @note Useful for verifying write_configuration() worked correctly
      */
-    const array<uint16_t, num_chips> &get_cell_discharge_enable() { return _cell_discharge_en; }
+    const array<uint16_t, num_chips>& get_cell_discharge_enable() { return _cell_discharge_en; }
 
     /**
      * @brief Get configuration parameters (read-only)
      * @return Const reference to driver config struct
      * @note Useful for verifying hardware settings match expectations
      */
-    const BMSDriverGroupConfig_s &get_config() { return _config; }
+    const BMSDriverGroupConfig_s& get_config() { return _config; }
 
     /**
      * @brief Runs atomic fetch and clear so it does everything in one atomic operation on the new voltage for fresh flag
@@ -328,7 +328,7 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
         _requested_cell_balance_flags = cell_balance_flags;
     }
 
-    private:
+  private:
     ReadGroup_e _current_read_group = ReadGroup_e::CV_GROUP_A;
 
     SPIState_e _spi_state = SPIState_e::START_CONVERSIONS;
@@ -379,13 +379,13 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      */
     void _read_data_through_address();
 
-    void _store_temperature_humidity_data(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_reference, const uint16_t &gpio_in, uint8_t gpio_index, uint8_t chip_index);
+    void _store_temperature_humidity_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, const uint16_t& gpio_in, uint8_t gpio_index, uint8_t chip_index);
 
-    void _store_voltage_data(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_reference, volt voltage_in, uint8_t cell_index);
+    void _store_voltage_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, volt voltage_in, uint8_t cell_index);
 
-    void _write_config_through_broadcast(uint8_t dcto_mode, array<uint8_t, 6> buffer_format, const array<uint16_t, num_chips> &cell_balance_statuses);
+    void _write_config_through_broadcast(uint8_t dcto_mode, array<uint8_t, 6> buffer_format, const array<uint16_t, num_chips>& cell_balance_statuses);
 
-    void _write_config_through_address(uint8_t dcto_mode, const array<uint8_t, 6> &buffer_format, const array<uint16_t, num_chips> &cell_balance_statuses);
+    void _write_config_through_address(uint8_t dcto_mode, const array<uint8_t, 6>& buffer_format, const array<uint16_t, num_chips>& cell_balance_statuses);
 
     /**
      * Writes command to start cell voltage ADC converion
@@ -402,13 +402,13 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      */
     void _start_GPIO_ADC_conversion();
 
-    void _start_ADC_conversion_through_broadcast(const array<uint8_t, 2> &cmd_code);
+    void _start_ADC_conversion_through_broadcast(const array<uint8_t, 2>& cmd_code);
 
-    void _start_ADC_conversion_through_address(const array<uint8_t, 2> &cmd_code);
+    void _start_ADC_conversion_through_address(const array<uint8_t, 2>& cmd_code);
 
-    void _load_cell_voltages(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_ref, const array<uint8_t, 6> &data_in_cv_group, uint8_t chip_index, uint8_t start_cell_index);
+    void _load_cell_voltages(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_ref, const array<uint8_t, 6>& data_in_cv_group, uint8_t chip_index, uint8_t start_cell_index);
 
-    void _load_auxillaries(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_ref, const array<uint8_t, 6> &data_in_gpio_group, uint8_t chip_index, uint8_t start_gpio_index);
+    void _load_auxillaries(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_ref, const array<uint8_t, 6>& data_in_gpio_group, uint8_t chip_index, uint8_t start_gpio_index);
 
     void _dma_callback();
 
@@ -422,7 +422,7 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @brief When the inverters are idle, comms get funky from EMI. This function allows us to determine if the acu reads valid packets
      * @return bool of whether the PEC correctly reflects the buffer being given. If no, then we know that EMI (likely) is causing invalid reads
      */
-    bool _check_if_valid_packet(const array<uint8_t, 8 * (num_chips / num_chip_selects)> &data, size_t param_iterator);
+    bool _check_if_valid_packet(const array<uint8_t, 8 * (num_chips / num_chip_selects)>& data, size_t param_iterator);
 
     /**
      * Generates a Packet Error Code
@@ -432,7 +432,7 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      * @param length length of data
      * @return unsigned 16 bit PEC, array of uint8_t of length 2
      */
-    array<uint8_t, 2> _calculate_specific_PEC(const uint8_t *data, int length);
+    array<uint8_t, 2> _calculate_specific_PEC(const uint8_t* data, int length);
 
     /**
      * Generates a formmatted 2 byte array for the Command bytes
@@ -451,7 +451,7 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
      */
     uint8_t _get_cmd_address(int address) { return 0x80 | (address << 3); }
 
-    private:
+  private:
     /**
      * initializes PEC table
      * Made static so that it can be called in constructor -> _pec15table is made const

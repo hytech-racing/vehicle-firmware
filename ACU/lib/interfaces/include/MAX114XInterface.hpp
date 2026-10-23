@@ -32,7 +32,7 @@ enum class CHANNEL_TYPE_e
  */
 template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
 {
-    public:
+  public:
     constexpr static size_t buffer_size = 3;
 
     /* Constructors */
@@ -50,7 +50,7 @@ template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterfa
         const int                                                       spiSpeed,
         const float                                                     scales[MAX114X_ADC_NUM_CHANNELS],
         const float                                                     offsets[MAX114X_ADC_NUM_CHANNELS],
-        const std::array<CHANNEL_TYPE_e, MAX114X_ADC_NUM_CHANNELS / 2> &channelTypes);
+        const std::array<CHANNEL_TYPE_e, MAX114X_ADC_NUM_CHANNELS / 2>& channelTypes);
 
     /* Functions */
     /**
@@ -73,7 +73,7 @@ template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterfa
      */
     float get_last_sample_converted(int index) const;
 
-    private:
+  private:
     /**
      * Channel configuration is defined per channel pair (two physical channels).
      * This array stores the channel type for each pair of channels in the ADC.

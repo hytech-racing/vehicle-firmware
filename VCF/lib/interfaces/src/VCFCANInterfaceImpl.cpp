@@ -1,14 +1,14 @@
 #include "VCFCANInterfaceImpl.hpp"
 
 
-void VCFCANInterfaceImpl::on_telem_can_recv(const CAN_message_t &msg)
+void VCFCANInterfaceImpl::on_telem_can_recv(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, CAN_MSG_SIZE);
     VCFCANInterfaceInstance::instance().telem_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
-void VCFCANInterfaceImpl::on_front_aux_can_recv(const CAN_message_t &msg)
+void VCFCANInterfaceImpl::on_front_aux_can_recv(const CAN_message_t& msg)
 {
     // VCFCANInterfaceInstance::instance().TELEM_CAN.write(msg); //immediately forward onto telem can to view data
     std::array<uint8_t, CAN_MSG_SIZE> buf;
@@ -16,7 +16,7 @@ void VCFCANInterfaceImpl::on_front_aux_can_recv(const CAN_message_t &msg)
     VCFCANInterfaceInstance::instance().front_aux_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
-void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, uint32_t millis, CANInterfaceType_e interface_type)
+void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {
@@ -81,7 +81,7 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
     }
 }
 
-void VCFCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface)
+void VCFCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface)
 {
     CAN_message_t msg;
     while (buffer.available())

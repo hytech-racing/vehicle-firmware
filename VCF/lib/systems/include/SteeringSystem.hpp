@@ -79,8 +79,8 @@ struct SteeringSystemParams_s
 
 class SteeringSystem
 {
-    public:
-    explicit SteeringSystem(const SteeringSystemParams_s &params)
+  public:
+    explicit SteeringSystem(const SteeringSystemParams_s& params)
         : _params(params) {};
 
     /**
@@ -94,18 +94,18 @@ class SteeringSystem
     void updateObservedExtremes(uint32_t analog_raw, uint32_t digital_raw);
 
     /** Converts, filters, plausibility-checks and selects the output steering angle for one tick. */
-    void evaluateSteering(uint32_t analog_raw, const SteeringEncoderReading_s &digital_reading, uint32_t current_micros);
+    void evaluateSteering(uint32_t analog_raw, const SteeringEncoderReading_s& digital_reading, uint32_t current_micros);
 
     /* Getters */
-    const SteeringSystemParams_s &getSteeringParams() const { return _params; }
-    const SteeringSystemData_s   &getSteeringSystemData() const { return _system_data; }
+    const SteeringSystemParams_s& getSteeringParams() const { return _params; }
+    const SteeringSystemData_s&   getSteeringSystemData() const { return _system_data; }
     float                         getUnfilteredAnalogSteeringDeg() const { return _analog_angle_unfiltered_deg; }
 
     /* Setters */
-    void setSteeringParams(const SteeringSystemParams_s &params) { _params = params; }
-    void setSteeringSystemData(const SteeringSystemData_s &system_data) { _system_data = system_data; }
+    void setSteeringParams(const SteeringSystemParams_s& params) { _params = params; }
+    void setSteeringSystemData(const SteeringSystemData_s& system_data) { _system_data = system_data; }
 
-    private:
+  private:
     SteeringSystemParams_s _params;
     SteeringSystemData_s   _system_data{};
     bool                   _is_first_tick = true; // no history yet, so rate checks are skipped
@@ -148,7 +148,7 @@ class SteeringSystem
      * @note Readings outside [limits.min_unclipped_raw, limits.max_unclipped_raw] are treated as clipped and ignored entirely
      * @note Accepted readings can only widen the range; it is narrowed only when _recalibrateSensor() clears the extremes after an implausible span
      */
-    static void _updateSensorExtremes(SteeringSensorObservedExtremes_s &extremes, uint32_t raw, const SteeringSensorRawLimits_s &limits);
+    static void _updateSensorExtremes(SteeringSensorObservedExtremes_s& extremes, uint32_t raw, const SteeringSensorRawLimits_s& limits);
 
     /**
      * @brief Recalibrates one sensor (analog or digital) from its observed extremes
@@ -157,7 +157,7 @@ class SteeringSystem
      * @note If the new span exceeds limits.max_plausible_span_raw, observed_extremes is cleared so the next sweep starts fresh
      *       (the calibration from this pass is still applied)
      */
-    static void _recalibrateSensor(SteeringSensorParams_s &sensor, const SteeringSensorRawLimits_s &limits);
+    static void _recalibrateSensor(SteeringSensorParams_s& sensor, const SteeringSensorRawLimits_s& limits);
 
     float _convertAnalogRawToDeg(uint32_t analog_raw) const;
 
@@ -179,7 +179,7 @@ class SteeringSystem
     /**
      * @return True if a raw reading is outside [min_valid_raw, max_valid_raw], false otherwise
      */
-    static bool _isOutOfRange(uint32_t raw, const SteeringSensorOutOfRangeBounds_s &bounds);
+    static bool _isOutOfRange(uint32_t raw, const SteeringSensorOutOfRangeBounds_s& bounds);
 
     /**
      * @return True if the rate of angle change > max_steering_rate_deg_per_s, false otherwise

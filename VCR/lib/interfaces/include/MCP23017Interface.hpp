@@ -19,8 +19,8 @@
 
 class MCP23017IOExpanderInterface : public IOExpanderInterface
 {
-    public:
-    MCP23017IOExpanderInterface(TwoWire &wire, IOExpanderParams_s params)
+  public:
+    MCP23017IOExpanderInterface(TwoWire& wire, IOExpanderParams_s params)
         : _io_expander(params.i2c_address, wire)
     {
         _io_expander.init();
@@ -34,7 +34,7 @@ class MCP23017IOExpanderInterface : public IOExpanderInterface
 
     bool getBitPortB(uint8_t bit) override;
 
-    private:
+  private:
     MCP23017 _io_expander;
     uint16_t _data;
 };

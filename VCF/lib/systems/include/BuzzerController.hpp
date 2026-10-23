@@ -6,7 +6,7 @@
 
 class BuzzerController
 {
-    public:
+  public:
     BuzzerController() { _last_activation_time_ms = 0; }
 
     /**
@@ -23,7 +23,7 @@ class BuzzerController
 
     bool isBuzzerActive(unsigned long millis);
 
-    private:
+  private:
     const unsigned long _BUZZER_PERIOD_MS = 2000;
     unsigned long       _last_activation_time_ms;
 };

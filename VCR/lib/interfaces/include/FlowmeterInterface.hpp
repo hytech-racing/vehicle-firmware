@@ -16,14 +16,14 @@ namespace default_flowmeter_params
 
 class FlowmeterInterface
 {
-    public:
+  public:
     FlowmeterInterface(const size_t flowmeter_pin);
 
     static void count_pulse() { etl::singleton<FlowmeterInterface>::instance()._pulse_count++; };
 
     float get_flow_gpm(unsigned long curr_millis);
 
-    private:
+  private:
     unsigned long _last_sample_timestamp_ms;
     unsigned long _pulse_count = 0;
     size_t        _pin;

@@ -133,7 +133,7 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-    public:
+  public:
     ADCInterface(
         ADCPinout_s       pinout,
         ADCChannels_s     channels,
@@ -308,14 +308,14 @@ class ADCInterface
     /**
      * @return ADC parameters
      */
-    const ADCInterfaceParams_s &get_adc_params() const;
+    const ADCInterfaceParams_s& get_adc_params() const;
 
     /**
      * @return true if still within IMD startup period
      */
     bool is_in_imd_startup_period() const;
 
-    private:
+  private:
     const ADCInterfaceParams_s                                                                              _adc_parameters = {};
     MAX114XInterface<adc_default_parameters::NUM_MAX1148_CHANNELS, adc_default_parameters::MAX114X_VERSION> _max114x_instance;
 

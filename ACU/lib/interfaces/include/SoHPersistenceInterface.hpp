@@ -18,7 +18,7 @@
  */
 class SoHPersistenceInterface
 {
-    public:
+  public:
     SoHPersistenceInterface() = default;
 
     /**
@@ -40,7 +40,7 @@ class SoHPersistenceInterface
      */
     bool save(double lifetime_ah_throughput, time_ms now, bool force = false);
 
-    private:
+  private:
     // EEPROM byte memory map
     static constexpr int      EEPROM_MAGIC_ADDR = 16;
     static constexpr int      EEPROM_THROUGHPUT_ADDR = 20;

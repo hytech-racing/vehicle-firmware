@@ -67,7 +67,7 @@ struct DisplayConfig_s
 
 class DisplayInterface
 {
-    public:
+  public:
     DisplayInterface(
         DisplayPinout_s pinout,
         DisplayConfig_s config =
@@ -90,7 +90,7 @@ class DisplayInterface
 
     void update(unsigned long current_millis);
 
-    private:
+  private:
     Adafruit_ILI9341 _display;
     DisplayPinout_s  _pinout;
     DisplayConfig_s  _config;

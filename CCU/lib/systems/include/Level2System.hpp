@@ -33,8 +33,8 @@ struct Level2SystemThresholds_s
 
 class Level2System
 {
-    public:
-    Level2System(Level2Interface &level2_interface, ADCInterface &adc_interface, WatchdogInterface &watchdog_interface, Level2SystemThresholds_s thresholds = {})
+  public:
+    Level2System(Level2Interface& level2_interface, ADCInterface& adc_interface, WatchdogInterface& watchdog_interface, Level2SystemThresholds_s thresholds = {})
         : _level2_interface(level2_interface), _adc_interface(adc_interface), _watchdog_interface(watchdog_interface), _thresholds(thresholds) {};
 
     /**
@@ -42,43 +42,43 @@ class Level2System
      * PP = 5  +  CP = 0  +  240_En = HIGH  +  240_OK = LOW
      * @return if the 4 conditions above are met
      */
-    bool check_120_conditions(ADCInterface &adc_interface);
+    bool check_120_conditions(ADCInterface& adc_interface);
 
     /**
      * Function check for the expected 240V Charging Conditions (2):
      * 240_OK = HIGH  +  JP_OUT_READ = HIGH
      * @return if the 2 conditions above are met
      */
-    bool check_240_conditions(ADCInterface &adc_interface);
+    bool check_240_conditions(ADCInterface& adc_interface);
 
     /**
      * Function checks if the switch is engaged for 120V charging
      * 240_OK = LOW  +  JP_OUT_READ = HIGH
      * @return if the 2 conditions above are met
      */
-    bool is_120_switched(ADCInterface &adc_interface);
+    bool is_120_switched(ADCInterface& adc_interface);
 
     /**
      * Function checks if the switch is engaged for 120V charging
      * 240_OK = LOW  +  jumper_read = LOW
      * @return if the 2 conditions above are met
      */
-    bool is_240_switched(ADCInterface &adc_interface);
+    bool is_240_switched(ADCInterface& adc_interface);
 
     /**
      * @return true if all state B2 conditions present, else false
      */
-    bool check_state_B2_conditions(ADCInterface &adc_interface, Level2Interface &level2_interface);
+    bool check_state_B2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
     /**
      * @return true if all state C2 conditions present, else false
      */
-    bool check_state_C2_conditions(ADCInterface &adc_interface, Level2Interface &level2_interface);
+    bool check_state_C2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
-    private:
-    Level2Interface         &_level2_interface;
-    ADCInterface            &_adc_interface;
-    WatchdogInterface       &_watchdog_interface;
+  private:
+    Level2Interface&         _level2_interface;
+    ADCInterface&            _adc_interface;
+    WatchdogInterface&       _watchdog_interface;
     Level2SystemThresholds_s _thresholds;
 };
 

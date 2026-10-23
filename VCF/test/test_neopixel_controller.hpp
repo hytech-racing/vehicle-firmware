@@ -19,7 +19,7 @@ struct FakeNeopixelStrip
 
 class NeopixelControllerTest : public ::testing::Test
 {
-    protected:
+  protected:
     // Declared before the controller so it exists when the delegates are bound to it
     FakeNeopixelStrip _strip;
 

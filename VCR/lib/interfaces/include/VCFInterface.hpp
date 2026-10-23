@@ -25,7 +25,7 @@ struct VCFCANInterfaceData_s
 
 class VCFInterface
 {
-    public:
+  public:
     VCFInterface() = delete;
 
     VCFInterface(unsigned long init_millis, unsigned long max_heartbeat_interval_ms)
@@ -55,13 +55,13 @@ class VCFInterface
 
     void reset_steering_heartbeat();
 
-    void receive_pedals_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_steering_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_steering_message(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_dashboard_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_dashboard_message(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_front_suspension_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_front_suspension_message(const CAN_message_t& msg, unsigned long curr_millis);
 
     VCFCANInterfaceData_s get_latest_data() const;
 
@@ -75,7 +75,7 @@ class VCFInterface
 
     void enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
 
-    private:
+  private:
     mutable VCFCANInterfaceData_s _curr_data;
     unsigned long                 _max_heartbeat_interval_ms;
     mutable bool                  _first_received_message_heartbeat_init = false;

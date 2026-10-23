@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 
 auto runTick(
-    DrivebrainController *controller,
+    DrivebrainController* controller,
     float                 last_speed_recv_millis,
     float                 last_torque_receive_time_millis,
     ControllerMode_e      current_control_mode,

@@ -49,7 +49,7 @@ InverterFeedbackData_s InverterInterface::get_all_inverter_data() const
 /**
  * receiving CAN messages
  */
-void InverterInterface::receive_INV_STATUS(const CAN_message_t &can_msg, unsigned long curr_millis)
+void InverterInterface::receive_INV_STATUS(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     // Unpack the message
     INV1_STATUS_t unpacked_msg;
@@ -73,7 +73,7 @@ void InverterInterface::receive_INV_STATUS(const CAN_message_t &can_msg, unsigne
     _feedback_data.status.last_recv_millis = curr_millis;
 }
 
-void InverterInterface::receive_INV_TEMPS(const CAN_message_t &can_msg, unsigned long curr_millis)
+void InverterInterface::receive_INV_TEMPS(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
 
     // Unpack the message
@@ -90,7 +90,7 @@ void InverterInterface::receive_INV_TEMPS(const CAN_message_t &can_msg, unsigned
     _feedback_data.temps.last_recv_millis = curr_millis;
 }
 
-void InverterInterface::receive_INV_DYNAMICS(const CAN_message_t &can_msg, unsigned long curr_millis)
+void InverterInterface::receive_INV_DYNAMICS(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     // Unpack the message
     INV1_DYNAMICS_t unpacked_msg;
@@ -105,7 +105,7 @@ void InverterInterface::receive_INV_DYNAMICS(const CAN_message_t &can_msg, unsig
     _feedback_data.motor_mechanics.last_recv_millis = curr_millis;
 }
 
-void InverterInterface::receive_INV_POWER(const CAN_message_t &can_msg, unsigned long curr_millis)
+void InverterInterface::receive_INV_POWER(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     // Unpack the message
     INV1_POWER_t unpacked_msg;
@@ -120,7 +120,7 @@ void InverterInterface::receive_INV_POWER(const CAN_message_t &can_msg, unsigned
     _feedback_data.power.last_recv_millis = curr_millis;
 }
 
-void InverterInterface::receive_INV_FEEDBACK(const CAN_message_t &can_msg, unsigned long curr_millis)
+void InverterInterface::receive_INV_FEEDBACK(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     // Unpack the message
     INV1_FEEDBACK_t unpacked_msg;

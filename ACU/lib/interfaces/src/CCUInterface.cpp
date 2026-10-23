@@ -2,7 +2,7 @@
 #include "CCUInterface.hpp"
 
 
-void CCUInterface::receive_CCU_status_message(const CAN_message_t &msg, unsigned long curr_millis)
+void CCUInterface::receive_CCU_status_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
     CCU_STATUS_t ccu_msg;
     Unpack_CCU_STATUS_ht_can(&ccu_msg, &msg.buf[0], msg.len);

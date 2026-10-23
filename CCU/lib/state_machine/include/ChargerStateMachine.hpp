@@ -25,7 +25,7 @@ enum class ChargerState_e
 
 class ChargerStateMachine
 {
-    public:
+  public:
     ChargerStateMachine(
         etl::delegate<bool()> is120ConditionsOK,
         etl::delegate<bool()> is120Switched,
@@ -67,9 +67,9 @@ class ChargerStateMachine
     /**
      * @return string for printing out the state
      */
-    const char *getStateName();
+    const char* getStateName();
 
-    private:
+  private:
     const unsigned long state_transition_delay_ms = 2500UL; // ms
 
     void _setState(ChargerState_e new_state, unsigned long current_millis);

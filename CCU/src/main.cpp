@@ -11,7 +11,7 @@ namespace qn = qindesign::network; // setup of qn namespace
 qn::EthernetUDP udp;               // setup of qn namespace
 
 /* Scheduler Setup */
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 /* read_dial, send_ethernet, and receieve_ethernet are not being used */

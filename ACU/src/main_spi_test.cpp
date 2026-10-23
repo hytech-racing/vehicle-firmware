@@ -275,7 +275,7 @@ void print_performance_stats()
     Serial.println("=== PERFORMANCE STATISTICS ===");
     Serial.println("========================================");
 
-    const char *group_names[] = {"GROUP_A (Cells 0-2)", "GROUP_B (Cells 3-5)", "GROUP_C (Cells 6-8)", "GROUP_D (Cells 9-11)", "AUX_A (GPIO 0-2)", "AUX_B (GPIO 3-4)"};
+    const char* group_names[] = {"GROUP_A (Cells 0-2)", "GROUP_B (Cells 3-5)", "GROUP_C (Cells 6-8)", "GROUP_D (Cells 9-11)", "AUX_A (GPIO 0-2)", "AUX_B (GPIO 3-4)"};
 
     for (size_t i = 0; i < num_groups; i++)
     {

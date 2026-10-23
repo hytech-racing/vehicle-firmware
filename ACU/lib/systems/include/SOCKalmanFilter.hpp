@@ -59,7 +59,7 @@ struct EKFState_s
 
 class SOCKalmanFilter
 {
-    public:
+  public:
     SOCKalmanFilter();
 
     /**
@@ -124,7 +124,7 @@ class SOCKalmanFilter
                                                        61.8, 62.8, 63.8, 64.8, 65.8, 66.8, 67.8, 68.8, 69.9, 70.9, 71.9, 72.9, 73.9, 75.0, 76.0, 77.0, 78.0, 79.1, 80.1, 81.1, 82.2,
                                                        83.2, 84.2, 85.3, 86.3, 87.3, 88.4, 89.4, 90.5, 91.5, 92.6, 93.6, 94.7, 95.7, 96.8, 97.9, 98.9, 100.0};
 
-    private:
+  private:
     EKFState_s _state; // The system state (SoC, V_polarization)
 
     // Covariance Matrix P (2x2)

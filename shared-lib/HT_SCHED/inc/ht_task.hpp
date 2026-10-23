@@ -22,7 +22,7 @@ namespace HT_TASK
 
     class TaskInfo
     {
-        public:
+      public:
         TaskState    state;
         uint32_t     executionIntervalMicros;
         uint32_t     lastExecutionMicros;
@@ -49,24 +49,20 @@ namespace HT_TASK
     };
 
     // Use this to declare a task without a setup or loop
-    inline TaskResponse DUMMY_FUNCTION(const uint32_t &timeMicros, const TaskInfo &taskInfo)
+    inline TaskResponse DUMMY_FUNCTION(const uint32_t& timeMicros, const TaskInfo& taskInfo)
     {
         return TaskResponse::YIELD;
     }
 
     class Task
     {
-        public:
-        TaskInfo                                                        _taskInfo;
-        std::function<TaskResponse(const uint32_t &, const TaskInfo &)> _setup;
-        std::function<TaskResponse(const uint32_t &, const TaskInfo &)> _loop;
+      public:
+        TaskInfo                                                      _taskInfo;
+        std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _setup;
+        std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _loop;
 
         // Interval task constructor
-        Task(
-            std::function<TaskResponse(const uint32_t &, const TaskInfo &)> setup,
-            std::function<TaskResponse(const uint32_t &, const TaskInfo &)> loop,
-            int                                                             priority,
-            uint32_t                                                        executionIntervalMicros)
+        Task(std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup, std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop, int priority, uint32_t executionIntervalMicros)
             : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
         {
             _taskInfo.executionIntervalMicros = executionIntervalMicros;
@@ -75,7 +71,7 @@ namespace HT_TASK
         };
 
         // Idle task constructor with priority
-        Task(std::function<TaskResponse(const uint32_t &, const TaskInfo &)> setup, std::function<TaskResponse(const uint32_t &, const TaskInfo &)> loop, int priority)
+        Task(std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup, std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop, int priority)
             : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
         {
             _taskInfo.isIntervalFunction = false;

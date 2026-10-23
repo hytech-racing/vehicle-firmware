@@ -3,7 +3,7 @@
 #include "SystemTimeInterface.h"
 #include "ht_can.h"
 
-void RDCCANInterfaceImpl::RDCRecvSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type)
+void RDCCANInterfaceImpl::RDCRecvSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {
@@ -48,12 +48,12 @@ void RDCCANInterfaceImpl::RDCRecvSwitch(CANInterfaces_s &interfaces, const CAN_m
     }
 }
 
-void RDCCANInterfaceImpl::onDVCANRecvHelper(const CAN_message_t &msg)
+void RDCCANInterfaceImpl::onDVCANRecvHelper(const CAN_message_t& msg)
 {
     CoreRDCCANInterfaceInstance::instance().onDVCANRecv(msg);
 }
 
-void CoreRDCCANInterface::onDVCANRecv(const CAN_message_t &msg)
+void CoreRDCCANInterface::onDVCANRecv(const CAN_message_t& msg)
 {
     std::array<uint8_t, sizeof(CAN_message_t)> buf;
     memmove(buf.data(), &msg, sizeof(msg)); // NOLINT
@@ -61,10 +61,10 @@ void CoreRDCCANInterface::onDVCANRecv(const CAN_message_t &msg)
 }
 
 void CoreRDCCANInterface::processCANMessages(
-    CANInterfaces_s                                                                                  can_interfaces,
-    unsigned long                                                                                    curr_millis,
-    etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)> recv_switch,
-    CANInterfaceType_e                                                                               interface_type)
+    CANInterfaces_s                                                                                can_interfaces,
+    unsigned long                                                                                  curr_millis,
+    etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recv_switch,
+    CANInterfaceType_e                                                                             interface_type)
 {
     process_ring_buffer(_driverless_can_rx_buffer, can_interfaces, curr_millis, recv_switch, interface_type);
 }

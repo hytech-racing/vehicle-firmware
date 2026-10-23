@@ -23,7 +23,7 @@ using namespace qindesign::network;
 
 class VCFEthernetInterface
 {
-    public:
+  public:
     VCFEthernetInterface() = default;
 
     void initEthernetDevice();
@@ -34,7 +34,7 @@ class VCFEthernetInterface
      * @param shared_state The current VCF state, which includes both interface and system data.
      * @return A populated instance of the outgoing protoc struct.
      */
-    hytech_msgs_VCFData_s make_vcf_data_msg(ADCInterface &adc_int, DashboardInterface &dash_int, PedalsSystem &pedals_sys, SteeringSystem &steering_sys, BrakeRotorTempInterface &brake_rotor_temp_int);
+    hytech_msgs_VCFData_s make_vcf_data_msg(ADCInterface& adc_int, DashboardInterface& dash_int, PedalsSystem& pedals_sys, SteeringSystem& steering_sys, BrakeRotorTempInterface& brake_rotor_temp_int);
 
     /**
      * Function to take a populated protoc struct from VCR and update the VCF state. This is ONLY critical
@@ -45,11 +45,11 @@ class VCFEthernetInterface
      *
      * @post After this function completes, shared_state will contain the updated buzzer control.
      */
-    void receiveVCRETHMsg(const hytech_msgs_VCRData_s &msg_in, VCFData_s &shared_state, unsigned long curr_millis);
+    void receiveVCRETHMsg(const hytech_msgs_VCRData_s& msg_in, VCFData_s& shared_state, unsigned long curr_millis);
 
-    void handleSendVCFETHData(const hytech_msgs_VCFData_s &data);
+    void handleSendVCFETHData(const hytech_msgs_VCFData_s& data);
 
-    private:
+  private:
     static constexpr size_t VER_HASH_LEN = 9;
     static constexpr float  SHDN_HIGH_THRESHOLD = 12.0f; // threshold for shutdown being considered high
 

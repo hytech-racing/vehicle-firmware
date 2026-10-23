@@ -2,7 +2,7 @@
 #include "VCRCANInterfaceImpl.hpp"
 
 
-DrivebrainInterface::DrivebrainInterface(IPAddress drivebrain_ip, uint16_t vcr_data_port, qindesign::network::EthernetUDP *udp_socket)
+DrivebrainInterface::DrivebrainInterface(IPAddress drivebrain_ip, uint16_t vcr_data_port, qindesign::network::EthernetUDP* udp_socket)
     : _drivebrain_ip(drivebrain_ip), _vcr_data_port(vcr_data_port), _udp_socket(udp_socket) {};
 
 StampedDrivetrainCommand_s DrivebrainInterface::get_latest_telem_drivebrain_command()
@@ -15,7 +15,7 @@ StampedDrivetrainCommand_s DrivebrainInterface::get_latest_auxillary_drivebrain_
     return _latest_drivebrain_command_auxillary;
 }
 
-void DrivebrainInterface::receive_drivebrain_speed_command_telem(const CAN_message_t &msg, unsigned long curr_millis)
+void DrivebrainInterface::receive_drivebrain_speed_command_telem(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DRIVEBRAIN_SPEED_SET_INPUT_t drivebrain_msg;
 
@@ -31,7 +31,7 @@ void DrivebrainInterface::receive_drivebrain_speed_command_telem(const CAN_messa
         static_cast<float>(drivebrain_msg.drivebrain_set_rpm_rr)};
 };
 
-void DrivebrainInterface::receive_drivebrain_torque_lim_command_telem(const CAN_message_t &msg, unsigned long curr_millis)
+void DrivebrainInterface::receive_drivebrain_torque_lim_command_telem(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DRIVEBRAIN_TORQUE_LIM_INPUT_t drivebrain_msg;
 
@@ -47,7 +47,7 @@ void DrivebrainInterface::receive_drivebrain_torque_lim_command_telem(const CAN_
         static_cast<float>(HT_CAN_drivebrain_torque_rr_ro_fromS(drivebrain_msg.drivebrain_torque_rr_ro))};
 }
 
-void DrivebrainInterface::receive_drivebrain_speed_command_auxillary(const CAN_message_t &msg, unsigned long curr_millis)
+void DrivebrainInterface::receive_drivebrain_speed_command_auxillary(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DRIVEBRAIN_SPEED_SET_INPUT_t drivebrain_msg;
 
@@ -63,7 +63,7 @@ void DrivebrainInterface::receive_drivebrain_speed_command_auxillary(const CAN_m
         static_cast<float>(drivebrain_msg.drivebrain_set_rpm_rr)};
 };
 
-void DrivebrainInterface::receive_drivebrain_torque_lim_command_auxillary(const CAN_message_t &msg, unsigned long curr_millis)
+void DrivebrainInterface::receive_drivebrain_torque_lim_command_auxillary(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DRIVEBRAIN_TORQUE_LIM_INPUT_t drivebrain_msg;
 
@@ -79,7 +79,7 @@ void DrivebrainInterface::receive_drivebrain_torque_lim_command_auxillary(const 
         static_cast<float>(HT_CAN_drivebrain_torque_rr_ro_fromS(drivebrain_msg.drivebrain_torque_rr_ro))};
 }
 
-void DrivebrainInterface::handle_enqueue_suspension_CAN_data(const ADCInterface &adc_instance)
+void DrivebrainInterface::handle_enqueue_suspension_CAN_data(const ADCInterface& adc_instance)
 {
     REAR_SUSPENSION_t rear_sus_msg;
 
@@ -91,7 +91,7 @@ void DrivebrainInterface::handle_enqueue_suspension_CAN_data(const ADCInterface 
     CAN_util::enqueue_msg(&rear_sus_msg, &Pack_REAR_SUSPENSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void DrivebrainInterface::handle_enqueue_coolant_temp_CAN_data(const ADCInterface &adc_instance)
+void DrivebrainInterface::handle_enqueue_coolant_temp_CAN_data(const ADCInterface& adc_instance)
 {
     REAR_THERMISTORS_DATA_t thermistor_msg;
     thermistor_msg.thermistor_0_deg_C_ro = HT_CAN_thermistor_0_deg_C_ro_toS(adc_instance.get_thermistor_n_degrees_C(0));
@@ -100,14 +100,14 @@ void DrivebrainInterface::handle_enqueue_coolant_temp_CAN_data(const ADCInterfac
     CAN_util::enqueue_msg(&thermistor_msg, &Pack_REAR_THERMISTORS_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void DrivebrainInterface::handle_enqueue_flowmeter_CAN_data(FlowmeterInterface &flowmeter_instance, unsigned long curr_millis)
+void DrivebrainInterface::handle_enqueue_flowmeter_CAN_data(FlowmeterInterface& flowmeter_instance, unsigned long curr_millis)
 {
     FLOWMETER_DATA_t flowmeter_msg;
     flowmeter_msg.flow_rate = static_cast<int>(flowmeter_instance.get_flow_gpm(curr_millis));
     CAN_util::enqueue_msg(&flowmeter_msg, &Pack_FLOWMETER_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void DrivebrainInterface::handle_send_ethernet_data(const hytech_msgs_VCRData_s &data)
+void DrivebrainInterface::handle_send_ethernet_data(const hytech_msgs_VCRData_s& data)
 {
     handle_ethernet_socket_send_pb<hytech_msgs_VCRData_s_size>(_drivebrain_ip, _vcr_data_port, _udp_socket, data, hytech_msgs_VCRData_s_fields);
 }

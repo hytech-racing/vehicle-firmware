@@ -30,7 +30,7 @@ struct ButtonState_s
 
 class ButtonInterface
 {
-    public:
+  public:
     ButtonInterface(size_t pin, uint8_t debounce_ms = default_button_params::DEBOUNCE_MS, bool active_low = true)
         : _pin(pin), _debounce_ms(debounce_ms), _active_low(active_low)
     {
@@ -47,7 +47,7 @@ class ButtonInterface
 
     unsigned long getHoldDurationMs(unsigned long current_millis);
 
-    private:
+  private:
     const uint8_t _pin;
     const uint8_t _debounce_ms;
     const bool    _active_low;

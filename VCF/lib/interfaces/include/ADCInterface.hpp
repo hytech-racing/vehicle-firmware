@@ -97,7 +97,7 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-    public:
+  public:
     ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
         : _adc_parameters{.pinouts = pinouts, .channels = channels, .scales = scales, .offsets = offsets},
           _adc0(
@@ -227,7 +227,7 @@ class ADCInterface
      */
     float getFilteredFRSuspot();
 
-    private:
+  private:
     ADCInterfaceParams_s _adc_parameters = {};
 
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.

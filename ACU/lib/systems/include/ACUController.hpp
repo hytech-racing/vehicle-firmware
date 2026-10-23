@@ -96,7 +96,7 @@ class ACUController
 {
     // using ACUData = etl::singleton<BMSCoreData_s<num_cells, num_celltemps, num_boardtemps>>;
 
-    public:
+  public:
     /**
      * ACU Controller Constructor
      * @param cell_overvoltage_thresh_v cell overvoltage threshold value | units in volts
@@ -151,7 +151,7 @@ class ACUController
      */
     ACUControllerData_s evaluate_accumulator(
         time_ms              current_millis,
-        const BMSCoreData_s &bms_core_data,
+        const BMSCoreData_s& bms_core_data,
         size_t               max_consecutive_invalid_packet_count,
         float                em_current,
         size_t               num_of_voltage_cells,
@@ -163,7 +163,7 @@ class ACUController
      * @post output will have the new values
      * check TS isolation
      */
-    void calculate_cell_balance_statuses(bool *output, const volt *voltages, size_t num_of_voltage_cells, volt min_voltage);
+    void calculate_cell_balance_statuses(bool* output, const volt* voltages, size_t num_of_voltage_cells, volt min_voltage);
 
     /**
      * @return state of charge - float from 0.0 to 1.0, representing a percentage from 0 to 100%
@@ -178,7 +178,7 @@ class ACUController
 
     bool check_is_contactor_welded(volt pack_voltage_adc, volt ts_voltage_adc);
 
-    private:
+  private:
     /**
      * @brief ACU State Holder
      * Most importantly, holding the current cell balances, fault counters, and watchdog HIGH?LOW

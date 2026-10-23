@@ -1,7 +1,7 @@
 #include "VCRInterface.h"
 
 
-void VCRInterface::receive_inv_dynamics(const CAN_message_t &can_msg, unsigned long curr_millis)
+void VCRInterface::receive_inv_dynamics(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
     // Unpack the message
     INV1_DYNAMICS_t unpacked_msg;
@@ -15,7 +15,7 @@ void VCRInterface::receive_inv_dynamics(const CAN_message_t &can_msg, unsigned l
     _wheel_data.last_recv_millis = curr_millis;
 }
 
-void VCRInterface::receive_vehicle_state(const CAN_message_t &can_msg)
+void VCRInterface::receive_vehicle_state(const CAN_message_t& can_msg)
 {
     CAR_STATES_t unpacked_msg;
     Unpack_CAR_STATES_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -24,7 +24,7 @@ void VCRInterface::receive_vehicle_state(const CAN_message_t &can_msg)
     _is_db_in_ctrl = unpacked_msg.drivebrain_in_control;
 }
 
-void VCRInterface::receive_inverter_status_1(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_status_1(const CAN_message_t& can_msg)
 {
     INV1_STATUS_t unpacked_msg;
     Unpack_INV1_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -32,7 +32,7 @@ void VCRInterface::receive_inverter_status_1(const CAN_message_t &can_msg)
     _inverter_status.dc_bus_voltage.FL = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_2(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_status_2(const CAN_message_t& can_msg)
 {
     INV2_STATUS_t unpacked_msg;
     Unpack_INV2_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -40,7 +40,7 @@ void VCRInterface::receive_inverter_status_2(const CAN_message_t &can_msg)
     _inverter_status.dc_bus_voltage.FR = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_3(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_status_3(const CAN_message_t& can_msg)
 {
     INV3_STATUS_t unpacked_msg;
     Unpack_INV3_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -48,7 +48,7 @@ void VCRInterface::receive_inverter_status_3(const CAN_message_t &can_msg)
     _inverter_status.dc_bus_voltage.RL = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_status_4(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_status_4(const CAN_message_t& can_msg)
 {
     INV4_STATUS_t unpacked_msg;
     Unpack_INV4_STATUS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -56,7 +56,7 @@ void VCRInterface::receive_inverter_status_4(const CAN_message_t &can_msg)
     _inverter_status.dc_bus_voltage.RR = unpacked_msg.dc_bus_voltage;
 }
 
-void VCRInterface::receive_inverter_temperature_1(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_temperature_1(const CAN_message_t& can_msg)
 {
     INV1_TEMPS_t unpacked_msg;
     Unpack_INV1_TEMPS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -64,7 +64,7 @@ void VCRInterface::receive_inverter_temperature_1(const CAN_message_t &can_msg)
     _temps.inverter_temps.FL = HYTECH_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
-void VCRInterface::receive_inverter_temperature_2(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_temperature_2(const CAN_message_t& can_msg)
 {
     INV2_TEMPS_t unpacked_msg;
     Unpack_INV2_TEMPS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -72,7 +72,7 @@ void VCRInterface::receive_inverter_temperature_2(const CAN_message_t &can_msg)
     _temps.inverter_temps.FR = HYTECH_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
-void VCRInterface::receive_inverter_temperature_3(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_temperature_3(const CAN_message_t& can_msg)
 {
     INV3_TEMPS_t unpacked_msg;
     Unpack_INV3_TEMPS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
@@ -80,7 +80,7 @@ void VCRInterface::receive_inverter_temperature_3(const CAN_message_t &can_msg)
     _temps.inverter_temps.RL = HYTECH_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
-void VCRInterface::receive_inverter_temperature_4(const CAN_message_t &can_msg)
+void VCRInterface::receive_inverter_temperature_4(const CAN_message_t& can_msg)
 {
     INV4_TEMPS_t unpacked_msg;
     Unpack_INV4_TEMPS_hytech(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT

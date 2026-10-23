@@ -56,7 +56,7 @@ SteeringSensorParams_s make_sensor_params(const uint32_t min_raw, const uint32_t
     sensor.deg_per_count = deg_per_count;
     sensor.oor_tolerance_fraction = oor_tolerance_fraction;
 
-    SteeringSensorCalibration_s &calibration_snapshot = sensor.calibration_snapshot;
+    SteeringSensorCalibration_s& calibration_snapshot = sensor.calibration_snapshot;
     calibration_snapshot.min_raw = min_raw;
     calibration_snapshot.max_raw = max_raw;
     calibration_snapshot.span_raw = max_raw - min_raw;
@@ -99,7 +99,7 @@ float expected_digital_deg(const uint32_t digital_raw)
     return static_cast<float>(static_cast<int32_t>(DIGITAL_CENTER_RAW) - static_cast<int32_t>(digital_raw)) * DIGITAL_DEG_PER_COUNT;
 }
 
-void debug_print_steering(const SteeringSystemData_s &data)
+void debug_print_steering(const SteeringSystemData_s& data)
 {
     std::cout << "analog_steering_angle: " << data.analog_steering_angle << " deg\n";
     std::cout << "digital_steering_angle: " << data.digital_steering_angle << " deg\n";
@@ -116,7 +116,7 @@ void debug_print_steering(const SteeringSystemData_s &data)
 
 class SteeringSystemTest : public ::testing::Test
 {
-    protected:
+  protected:
     SteeringSystemParams_s _params = gen_default_params();
     SteeringSystem         _steering{_params};
     uint32_t               _last_time_us = 0;
@@ -133,20 +133,20 @@ class SteeringSystemTest : public ::testing::Test
         evaluateAt(analog_raw, digital_raw, _last_time_us + SAMPLE_PERIOD_US, status);
     }
 
-    const SteeringSystemData_s   &data() const { return _steering.getSteeringSystemData(); }
-    const SteeringSystemParams_s &currentParams() const { return _steering.getSteeringParams(); }
+    const SteeringSystemData_s&   data() const { return _steering.getSteeringSystemData(); }
+    const SteeringSystemParams_s& currentParams() const { return _steering.getSteeringParams(); }
 };
 
 
 TEST_F(SteeringSystemTest, default_params_have_expected_calibration_and_bounds)
 {
-    const SteeringSensorParams_s &analog = _params.analog;
+    const SteeringSensorParams_s& analog = _params.analog;
     EXPECT_EQ(analog.calibration_snapshot.span_raw, 2048U);
     EXPECT_EQ(analog.calibration_snapshot.center_raw, ANALOG_CENTER_RAW);
     EXPECT_EQ(analog.oor_bounds.min_valid_raw, ANALOG_MIN_VALID_RAW);
     EXPECT_EQ(analog.oor_bounds.max_valid_raw, ANALOG_MAX_VALID_RAW);
 
-    const SteeringSensorParams_s &digital = _params.digital;
+    const SteeringSensorParams_s& digital = _params.digital;
     EXPECT_EQ(digital.calibration_snapshot.span_raw, 8000U);
     EXPECT_EQ(digital.calibration_snapshot.center_raw, DIGITAL_CENTER_RAW);
     EXPECT_EQ(digital.oor_bounds.min_valid_raw, DIGITAL_MIN_VALID_RAW);
@@ -539,7 +539,7 @@ TEST_F(SteeringSystemTest, observed_extremes_track_min_and_max)
 
 TEST_F(SteeringSystemTest, clipped_analog_readings_are_ignored)
 {
-    const SteeringSensorObservedExtremes_s &analog = currentParams().analog.observed_extremes;
+    const SteeringSensorObservedExtremes_s& analog = currentParams().analog.observed_extremes;
 
     _steering.updateObservedExtremes(ANALOG_MIN_UNCLIPPED_RAW - 1, CLIPPED_RAW);
     _steering.updateObservedExtremes(ANALOG_MAX_UNCLIPPED_RAW + 1, CLIPPED_RAW);
@@ -555,7 +555,7 @@ TEST_F(SteeringSystemTest, clipped_analog_readings_are_ignored)
 
 TEST_F(SteeringSystemTest, clipped_digital_readings_are_ignored)
 {
-    const SteeringSensorObservedExtremes_s &digital = currentParams().digital.observed_extremes;
+    const SteeringSensorObservedExtremes_s& digital = currentParams().digital.observed_extremes;
 
     _steering.updateObservedExtremes(CLIPPED_RAW, DIGITAL_MIN_UNCLIPPED_RAW - 1);
     _steering.updateObservedExtremes(CLIPPED_RAW, DIGITAL_MAX_UNCLIPPED_RAW + 1);
@@ -589,14 +589,14 @@ TEST_F(SteeringSystemTest, recalibrate_without_samples_keeps_previous_calibratio
 {
     _steering.recalibrateSteering();
 
-    const SteeringSensorParams_s &analog = currentParams().analog;
+    const SteeringSensorParams_s& analog = currentParams().analog;
     EXPECT_EQ(analog.calibration_snapshot.min_raw, ANALOG_MIN_RAW);
     EXPECT_EQ(analog.calibration_snapshot.max_raw, ANALOG_MAX_RAW);
     EXPECT_EQ(analog.calibration_snapshot.center_raw, ANALOG_CENTER_RAW);
     EXPECT_EQ(analog.oor_bounds.min_valid_raw, ANALOG_MIN_VALID_RAW);
     EXPECT_EQ(analog.oor_bounds.max_valid_raw, ANALOG_MAX_VALID_RAW);
 
-    const SteeringSensorParams_s &digital = currentParams().digital;
+    const SteeringSensorParams_s& digital = currentParams().digital;
     EXPECT_EQ(digital.calibration_snapshot.min_raw, DIGITAL_MIN_RAW);
     EXPECT_EQ(digital.calibration_snapshot.max_raw, DIGITAL_MAX_RAW);
     EXPECT_EQ(digital.calibration_snapshot.center_raw, DIGITAL_CENTER_RAW);
@@ -611,7 +611,7 @@ TEST_F(SteeringSystemTest, recalibrate_computes_calibration_and_bounds)
     _steering.recalibrateSteering();
 
     // Analog: span 1000, tolerance 1000 * 0.005 = 5 counts
-    const SteeringSensorParams_s &analog = currentParams().analog;
+    const SteeringSensorParams_s& analog = currentParams().analog;
     EXPECT_EQ(analog.calibration_snapshot.min_raw, 1500U);
     EXPECT_EQ(analog.calibration_snapshot.max_raw, 2500U);
     EXPECT_EQ(analog.calibration_snapshot.span_raw, 1000U);
@@ -621,7 +621,7 @@ TEST_F(SteeringSystemTest, recalibrate_computes_calibration_and_bounds)
     EXPECT_EQ(analog.oor_bounds.max_valid_raw, 2505);
 
     // Digital: span 6000, tolerance 6000 * 0.005 = 30 counts
-    const SteeringSensorParams_s &digital = currentParams().digital;
+    const SteeringSensorParams_s& digital = currentParams().digital;
     EXPECT_EQ(digital.calibration_snapshot.min_raw, 2000U);
     EXPECT_EQ(digital.calibration_snapshot.max_raw, 8000U);
     EXPECT_EQ(digital.calibration_snapshot.span_raw, 6000U);

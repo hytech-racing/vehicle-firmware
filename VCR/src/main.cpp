@@ -12,7 +12,7 @@ namespace qn = qindesign::network; // setup of qn namespace
 qn::EthernetUDP udp;               // setup of qn namespace
 
 /* Scheduler Setup */
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &run_kick_watchdog, VCRConstants::WATCHDOG_PRIORITY, VCRConstants::WATCHDOG_KICK_PERIOD_US);

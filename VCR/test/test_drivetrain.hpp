@@ -23,10 +23,10 @@ void set_ef_active_pin(bool value)
 
 class MockInverterInterface
 {
-    public:
+  public:
     DrivetrainSystem::InverterFuncts_s inverter_functs;
 
-    MockInverterInterface(InverterStatus_s &status, MotorMechanics_s &m_mech)
+    MockInverterInterface(InverterStatus_s& status, MotorMechanics_s& m_mech)
         : inverter_status(status), motor_mechanics(m_mech)
     {
 
@@ -42,9 +42,9 @@ class MockInverterInterface
     InverterControlWord_s  get_control_word() { return _last_control_word; }
     InverterControlInput_s get_control_input() { return _last_control_input; }
 
-    private:
-    InverterStatus_s      &inverter_status;
-    MotorMechanics_s      &motor_mechanics;
+  private:
+    InverterStatus_s&      inverter_status;
+    MotorMechanics_s&      motor_mechanics;
     InverterControlWord_s  _last_control_word;
     InverterControlInput_s _last_control_input;
 

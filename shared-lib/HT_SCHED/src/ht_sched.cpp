@@ -19,7 +19,7 @@ namespace HT_SCHED
     // Give the task an ID
     // Return true upon success
     // Return false when the scheduling queue is full. (increase HT_SCHED_MAX_TASKS if this happens)
-    bool Scheduler::schedule(HT_TASK::Task &task)
+    bool Scheduler::schedule(HT_TASK::Task& task)
     {
         if (!(_numTasks < HT_SCHED_MAX_TASKS))
         {
@@ -41,7 +41,7 @@ namespace HT_SCHED
                    // check shifting task is interval ask and compared task is idle
                    || ((_taskQueue[i - 1]->_taskInfo.isIntervalFunction == false) && (task._taskInfo.isIntervalFunction == true))))
         {
-            HT_TASK::Task *temp = _taskQueue[i];
+            HT_TASK::Task* temp = _taskQueue[i];
             _taskQueue[i] = _taskQueue[i - 1];
             _taskQueue[i - 1] = temp;
         }
@@ -61,7 +61,7 @@ namespace HT_SCHED
 
         for (int i = 0; i < _numTasks; i++)
         {
-            HT_TASK::Task *task = _taskQueue[i];
+            HT_TASK::Task* task = _taskQueue[i];
 
             switch (task->_taskInfo.state)
             {
@@ -125,7 +125,7 @@ namespace HT_SCHED
         _schedulerExecTimer += _microsFunction() - nowMicros - cycleExecTimer;
     }
 
-    HT_TASK::TaskResponse Scheduler::initSchedMon(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+    HT_TASK::TaskResponse Scheduler::initSchedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
     {
         _intervalExecTimer = 0;
         _idleExecTimer = 0;
@@ -134,7 +134,7 @@ namespace HT_SCHED
         return HT_TASK::TaskResponse::YIELD;
     }
 
-    HT_TASK::TaskResponse Scheduler::schedMon(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+    HT_TASK::TaskResponse Scheduler::schedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
     {
         uint32_t totalTime = _intervalExecTimer + _idleExecTimer + _schedulerExecTimer;
         periodicUtilization = (float)_intervalExecTimer / totalTime;
@@ -151,17 +151,17 @@ namespace HT_SCHED
         return HT_TASK::TaskResponse::YIELD;
     }
 
-    const float &Scheduler::getPeriodicUtilization()
+    const float& Scheduler::getPeriodicUtilization()
     {
         return periodicUtilization;
     }
 
-    const float &Scheduler::getIdleUtilization()
+    const float& Scheduler::getIdleUtilization()
     {
         return idleUtilization;
     }
 
-    const float &Scheduler::getSchedulerUtilization()
+    const float& Scheduler::getSchedulerUtilization()
     {
         return schedulerUtilization;
     }

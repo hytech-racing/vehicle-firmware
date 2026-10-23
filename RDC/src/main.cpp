@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 /* Scheduler Setup */
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 HT_TASK::Task send_can_task(HT_TASK::DUMMY_FUNCTION, &handleSendAllCanData, RDCConstants::SEND_CAN_PRIORITY, RDCConstants::SEND_CAN_PERIOD_US);

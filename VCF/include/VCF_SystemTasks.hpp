@@ -33,21 +33,21 @@ extern etl::delegate<bool()>                   arePedalsCalibrating;
  */
 void initializeAllSystems();
 
-::HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info);
+::HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
-::HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info);
+::HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info);
 
-::HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
 #endif

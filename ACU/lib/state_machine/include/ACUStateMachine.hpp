@@ -15,7 +15,7 @@
 
 class ACUStateMachine
 {
-    public:
+  public:
     ACUStateMachine(
         etl::delegate<bool()> charge_state_requested,
         etl::delegate<bool()> has_bms_fault,
@@ -56,7 +56,7 @@ class ACUStateMachine
      */
     ACUState_e get_state() { return _current_state; }
 
-    private:
+  private:
     void _set_state(ACUState_e new_state, unsigned long curr_millis);
 
     /**

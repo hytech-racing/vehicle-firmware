@@ -33,7 +33,7 @@ struct BrakeTempSensorData_s
  */
 class BrakeRotorTempInterface
 {
-    public:
+  public:
     // default empty constructor will init state to zeros
     BrakeRotorTempInterface() {}
 
@@ -47,9 +47,9 @@ class BrakeRotorTempInterface
      * @brief CAN receive function to parse the new CAN msg and update internal state
      * @param msg the CAN msg to parse
      */
-    void receiveBrakeRotorTempCANMsgs(const CAN_message_t &msg);
+    void receiveBrakeRotorTempCANMsgs(const CAN_message_t& msg);
 
-    private:
+  private:
     BrakeTempSensorData_s _temp_data;
 
     /**

@@ -37,7 +37,7 @@ void NeopixelController::setNeopixel(uint16_t id, uint32_t c)
     _setPixelColor(id, c);
 }
 
-void NeopixelController::refreshNeopixels(const PedalsSystemData_s &pedals_data)
+void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data)
 {
 
     if (_controller_inputs.are_pedals_calibrating || _controller_inputs.is_steering_calibrating)

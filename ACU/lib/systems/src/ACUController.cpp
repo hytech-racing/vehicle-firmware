@@ -30,7 +30,7 @@ void ACUController::restore_lifetime_throughput(double restored_ah)
 
 ACUControllerData_s ACUController::evaluate_accumulator(
     time_ms              current_millis,
-    const BMSCoreData_s &input_state,
+    const BMSCoreData_s& input_state,
     size_t               max_consecutive_invalid_packet_count,
     float                em_current,
     size_t               num_of_voltage_cells,
@@ -133,7 +133,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     return _acu_state;
 }
 
-void ACUController::calculate_cell_balance_statuses(bool *output, const volt *voltages, size_t num_of_voltage_cells, volt min_voltage)
+void ACUController::calculate_cell_balance_statuses(bool* output, const volt* voltages, size_t num_of_voltage_cells, volt min_voltage)
 {
     for (size_t cell = 0; cell < num_of_voltage_cells; cell++)
     {

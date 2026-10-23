@@ -66,7 +66,7 @@ bool initialize_all_systems()
     return true;
 }
 
-HT_TASK::TaskResponse evaluate_accumulator(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse evaluate_accumulator(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ACUControllerInstance::instance().evaluate_accumulator(
         sys_time::hal_millis(),
@@ -78,7 +78,7 @@ HT_TASK::TaskResponse evaluate_accumulator(const unsigned long &sysMicros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse tick_state_machine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ACUStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
 

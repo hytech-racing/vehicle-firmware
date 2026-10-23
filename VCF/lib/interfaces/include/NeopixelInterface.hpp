@@ -10,7 +10,7 @@
 
 class NeopixelInterface
 {
-    public:
+  public:
     NeopixelInterface(uint16_t neopixel_count, int16_t neopixel_pin)
         : _neopixels(neopixel_count, neopixel_pin, NEO_GRBW + NEO_KHZ800)
     {
@@ -36,7 +36,7 @@ class NeopixelInterface
      */
     void show();
 
-    private:
+  private:
     Adafruit_NeoPixel _neopixels;
 };
 

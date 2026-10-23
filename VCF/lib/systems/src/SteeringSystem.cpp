@@ -13,7 +13,7 @@ void SteeringSystem::updateObservedExtremes(const uint32_t analog_raw, const uin
     _updateSensorExtremes(_params.digital.observed_extremes, digital_raw, DIGITAL_RAW_LIMITS);
 }
 
-void SteeringSystem::evaluateSteering(const uint32_t analog_raw, const SteeringEncoderReading_s &digital_reading, const uint32_t current_micros)
+void SteeringSystem::evaluateSteering(const uint32_t analog_raw, const SteeringEncoderReading_s& digital_reading, const uint32_t current_micros)
 {
     // Update implause and error data
     _system_data.analog_oor_implausibility = false;
@@ -93,7 +93,7 @@ void SteeringSystem::evaluateSteering(const uint32_t analog_raw, const SteeringE
     }
 }
 
-void SteeringSystem::_updateSensorExtremes(SteeringSensorObservedExtremes_s &extremes, const uint32_t raw, const SteeringSensorRawLimits_s &limits)
+void SteeringSystem::_updateSensorExtremes(SteeringSensorObservedExtremes_s& extremes, const uint32_t raw, const SteeringSensorRawLimits_s& limits)
 {
     if (raw < limits.min_unclipped_raw || raw > limits.max_unclipped_raw)
     {
@@ -103,9 +103,9 @@ void SteeringSystem::_updateSensorExtremes(SteeringSensorObservedExtremes_s &ext
     extremes.max_raw = std::max(extremes.max_raw, raw);
 }
 
-void SteeringSystem::_recalibrateSensor(SteeringSensorParams_s &sensor, const SteeringSensorRawLimits_s &limits)
+void SteeringSystem::_recalibrateSensor(SteeringSensorParams_s& sensor, const SteeringSensorRawLimits_s& limits)
 {
-    SteeringSensorObservedExtremes_s &observed_extremes = sensor.observed_extremes;
+    SteeringSensorObservedExtremes_s& observed_extremes = sensor.observed_extremes;
 
     /**
      * @note If min > max, that just means no valid samples since the last reset
@@ -116,7 +116,7 @@ void SteeringSystem::_recalibrateSensor(SteeringSensorParams_s &sensor, const St
         return;
     }
 
-    SteeringSensorCalibration_s &calibration_snapshot = sensor.calibration_snapshot;
+    SteeringSensorCalibration_s& calibration_snapshot = sensor.calibration_snapshot;
     calibration_snapshot.min_raw = observed_extremes.min_raw;
     calibration_snapshot.max_raw = observed_extremes.max_raw;
     calibration_snapshot.span_raw = calibration_snapshot.max_raw - calibration_snapshot.min_raw;
@@ -175,7 +175,7 @@ float SteeringSystem::_applyAnalogLowpass(const float analog_angle_deg)
     return filtered_deg;
 }
 
-bool SteeringSystem::_isOutOfRange(const uint32_t raw, const SteeringSensorOutOfRangeBounds_s &bounds)
+bool SteeringSystem::_isOutOfRange(const uint32_t raw, const SteeringSensorOutOfRangeBounds_s& bounds)
 {
     const int32_t raw_signed = static_cast<int32_t>(raw);
     return (raw_signed < bounds.min_valid_raw) || (raw_signed > bounds.max_valid_raw);

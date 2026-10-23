@@ -10,7 +10,7 @@
 
 template <size_t num_chips> class BMSFaultDataManager
 {
-    public:
+  public:
     struct BMSFaultCountData_s
     {
         uint8_t invalid_cell_1_to_3_count = 0;
@@ -29,11 +29,11 @@ template <size_t num_chips> class BMSFaultDataManager
         std::array<BMSFaultCountData_s, num_chips> chip_invalid_cmd_counts{};
     };
 
-    void update_from_valid_packets(const std::array<ValidPacketData_s, num_chips> &valid_read_packets, const ReadGroup_e read_group, const size_t chip_select_index);
+    void update_from_valid_packets(const std::array<ValidPacketData_s, num_chips>& valid_read_packets, const ReadGroup_e read_group, const size_t chip_select_index);
 
-    const BMSFaultData_s &get_fault_data() const;
+    const BMSFaultData_s& get_fault_data() const;
 
-    private:
+  private:
     BMSFaultData_s _bms_fault_data{};
 };
 

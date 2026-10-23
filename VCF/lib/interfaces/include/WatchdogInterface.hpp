@@ -38,7 +38,7 @@ struct WatchdogInterfaceParams_s
  */
 class WatchdogInterface
 {
-    public:
+  public:
     WatchdogInterface(WatchdogPinout_s pinout, uint32_t watchdog_kick_interval_ms = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL_MS)
         : _watchdog_parameters{pinout, watchdog_kick_interval_ms} {};
 
@@ -51,7 +51,7 @@ class WatchdogInterface
      */
     bool updateWatchdogState(unsigned long curr_millis);
 
-    private:
+  private:
     const WatchdogInterfaceParams_s _watchdog_parameters = {};
 
     /**

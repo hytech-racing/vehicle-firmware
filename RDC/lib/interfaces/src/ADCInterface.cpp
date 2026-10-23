@@ -45,27 +45,27 @@ bool ADCInterface::getShdnM() const
     return (bool)_converted_values.at(_adc_parameters.channels.shdn_m_channel).raw;
 }
 
-const AnalogConversion_s &ADCInterface::getStrainGauge1() const
+const AnalogConversion_s& ADCInterface::getStrainGauge1() const
 {
     return _converted_values.at(_adc_parameters.channels.strain_gauge_1_channel);
 }
 
-const AnalogConversion_s &ADCInterface::getStrainGauge2() const
+const AnalogConversion_s& ADCInterface::getStrainGauge2() const
 {
     return _converted_values.at(_adc_parameters.channels.strain_gauge_2_channel);
 }
 
-const AnalogConversion_s &ADCInterface::getStrainGauge3() const
+const AnalogConversion_s& ADCInterface::getStrainGauge3() const
 {
     return _converted_values.at(_adc_parameters.channels.strain_gauge_3_channel);
 }
 
-const AnalogConversion_s &ADCInterface::getStrainGauge4() const
+const AnalogConversion_s& ADCInterface::getStrainGauge4() const
 {
     return _converted_values.at(_adc_parameters.channels.strain_gauge_4_channel);
 }
 
-const AnalogConversion_s &ADCInterface::getStrainGauge5() const
+const AnalogConversion_s& ADCInterface::getStrainGauge5() const
 {
     return _converted_values.at(_adc_parameters.channels.strain_gauge_5_channel);
 }
@@ -73,10 +73,10 @@ const AnalogConversion_s &ADCInterface::getStrainGauge5() const
 void ADCInterface::tick()
 {
     // Create refs for readability
-    const auto &channels = _adc_parameters.channels;
-    const auto &scales = _adc_parameters.scales;
-    const auto &offsets = _adc_parameters.offsets;
-    const auto &pinouts = _adc_parameters.pinouts;
+    const auto& channels = _adc_parameters.channels;
+    const auto& scales = _adc_parameters.scales;
+    const auto& offsets = _adc_parameters.offsets;
+    const auto& pinouts = _adc_parameters.pinouts;
 
     // Read raw values for each signal
     _converted_values.at(channels.ebs_ctrl_ext_channel).raw = digitalRead(pinouts.ebs_ctrl_ext_pin);

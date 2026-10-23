@@ -1,7 +1,7 @@
 #include "OrbisInterface.hpp"
 
 
-OrbisInterface::OrbisInterface(HardwareSerial *serial)
+OrbisInterface::OrbisInterface(HardwareSerial* serial)
     : _serial(serial)
 {
     _last_reading.status = SteeringEncoderStatus_e::ERROR;

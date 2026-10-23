@@ -146,7 +146,7 @@ float ADCInterface::read_differential_shunt_current()
     return _max114x_instance.get_last_sample_converted(_adc_parameters.channels.shunt_current_p_channel);
 }
 
-const ADCInterfaceParams_s &ADCInterface::get_adc_params() const
+const ADCInterfaceParams_s& ADCInterface::get_adc_params() const
 {
     return _adc_parameters;
 }

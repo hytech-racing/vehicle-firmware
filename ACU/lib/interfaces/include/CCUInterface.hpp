@@ -42,7 +42,7 @@ struct CCUInterfaceParams_s
 
 class CCUInterface
 {
-    public:
+  public:
     CCUInterface() = delete;
 
     CCUInterface(
@@ -71,7 +71,7 @@ class CCUInterface
 
     bool is_connected_to_CCU() { return _curr_data.is_connected_to_CCU; }
 
-    void receive_CCU_status_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_CCU_status_message(const CAN_message_t& msg, unsigned long curr_millis);
 
     void set_system_latch_state(unsigned long curr_millis, bool is_latched);
 
@@ -118,7 +118,7 @@ class CCUInterface
 
     void handle_enqueue_acu_SoH_CAN_message();
 
-    private:
+  private:
     CCUCANInterfaceData_s                                                                                                     _curr_data;
     ACUCoreData_s                                                                                                             _acu_core_data;
     ACUAllData_s<ccu_interface_defaults::NUM_CELLS, ccu_interface_defaults::NUM_CELLTEMPS, ccu_interface_defaults::NUM_CHIPS> _acu_all_data;

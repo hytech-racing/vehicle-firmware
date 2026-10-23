@@ -66,7 +66,7 @@ enum BoardId : uint8_t
  * NOTE: Using a const char* here since a string is just an array of char.
  *       Could use Arduino's String class.
  */
-const char *board_name(uint8_t id)
+const char* board_name(uint8_t id)
 {
     switch (id)
     {
@@ -194,7 +194,7 @@ struct RXStats_s
  */
 struct BusStats_s
 {
-    const char *name;         // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
+    const char* name;         // bus label for Serial output, e.g. "CAN1", "CAN2", "CAN3"
     uint32_t    tx_count = 0; // number of frames THIS_BOARD has transmitted on this bus
 
     // Toggle to print every received frame. Yet to be tested but this might just flood the serial monitor
@@ -268,7 +268,7 @@ static const uint16_t ARB_BURST_COUNT = 200;        // frame pairs sent per test
  * @param can_id       arbitration ID to send this frame with (e.g. CAN1_TX_ID)
  * @param sequence_num this frame's sequence number; caller increments it
  */
-void fill_test_frame(CAN_message_t &msg, uint32_t can_id, uint16_t sequence_num)
+void fill_test_frame(CAN_message_t& msg, uint32_t can_id, uint16_t sequence_num)
 {
     msg.id = can_id;
     msg.flags.extended = g_extended_id_mode ? 1 : 0;
@@ -290,7 +290,7 @@ void fill_test_frame(CAN_message_t &msg, uint32_t can_id, uint16_t sequence_num)
  *        updates that sender's stats (received count, corruption check,
  *        loss/reorder detection, jitter timing).
  */
-void check_payload(const CAN_message_t &msg, BusStats_s &bus_stats)
+void check_payload(const CAN_message_t& msg, BusStats_s& bus_stats)
 {
     if (msg.len < 3)
     {
@@ -305,7 +305,7 @@ void check_payload(const CAN_message_t &msg, BusStats_s &bus_stats)
 
     // Reference (not a copy!) to this sender's stats slot, so every update
     // below modifies the real entry inside bus_stats.from[sender].
-    RXStats_s &sender_stats = bus_stats.from[sender];
+    RXStats_s& sender_stats = bus_stats.from[sender];
 
     uint16_t sequence_num = msg.buf[1] | (msg.buf[2] << 8); // rebuild the full 16-bit sequence
 
@@ -377,7 +377,7 @@ void check_payload(const CAN_message_t &msg, BusStats_s &bus_stats)
  *       Arbitration test frames aren't board-tagged/sequence-numbered
  *       the same way and they have different stats structs.
  */
-void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
+void check_arb_frame(const CAN_message_t& msg, ArbBusState_s& arb)
 {
     if (msg.id == ARB_TRIGGER_ID)
     {
@@ -389,7 +389,7 @@ void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
         return;
     }
 
-    ArbIdStats_s *stats = nullptr;
+    ArbIdStats_s* stats = nullptr;
     if (msg.id == ARB_HIGH_PRIORITY_ID)
     {
         stats = &arb.high_priority_stats;
@@ -433,7 +433,7 @@ void check_arb_frame(const CAN_message_t &msg, ArbBusState_s &arb)
  * @brief Prints one received frame's raw contents to Serial. Only called
  *        when a bus's verbose flag is on.
  */
-void print_frame(const char *bus_name, const CAN_message_t &msg)
+void print_frame(const char* bus_name, const CAN_message_t& msg)
 {
     Serial.print(bus_name);
     Serial.print(" receiving  ");
@@ -460,7 +460,7 @@ void print_frame(const char *bus_name, const CAN_message_t &msg)
  *        line per sender actually heard from on that bus (senders with no
  *        traffic yet are skipped).
  */
-void print_report(BusStats_s &bus_stats)
+void print_report(BusStats_s& bus_stats)
 {
     Serial.print("[report] ");
     Serial.print(bus_stats.name);
@@ -469,7 +469,7 @@ void print_report(BusStats_s &bus_stats)
 
     for (uint8_t board_id = 0; board_id < NUM_BOARDS; board_id++)
     {
-        RXStats_s &sender_stats = bus_stats.from[board_id];
+        RXStats_s& sender_stats = bus_stats.from[board_id];
         if (sender_stats.rx_count == 0 && !sender_stats.has_last_sequence)
         {
             continue; // nothing heard from this sender yet
@@ -498,7 +498,7 @@ void print_report(BusStats_s &bus_stats)
  *       growing worse than HIGH's) is the sign of arbitration
  *       actually deciding who gets the bus under contention.
  */
-void print_arb_report(const char *bus_name, ArbBusState_s &arb)
+void print_arb_report(const char* bus_name, ArbBusState_s& arb)
 {
     Serial.print("[Arbitration Report] ");
     Serial.println(bus_name);
@@ -531,7 +531,7 @@ void print_arb_report(const char *bus_name, ArbBusState_s &arb)
  * @brief Clears a bus's tx_count and every sender's receive stats back to
  *        their initial values.
  */
-void reset_stats(BusStats_s &bus_stats)
+void reset_stats(BusStats_s& bus_stats)
 {
     bus_stats.tx_count = 0;
     for (uint8_t board_id = 0; board_id < NUM_BOARDS; board_id++)
@@ -549,7 +549,7 @@ void reset_stats(BusStats_s &bus_stats)
 // loss/corruption/jitter stats) and check_arb_frame() (arbitration test
 // timing), then optionally prints the raw frame if verbose mode is on.
 #if ENABLE_CAN1
-void on_recv_CAN_1(const CAN_message_t &msg)
+void on_recv_CAN_1(const CAN_message_t& msg)
 {
     check_payload(msg, CAN_1_stats);
     check_arb_frame(msg, CAN_1_arb);
@@ -560,7 +560,7 @@ void on_recv_CAN_1(const CAN_message_t &msg)
 }
 #endif
 #if ENABLE_CAN2
-void on_recv_CAN_2(const CAN_message_t &msg)
+void on_recv_CAN_2(const CAN_message_t& msg)
 {
     check_payload(msg, CAN_2_stats);
     check_arb_frame(msg, CAN_2_arb);
@@ -571,7 +571,7 @@ void on_recv_CAN_2(const CAN_message_t &msg)
 }
 #endif
 #if ENABLE_CAN3
-void on_recv_CAN_3(const CAN_message_t &msg)
+void on_recv_CAN_3(const CAN_message_t& msg)
 {
     check_payload(msg, CAN_3_stats);
     check_arb_frame(msg, CAN_3_arb);
@@ -594,7 +594,7 @@ void on_recv_CAN_3(const CAN_message_t &msg)
  *        <CAN2>, and <CAN3> are distinct C++ types despite sharing an
  *        interface.
  */
-template <typename Bus_t> void burst_test(Bus_t &bus, uint32_t can_id, BusStats_s &bus_stats, uint16_t count)
+template <typename Bus_t> void burst_test(Bus_t& bus, uint32_t can_id, BusStats_s& bus_stats, uint16_t count)
 {
     Serial.print(" Starting Burst Test For: ");
     Serial.println(bus_stats.name);
@@ -627,7 +627,7 @@ template <typename Bus_t> void burst_test(Bus_t &bus, uint32_t can_id, BusStats_
  *        given bus, and arms this board's own test loop immediately (it
  *        doesn't have to wait to hear its own trigger echoed back).
  */
-template <typename Bus_t> void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, const char *bus_name)
+template <typename Bus_t> void arb_test_trigger(Bus_t& bus, ArbBusState_s& arb, const char* bus_name)
 {
     CAN_message_t trigger{};
     trigger.id = ARB_TRIGGER_ID;
@@ -650,7 +650,7 @@ template <typename Bus_t> void arb_test_trigger(Bus_t &bus, ArbBusState_s &arb, 
  *        (no delay) each iteration, forcing contention, until
  *        ARB_BURST_COUNT pairs have been sent, then stops itself.
  */
-template <typename Bus_t> void arb_test_service(Bus_t &bus, ArbBusState_s &arb)
+template <typename Bus_t> void arb_test_service(Bus_t& bus, ArbBusState_s& arb)
 {
     if (!arb.is_arb_test_running || arb.frames_sent >= ARB_BURST_COUNT)
     {

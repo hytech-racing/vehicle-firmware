@@ -95,7 +95,7 @@ void initializeAllInterfaces()
     /* CAN Interfaces */
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(), BrakeRotorTempInterfaceInstance::instance(), DashboardInterfaceInstance::instance(), VCRInterfaceInstance::instance());
 
-    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
+    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
 
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
@@ -105,7 +105,7 @@ void initializeAllInterfaces()
     VCFEthernetInterfaceInstance::instance().initEthernetDevice();
 }
 
-HT_TASK::TaskResponse readADC0Task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // Updates all eight channels.
     ADCInterfaceInstance::instance().tickADC0();
@@ -118,7 +118,7 @@ HT_TASK::TaskResponse readADC0Task(const unsigned long &sysMicros, const HT_TASK
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse readADC1Task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // Samples all eight channels.
     ADCInterfaceInstance::instance().tickADC1();
@@ -127,7 +127,7 @@ HT_TASK::TaskResponse readADC1Task(const unsigned long &sysMicros, const HT_TASK
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse kickWatchdogTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
@@ -165,7 +165,7 @@ HT_TASK::TaskResponse kickWatchdogTask(const unsigned long &sysMicros, const HT_
 //     return HT_TASK::TaskResponse::YIELD;
 // }
 
-HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     CANInterfaces_s  can_interfaces = CANInterfacesInstance::instance();
     DashInputState_s dash_outputs = can_interfaces.dash_interface.getDashboardOutputs();
@@ -185,7 +185,7 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long &sysMicros
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FRONT_SUSPENSION_t msg_out;
     msg_out.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
@@ -196,7 +196,7 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long &sys
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer, &VCFCANInterfaceInstance::instance().FRONT_AUX_CAN);
@@ -204,13 +204,13 @@ HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long &sysMicros, const 
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFEthernetInterfaceInstance::instance().initEthernetDevice();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(
         ADCInterfaceInstance::instance(),
@@ -236,7 +236,7 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long &sysMicros, const H
 // }
 
 
-HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     bool             was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
     DashInputState_s current_state = DashboardInterfaceInstance::instance().getDashboardOutputs();

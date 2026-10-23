@@ -13,7 +13,7 @@
 
 struct TorqueControllerSimpleParams_s
 {
-    public:
+  public:
     float     rear_torque_scale = {};
     float     rear_regen_torque_scale = {};
     speed_rpm amk_max_rpm = {};
@@ -30,7 +30,7 @@ struct TorqueControllerSimpleParams_s
     TorqueControllerSimpleParams_s(float rts, float rrts, float max_rpm, float max_torq, float max_reg_torq)
         : rear_torque_scale(rts), rear_regen_torque_scale(rrts), amk_max_rpm(max_rpm), amk_max_torque(max_torq), amk_max_regen_torque(max_reg_torq) {};
 
-    private:
+  private:
     static constexpr speed_rpm _amk_max_rpm_default = 20000.0f;
     // static constexpr speed_rpm _amk_max_rpm_default = METERS_PER_SECOND_TO_RPM * 20;
     static constexpr torque_nm _amk_max_torque = 21.0f;
@@ -39,15 +39,15 @@ struct TorqueControllerSimpleParams_s
 
 class TorqueControllerSimple
 {
-    public:
+  public:
     /// @brief simple TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
     TorqueControllerSimple(TorqueControllerSimpleParams_s params = TorqueControllerSimpleParams_s())
         : _params(params) {};
 
     /// @brief calculates torque output based off max torque and simple torque scaling
-    DrivetrainCommand_s evaluate(const VCRData_s &state, unsigned long curr_millis);
+    DrivetrainCommand_s evaluate(const VCRData_s& state, unsigned long curr_millis);
 
-    private:
+  private:
     TorqueControllerSimpleParams_s _params;
 };
 

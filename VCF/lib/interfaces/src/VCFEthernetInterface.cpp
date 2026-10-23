@@ -14,7 +14,7 @@ void VCFEthernetInterface::initEthernetDevice()
 
 
 hytech_msgs_VCFData_s
-VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_int, DashboardInterface &dash_int, PedalsSystem &pedals_sys, SteeringSystem &steering_sys, BrakeRotorTempInterface &brake_rotor_temp_int)
+VCFEthernetInterface::make_vcf_data_msg(ADCInterface& adc_int, DashboardInterface& dash_int, PedalsSystem& pedals_sys, SteeringSystem& steering_sys, BrakeRotorTempInterface& brake_rotor_temp_int)
 {
     auto                  fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};
@@ -122,12 +122,12 @@ VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_int, DashboardInterfac
     return out;
 }
 
-void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s &msg_in, VCFData_s &shared_state, unsigned long curr_millis)
+void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s& msg_in, VCFData_s& shared_state, unsigned long curr_millis)
 {
     shared_state.system_data.buzzer_is_active = msg_in.buzzer_is_active;
 }
 
-void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s &data)
+void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s& data)
 {
     handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size>(
         EthernetIPDefsInstance::instance().vcr_ip,

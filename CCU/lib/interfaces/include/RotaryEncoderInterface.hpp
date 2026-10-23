@@ -73,7 +73,7 @@ struct RotaryEncoderState_s
 
 class RotaryEncoderInterface
 {
-    public:
+  public:
     RotaryEncoderInterface(RotaryEncoderPinout_s pinout, RotaryEncoderState_s state = RotaryEncoderState_s{})
         : _pinout(pinout), _state(state), _enc_switch_button(pinout.enc_switch_pin)
     {
@@ -102,14 +102,14 @@ class RotaryEncoderInterface
 
     bool isSwitchHeld();
 
-    private:
+  private:
     RotaryEncoderPinout_s _pinout;
     RotaryEncoderState_s  _state;
     ButtonInterface       _enc_switch_button;
 
     // This implementation supports one active encoder instance.
     // That is fine for your current use case.
-    static RotaryEncoderInterface *_active_instance;
+    static RotaryEncoderInterface* _active_instance;
 
     static void _ISRHandler();
 

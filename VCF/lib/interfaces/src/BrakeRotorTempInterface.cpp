@@ -6,7 +6,7 @@ BrakeTempSensorData_s BrakeRotorTempInterface::getBrakeRotorTempData() const
     return _temp_data;
 }
 
-void BrakeRotorTempInterface::receiveBrakeRotorTempCANMsgs(const CAN_message_t &msg)
+void BrakeRotorTempInterface::receiveBrakeRotorTempCANMsgs(const CAN_message_t& msg)
 {
     switch (msg.id)
     {

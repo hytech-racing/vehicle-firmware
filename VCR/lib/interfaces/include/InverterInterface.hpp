@@ -39,7 +39,7 @@ struct InverterCANIds_s
  */
 class InverterInterface
 {
-    public:
+  public:
     InverterInterface(uint32_t inv_control_word_id, uint32_t inv_control_input_id, uint32_t inv_control_params_id, InverterParams_s inverter_params)
         : _inverter_params(inverter_params)
     {
@@ -49,15 +49,15 @@ class InverterInterface
     }
 
     /* receiving callbacks */
-    void receive_INV_STATUS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_STATUS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_TEMPS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_TEMPS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_DYNAMICS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_DYNAMICS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_POWER(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_POWER(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_FEEDBACK(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_FEEDBACK(const CAN_message_t& can_msg, unsigned long curr_millis);
 
     /* Sending */
     void send_INV_SETPOINT_COMMAND();
@@ -86,7 +86,7 @@ class InverterInterface
 
     InverterFeedbackData_s get_all_inverter_data() const;
 
-    private:
+  private:
     InverterCANIds_s        inverter_ids;
     InverterControlInput_s  _inverter_control_inputs;
     InverterControlWord_s   _inverter_control_word;

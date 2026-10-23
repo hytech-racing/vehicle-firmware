@@ -46,10 +46,10 @@ struct PedalsParams
  */
 class PedalsSystem
 {
-    public:
+  public:
     /// @param accel_params Accel pedal parameters. By rules, 2 sensors must be used for redundancy and evaluated w.r.t each other
     /// @param brake_params Brake pedal params. When used with only one pedal sensor, the pedal parameter evaluation for brakes only looks at the min and max for min_pedal_1 / max_pedal_1
-    PedalsSystem(const PedalsParams &accel_params, const PedalsParams &brake_params)
+    PedalsSystem(const PedalsParams& accel_params, const PedalsParams& brake_params)
         : _accel_params(accel_params), _brake_params(brake_params), _implausibility_start_time(0) {};
 
     uint32_t min_observed_accel_1 = 4095;
@@ -61,13 +61,13 @@ class PedalsSystem
     uint32_t min_observed_brake_2 = 4095;
     uint32_t max_observed_brake_2 = 0;
 
-    void setParams(const PedalsParams &accelParams, const PedalsParams &brakeParams)
+    void setParams(const PedalsParams& accelParams, const PedalsParams& brakeParams)
     {
         _accel_params = accelParams;
         _brake_params = brakeParams;
     }
 
-    void setPedalsSensorData(const PedalSensorData_s &pedal_data)
+    void setPedalsSensorData(const PedalSensorData_s& pedal_data)
     {
         _sensor_data.accel_1 = pedal_data.accel_1;
         _sensor_data.accel_2 = pedal_data.accel_2;
@@ -75,9 +75,9 @@ class PedalsSystem
         _sensor_data.brake_2 = pedal_data.brake_2;
     }
 
-    const PedalsSystemData_s &getPedalsSystemData() { return _system_data; }
+    const PedalsSystemData_s& getPedalsSystemData() { return _system_data; }
 
-    const PedalSensorData_s &getPedalsSensorData() { return _sensor_data; }
+    const PedalSensorData_s& getPedalsSensorData() { return _sensor_data; }
 
     float getMechBrakeActivationThreshold() { return _brake_params.mechanical_activation_percentage; }
 
@@ -94,7 +94,7 @@ class PedalsSystem
      * WARNING: This should only be called when driver holds the button!
      * WARNING: This requires both pedals to be near 0% travel!
      */
-    void recalibrateMinMax(const PedalSensorData_s &curr_values);
+    void recalibrateMinMax(const PedalSensorData_s& curr_values);
 
     /**
      * From code startup, the PedalsSystem should constantly update what its observed max/min
@@ -102,9 +102,9 @@ class PedalsSystem
      * to non-volatile memory (EEPROM). This should be called constantly to update the
      * observation.
      */
-    void updateObservedPedalLimits(const PedalSensorData_s &curr_values);
+    void updateObservedPedalLimits(const PedalSensorData_s& curr_values);
 
-    private:
+  private:
     PedalsSystemData_s _system_data{};
     PedalSensorData_s  _sensor_data{};
     PedalsParams       _accel_params{};
@@ -116,7 +116,7 @@ class PedalsSystem
     /// @param scaled_pedal_1 the value of the first pedal without deadzone removed (analog 0-4095)
     /// @param scaled_pedal_2 the value of the second pedal without deadzone removed (analog 0-4095)
     /// @param params the pedal parameters for this specific pedal
-    float _pedalPercentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams &params);
+    float _pedalPercentage(float scaled_pedal_1, float scaled_pedal_2, const PedalsParams& params);
 
     /// @brief function to scale the pedal value to a 0-1 value without deadzone for the first pedal
     /// @param pedalval the value of the pedal without deadzone removed (analog 0-4095)
@@ -145,7 +145,7 @@ class PedalsSystem
     /// @param params
     /// @param max_percent_diff
     /// @return
-    bool _evaluatePedalImplausibilities(float pedal_1_scaled, float pedal_2_scaled, int pedal_1_analog, int pedal_2_analog, const PedalsParams &params, float max_percent_diff);
+    bool _evaluatePedalImplausibilities(float pedal_1_scaled, float pedal_2_scaled, int pedal_1_analog, int pedal_2_analog, const PedalsParams& params, float max_percent_diff);
 
     /// @brief function to determine if the pedal is out of range of the calibrated value for the pedal
     /// @param pedalData_analog the value of the pedal without deadzone removed

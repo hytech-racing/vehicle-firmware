@@ -33,7 +33,7 @@ void NeopixelController::dim_neopixels()
 }
 
 // TODO: Update for dash CAN
-void NeopixelController::refresh_neopixels(CANInterfaces_s &interfaces)
+void NeopixelController::refresh_neopixels(CANInterfaces_s& interfaces)
 {
 
     // // If we are in pedals recalibration state, LIGHT UP DASHBOARD ALL RED.

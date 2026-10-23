@@ -7,7 +7,7 @@
 
 class DriverlessStateMachine
 {
-    public:
+  public:
     DriverlessStateMachine(
         etl::delegate<bool()>           getDsmsOnDelegate,
         etl::delegate<VehicleState_e()> getVehicleStateDelegate,
@@ -33,7 +33,7 @@ class DriverlessStateMachine
 
     DriverlessSystemState_e getState() { return _curr_driverless_system_state; }
 
-    private:
+  private:
     void _setState(DriverlessSystemState_e new_state, unsigned long curr_millis);
     //@brief _handleEntryLogic runs whenever you enter a new state to clear values to their defaults. This way if we need to run startup checks multiple times we dont need to cycle LV.
     void _handleEntryLogic(DriverlessSystemState_e new_state, unsigned long curr_millis);

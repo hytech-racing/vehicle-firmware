@@ -1,7 +1,7 @@
 #include "ACUInterface.hpp"
 #include "VCRCANInterfaceImpl.hpp"
 
-void ACUInterface::receive_acu_ok_message(const CAN_message_t &msg, unsigned long curr_millis)
+void ACUInterface::receive_acu_ok_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
     ACU_OK_t acu_msg = {};
     Unpack_ACU_OK_ht_can(&acu_msg, &msg.buf[0], msg.len);
@@ -14,7 +14,7 @@ void ACUInterface::receive_acu_ok_message(const CAN_message_t &msg, unsigned lon
     _curr_data.last_recv_millis = curr_millis;
 }
 
-void ACUInterface::receive_em_measurement(const CAN_message_t &msg, unsigned long curr_millis)
+void ACUInterface::receive_em_measurement(const CAN_message_t& msg, unsigned long curr_millis)
 {
     EM_MEASUREMENT_t em_msg = {};
     Unpack_EM_MEASUREMENT_ht_can(&em_msg, &msg.buf[0], msg.len);

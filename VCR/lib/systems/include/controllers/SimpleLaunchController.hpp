@@ -45,7 +45,7 @@ namespace LaunchControllerParams
 
 class SimpleLaunchController
 {
-    public:
+  public:
     /// @brief simple TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
     SimpleLaunchController()
         : _launch_rate_target_m_per_sec_sq(LaunchControllerParams::DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ),
@@ -54,11 +54,11 @@ class SimpleLaunchController
           _launch_speed_target_rpm(0),
           _init_speed_target_rpm(LaunchControllerParams::DEFAULT_INIT_SPEED_RPM) {};
 
-    DrivetrainCommand_s evaluate(const VCRData_s &vcr_data, uint32_t curr_millis);
+    DrivetrainCommand_s evaluate(const VCRData_s& vcr_data, uint32_t curr_millis);
 
     LaunchStates_e get_launch_state() { return _launch_state; }
 
-    private:
+  private:
     float          _launch_rate_target_m_per_sec_sq;
     uint32_t       _time_of_launch;
     LaunchStates_e _launch_state = LaunchStates_e::LAUNCH_NOT_READY;

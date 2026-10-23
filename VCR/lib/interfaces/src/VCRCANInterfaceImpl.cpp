@@ -1,28 +1,28 @@
 #include "VCRCANInterfaceImpl.hpp"
 
 
-void VCRCANInterfaceImpl::on_auxillary_can_receive(const CAN_message_t &msg)
+void VCRCANInterfaceImpl::on_auxillary_can_receive(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, sizeof(msg));
     VCRCANInterfaceInstance::instance().rear_aux_can_rx_buffer.push_back(buf.data(), sizeof(CAN_message_t));
 }
 
-void VCRCANInterfaceImpl::on_inverter_can_receive(const CAN_message_t &msg)
+void VCRCANInterfaceImpl::on_inverter_can_receive(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, sizeof(msg));
     VCRCANInterfaceInstance::instance().inverter_can_rx_buffer.push_back(buf.data(), sizeof(CAN_message_t));
 }
 
-void VCRCANInterfaceImpl::on_telem_can_receive(const CAN_message_t &msg)
+void VCRCANInterfaceImpl::on_telem_can_receive(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, sizeof(msg));
     VCRCANInterfaceInstance::instance().telem_can_rx_buffer.push_back(buf.data(), sizeof(CAN_message_t));
 }
 
-void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type)
+void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {
@@ -206,7 +206,7 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
     }
 }
 
-void VCRCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface)
+void VCRCANInterfaceImpl::send_all_CAN_msgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface)
 {
     CAN_message_t msg;
     while (buffer.available())

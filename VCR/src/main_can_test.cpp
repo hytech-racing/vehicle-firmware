@@ -11,7 +11,7 @@ const uint8_t  MSG_DATA = 0x45;
 
 const uint32_t DELAY = 10;
 
-void on_recv(const CAN_message_t &msg)
+void on_recv(const CAN_message_t& msg)
 {
     Serial.print("recieved");
     Serial.println("msg recvd");

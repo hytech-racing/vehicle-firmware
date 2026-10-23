@@ -1,7 +1,7 @@
 #include "DataLoggingInterface.hpp"
 
 
-static const char *CSV_HEADER = "timestamp_ms,em_current_A,min_cell_v,"
+static const char* CSV_HEADER = "timestamp_ms,em_current_A,min_cell_v,"
                                 "soc_pct,lifetime_ah,soh,soe_pct,v1,remaining_wh";
 
 bool DataLoggingInterface::init()

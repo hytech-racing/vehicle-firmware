@@ -24,7 +24,7 @@ struct FDCControl_s
 class FDCInterface
 
 {
-    public:
+  public:
     FDCInterface() = delete;
 
     FDCInterface(unsigned long init_millis, unsigned long max_heartbeat_timeout_ms)
@@ -34,9 +34,9 @@ class FDCInterface
         _current_ebs_data.pressure_heartbeat_ok = false;
     };
 
-    void receiveEbsPressure(const CAN_message_t &msg, unsigned long curr_millis);
-    void receiveBrakeData(const CAN_message_t &msg, unsigned long curr_millis);
-    void receiveDVMission(const CAN_message_t &msg, unsigned long curr_millis);
+    void receiveEbsPressure(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveBrakeData(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveDVMission(const CAN_message_t& msg, unsigned long curr_millis);
 
     // @brief the output of RDC with both driverless state and whether or not FDC should activate ebs solenoids manually.
     void setFDCControl(bool continue_toggle_ebs_supervisor, uint8_t activate_ebs_solenoid_id);
@@ -52,7 +52,7 @@ class FDCInterface
     DriverlessMission_e getDriverlessMision() const { return _current_dv_mission; }
     bool                getEbsSupervisorStatus() const { return _current_ebs_data.supervisor_ok; }
 
-    private:
+  private:
     EBSData_s                _current_ebs_data;
     BrakeFluidPressureData_s _current_brake_data;
     DriverlessMission_e      _current_dv_mission;

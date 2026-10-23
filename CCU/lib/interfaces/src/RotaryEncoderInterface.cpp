@@ -1,7 +1,7 @@
 #include "RotaryEncoderInterface.hpp"
 
 
-RotaryEncoderInterface *RotaryEncoderInterface::_active_instance = nullptr;
+RotaryEncoderInterface* RotaryEncoderInterface::_active_instance = nullptr;
 
 void RotaryEncoderInterface::init()
 {

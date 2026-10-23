@@ -60,7 +60,7 @@ void SPI2_IRQHandler(void)
     HAL_SPI_IRQHandler(&hspi2);
 }
 
-void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 {
     GPIO_InitTypeDef         GPIO_InitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -128,7 +128,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
     }
 }
 
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef* hspi)
 {
     if (hspi->Instance == SPI2)
     {

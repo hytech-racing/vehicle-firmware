@@ -11,16 +11,16 @@ void VCREthernetInterface::init_ethernet_device()
 }
 
 hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(
-    const ADCInterface        &adc_interface,
-    DrivetrainDynamicReport_s &DrivetrainData,
-    const VCFInterface        &vcf_interface,
-    const VehicleStateMachine &vehicle_state_machine,
-    const DrivetrainSystem    &drivetrain_system,
-    const InverterInterface   &fl_inverter,
-    const InverterInterface   &fr_inverter,
-    const InverterInterface   &rl_inverter,
-    const InverterInterface   &rr_inverter,
-    const VCRControls         &vcr_controls)
+    const ADCInterface&        adc_interface,
+    DrivetrainDynamicReport_s& DrivetrainData,
+    const VCFInterface&        vcf_interface,
+    const VehicleStateMachine& vehicle_state_machine,
+    const DrivetrainSystem&    drivetrain_system,
+    const InverterInterface&   fl_inverter,
+    const InverterInterface&   fr_inverter,
+    const InverterInterface&   rl_inverter,
+    const InverterInterface&   rr_inverter,
+    const VCRControls&         vcr_controls)
 {
     auto                  fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCRData_s out;
@@ -136,14 +136,14 @@ hytech_msgs_VCRData_s VCREthernetInterface::make_vcr_data_msg(
     return out;
 }
 
-void VCREthernetInterface::receive_pb_msg_db(const hytech_msgs_MCUCommandData &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receive_pb_msg_db(const hytech_msgs_MCUCommandData& msg_in, VCRData_s& shared_state, unsigned long curr_millis)
 {
     // TODO: Finish this function. This function could parse the message and put it into shared_state, but depending
     //       on where things are defined, it might be cleaner for this function to simply return the new data. I do
     //       not know yet. Definitely worth asking Ben.
 }
 
-void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s& msg_in, VCRData_s& shared_state, unsigned long curr_millis)
 {
     // //DashInputState_s
     // shared_state.interface_data.dash_input_state.data_btn_is_pressed = msg_in.dash_input_state.data_btn_is_pressed;
@@ -157,7 +157,7 @@ void VCREthernetInterface::receive_pb_msg_vcf(const hytech_msgs_VCFData_s &msg_i
     // shared_state.interface_data.dash_input_state.start_btn_is_pressed = msg_in.dash_input_state.start_btn_is_pressed;
 }
 
-void VCREthernetInterface::copy_inverter_data(const InverterFeedbackData_s &original, hytech_msgs_InverterData_s &destination)
+void VCREthernetInterface::copy_inverter_data(const InverterFeedbackData_s& original, hytech_msgs_InverterData_s& destination)
 {
     // Status
     destination.system_ready = original.status.system_ready;

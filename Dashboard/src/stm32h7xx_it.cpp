@@ -8,10 +8,10 @@
 extern "C"
 {
     // Forward declarations
-    extern void HAL_FDCAN_IRQHandler(void *hfdcan);
+    extern void HAL_FDCAN_IRQHandler(void* hfdcan);
     extern struct
     {
-        void *Instance;
+        void* Instance;
     } hfdcan1;
 
     /**

@@ -8,7 +8,7 @@
 #include "ht_task.hpp"
 
 /* Scheduler Setup */
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 bool spi_tx_complete = true;
 

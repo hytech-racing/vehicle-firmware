@@ -7,7 +7,7 @@
 #include "ht_task.hpp"
 
 /* Scheduler Setup */
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, VCFConstants::WATCHDOG_PRIORITY, VCFConstants::WATCHDOG_KICK_PERIOD_US);
@@ -91,7 +91,7 @@ namespace async_tasks
         handle_async_CAN_receive();
     }
 
-    HT_TASK::TaskResponse handle_async_main(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+    HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
         handle_async_recvs();
 
@@ -100,7 +100,7 @@ namespace async_tasks
     }
 }; // namespace async_tasks
 
-HT_TASK::TaskResponse debugPrints(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     /* Pedals Info */
     Serial.println("\n\nPedals Info:");

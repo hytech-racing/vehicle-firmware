@@ -2,7 +2,7 @@
 #include "VCFInterface.h"
 
 
-void VCFInterface::receive_pedals_message(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
     PEDALS_SYSTEM_DATA_t pedals_msg;
     Unpack_PEDALS_SYSTEM_DATA_hytech(&pedals_msg, &msg.buf[0], msg.len);
@@ -23,7 +23,7 @@ void VCFInterface::receive_pedals_message(const CAN_message_t &msg, unsigned lon
 }
 
 
-void VCFInterface::receive_dashboard_message(const CAN_message_t &msg, unsigned long curr_millis)
+void VCFInterface::receive_dashboard_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DASH_INPUT_t _dash_input_msg;
     Unpack_DASH_INPUT_hytech(&_dash_input_msg, &msg.buf[0], msg.len);

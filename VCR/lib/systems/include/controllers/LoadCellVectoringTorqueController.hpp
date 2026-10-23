@@ -11,7 +11,7 @@
 
 class LoadCellVectoringTorqueController
 {
-    public:
+  public:
     /// @brief load cell TC with tunable F/R torque balance. Accel torque balance can be tuned independently of regen torque balance
     /// @param writeout the reference to the torque controller output being sent that contains the drivetrain command
     /// @param rear_torque_scale 0 to 2 scale on forward torque to rear wheels. 0 = FWD, 1 = Balanced, 2 = RWD
@@ -23,9 +23,9 @@ class LoadCellVectoringTorqueController
     LoadCellVectoringTorqueController()
         : LoadCellVectoringTorqueController(1.0, 0.3) {};
 
-    DrivetrainCommand_s evaluate(const VCRData_s &vcr_data, unsigned long curr_millis);
+    DrivetrainCommand_s evaluate(const VCRData_s& vcr_data, unsigned long curr_millis);
 
-    private:
+  private:
     const float _front_torque_scale = 1.0;
     const float _rear_torque_scale = 1.0;
     const float _front_regen_torque_scale = 1.0f;

@@ -83,8 +83,8 @@ struct OrbisErrorFlags_s
 
 class OrbisInterface
 {
-    public:
-    OrbisInterface(HardwareSerial *serial);
+  public:
+    OrbisInterface(HardwareSerial* serial);
 
     OrbisErrorFlags_s getDetailedErrors() const { return _orbis_errors; }
 
@@ -100,8 +100,8 @@ class OrbisInterface
 
     SteeringEncoderReading_s getLastReading() { return _last_reading; }
 
-    private:
-    HardwareSerial          *_serial;
+  private:
+    HardwareSerial*          _serial;
     SteeringEncoderReading_s _last_reading; // Most recently sampled encoder reading.
     OrbisErrorFlags_s        _orbis_errors;
 

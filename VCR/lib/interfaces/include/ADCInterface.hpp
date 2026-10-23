@@ -100,7 +100,7 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-    public:
+  public:
     ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
         : _adc_parameters{pinouts, channels, scales, offsets},
           _adc0(
@@ -135,7 +135,7 @@ class ADCInterface
      */
     void tick_adc1();
 
-    const ADCInterfaceParams_s &get_adc_params() const;
+    const ADCInterfaceParams_s& get_adc_params() const;
 
     /* -------------------- ADC0 -------------------- */
 
@@ -229,7 +229,7 @@ class ADCInterface
 
     bool is_current_sense_high() const;
 
-    private:
+  private:
     const size_t _digital_high_threshold = 2048;
 
     ADCInterfaceParams_s _adc_parameters = {};

@@ -40,7 +40,7 @@ struct Level2_Config_s
 
 class Level2Interface
 {
-    public:
+  public:
     Level2Interface(
         Level2_Pinout_s pinout,
         Level2_Config_s config =
@@ -66,7 +66,7 @@ class Level2Interface
 
     Level2_Data_s getLevel2Data() const;
 
-    private:
+  private:
     Level2_Pinout_s _pinout;
     Level2_Data_s   _readings;
     Level2_Config_s _config;

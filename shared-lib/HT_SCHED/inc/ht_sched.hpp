@@ -12,30 +12,30 @@ namespace HT_SCHED
 {
     class Scheduler
     {
-        public:
+      public:
         // Singleton patterning
-        static Scheduler &getInstance()
+        static Scheduler& getInstance()
         {
             static Scheduler instance;
             return instance;
         }
 
         void setTimingFunction(std::function<uint32_t()>);
-        bool schedule(HT_TASK::Task &task);
+        bool schedule(HT_TASK::Task& task);
         void run();
 
         // init function for SchedMon task
-        HT_TASK::TaskResponse initSchedMon(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+        HT_TASK::TaskResponse initSchedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo);
         // loop for SchedMon task
-        HT_TASK::TaskResponse schedMon(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo);
-        const float          &getPeriodicUtilization();
-        const float          &getIdleUtilization();
-        const float          &getSchedulerUtilization();
+        HT_TASK::TaskResponse schedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+        const float&          getPeriodicUtilization();
+        const float&          getIdleUtilization();
+        const float&          getSchedulerUtilization();
 
-        private:
+      private:
         Scheduler();
 
-        HT_TASK::Task            *_taskQueue[HT_SCHED_MAX_TASKS]; // ordered list of task object pointers
+        HT_TASK::Task*            _taskQueue[HT_SCHED_MAX_TASKS]; // ordered list of task object pointers
         uint32_t                  _numTasks;
         std::function<uint32_t()> _microsFunction;
         uint32_t                  _timeOfNextExec;     // time at which the next scheduled function must trigger

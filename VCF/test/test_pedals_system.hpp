@@ -60,7 +60,7 @@ void debug_print_pedals(PedalsSystemData_s data)
 }
 
 // returns true if implausibility has exceeded max duration for double brake test
-bool get_result_of_double_brake_test(PedalsSystem &pedals, const PedalSensorData_s &sensor_data)
+bool get_result_of_double_brake_test(PedalsSystem& pedals, const PedalSensorData_s& sensor_data)
 {
     pedals.evaluatePedals(sensor_data, 1000);
     pedals.evaluatePedals(sensor_data, 1110);
@@ -68,7 +68,7 @@ bool get_result_of_double_brake_test(PedalsSystem &pedals, const PedalSensorData
 }
 
 // resets implausibility time and returns true always
-bool reset_pedals_system_implaus_time(PedalsSystem &pedals)
+bool reset_pedals_system_implaus_time(PedalsSystem& pedals)
 {
     // Populating the test data with plausible values for the pedals
     PedalSensorData_s test_pedal_data;
@@ -148,7 +148,7 @@ TEST(PedalsSystemTesting, test_accel_and_brake_limits_plausibility)
     std::vector<PedalSensorData_s> brake_test_cases = {{94, 3996, 0, 5000}, {94, 3996, 5000, 0}};
 
     // T.4.2.4 and T.4.2.10 (accel out of ranges min/max) testing
-    for (const auto &test : accel_test_cases)
+    for (const auto& test : accel_test_cases)
     {
         // Test double brake mode
         bool t_4_2_7 = get_result_of_double_brake_test(pedals, test);
@@ -162,7 +162,7 @@ TEST(PedalsSystemTesting, test_accel_and_brake_limits_plausibility)
     EXPECT_TRUE(reset_pedals_system_implaus_time(pedals));
 
     // // T.4.3.4 brake testing
-    for (const auto &test : brake_test_cases)
+    for (const auto& test : brake_test_cases)
     {
         // Test double brake mode
         bool t_4_3_4 = get_result_of_double_brake_test(pedals, test);
@@ -195,9 +195,9 @@ TEST(PedalsSystemTesting, test_accel_and_brake_percentages_implausibility)
         {test_pedal_half_pressed, false},
     };
 
-    for (const auto &test_case : test_cases)
+    for (const auto& test_case : test_cases)
     {
-        const auto &sensor_data = std::get<0>(test_case);
+        const auto& sensor_data = std::get<0>(test_case);
         bool        expected_result = std::get<1>(test_case);
 
         bool res = get_result_of_double_brake_test(pedals, sensor_data);

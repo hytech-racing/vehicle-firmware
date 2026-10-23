@@ -16,26 +16,26 @@ uint32_t stdMicros()
     return static_cast<uint32_t>(elapsed);
 }
 
-HT_TASK::TaskResponse task1F(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse task1F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     std::cout << "task1 exec " << taskInfo.executions << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse task2F(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse task2F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     std::cout << "task2 exec " << taskInfo.executions << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse task3F(const uint32_t &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse task3F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // std::cout << "task3 filtered duration " << taskInfo.filteredExecutionDurationMicros << "\n";
     // std::cout << "task3 last execution " << taskInfo.lastExecutionMicros << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_SCHED::Scheduler &scheduler = HT_SCHED::Scheduler::getInstance();
+HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 HT_TASK::Task task1 = HT_TASK::Task(HT_TASK::DUMMY_FUNCTION, task1F, 2, 20000UL); // 20000us is 50hz
 HT_TASK::Task task2 = HT_TASK::Task(HT_TASK::DUMMY_FUNCTION, task2F, 1, 20000UL); // task2 is higher priority

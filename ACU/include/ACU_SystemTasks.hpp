@@ -38,9 +38,9 @@ extern ::etl::delegate<void()> reinitialize_watchdog;
 extern ::etl::delegate<void()> disable_n_latch_en;
 extern ::etl::delegate<void()> reset_latch;
 
-::HT_TASK::TaskResponse evaluate_accumulator(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse evaluate_accumulator(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
-::HT_TASK::TaskResponse tick_state_machine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo);
+::HT_TASK::TaskResponse tick_state_machine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 
 #endif

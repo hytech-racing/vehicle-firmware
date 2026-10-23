@@ -27,18 +27,18 @@ struct InverterBusVolts_s
 
 class VCRInterface
 {
-    public:
-    void receiveDashboardControlData(const CAN_message_t &can_msg);
+  public:
+    void receiveDashboardControlData(const CAN_message_t& can_msg);
 
-    void recieveCarStatesCANMsg(const CAN_message_t &can_msg);
+    void recieveCarStatesCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV1StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV1StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV2StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV2StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV3StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV3StatusCANMsg(const CAN_message_t& can_msg);
 
-    void receiveINV4StatusCANMsg(const CAN_message_t &can_msg);
+    void receiveINV4StatusCANMsg(const CAN_message_t& can_msg);
 
     /* State Observation + Control */
     bool arePedalsCalibrating() { return _is_in_pedals_calibration_state; }
@@ -62,7 +62,7 @@ class VCRInterface
 
     bool isInverterErrored();
 
-    private:
+  private:
     bool               _is_in_pedals_calibration_state = false;
     bool               _is_in_steering_calibration_state = false;
     bool               _is_db_in_ctrl;

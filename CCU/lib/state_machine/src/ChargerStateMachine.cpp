@@ -324,7 +324,7 @@ void ChargerStateMachine::_handleEntryLogic(ChargerState_e new_state, unsigned l
     }
 }
 
-const char *ChargerStateMachine::getStateName()
+const char* ChargerStateMachine::getStateName()
 {
     switch (_current_state)
     {

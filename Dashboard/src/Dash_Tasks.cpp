@@ -34,13 +34,13 @@ void initialize_all_interfaces()
     FDCAN_set_interfaces(CANInterfacesInstance::instance());
 };
 
-HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     NeopixelControllerInstance::instance().refresh_neopixels(CANInterfacesInstance::instance());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse screen_refresh(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     if (spi_tx_complete)
     {
@@ -87,7 +87,7 @@ HT_TASK::TaskResponse screen_refresh(const unsigned long &sys_micros, const HT_T
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse can_read(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse can_read(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     // CAN messages are now processed in interrupt handler
     // This task just yields - interrupts handle message reception

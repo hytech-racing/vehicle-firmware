@@ -183,20 +183,20 @@ void initialize_all_interfaces()
     /* CAN Interfaces Construct */
     CANInterfacesInstance::create(CCUInterfaceInstance::instance(), EMInterfaceInstance::instance());
 
-    ACUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
+    ACUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
 
 
     handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
     handle_CAN_setup(ACUCANInterfaceInstance::instance().EM_CAN, ACUConstants::EM_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_em_can_receive);
 }
 
-HT_TASK::TaskResponse run_kick_watchdog(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     WatchdogInstance::instance().update_watchdog_state(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sample_bms_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse sample_bms_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto start = sys_time::hal_micros();
     // Serial.print("PREVIOUS SPI STATE: "); Serial.println(BMSDriverInstance_t::instance().get_spi_state_name());
@@ -230,19 +230,19 @@ std::array<bool, ACUConstants::NUM_CELLS> check_and_get_balancing_status()
     return cell_balancing_statuses;
 }
 
-HT_TASK::TaskResponse write_cell_balancing_config(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse write_cell_balancing_config(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     BMSDriverInstance_t::instance().request_write_configuration(check_and_get_balancing_status());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sample_adc(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse sample_adc(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ADCInterfaceInstance::instance().tick();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto data = make_acu_all_data();
     ACUEthernetInterfaceInstance::instance().handle_send_ethernet_acu_core_data(ACUEthernetInterfaceInstance::instance().make_acu_core_data_msg(data.core_data));
@@ -250,7 +250,7 @@ HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long &sy
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // build a one-shot ACUAllData from current BMS + Watchdog getWatchDogData
     auto send_data = make_acu_all_data();
@@ -267,14 +267,14 @@ HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long &sys
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     CCUInterfaceInstance::instance().set_system_latch_state(sys_time::hal_millis(), ADCInterfaceInstance::instance().read_shdn_out());
     ACUCANInterfaceImpl::send_all_CAN_msgs(ACUCANInterfaceInstance::instance().ccu_can_tx_buffer, &ACUCANInterfaceInstance::instance().CCU_CAN);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FaultLatchManagerInstance::instance().clear_if_not_faulted(ACUStateMachineInstance::instance().get_state() == ACUState_e::FAULTED);
     FaultLatchManagerInstance::instance().update_imd_and_bms_latches(ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()), ACUControllerInstance::instance().get_status().bms_ok);
@@ -289,7 +289,7 @@ HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long &sysMicros, co
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     EM_MEASUREMENT_t msg = {};
     msg.em_current_ro = HT_CAN_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
@@ -299,7 +299,7 @@ HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long &sysMi
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto data = make_acu_all_data();
     CCUInterfaceInstance::instance().set_ACU_data<ACUConstants::NUM_CELLS, ACUConstants::NUM_CELL_TEMPS, ACUConstants::NUM_CHIPS>(data);
@@ -311,7 +311,7 @@ HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long &sysMicros, 
 }
 
 
-HT_TASK::TaskResponse enqueue_ACU_all_voltages_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueue_ACU_all_voltages_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     if (CCUInterfaceInstance::instance().is_connected_to_CCU())
     {
@@ -320,7 +320,7 @@ HT_TASK::TaskResponse enqueue_ACU_all_voltages_CAN_data(const unsigned long &sys
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     if (CCUInterfaceInstance::instance().is_connected_to_CCU())
     {
@@ -329,7 +329,7 @@ HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long &sysMic
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sample_CAN_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse sample_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     process_ring_buffer(
         ACUCANInterfaceInstance::instance().ccu_can_rx_buffer,
@@ -346,7 +346,7 @@ HT_TASK::TaskResponse sample_CAN_data(const unsigned long &sysMicros, const HT_T
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse idle_sample_interfaces(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse idle_sample_interfaces(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     WatchdogMetricsInstance::instance().update_metrics(
         ADCInterfaceInstance::instance().read_global_lv_value(),
@@ -358,7 +358,7 @@ HT_TASK::TaskResponse idle_sample_interfaces(const unsigned long &sysMicros, con
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse init_soh_persistence(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse init_soh_persistence(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // One-time setup (runs once at task registration, after both init phases complete): restore the
     // persisted lifetime Ah throughput into the controller so SoH is valid before the first eval tick.
@@ -367,7 +367,7 @@ HT_TASK::TaskResponse init_soh_persistence(const unsigned long &sysMicros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse persist_soh_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse persist_soh_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // Throttled persist of lifetime Ah throughput; the interface guards EEPROM endurance internally
     // and pulls the value from the controller's published status (interface-reads-system data flow).
@@ -504,13 +504,13 @@ template <typename bms_data> void print_bms_data(bms_data data)
     Serial.println();
 }
 
-::HT_TASK::TaskResponse run_data_logging(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+::HT_TASK::TaskResponse run_data_logging(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     DataLoggingInterfaceInstance::instance().log_data();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // if (ACUControllerInstance::instance().get_status().bms_ok)
     // {

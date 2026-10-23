@@ -10,7 +10,7 @@
 #include <functional>
 // TODO
 // - [x] test to ensure that the size checking for desired modes works and failes properly
-template <typename quad_array_type> void set_four_outputs(quad_array_type &out, float val)
+template <typename quad_array_type> void set_four_outputs(quad_array_type& out, float val)
 {
     out.FL = val;
     out.FR = val;
@@ -18,13 +18,13 @@ template <typename quad_array_type> void set_four_outputs(quad_array_type &out, 
     out.RR = val;
 }
 
-template <typename cmd_type> void set_outputs_rpm(cmd_type &cmd, float rpm, float torque)
+template <typename cmd_type> void set_outputs_rpm(cmd_type& cmd, float rpm, float torque)
 {
     set_four_outputs(cmd.desired_speeds, rpm);
     set_four_outputs(cmd.torque_limits, torque);
 }
 
-template <typename cmd_type> void set_outputs(cmd_type &cmd, float mps, float torque)
+template <typename cmd_type> void set_outputs(cmd_type& cmd, float mps, float torque)
 {
     set_outputs_rpm(cmd, METERS_PER_SECOND_TO_RPM * mps, torque);
 }
@@ -32,7 +32,7 @@ template <typename cmd_type> void set_outputs(cmd_type &cmd, float mps, float to
 
 TEST(TorqueControllerMuxTesting, test_construction)
 {
-    auto test_func = [](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func = [](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return {};
     };
@@ -42,7 +42,7 @@ TEST(TorqueControllerMuxTesting, test_construction)
 TEST(TorqueControllerMuxTesting, test_invalid_controller_request_error)
 {
 
-    auto test_func = [](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func = [](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return {};
     };
@@ -76,11 +76,11 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
     set_outputs(out1, 0, 1);
     DrivetrainCommand_s out2;
     set_outputs(out2, 6, 1);
-    auto test_func_1 = [&out1](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func_1 = [&out1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return out1;
     };
-    auto test_func_2 = [&out2](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func_2 = [&out2](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return out2;
     };
@@ -109,11 +109,11 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
 TEST(TorqueControllerMuxTesting, test_torque_diff_swap_limit)
 {
     DrivetrainCommand_s inst1, inst2;
-    auto                test_func_1 = [&inst1](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto                test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return inst1;
     };
-    auto test_func_2 = [&inst2](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto test_func_2 = [&inst2](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return inst2;
     };
@@ -283,7 +283,7 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
 
     // TestControllerType inst1;
     DrivetrainCommand_s inst1;
-    auto                test_func_1 = [&inst1](const VCRData_s &state, unsigned long m) -> DrivetrainCommand_s
+    auto                test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
     {
         return inst1;
     };

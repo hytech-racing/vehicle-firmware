@@ -12,7 +12,7 @@
 
 class VehicleStateMachine
 {
-    public:
+  public:
     VehicleStateMachine(
         etl::delegate<bool()>           check_hv_over_threshold,
         etl::delegate<bool()>           is_start_button_pressed,
@@ -56,7 +56,7 @@ class VehicleStateMachine
 
     VehicleState_e get_state() const { return _current_state; }
 
-    private:
+  private:
     VehicleState_e _current_state;
 
     /**

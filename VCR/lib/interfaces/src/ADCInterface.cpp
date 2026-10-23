@@ -17,7 +17,7 @@ void ADCInterface::tick_adc1()
     _adc1.tick();
 }
 
-const ADCInterfaceParams_s &ADCInterface::get_adc_params() const
+const ADCInterfaceParams_s& ADCInterface::get_adc_params() const
 {
     return _adc_parameters;
 }

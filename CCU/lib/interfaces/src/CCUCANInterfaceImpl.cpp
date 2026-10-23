@@ -1,21 +1,21 @@
 #include "CCUCANInterfaceImpl.hpp"
 
 
-void CCUCANInterfaceImpl::onACUCANReceive(const CAN_message_t &msg)
+void CCUCANInterfaceImpl::onACUCANReceive(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, CAN_MSG_SIZE);
     CCUCANInterfaceInstance::instance().acu_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
-void CCUCANInterfaceImpl::onChargerCANReceive(const CAN_message_t &msg)
+void CCUCANInterfaceImpl::onChargerCANReceive(const CAN_message_t& msg)
 {
     std::array<uint8_t, CAN_MSG_SIZE> buf;
     memmove(buf.data(), &msg, CAN_MSG_SIZE);
     CCUCANInterfaceInstance::instance().charger_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
-void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, uint32_t millis, CANInterfaceType_e interface_type)
+void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {
@@ -71,7 +71,7 @@ void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s &interfaces, const 
     }
 }
 
-void CCUCANInterfaceImpl::clearAllCANBuffers(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface)
+void CCUCANInterfaceImpl::clearAllCANBuffers(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface)
 {
     CAN_message_t msg;
     while (buffer.available())

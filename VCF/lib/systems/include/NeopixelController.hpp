@@ -72,7 +72,7 @@ struct NeopixelControllerInputs_s
 
 class NeopixelController
 {
-    public:
+  public:
     /**
      * @param neopixel_interface Strip hardware the controller writes colors to (not owned; must outlive the controller)
      * @param neopixel_count Number of LEDs on the strip
@@ -91,11 +91,11 @@ class NeopixelController
 
     void setNeopixel(uint16_t id, uint32_t c);
 
-    void refreshNeopixels(const PedalsSystemData_s &pedals_data);
+    void refreshNeopixels(const PedalsSystemData_s& pedals_data);
 
     void setNeopixelColor(LED_ID_e led, LED_color_e color);
 
-    private:
+  private:
     etl::delegate<void(uint16_t, uint32_t)> _setPixelColor;
     etl::delegate<void(uint8_t)>            _setBrightness;
     etl::delegate<void()>                   _show;

@@ -24,7 +24,7 @@ struct ACUCANInterfaceData_s
 
 class ACUInterface
 {
-    public:
+  public:
     ACUInterface() = delete;
 
     ACUInterface(uint32_t init_millis, uint32_t max_heartbeat_interval_ms)
@@ -34,9 +34,9 @@ class ACUInterface
         _curr_data.last_recv_millis = 0;
     };
 
-    void receive_acu_ok_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_acu_ok_message(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_em_measurement(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_em_measurement(const CAN_message_t& msg, unsigned long curr_millis);
 
     /* Getters */
     bool is_imd_ok() { return _curr_data.imd_ok; }
@@ -49,7 +49,7 @@ class ACUInterface
 
     ACUCANInterfaceData_s get_latest_data(uint64_t curr_millis);
 
-    private:
+  private:
     ACUCANInterfaceData_s _curr_data;
     bool                  _received_first_acu_heartbeat = false;
     const uint32_t        _max_heartbeat_interval_ms;

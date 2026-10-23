@@ -30,12 +30,12 @@ template <CAN_DEV_TABLE CAN_DEV> using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_2
  */
 struct CANInterfaces_s
 {
-    explicit CANInterfaces_s(ACUInterface &acu_int, ChargerInterface &charger_int, EnergyMeterInterface &em_int)
+    explicit CANInterfaces_s(ACUInterface& acu_int, ChargerInterface& charger_int, EnergyMeterInterface& em_int)
         : acu_interface(acu_int), charger_interface(charger_int), em_interface(em_int) {};
 
-    ACUInterface         &acu_interface;
-    ChargerInterface     &charger_interface;
-    EnergyMeterInterface &em_interface;
+    ACUInterface&         acu_interface;
+    ChargerInterface&     charger_interface;
+    EnergyMeterInterface& em_interface;
 
     float max_pack_voltage = 0.0f;
     float cell_cutoff_voltage = 0.0f;
@@ -43,7 +43,7 @@ struct CANInterfaces_s
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 struct CCUCANInterface_s
 {
-    explicit CCUCANInterface_s(etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, uint32_t, CANInterfaceType_e)> recv_switch_func)
+    explicit CCUCANInterface_s(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> recv_switch_func)
         : can_recv_switch(recv_switch_func)
     {
     }
@@ -56,22 +56,22 @@ struct CCUCANInterface_s
     CANRXBuffer_t   charger_can_rx_buffer;
     CANTXBuffer_t   charger_can_tx_buffer;
 
-    etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, uint32_t, CANInterfaceType_e)> can_recv_switch;
+    etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> can_recv_switch;
 };
 using CCUCANInterfaceInstance = etl::singleton<CCUCANInterface_s>;
 
 namespace CCUCANInterfaceImpl
 {
-    void onACUCANReceive(const CAN_message_t &msg);
+    void onACUCANReceive(const CAN_message_t& msg);
 
-    void onChargerCANReceive(const CAN_message_t &msg);
+    void onChargerCANReceive(const CAN_message_t& msg);
 
     /**
      * @brief Routes a decoded message to the appropriate interface based on CANID
      */
-    void CCUReceiveIDSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, uint32_t millis, CANInterfaceType_e interface_type);
+    void CCUReceiveIDSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type);
 
-    void clearAllCANBuffers(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
+    void clearAllCANBuffers(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
 }; // namespace CCUCANInterfaceImpl
 
 #endif // CCUCANINTERFACEIMPL

@@ -19,14 +19,14 @@ struct EMData_s
 
 class EnergyMeterInterface
 {
-    public:
+  public:
     EnergyMeterInterface() = default;
 
-    void receiveEMMeasurmentCANMsg(const CAN_message_t &msg, unsigned long curr_millis);
+    void receiveEMMeasurmentCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     EMData_s getLatestEMData() { return _em_data; };
 
-    private:
+  private:
     EMData_s _em_data;
 };
 

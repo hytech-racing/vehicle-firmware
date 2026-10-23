@@ -1,7 +1,7 @@
 #include "controllers/DrivebrainController.hpp"
 
 
-DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &state, unsigned long curr_millis)
+DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s& state, unsigned long curr_millis)
 {
     auto db_telem_input = state.interface_data.latest_drivebrain_telem_command;
     auto db_auxillary_input = state.interface_data.latest_drivebrain_auxillary_command;
@@ -57,7 +57,7 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &state, unsig
     return output;
 }
 
-void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s &latency_info)
+void DrivebrainController::_check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info)
 {
     // Cases for timing_failure:
 

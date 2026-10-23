@@ -14,7 +14,7 @@ void initializeAllInterfaces()
     CANInterfacesInstance::create(DrivebrainInterfaceInstance::instance(), FDCInterfaceInstance::instance(), RSSInterfaceInstance::instance());
 
     CoreRDCCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)>::create<RDCCANInterfaceImpl::RDCRecvSwitch>(),
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<RDCCANInterfaceImpl::RDCRecvSwitch>(),
         RDCConstants::DRIVERLESS_CAN_BAUDRATE);
 
     // ADC Setup
@@ -110,13 +110,13 @@ void initializeDriverless()
         etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetTSActiveValues>(DriverlessSystemInstance::instance()));
 }
 
-HT_TASK::TaskResponse handleSendAllCanData(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     CoreRDCCANInterfaceInstance::instance().sendAllCanMsgs();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     DRIVERLESS_STATUS_AND_STARTUP_t dv_status;
     dv_status.continue_toggle_supervisor = FDCInterfaceInstance::instance().getFDCControl().toggle_watchdog;
@@ -144,7 +144,7 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long &sysMicros, c
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     // create blank msg
     SET_OPERATING_MODE_t set_operating_mode_msg;
@@ -156,7 +156,7 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long &sysMicros, co
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handleAsyncMain(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     /* Process the CAN messages we have received */
     CoreRDCCANInterfaceInstance::instance().processCANMessages(CANInterfacesInstance::instance(), sys_time::hal_millis(), CoreRDCCANInterfaceInstance::instance().recvSwitch, CANInterfaceType_e::RAUX);
@@ -165,13 +165,13 @@ HT_TASK::TaskResponse handleAsyncMain(const unsigned long &sysMicros, const HT_T
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse runTickStateMachine(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     DriverlessStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 };
 
-HT_TASK::TaskResponse initWatchdog(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse initWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     WatchdogInstance::create(RDCConstants::WATCHDOG_TIMEOUT_MS);
     pinMode(PinAssignments::WATCHDOG_PIN, OUTPUT);
@@ -179,21 +179,21 @@ HT_TASK::TaskResponse initWatchdog(const unsigned long &sys_micros, const HT_TAS
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse runKickWatchdog(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     digitalWrite(PinAssignments::WATCHDOG_PIN, WatchdogInstance::instance().getRDCWatchdogState(sys_time::hal_millis()));
     digitalWrite(PinAssignments::DS_SENSORS_OK_PIN, true); // TODO: implement a function instead of true that validates the ds sensors are ok and sets the ds_sensors_ok pin to that.
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse debugPrint(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto       &adc = ADCInterfaceInstance::instance();
-    const auto &sg1 = adc.getStrainGauge1();
-    const auto &sg2 = adc.getStrainGauge2();
-    const auto &sg3 = adc.getStrainGauge3();
-    const auto &sg4 = adc.getStrainGauge4();
-    const auto &sg5 = adc.getStrainGauge5();
+    auto&       adc = ADCInterfaceInstance::instance();
+    const auto& sg1 = adc.getStrainGauge1();
+    const auto& sg2 = adc.getStrainGauge2();
+    const auto& sg3 = adc.getStrainGauge3();
+    const auto& sg4 = adc.getStrainGauge4();
+    const auto& sg5 = adc.getStrainGauge5();
 
     // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
     char line[160];

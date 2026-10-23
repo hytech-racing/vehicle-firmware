@@ -56,13 +56,13 @@ void initializeAllSystems()
 }
 
 
-HT_TASK::TaskResponse tickStateMachineTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse tickStateMachineTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ChargerStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     MainChargeSystemInstance::instance()
         .calculate_charge_current(CCUConstants::MAX_PACK_VOLTAGE, CCUConstants::MAX_CELL_CUTOFF_VOLTAGE, RotaryEncoderInterfaceInstance::instance().getValue(), sys_time::hal_millis());

@@ -4,7 +4,7 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 // Static pointers for interrupt handler
-static CANInterfaces_s *global_interfaces = nullptr;
+static CANInterfaces_s* global_interfaces = nullptr;
 static unsigned long    global_last_millis = 0;
 
 
@@ -73,7 +73,7 @@ int FDCAN_init()
     return 1;
 }
 
-int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len)
+int FDCAN_write(uint32_t id, const uint8_t* data, uint8_t len)
 {
     FDCAN_TxHeaderTypeDef txHeader;
     txHeader.Identifier = id;
@@ -140,7 +140,7 @@ int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len)
     }
     }
 
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, (uint8_t *)data) != HAL_OK)
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, (uint8_t*)data) != HAL_OK)
     {
         return 0; // send failed
     }
@@ -148,7 +148,7 @@ int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len)
     return 1;
 }
 
-void FDCAN_set_interfaces(CANInterfaces_s &interfaces)
+void FDCAN_set_interfaces(CANInterfaces_s& interfaces)
 {
     // Store references for use in interrupt handler
     global_interfaces = &interfaces;
@@ -178,7 +178,7 @@ void FDCAN1_GPIO_init_PD0D1(void)
     __HAL_RCC_FDCAN_CLK_ENABLE();
 }
 
-void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef* hfdcan, uint32_t RxFifo0ITs)
 {
     if ((hfdcan->Instance == FDCAN1) && ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != 0))
     {
@@ -210,7 +210,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
  * Sets up the interrupt priority and enables it in the NVIC
  * (Nested Vectored Interrupt Controller — the STM32's interrupt manager)
  */
-void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
 {
     if (hfdcan->Instance == FDCAN1)
     {

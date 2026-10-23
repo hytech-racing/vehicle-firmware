@@ -79,7 +79,7 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-    public:
+  public:
     ADCInterface(
         ADCPinout_s      pinout,
         ADCConversions_s conversions,
@@ -203,9 +203,9 @@ class ADCInterface
     /**
      * @return ADC parameters
      */
-    const ADCInterfaceParams_s &getADCParams() const;
+    const ADCInterfaceParams_s& getADCParams() const;
 
-    private:
+  private:
     const ADCInterfaceParams_s _adc_parameters = {};
     ButtonInterface            _reset_error_button;
 

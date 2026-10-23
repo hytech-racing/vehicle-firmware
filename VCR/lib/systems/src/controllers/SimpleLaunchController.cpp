@@ -1,11 +1,11 @@
 #include "controllers/SimpleLaunchController.hpp"
 
 
-DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s &vcr_data, uint32_t curr_millis)
+DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, uint32_t curr_millis)
 {
     DrivetrainCommand_s out = {{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    const PedalsSystemData_s &pedalsData = vcr_data.interface_data.recvd_pedals_data.pedals_data;
+    const PedalsSystemData_s& pedalsData = vcr_data.interface_data.recvd_pedals_data.pedals_data;
 
     int16_t brake_torque_req = static_cast<int16_t>(pedalsData.brake_percent * PhysicalParameters::MAX_REGEN_TORQUE);
 

@@ -11,7 +11,7 @@ void MainChargeSystem::init(unsigned long init_millis)
 void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis)
 {
     // Get battery data from ACU
-    const auto &acu_data = ACUInterfaceInstance::instance().getLatestData();
+    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
     float       max_cell_voltage = acu_data.high_voltage;   // the highest voltage in any of the cells
     float       total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
     auto        current_state = ChargerStateMachineInstance::instance().getState();
@@ -70,7 +70,7 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
 {
     float limited_current = requested_current;
 
-    const auto &acu_data = ACUInterfaceInstance::instance().getLatestData();
+    const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
     float       curr_max_cell_temp = acu_data.max_cell_temp;
     float       curr_max_board_temp = acu_data.max_board_temp;
 

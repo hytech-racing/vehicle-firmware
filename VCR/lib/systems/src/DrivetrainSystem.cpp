@@ -3,13 +3,13 @@
 DrivetrainSystem::DrivetrainSystem(veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces, etl::delegate<void(bool)> set_ef_active_pin, unsigned long ef_pin_enable_delay_ms)
     : _inverter_interfaces(inverter_interfaces),
       _state(DrivetrainState_e::NOT_CONNECTED),
-      _check_inverter_ready_flag([](const InverterStatus_s &status) -> bool { return status.system_ready; }),
-      _check_inverter_connected_flag([](const InverterStatus_s &status) -> bool { return status.connected; }),
-      _check_inverter_quit_dc_flag([](const InverterStatus_s &status) -> bool { return status.quit_dc_on; }),
-      _check_inverter_no_errors_present([](const InverterStatus_s &status) -> bool { return !status.error; }),
-      _check_inverter_hv_present_flag([](const InverterStatus_s &status) -> bool { return status.hv_present; }),
-      _check_inverter_hv_not_present_flag([](const InverterStatus_s &status) -> bool { return !status.hv_present; }),
-      _check_inverter_enabled([](const InverterStatus_s &status) -> bool { return status.quit_inverter_on; }),
+      _check_inverter_ready_flag([](const InverterStatus_s& status) -> bool { return status.system_ready; }),
+      _check_inverter_connected_flag([](const InverterStatus_s& status) -> bool { return status.connected; }),
+      _check_inverter_quit_dc_flag([](const InverterStatus_s& status) -> bool { return status.quit_dc_on; }),
+      _check_inverter_no_errors_present([](const InverterStatus_s& status) -> bool { return !status.error; }),
+      _check_inverter_hv_present_flag([](const InverterStatus_s& status) -> bool { return status.hv_present; }),
+      _check_inverter_hv_not_present_flag([](const InverterStatus_s& status) -> bool { return !status.hv_present; }),
+      _check_inverter_enabled([](const InverterStatus_s& status) -> bool { return status.quit_inverter_on; }),
       _set_ef_active_pin(set_ef_active_pin),
       _ef_pin_enable_delay_ms(ef_pin_enable_delay_ms) {};
 
@@ -317,10 +317,10 @@ void DrivetrainSystem::_set_state(DrivetrainState_e new_state)
 }
 
 // returns false if any of the inverters fail the flag check.
-bool DrivetrainSystem::_check_inverter_flags(std::function<bool(const InverterStatus_s &)> flag_check_func)
+bool DrivetrainSystem::_check_inverter_flags(std::function<bool(const InverterStatus_s&)> flag_check_func)
 {
     auto funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         auto inverter_status = func.get_status();
         if (!flag_check_func(inverter_status))
@@ -335,7 +335,7 @@ void DrivetrainSystem::_set_drivetrain_disabled()
 {
     InverterControlWord_s disabled_control_word = {.inverter_enable = false, .hv_enable = false, .driver_enable = false, .remove_error = false};
     auto                  funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(disabled_control_word);
         func.set_idle(); // set speed / torque to zero
@@ -347,7 +347,7 @@ void DrivetrainSystem::_set_enable_drivetrain_hv()
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = false, .remove_error = false};
 
     auto funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
         func.set_idle();
@@ -364,7 +364,7 @@ void DrivetrainSystem::_set_drivetrain_keepalive_idle()
     InverterControlWord_s control_word = {.inverter_enable = true, .hv_enable = true, .driver_enable = true, .remove_error = false};
 
     auto funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
         func.set_idle();
@@ -376,7 +376,7 @@ void DrivetrainSystem::_set_drivetrain_error_reset()
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = true, .remove_error = true};
 
     auto funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
         func.set_idle();
@@ -395,7 +395,7 @@ bool DrivetrainSystem::_drivetrain_active(float min_active_rpm)
 {
 
     auto funcs_arr = _inverter_interfaces.as_array();
-    for (const auto &func : funcs_arr)
+    for (const auto& func : funcs_arr)
     {
         auto motor_mechanics = func.get_motor_mechanics();
         if (motor_mechanics.actual_speed >= min_active_rpm)

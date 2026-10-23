@@ -1,13 +1,13 @@
 #include "CoreRDCCANInterface.hpp"
 #include "RSSInterface.hpp"
 
-void RSSInterface::receiveRSSBootCANmsg(const CAN_message_t &msg, unsigned long long millis)
+void RSSInterface::receiveRSSBootCANmsg(const CAN_message_t& msg, unsigned long long millis)
 {
     // need to set the operational mode once boot msg is received
     enqueueSetOperationalCANMsg();
 }
 
-void RSSInterface::receiveRSSStatusCANMsg(const CAN_message_t &msg, unsigned long long millis)
+void RSSInterface::receiveRSSStatusCANMsg(const CAN_message_t& msg, unsigned long long millis)
 {
     // cast to RSS state msg
     RSS_STATUS_t status_msg;

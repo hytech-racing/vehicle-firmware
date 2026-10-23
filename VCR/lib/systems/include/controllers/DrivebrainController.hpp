@@ -24,7 +24,7 @@ struct MessageLatencyInfo_s
 
 class DrivebrainController
 {
-    public:
+  public:
     /// @brief constructor for the drivebrain controller class
     /// @param allowed_latency the allowed latency in milliseconds for which if the most recent packet has a timestamp older than this measure of time we fail safe
     /// @param assigned_controller_mode the controller mode that the drivebrain controller is assigned to. is required for evaluating whether or not we are active or not
@@ -38,7 +38,7 @@ class DrivebrainController
     /// @param state the current state of the car
     /// @param curr_millis
     /// @return torque controller output that gets passed through the TC MUX
-    DrivetrainCommand_s evaluate(const VCRData_s &state, unsigned long curr_millis);
+    DrivetrainCommand_s evaluate(const VCRData_s& state, unsigned long curr_millis);
 
     MessageLatencyInfo_s get_aux_latency_data() { return _aux_latency_info; }
 
@@ -48,7 +48,7 @@ class DrivebrainController
     /// @return bool of status
     bool get_timing_failure_status() const { return !_should_run_controller; }
 
-    private:
+  private:
     struct
     {
         unsigned long    allowed_latency = {};
@@ -62,7 +62,7 @@ class DrivebrainController
 
     TorqueControllerSimple _emergency_control = {{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
 
-    void _check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s &latency_info);
+    void _check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info);
 };
 
 #endif // DRIVEBRAINCONTROLLER_H

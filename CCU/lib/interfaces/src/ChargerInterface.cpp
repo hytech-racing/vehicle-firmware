@@ -2,7 +2,7 @@
 #include "ChargerInterface.hpp"
 
 
-void ChargerInterface::receiveChargerCANMsg(const CAN_message_t &msg, unsigned long curr_millis, ACUInterface &acu_interface, float max_pack_voltage, float cell_cutoff_voltage)
+void ChargerInterface::receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_millis, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage)
 {
     CHARGER_DATA_t charger_data_msg;
     // charger_data_s charger_data; //NOLINT - needed for initialization
@@ -23,7 +23,7 @@ void ChargerInterface::receiveChargerCANMsg(const CAN_message_t &msg, unsigned l
     }
 }
 
-void ChargerInterface::enqueueChargingCANMsg(ACUInterface &acu_interface, float calculated_charge_current)
+void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current)
 {
     // Charging voltage is in units of 100mV
     // So, we want 530V to be max charge voltage

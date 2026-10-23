@@ -90,12 +90,12 @@ void initializeAllSystems()
     };
 
     // Derived calibration values (not stored in EEPROM)
-    SteeringSensorCalibration_s &analog_calibration = steering_params.analog.calibration_snapshot;
+    SteeringSensorCalibration_s& analog_calibration = steering_params.analog.calibration_snapshot;
     analog_calibration.span_raw = analog_calibration.max_raw - analog_calibration.min_raw;
     analog_calibration.center_raw = analog_calibration.min_raw + (analog_calibration.span_raw / 2);
     steering_params.analog.oor_tolerance_raw = static_cast<float>(analog_calibration.span_raw) * steering_params.analog.oor_tolerance_fraction;
 
-    SteeringSensorCalibration_s &digital_calibration = steering_params.digital.calibration_snapshot;
+    SteeringSensorCalibration_s& digital_calibration = steering_params.digital.calibration_snapshot;
     digital_calibration.span_raw = digital_calibration.max_raw - digital_calibration.min_raw;
     digital_calibration.center_raw = digital_calibration.min_raw + (digital_calibration.span_raw / 2);
     steering_params.digital.oor_tolerance_raw = static_cast<float>(digital_calibration.span_raw) * steering_params.digital.oor_tolerance_fraction;
@@ -106,7 +106,7 @@ void initializeAllSystems()
     BuzzerControllerInstance::create();
 }
 
-HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     PEDALS_SYSTEM_DATA_t pedals_data = {};
 
@@ -128,7 +128,7 @@ HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long &sys_micros, 
 }
 
 
-HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // Observed pedal values (ONLY USED FOR RECALIBRATION)
     // WARNING: These are the true min/max observed values, NOT the "value at min travel" and "value at max travel"
@@ -152,7 +152,7 @@ HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long &sysMicros
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     SteeringSystemInstance::instance().evaluateSteering(
         static_cast<uint32_t>(ADCInterfaceInstance::instance().getSteeringDegreesCW().raw),
@@ -161,7 +161,7 @@ HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long &sysMicros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     STEERING_DATA_t      msg_out;
     SteeringSystemData_s steering_system_data = SteeringSystemInstance::instance().getSteeringSystemData();
@@ -182,7 +182,7 @@ HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long &sysMicros,
 }
 
 
-HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     const uint32_t analog_raw = SteeringSystemInstance::instance().getSteeringSystemData().analog_raw;   // NOLINT thinks this is not initialized
     const uint32_t digital_raw = SteeringSystemInstance::instance().getSteeringSystemData().digital_raw; // NOLINT thinks this is not initialized
@@ -192,10 +192,10 @@ HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long &sysMicr
 
     if (VCRInterfaceInstance::instance().isSteeringCalibrating())
     {
-        SteeringSystem &steering_system = SteeringSystemInstance::instance();
+        SteeringSystem& steering_system = SteeringSystemInstance::instance();
         steering_system.recalibrateSteering();
 
-        const SteeringSystemParams_s &steering_params = steering_system.getSteeringParams();
+        const SteeringSystemParams_s& steering_params = steering_system.getSteeringParams();
 
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR, steering_params.analog.calibration_snapshot.min_raw);
         EEPROMUtilities::write_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR, steering_params.analog.calibration_snapshot.max_raw);
@@ -211,19 +211,19 @@ HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long &sysMicr
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
+HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     NeopixelControllerInstance::instance().refreshNeopixels(PedalsSystemInstance::instance().getPedalsSystemData());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     pinMode(VCFInterfaces::BUZZER_CONTROL_PIN, OUTPUT);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
 
     bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()); // NOLINT

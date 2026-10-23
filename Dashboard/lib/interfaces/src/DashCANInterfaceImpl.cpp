@@ -1,7 +1,7 @@
 #include "DashCANInterfaceImpl.h"
 
 
-void DashCAN::dash_CAN_recv_switch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis)
+void DashCAN::dash_CAN_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis)
 {
     switch (msg.id)
     {

@@ -10,7 +10,7 @@ const uint8_t  MSG_DATA = 0x45;
 
 const uint32_t DELAY = 10;
 
-void on_recv_telem(const CAN_message_t &msg)
+void on_recv_telem(const CAN_message_t& msg)
 {
     Serial.println("msg recvd on telem can!");
     Serial.print("MB: ");
@@ -31,7 +31,7 @@ void on_recv_telem(const CAN_message_t &msg)
     Serial.println(msg.timestamp);
 }
 
-void on_recv_faux(const CAN_message_t &msg)
+void on_recv_faux(const CAN_message_t& msg)
 {
     Serial.println("msg recvd on faux can!");
     Serial.print("MB: ");

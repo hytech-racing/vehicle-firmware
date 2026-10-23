@@ -17,7 +17,7 @@ struct FaultLatches
 
 class FaultLatchManager
 {
-    public:
+  public:
     // Clear latches whenever we are NOT in FAULTED (i.e., after recovery)
     void clear_if_not_faulted(bool is_faulted);
 
@@ -35,7 +35,7 @@ class FaultLatchManager
     // Snapshot for publishing
     FaultLatches get_latches() const { return _latches; }
 
-    private:
+  private:
     FaultLatches _latches;
 };
 

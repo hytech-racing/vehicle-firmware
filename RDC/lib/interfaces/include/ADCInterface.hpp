@@ -133,7 +133,7 @@ inline ADCChannels_s schematicADCChannels()
 
 class ADCInterface
 {
-    public:
+  public:
     ADCInterface(ADCInterfaceParams_s params)
         : _adc_parameters(params)
     {
@@ -159,17 +159,17 @@ class ADCInterface
     bool getShdnDsOk() const;
     bool getShdnM() const;
 
-    const AnalogConversion_s &getStrainGauge1() const;
-    const AnalogConversion_s &getStrainGauge2() const;
-    const AnalogConversion_s &getStrainGauge3() const;
-    const AnalogConversion_s &getStrainGauge4() const;
-    const AnalogConversion_s &getStrainGauge5() const;
+    const AnalogConversion_s& getStrainGauge1() const;
+    const AnalogConversion_s& getStrainGauge2() const;
+    const AnalogConversion_s& getStrainGauge3() const;
+    const AnalogConversion_s& getStrainGauge4() const;
+    const AnalogConversion_s& getStrainGauge5() const;
 
     void tick();
 
     const ADCInterfaceParams_s getADCParams() const;
 
-    private:
+  private:
     ADCInterfaceParams_s               _adc_parameters;
     std::array<AnalogConversion_s, 14> _converted_values;
 };

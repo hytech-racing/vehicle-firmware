@@ -23,14 +23,14 @@ using BMSDriverInstance_t = BMSDriverInstance<12, 2, LTC6811_Type_e::LTC6811_1>;
 
 class DataLoggingInterface
 {
-    public:
+  public:
     DataLoggingInterface() = default;
 
     bool init();
 
     void log_data();
 
-    private:
+  private:
     File        data_file;
     std::string file_name;
 
