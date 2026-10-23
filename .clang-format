@@ -6,7 +6,7 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 NamespaceIndentation: All
-AccessModifierOffset: 0
+AccessModifierOffset: -2
 
 # ==============================================================================
 # 2. Column Limit & Line Wrapping (Expressions & Operators)
@@ -46,7 +46,7 @@ AlignConsecutiveAssignments: false
 AlignTrailingComments: true
 FixNamespaceComments: true
 DerivePointerAlignment: false
-Pointeralignemtn: Left
+PointerAlignment: Left
 ReferenceAlignment: Left
 
 # ==============================================================================
