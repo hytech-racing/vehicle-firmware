@@ -6,10 +6,10 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
+
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
-#include "bitmaps.h"
 #include "CANInterface.h"
 #include "DashCANInterfaceImpl.h"
 #include "DisplayInterface.h"
@@ -18,6 +18,7 @@
 #include "NeopixelController.h"
 #include "VCFInterface.h"
 #include "VCRInterface.h"
+#include "bitmaps.h"
 
 
 void initalize_all_interfaces();

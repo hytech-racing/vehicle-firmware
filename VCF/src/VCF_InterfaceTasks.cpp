@@ -7,11 +7,7 @@ void initializeAllInterfaces()
     Serial.begin(VCFInterfaces::SERIAL_BAUDRATE); // NOLINT
 
     /* Watchdog Interface */
-    WatchdogInterfaceInstance::create(WatchdogPinout_s {
-                                        VCFInterfaces::WATCHDOG_KICK_PIN,
-                                        VCFInterfaces::SOFTWARE_OK_PIN
-                                    }
-    );
+    WatchdogInterfaceInstance::create(WatchdogPinout_s{VCFInterfaces::WATCHDOG_KICK_PIN, VCFInterfaces::SOFTWARE_OK_PIN});
     WatchdogInterfaceInstance::instance().init();
 
     /* ACU Interface */
@@ -19,13 +15,8 @@ void initializeAllInterfaces()
 
     /* ADC Interface */
     ADCInterfaceInstance::create(
-        ADCPinout_s
-        {
-            VCFInterfaces::ADC0_CS,
-            VCFInterfaces::ADC1_CS
-        },
-        ADCChannels_s
-        {
+        ADCPinout_s{VCFInterfaces::ADC0_CS, VCFInterfaces::ADC1_CS},
+        ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
             VCFInterfaces::STEERING_2_CHANNEL,
@@ -41,10 +32,8 @@ void initializeAllInterfaces()
             VCFInterfaces::FR_SUS_POT_CHANNEL,
             VCFInterfaces::FL_SUS_POT_CHANNEL,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_CHANNEL,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL
-        },
-        ADCScales_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL},
+        ADCScales_s{
             VCFInterfaces::PEDAL_REF_2V5_SCALE,
             VCFInterfaces::STEERING_1_SCALE,
             VCFInterfaces::STEERING_2_SCALE,
@@ -60,10 +49,8 @@ void initializeAllInterfaces()
             VCFInterfaces::FR_SUS_POT_SCALE,
             VCFInterfaces::FL_SUS_POT_SCALE,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_SCALE,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE
-        },
-        ADCOffsets_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE},
+        ADCOffsets_s{
             VCFInterfaces::PEDAL_REF_2V5_OFFSET,
             VCFInterfaces::STEERING_1_OFFSET,
             VCFInterfaces::STEERING_2_OFFSET,
@@ -79,9 +66,7 @@ void initializeAllInterfaces()
             VCFInterfaces::FR_SUS_POT_OFFSET,
             VCFInterfaces::FL_SUS_POT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET
-        }
-    );
+            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 
     /* Brake Rotor Temp Interface */
     BrakeRotorTempInterfaceInstance::create();
@@ -93,9 +78,8 @@ void initializeAllInterfaces()
         .MC_CYCLE_BUTTON = VCFInterfaces::BTN_MC_CYCLE_READ,
         .START_BUTTON = VCFInterfaces::BTN_START_READ,
         .DATA_BUTTON = VCFInterfaces::BTN_DATA_READ,
-        .BUTTON_2 = VCFInterfaces::BUTTON_2
-    };
-    DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); //NOLINT
+        .BUTTON_2 = VCFInterfaces::BUTTON_2};
+    DashboardInterfaceInstance::create(dashboard_gpios, VCFSystems::IO_EXPANDER_ADDR, Wire2); // NOLINT
     DashboardInterfaceInstance::instance().init();
 
     /* Neopixel Interface */
@@ -109,13 +93,14 @@ void initializeAllInterfaces()
     VCRInterfaceInstance::create();
 
     /* CAN Interfaces */
-    CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
-                                BrakeRotorTempInterfaceInstance::instance(),
-                                DashboardInterfaceInstance::instance(),
-                                VCRInterfaceInstance::instance()
-    );
+    CANInterfacesInstance::create(
+        ACUInterfaceInstance::instance(),
+        BrakeRotorTempInterfaceInstance::instance(),
+        DashboardInterfaceInstance::instance(),
+        VCRInterfaceInstance::instance());
 
-    VCFCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
+    VCFCANInterfaceInstance::create(
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
 
     handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
     handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
@@ -129,12 +114,12 @@ HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK
 {
     // Updates all eight channels.
     ADCInterfaceInstance::instance().tickADC0();
-    PedalsSystemInstance::instance().setPedalsSensorData(PedalSensorData_s {
-        .accel_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration1().conversion),
-        .accel_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration2().conversion),
-        .brake_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake1().conversion),
-        .brake_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake2().conversion)
-    });
+    PedalsSystemInstance::instance().setPedalsSensorData(
+        PedalSensorData_s{
+            .accel_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration1().conversion),
+            .accel_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getAcceleration2().conversion),
+            .brake_1 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake1().conversion),
+            .brake_2 = static_cast<uint32_t>(ADCInterfaceInstance::instance().getBrake2().conversion)});
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -232,12 +217,12 @@ HT_TASK::TaskResponse initSendAllETHDataTask(const unsigned long& sysMicros, con
 
 HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(ADCInterfaceInstance::instance(),
-                                                                                        DashboardInterfaceInstance::instance(),
-                                                                                        PedalsSystemInstance::instance(),
-                                                                                        SteeringSystemInstance::instance(),
-                                                                                        BrakeRotorTempInterfaceInstance::instance()
-    );
+    hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(
+        ADCInterfaceInstance::instance(),
+        DashboardInterfaceInstance::instance(),
+        PedalsSystemInstance::instance(),
+        SteeringSystemInstance::instance(),
+        BrakeRotorTempInterfaceInstance::instance());
     VCFEthernetInterfaceInstance::instance().handleSendVCFETHData(msg);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -249,7 +234,8 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 // }
 
 // HT_TASK::TaskResponse run_handle_receive_vcr_ethernet_data() {
-//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&VCFEthernetInterface::VCF_socket, &hytech_msgs_VCRData_s_msg);
+//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size,
+//     hytech_msgs_VCRData_s>(&VCFEthernetInterface::VCF_socket, &hytech_msgs_VCRData_s_msg);
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }
@@ -257,10 +243,11 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    bool was_dim_btn_pressed = DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; //NOLINT (linter thinks variable uninitialized)
+    bool was_dim_btn_pressed =
+        DashboardInterfaceInstance::instance().getDashboardStoredState().brightness_ctrl_btn_is_pressed; // NOLINT (linter thinks variable uninitialized)
     DashInputState_s current_state = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
-    if (!current_state.preset_btn_is_pressed) //preset btn tied to brightness control on schematic
+    if (!current_state.preset_btn_is_pressed) // preset btn tied to brightness control on schematic
     {
         VCRInterfaceInstance::instance().disablePedalsCalibration();
     }

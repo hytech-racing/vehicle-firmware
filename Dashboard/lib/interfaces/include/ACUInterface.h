@@ -22,9 +22,8 @@ struct ACUData_s
 
 class ACUInterface
 {
-public:
-
-    //ACUInterface() = delete;
+  public:
+    // ACUInterface() = delete;
 
     ACUInterface()
     {
@@ -33,17 +32,15 @@ public:
         _acu_data.pack_voltage = 460;
     }
 
-    void receive_acu_ok_message(const CAN_message_t &msg);
+    void receive_acu_ok_message(const CAN_message_t& msg);
 
-    ACUData_s get_curr_data() {return _acu_data;}
+    ACUData_s get_curr_data() { return _acu_data; }
 
-    void receive_acu_voltages(const CAN_message_t &msg);
+    void receive_acu_voltages(const CAN_message_t& msg);
 
 
-private:
-
+  private:
     ACUData_s _acu_data;
-
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

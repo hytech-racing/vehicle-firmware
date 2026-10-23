@@ -1,4 +1,5 @@
 #include "DriverlessStateMachine.hpp"
+
 #include <gtest/gtest.h>
 
 // Status rules are DO.1.1. The DSF charts are only the order of the checks:
@@ -64,13 +65,13 @@ DriverlessStateMachine make_driverless_state_machine()
     return DriverlessStateMachine(mock_dsms_on, mock_vehicle_state, mock_startup_no_ts, mock_startup_ts, mock_ebs_pressure_ok, mock_reset_no_ts, mock_reset_ts);
 }
 
-void close_dsms_and_enter_startup(DriverlessStateMachine &state_machine)
+void close_dsms_and_enter_startup(DriverlessStateMachine& state_machine)
 {
     dsms_on = true;
     ASSERT_EQ(state_machine.tickStateMachine(0), DriverlessSystemState_e::STARTUP_NO_TS);
 }
 
-void pass_no_ts_check_with_tractive_system(DriverlessStateMachine &state_machine)
+void pass_no_ts_check_with_tractive_system(DriverlessStateMachine& state_machine)
 {
     close_dsms_and_enter_startup(state_machine);
     startup_no_ts_ok = true;
@@ -78,7 +79,7 @@ void pass_no_ts_check_with_tractive_system(DriverlessStateMachine &state_machine
     ASSERT_EQ(state_machine.tickStateMachine(0), DriverlessSystemState_e::STARTUP_TS_ACTIVE);
 }
 
-void pass_startup_into_ready(DriverlessStateMachine &state_machine)
+void pass_startup_into_ready(DriverlessStateMachine& state_machine)
 {
     pass_no_ts_check_with_tractive_system(state_machine);
     startup_ts_ok = true;
@@ -278,7 +279,7 @@ TEST(DriverlessStateMachine, DsmsOffWhileReadyIsOff)
     ASSERT_EQ(state_machine.tickStateMachine(0), DriverlessSystemState_e::OFF);
 }
 
-//TODO: Think about this with more sleep.
+// TODO: Think about this with more sleep.
 TEST(DriverlessStateMachine, DsmsOffWhileDrivingIsOff)
 {
     reset_state_machine_inputs();

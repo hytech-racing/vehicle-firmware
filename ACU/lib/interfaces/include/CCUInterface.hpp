@@ -5,8 +5,8 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
 #include "FlexCAN_T4.h"
+#include "SharedFirmwareTypes.h"
 
 
 namespace ccu_interface_defaults
@@ -15,7 +15,7 @@ namespace ccu_interface_defaults
     constexpr const size_t NUM_CELLS = 126;
     constexpr const size_t NUM_CELLTEMPS = 48;
     constexpr const size_t NUM_CHIPS = 12;
-};
+}; // namespace ccu_interface_defaults
 
 struct CCUCANInterfaceData_s
 {
@@ -42,18 +42,17 @@ struct CCUInterfaceParams_s
 
 class CCUInterface
 {
-public:
-
+  public:
     CCUInterface() = delete;
 
-    CCUInterface(unsigned long init_millis,
-                CCUInterfaceParams_s params = {
-                    .min_charging_enable_threshold = ccu_interface_defaults::MIN_CHARGING_ENABLE_THRESHOLD_MS,
-                    .num_cells = ccu_interface_defaults::NUM_CELLS,
-                    .num_celltemps = ccu_interface_defaults::NUM_CELLTEMPS,
-                    .num_chips = ccu_interface_defaults::NUM_CHIPS
-                }
-    ) : _ccu_params{params}
+    CCUInterface(
+        unsigned long init_millis,
+        CCUInterfaceParams_s params =
+            {.min_charging_enable_threshold = ccu_interface_defaults::MIN_CHARGING_ENABLE_THRESHOLD_MS,
+             .num_cells = ccu_interface_defaults::NUM_CELLS,
+             .num_celltemps = ccu_interface_defaults::NUM_CELLTEMPS,
+             .num_chips = ccu_interface_defaults::NUM_CHIPS})
+        : _ccu_params{params}
     {
         _curr_data.last_time_charging_requested = 0;
         _curr_data.prev_ccu_msg_recv_ms = 0;
@@ -70,9 +69,9 @@ public:
 
     bool is_charging_requested() { return _curr_data.charging_requested; }
 
-    bool is_connected_to_CCU() {return _curr_data.is_connected_to_CCU; }
+    bool is_connected_to_CCU() { return _curr_data.is_connected_to_CCU; }
 
-    void receive_CCU_status_message(const CAN_message_t &msg, unsigned long curr_millis);
+    void receive_CCU_status_message(const CAN_message_t& msg, unsigned long curr_millis);
 
     void set_system_latch_state(unsigned long curr_millis, bool is_latched);
 
@@ -93,7 +92,8 @@ public:
         {
             _acu_all_data.cell_temps[temp] = input.cell_temps[temp];
         }
-        for (size_t board = 0; board < num_chips; board++) {
+        for (size_t board = 0; board < num_chips; board++)
+        {
             _acu_all_data.board_temps[board] = input.board_temps[board];
         }
         _acu_all_data.core_data.max_board_temp = input.core_data.max_board_temp;
@@ -119,13 +119,11 @@ public:
 
     void handle_enqueue_acu_SoH_CAN_message();
 
-private:
-
+  private:
     CCUCANInterfaceData_s _curr_data;
     ACUCoreData_s _acu_core_data;
     ACUAllData_s<ccu_interface_defaults::NUM_CELLS, ccu_interface_defaults::NUM_CELLTEMPS, ccu_interface_defaults::NUM_CHIPS> _acu_all_data;
     CCUInterfaceParams_s _ccu_params;
-
 };
 
 using CCUInterfaceInstance = etl::singleton<CCUInterface>;
