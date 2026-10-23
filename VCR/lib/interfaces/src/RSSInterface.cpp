@@ -1,13 +1,7 @@
 #include "RSSInterface.hpp"
 #include "VCRCANInterfaceImpl.hpp"
 
-
-RSSInterface::RSSInterface()
-    : _rss_data{}
-{
-}
-
-void RSSInterface::receive_status_message(const CAN_message_t& msg) 
+void RSSInterface::receiveStatusMessage(const CAN_message_t &msg)
 {
     RSS_STATUS_t status_msg;
     Unpack_RSS_STATUS_ht_can(&status_msg, &msg.buf[0], msg.len);
@@ -21,4 +15,3 @@ void RSSInterface::receive_status_message(const CAN_message_t& msg)
 
     _rss_data.radio_link_quality = status_msg.radio_link_quality;
 }
-
