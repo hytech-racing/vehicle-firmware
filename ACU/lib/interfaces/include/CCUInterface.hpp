@@ -77,7 +77,8 @@ class CCUInterface
 
     CCUCANInterfaceData_s get_latest_data(unsigned long curr_millis);
 
-    template <size_t num_cells, size_t num_celltemps, size_t num_chips> void set_ACU_data(ACUAllData_s<num_cells, num_celltemps, num_chips> input)
+    template <size_t num_cells, size_t num_celltemps, size_t num_chips>
+    void set_ACU_data(ACUAllData_s<num_cells, num_celltemps, num_chips> input)
     {
         _acu_core_data.avg_cell_voltage = input.core_data.avg_cell_voltage;
         _acu_core_data.max_cell_voltage = input.core_data.max_cell_voltage;

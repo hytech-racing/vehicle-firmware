@@ -123,7 +123,8 @@ struct ValidPacketData_s
     bool valid_read_gpios_4_to_6 = true;
 };
 
-template <size_t num_chips, size_t num_cells, size_t num_board_thermistors> struct BMSData_s
+template <size_t num_chips, size_t num_cells, size_t num_board_thermistors>
+struct BMSData_s
 {
     array<ValidPacketData_s, num_chips> valid_read_packets;
     array<volt, num_cells> voltages;
@@ -189,7 +190,8 @@ constexpr ReadGroup_e advance_read_group(ReadGroup_e current)
     return static_cast<ReadGroup_e>((static_cast<int>(current) + 1) % static_cast<int>(ReadGroup_e::NUM_GROUPS));
 }
 
-template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> class BMSDriverGroup
+template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type>
+class BMSDriverGroup
 {
   public:
     constexpr static size_t num_cells = (num_chips / 2) * 21;
@@ -534,7 +536,8 @@ template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> c
     std::atomic<bool> _new_voltage_data_ready{false};
 };
 
-template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type> using BMSDriverInstance = etl::singleton<BMSDriverGroup<num_chips, num_chip_selects, chip_type>>;
+template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type>
+using BMSDriverInstance = etl::singleton<BMSDriverGroup<num_chips, num_chip_selects, chip_type>>;
 
 #include <BMSDriverGroup.tpp>
 

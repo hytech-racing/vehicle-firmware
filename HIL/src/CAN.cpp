@@ -594,7 +594,8 @@ void on_recv_CAN_3(const CAN_message_t& msg)
  *        <CAN2>, and <CAN3> are distinct C++ types despite sharing an
  *        interface.
  */
-template <typename Bus_t> void burst_test(Bus_t& bus, uint32_t can_id, BusStats_s& bus_stats, uint16_t count)
+template <typename Bus_t>
+void burst_test(Bus_t& bus, uint32_t can_id, BusStats_s& bus_stats, uint16_t count)
 {
     Serial.print(" Starting Burst Test For: ");
     Serial.println(bus_stats.name);
@@ -627,7 +628,8 @@ template <typename Bus_t> void burst_test(Bus_t& bus, uint32_t can_id, BusStats_
  *        given bus, and arms this board's own test loop immediately (it
  *        doesn't have to wait to hear its own trigger echoed back).
  */
-template <typename Bus_t> void arb_test_trigger(Bus_t& bus, ArbBusState_s& arb, const char* bus_name)
+template <typename Bus_t>
+void arb_test_trigger(Bus_t& bus, ArbBusState_s& arb, const char* bus_name)
 {
     CAN_message_t trigger{};
     trigger.id = ARB_TRIGGER_ID;
@@ -650,7 +652,8 @@ template <typename Bus_t> void arb_test_trigger(Bus_t& bus, ArbBusState_s& arb, 
  *        (no delay) each iteration, forcing contention, until
  *        ARB_BURST_COUNT pairs have been sent, then stops itself.
  */
-template <typename Bus_t> void arb_test_service(Bus_t& bus, ArbBusState_s& arb)
+template <typename Bus_t>
+void arb_test_service(Bus_t& bus, ArbBusState_s& arb)
 {
     if (!arb.is_arb_test_running || arb.frames_sent >= ARB_BURST_COUNT)
     {

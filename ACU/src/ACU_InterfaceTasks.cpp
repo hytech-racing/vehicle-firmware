@@ -375,7 +375,8 @@ HT_TASK::TaskResponse persist_soh_data(const unsigned long& sysMicros, const HT_
     return HT_TASK::TaskResponse::YIELD;
 }
 /* Print Functions */
-template <typename bms_data> void print_bms_data(bms_data data)
+template <typename bms_data>
+void print_bms_data(bms_data data)
 {
     Serial.print("Total Voltage: ");
     Serial.print(data.total_voltage, 4);

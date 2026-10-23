@@ -8,7 +8,8 @@
 /* Local Interface Includes */
 #include "BMSDriverGroup.hpp" // for ValidPacketData_s
 
-template <size_t num_chips> class BMSFaultDataManager
+template <size_t num_chips>
+class BMSFaultDataManager
 {
   public:
     struct BMSFaultCountData_s
@@ -37,7 +38,8 @@ template <size_t num_chips> class BMSFaultDataManager
     BMSFaultData_s _bms_fault_data{};
 };
 
-template <size_t num_chips> using BMSFaultDataManagerInstance = etl::singleton<BMSFaultDataManager<num_chips>>;
+template <size_t num_chips>
+using BMSFaultDataManagerInstance = etl::singleton<BMSFaultDataManager<num_chips>>;
 
 #include "BMSFaultDataManager.tpp"
 

@@ -66,7 +66,8 @@ namespace TC_MUX_DEFAULT_PARAMS
 /// @brief the torque controller muxer that can handle live switching between controller modes
 /// @tparam num_controllers the number of controllers that can be switched between. defaults to 5 if
 /// using TCMuxType.
-template <std::size_t num_controllers> class TorqueControllerMux
+template <std::size_t num_controllers>
+class TorqueControllerMux
 {
     static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
 

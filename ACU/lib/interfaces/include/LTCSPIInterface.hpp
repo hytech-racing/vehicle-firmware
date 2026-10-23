@@ -37,7 +37,8 @@ namespace ltc_spi_interface
      * Note that the tx_buf and rx_buf are the same length, which is recorded in the buffer_size template variable
      * @return void
      */
-    template <size_t buffer_size> void begin_transfer(std::array<uint8_t, buffer_size>& tx_buf, std::array<uint8_t, buffer_size>& rx_buf, EventResponder& event);
+    template <size_t buffer_size>
+    void begin_transfer(std::array<uint8_t, buffer_size>& tx_buf, std::array<uint8_t, buffer_size>& rx_buf, EventResponder& event);
 
     /**
      * @brief _write_and_delay_high/low sets the chip select pin HIGH and then delays for a few microseconds

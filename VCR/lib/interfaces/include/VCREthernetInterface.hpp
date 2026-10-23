@@ -87,7 +87,8 @@ class VCREthernetInterface
      * @param destination A reference to an unpopulated instance of veh_vec.
      * @post The destination veh_vec will be populated with the data from the original.
      */
-    template <typename from_T, typename to_T> void copy_veh_vec_members(const from_T& from, to_T& to)
+    template <typename from_T, typename to_T>
+    void copy_veh_vec_members(const from_T& from, to_T& to)
     {
         to.FL = from.FL;
         to.FR = from.FR;

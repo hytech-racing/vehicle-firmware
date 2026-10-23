@@ -19,7 +19,8 @@ constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
 using CANRXBuffer_t = Circular_Buffer<uint8_t, (uint32_t)16, CAN_MSG_SIZE>;
 using CANTXBuffer_t = Circular_Buffer<uint8_t, (uint32_t)128, CAN_MSG_SIZE>;
 
-template <CAN_DEV_TABLE CAN_DEV> using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_256, TX_SIZE_16>;
+template <CAN_DEV_TABLE CAN_DEV>
+using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_256, TX_SIZE_16>;
 
 
 /**

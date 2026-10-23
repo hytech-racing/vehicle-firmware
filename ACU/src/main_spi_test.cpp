@@ -59,7 +59,8 @@ std::array<ReadGroupStats, num_groups> group_stats;
 uint32_t cycle_count = 0;
 bool cycle_complete = false;
 
-template <typename driver_data> void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e current_group)
+template <typename driver_data>
+void print_voltages(driver_data data, uint32_t read_duration_us, ReadGroup_e current_group)
 {
     Serial.println("========================================");
     Serial.print("Read Group: ");

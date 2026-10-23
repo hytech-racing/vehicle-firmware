@@ -55,7 +55,8 @@ class CoreRDCCANInterface
     void sendAllCanMsgs();
     void onDVCANRecv(const CAN_message_t& msg);
 
-    template <typename CANStruct> void enqueueMsg(CANStruct* msg, uint32_t (*packFunction)(CANStruct*, uint8_t*, uint8_t*, uint8_t*))
+    template <typename CANStruct>
+    void enqueueMsg(CANStruct* msg, uint32_t (*packFunction)(CANStruct*, uint8_t*, uint8_t*, uint8_t*))
     {
         CAN_util::enqueue_msg(msg, packFunction, _driverless_can_tx_buffer);
     }

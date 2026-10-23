@@ -10,7 +10,8 @@
 #include <functional>
 // TODO
 // - [x] test to ensure that the size checking for desired modes works and failes properly
-template <typename quad_array_type> void set_four_outputs(quad_array_type& out, float val)
+template <typename quad_array_type>
+void set_four_outputs(quad_array_type& out, float val)
 {
     out.FL = val;
     out.FR = val;
@@ -18,13 +19,15 @@ template <typename quad_array_type> void set_four_outputs(quad_array_type& out, 
     out.RR = val;
 }
 
-template <typename cmd_type> void set_outputs_rpm(cmd_type& cmd, float rpm, float torque)
+template <typename cmd_type>
+void set_outputs_rpm(cmd_type& cmd, float rpm, float torque)
 {
     set_four_outputs(cmd.desired_speeds, rpm);
     set_four_outputs(cmd.torque_limits, torque);
 }
 
-template <typename cmd_type> void set_outputs(cmd_type& cmd, float mps, float torque)
+template <typename cmd_type>
+void set_outputs(cmd_type& cmd, float mps, float torque)
 {
     set_outputs_rpm(cmd, METERS_PER_SECOND_TO_RPM * mps, torque);
 }

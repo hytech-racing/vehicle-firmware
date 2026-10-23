@@ -30,7 +30,8 @@ enum class CHANNEL_TYPE_e
  * @param MAX114X_ADC_NUM_CHANNELS number of channels for the ADC
  * @param MAX114xVersion 6, 7, 8, or 9, corresponding to the MAX1146, MAX1147, MAX1148, and MAX1149 ADCs
  */
-template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
+template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion>
+class MAX114XInterface : public AnalogMultiSensor<MAX114X_ADC_NUM_CHANNELS>
 {
   public:
     constexpr static size_t buffer_size = 3;
@@ -116,7 +117,8 @@ template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> class MAX114XInterfa
     void _dma_callback();
 };
 
-template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion> using MAX114XInterfaceInstance = etl::singleton<MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>>;
+template <int MAX114X_ADC_NUM_CHANNELS, int MAX114xVersion>
+using MAX114XInterfaceInstance = etl::singleton<MAX114XInterface<MAX114X_ADC_NUM_CHANNELS, MAX114xVersion>>;
 
 #include "MAX114XInterface.tpp"
 
