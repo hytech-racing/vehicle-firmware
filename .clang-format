@@ -20,7 +20,7 @@ AlignOperands: Align
 # 3. Function Calls, Declarations & Constructors
 # ==============================================================================
 AlignAfterOpenBracket: AlwaysBreak
-BinPackParameters: OnePerLine
+BinPackParameters: false
 BinPackArguments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllArgumentsOnNextLine: false
