@@ -1,6 +1,7 @@
+#include "RDC_Tasks.hpp"
+
 #include "CoreRDCCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
-#include "RDC_Tasks.hpp"
 #include "ht_task.hpp"
 
 #include <cstdio>

@@ -1,5 +1,6 @@
-#include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
 #include "ChargerInterface.hpp"
+
+#include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
 
 
 void ChargerInterface::receiveChargerCANMsg(const CAN_message_t& msg, unsigned long curr_millis, ACUInterface& acu_interface, float max_pack_voltage, float cell_cutoff_voltage)

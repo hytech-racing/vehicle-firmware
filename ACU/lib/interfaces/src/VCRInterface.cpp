@@ -1,5 +1,6 @@
-#include "ACUCANInterfaceImpl.hpp"
 #include "VCRInterface.hpp"
+
+#include "ACUCANInterfaceImpl.hpp"
 
 
 void VCRInterface::set_monitoring_data(bool imd_ok, bool bms_ok, bool latch_ok)

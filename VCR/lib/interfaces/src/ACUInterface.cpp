@@ -1,4 +1,5 @@
 #include "ACUInterface.hpp"
+
 #include "VCRCANInterfaceImpl.hpp"
 
 void ACUInterface::receive_acu_ok_message(const CAN_message_t& msg, unsigned long curr_millis)
