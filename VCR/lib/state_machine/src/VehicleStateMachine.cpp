@@ -47,7 +47,7 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
             break;
         }
 
-        if (_is_start_button_pressed() && _is_brake_pressed())
+        if ((_is_start_button_pressed() && _is_brake_pressed()) || (_is_rss_go_button_pressed() && _is_brake_pressed()))
         {
             _set_state(VehicleState_e::WANTING_READY_TO_DRIVE, current_millis);
             break;

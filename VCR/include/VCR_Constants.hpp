@@ -151,6 +151,9 @@ namespace VCRInterfaces
     // NOTE: Consider moving hearbeat's into their respective interfaces
     constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL; // 20ms at 60mph is about 0.5 meters
     constexpr uint64_t ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
+
+    /* --------- RSS Constants ---------- */
+    constexpr uint8_t RSS_NODE_ID = 2;
 } // namespace VCRInterfaces
 
 namespace VCRSystems

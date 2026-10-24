@@ -199,6 +199,17 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         }
         }
 
+    case RSS_STATUS_CANID:
+    {
+        interfaces.rss_interface.receiveRSSStatusCANMsg(msg, millis);
+        break;
+    }
+    case RSS_BOOT_UP_CANID:
+    {
+        interfaces.rss_interface.receiveRSSBootCANmsg(msg, millis);
+        break;
+    }
+
     default:
     {
         break;
