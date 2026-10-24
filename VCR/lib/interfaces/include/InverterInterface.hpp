@@ -6,10 +6,10 @@
 
 /* External Includes */
 #include "FlexCAN_T4.h"
+#include "ht_can.h"
 #include "shared_types.hpp"
 
 #include <CANInterface.h>
-#include "ht_can.h"
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"
 

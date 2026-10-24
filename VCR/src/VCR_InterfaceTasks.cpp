@@ -100,7 +100,7 @@ void initialize_all_interfaces()
 
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
-    
+
     /* ---------- VCF Interface ---------- */
     RSSInterfaceInstance::create();
 
@@ -112,7 +112,7 @@ void initialize_all_interfaces()
         fr_inverter_interface,
         rl_inverter_interface,
         rr_inverter_interface,
-        VCFInterfaceInstance::instance(), 
+        VCFInterfaceInstance::instance(),
         RSSInterfaceInstance::instance());
 
     VCRCANInterfaceInstance::create(

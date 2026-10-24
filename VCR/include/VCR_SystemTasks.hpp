@@ -13,8 +13,8 @@
 
 /* Local Interface Includes */
 #include "DrivetrainSystem.hpp"
-#include "VCFInterface.hpp"
 #include "RSSInterface.hpp"
+#include "VCFInterface.hpp"
 
 
 /**

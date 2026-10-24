@@ -3,10 +3,10 @@
 
 /* ETL Library */
 #include "RDC_Constants.hpp"
+#include "ht_can.h"
 
 #include <FlexCAN_T4.h>
 #include <SharedFirmwareTypes.h>
-#include "ht_can.h"
 
 struct BrakeData_s
 {

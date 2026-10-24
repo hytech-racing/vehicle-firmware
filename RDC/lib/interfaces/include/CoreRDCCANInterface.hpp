@@ -8,9 +8,9 @@
 /* External Includes */
 #include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
+#include "ht_can.h"
 
 #include <FlexCAN_T4.h>
-#include "ht_can.h"
 
 /* Local Interface Includes */
 #include "DrivebrainInterface.hpp"

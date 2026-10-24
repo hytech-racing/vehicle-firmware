@@ -6,14 +6,15 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "shared_types.hpp"
 #include "ht_can.h"
+#include "shared_types.hpp"
+
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
 
-struct RSSCANInterfaceData_s 
+struct RSSCANInterfaceData_s
 {
     uint8_t is_go_button_pressed;
     uint8_t is_go_switch_on;
@@ -21,32 +22,30 @@ struct RSSCANInterfaceData_s
     uint8_t is_correct_mode_selected;
     uint8_t is_pre_alarm_warning_active;
     uint8_t radio_link_quality;
-
 };
 
-class RSSInterface {
+class RSSInterface
+{
 
-    public:
+  public:
+    RSSInterface();
 
-        RSSInterface();
+    void receive_status_message(const CAN_message_t& msg);
 
-        void receive_status_message(const CAN_message_t& msg);
+    bool is_go_button_pressed() { return _rss_data.is_go_button_pressed; };
 
-        bool is_go_button_pressed() {return _rss_data.is_go_button_pressed; };
-        
-        bool is_go_switch_on() {return _rss_data.is_go_switch_on; };
+    bool is_go_switch_on() { return _rss_data.is_go_switch_on; };
 
-        bool is_estop_pressed() {return _rss_data.is_estop_pressed; };
+    bool is_estop_pressed() { return _rss_data.is_estop_pressed; };
 
-        bool is_correct_mode_selected() {return _rss_data.is_correct_mode_selected; };
+    bool is_correct_mode_selected() { return _rss_data.is_correct_mode_selected; };
 
-        bool is_pre_alarm_warning_active() {return _rss_data.is_pre_alarm_warning_active; };
+    bool is_pre_alarm_warning_active() { return _rss_data.is_pre_alarm_warning_active; };
 
-        uint8_t radio_link_quality() {return _rss_data.radio_link_quality; };
+    uint8_t radio_link_quality() { return _rss_data.radio_link_quality; };
 
-    private:
-        mutable RSSCANInterfaceData_s _rss_data;
-
+  private:
+    mutable RSSCANInterfaceData_s _rss_data;
 };
 
 
