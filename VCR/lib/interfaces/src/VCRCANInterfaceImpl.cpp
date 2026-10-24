@@ -178,15 +178,7 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
             break;
         }
 
-
-        case RSS_STATUS_CANID:
-        {
-            interfaces.rss_interface.receive_status_message(msg);
-            break;
-        }
-
-        
-        default:
+        case INV4_TEMPS_CANID:
         {
             interfaces.rr_inverter_interface.receive_INV_TEMPS(msg, millis);
             break;
@@ -207,6 +199,12 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
             break;
         }
         }
+
+    case RSS_STATUS_CANID:
+    {
+        interfaces.rss_interface.receive_status_message(msg);
+        break;
+    }
 
     default:
     {
