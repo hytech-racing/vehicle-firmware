@@ -19,8 +19,7 @@ struct IOExpanderParams_s
 
 class IOExpanderInterface
 {
-public:
-
+  public:
     virtual ~IOExpanderInterface() = default;
 
     virtual void read() = 0;
@@ -28,6 +27,5 @@ public:
     virtual bool getBitPortA(uint8_t bit) = 0;
 
     virtual bool getBitPortB(uint8_t bit) = 0;
-
 };
 #endif

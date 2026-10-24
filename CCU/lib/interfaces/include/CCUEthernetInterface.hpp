@@ -1,48 +1,63 @@
-#ifndef CCUETHERNETINTERFACE_H
-#define CCUETHERNETINTERFACE_H
+#ifndef CCUETHERNETINTERFACE_H_
+#define CCUETHERNETINTERFACE_H_
 
 /* External Includes */
+#include "EthernetAddressDefs.h"
+#include "ProtobufMsgInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "hytech_msgs.pb.h"
-#include "ProtobufMsgInterface.h"
-#include "EthernetAddressDefs.h"
+
 #include <QNEthernet.h>
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
 
+/* ETL Library */
+#include "ACUInterface.hpp"
+#include "ChargerInterface.hpp"
+#include "EMInterface.hpp"
+#include "MainChargeSystem.hpp"
+
+#include <etl/singleton.h>
+
 using namespace qindesign::network;
 
-
-/**
- * @brief Output values from CCU to ACU.
- */
-struct CCUOutput_s
+namespace ccu_ethernet_params
 {
-    float current_setpoint;
-    bool allow_balance;
+    constexpr const uint8_t NUM_CELLS = 126;
+    constexpr const uint8_t NUM_CELLTEMPS = 48;
+    constexpr const uint8_t NUM_CHIPS = 12;
+}; // namespace ccu_ethernet_params
+
+struct CCUEthernetParams_s
+{
+    uint8_t num_cells;
+    uint8_t num_celltemps;
+    uint8_t num_chips;
 };
 
-namespace CCUEthernetInterface
+class CCUEthernetInterface
 {
-    void recieve_pb_msg_acu_all_data(const hytech_msgs_ACUAllData &msg_in, ACUAllDataType_s &acu_all_data);
-};
-
-class CCUEthernettInterface
-{
-public:
+  public:
+    CCUEthernetInterface(
+        CCUEthernetParams_s params =
+            {.num_cells = ccu_ethernet_params::NUM_CELLS, .num_celltemps = ccu_ethernet_params::NUM_CELLTEMPS, .num_chips = ccu_ethernet_params::NUM_CHIPS})
+        : _ccu_params(params) {};
 
     void initEthernetDevice();
 
-    void handle_recv_ethernet_acu_all_data(const hytech_msgs_ACUAllData &data);
+    void receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_s& acu_all_data);
 
-private:
+    hytech_msgs_CCUData makeCCUDataMsg();
 
-    /* Ethernet Sockets */
-    EthernetUDP _acu_core_data_recv_socket;
+    void sendCCUDataMsg(const hytech_msgs_CCUData& data);
+
+  private:
+    const CCUEthernetParams_s _ccu_params = {};
     EthernetUDP _acu_all_data_recv_socket;
-
+    EthernetUDP _ccu_data_send_socket;
 };
 
+using CCUEthernetInterfaceInstance = etl::singleton<CCUEthernetInterface>;
 
-#endif
+#endif // CCUETHERNETINTERFACE_H_

@@ -2,19 +2,20 @@
 #define ACU_STATE_MACHINE_H
 
 /* ETL Library */
-#include <etl/delegate.h>
 #include "etl/singleton.h"
+
+#include <etl/delegate.h>
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 #include "shared_types.hpp"
+
 #include <iostream>
 
 
 class ACUStateMachine
 {
-public:
-
+  public:
     ACUStateMachine(
         etl::delegate<bool()> charge_state_requested,
         etl::delegate<bool()> has_bms_fault,
@@ -29,21 +30,20 @@ public:
         etl::delegate<void()> reinitialize_watchdog,
         etl::delegate<void()> reset_latch,
         etl::delegate<void()> disable_n_latch_en,
-        uint32_t curr_millis
-    ) :
-        _charge_state_requested(charge_state_requested),
-        _has_bms_fault(has_bms_fault),
-        _has_imd_fault(has_imd_fault),
-        _contactor_welded(contactor_welded),
-        _set_sw_not_ok_pin_high(set_sw_not_ok_pin_high),
-        _set_sw_not_ok_pin_low(set_sw_not_ok_pin_low),
-        _received_valid_shdn_out(received_valid_shdn_out),
-        _enable_cell_balancing(enable_cell_balancing),
-        _disable_cell_balancing(disable_cell_balancing),
-        _disable_watchdog(disable_watchdog),
-        _reinitialize_watchdog(reinitialize_watchdog),
-        _set_n_latch_en_high(reset_latch),
-        _set_n_latch_en_low(disable_n_latch_en)
+        uint32_t curr_millis)
+        : _charge_state_requested(charge_state_requested),
+          _has_bms_fault(has_bms_fault),
+          _has_imd_fault(has_imd_fault),
+          _contactor_welded(contactor_welded),
+          _set_sw_not_ok_pin_high(set_sw_not_ok_pin_high),
+          _set_sw_not_ok_pin_low(set_sw_not_ok_pin_low),
+          _received_valid_shdn_out(received_valid_shdn_out),
+          _enable_cell_balancing(enable_cell_balancing),
+          _disable_cell_balancing(disable_cell_balancing),
+          _disable_watchdog(disable_watchdog),
+          _reinitialize_watchdog(reinitialize_watchdog),
+          _set_n_latch_en_high(reset_latch),
+          _set_n_latch_en_low(disable_n_latch_en)
     {
         _current_state = ACUState_e::STARTUP;
         _last_state_changed_time = curr_millis;
@@ -53,11 +53,10 @@ public:
 
     /**
      * @return current ACU state
-    */
+     */
     ACUState_e get_state() { return _current_state; }
 
-private:
-
+  private:
     void _set_state(ACUState_e new_state, unsigned long curr_millis);
 
     /**

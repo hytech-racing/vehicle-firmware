@@ -11,8 +11,6 @@ void DashboardInterface::init()
     pinMode(_dashboard_gpios.BUTTON_2, INPUT_PULLUP);
 
     _dash_created_millis = sys_time::hal_millis();
-
-    _i2c_bus.begin();
 }
 
 void DashboardInterface::syncDashboardStoredState()
@@ -20,7 +18,7 @@ void DashboardInterface::syncDashboardStoredState()
     _dashboard_stored_state = _dashboard_outputs;
 }
 
-void DashboardInterface::receiveACUOKCANMsg(const CAN_message_t &can_msg)
+void DashboardInterface::receiveACUOKCANMsg(const CAN_message_t& can_msg)
 {
     ACU_OK_t unpacked_msg;
     Unpack_ACU_OK_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
@@ -70,41 +68,41 @@ void DashboardInterface::readIOExpander()
     // write to 8-seg display based on current mode
     switch (_dashboard_outputs.dial_state)
     {
-        case ControllerMode_e::MODE_0:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00000010); // NOLINT 0b0000 0010 = 2
-            break;
-        }
-        case ControllerMode_e::MODE_1:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b01010111); // NOLINT 0b0101 0111 = 87
-            break;
-        }
-        case ControllerMode_e::MODE_2:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00011000); // NOLINT 0b0001 1000 = 24
-            break;
-        }
-        case ControllerMode_e::MODE_3:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00010100); // NOLINT 0b0001 0100 = 20
-            break;
-        }
-        case ControllerMode_e::MODE_4:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b01000101); // NOLINT 0b0100 0101 = 69
-            break;
-        }
-        case ControllerMode_e::MODE_5:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00100100); // NOLINT 0b0010 0100 = 36
-            break;
-        }
-        default:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b11110000); // NOLINT 0b1111 0000 = 240
-            break;
-        }
+    case ControllerMode_e::MODE_0:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00000010); // NOLINT 0b0000 0010 = 2
+        break;
+    }
+    case ControllerMode_e::MODE_1:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b01010111); // NOLINT 0b0101 0111 = 87
+        break;
+    }
+    case ControllerMode_e::MODE_2:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00011000); // NOLINT 0b0001 1000 = 24
+        break;
+    }
+    case ControllerMode_e::MODE_3:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00010100); // NOLINT 0b0001 0100 = 20
+        break;
+    }
+    case ControllerMode_e::MODE_4:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b01000101); // NOLINT 0b0100 0101 = 69
+        break;
+    }
+    case ControllerMode_e::MODE_5:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00100100); // NOLINT 0b0010 0100 = 36
+        break;
+    }
+    default:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b11110000); // NOLINT 0b1111 0000 = 240
+        break;
+    }
     }
 }
 

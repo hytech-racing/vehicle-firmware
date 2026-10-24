@@ -10,7 +10,8 @@
  * USAGE INSTRUCTIONS: In your implementation, create an instance of this
  * struct and use the default definitions for each IP.
  */
-struct EthernetIPDefs_s {
+struct EthernetIPDefs_s
+{
     const IPAddress debug_ip{192, 168, 3, 21};
     const IPAddress drivebrain_ip{192, 168, 3, 30};
     const IPAddress vcr_ip{192, 168, 3, 31};
@@ -25,6 +26,7 @@ struct EthernetIPDefs_s {
     const uint16_t ACUCoreData_port = 7777;
     const uint16_t ACUAllData_port = 7766;
     const uint16_t DBData_port = 8888;
+    const uint16_t CCUData_port = 6666; 
 };
 
 using EthernetIPDefsInstance = etl::singleton<EthernetIPDefs_s>;

@@ -7,8 +7,8 @@
 #include <stdint.h>
 
 /* External Includes */
-#include <stm32h7xx_hal.h>
 #include <stm32h750xx.h>
+#include <stm32h7xx_hal.h>
 #include <stm32h7xx_hal_fdcan.h>
 
 
