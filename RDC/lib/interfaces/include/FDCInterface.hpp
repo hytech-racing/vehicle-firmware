@@ -7,7 +7,7 @@
 #include <etl/singleton.h>
 
 #include <SharedFirmwareTypes.h>
-#include <ht_can.h>
+#include "ht_can.h"
 
 struct BrakeData_s
 {

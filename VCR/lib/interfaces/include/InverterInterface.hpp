@@ -8,8 +8,7 @@
 #include "shared_types.hpp"
 #include "FlexCAN_T4.h"
 #include <CANInterface.h>
-#include <ht_can.h>
-
+#include "ht_can.h"
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"
 

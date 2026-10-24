@@ -15,7 +15,7 @@ void RSSInterface::receive_status_message(const CAN_message_t& msg)
     // populate interface data with received data
     _rss_data.is_go_button_pressed = status_msg.button_k3_pressed;
     _rss_data.is_go_switch_on = status_msg.switch_k2_pressed;
-    _rss_data.is_estop_pressed = status_msg.emergency_stop_not_pressed_1 && status_msg.emergency_stop_not_pressed_2;
+    _rss_data.is_estop_pressed = status_msg.emergency_stop_pressed_1 && status_msg.emergency_stop_pressed_2;
     _rss_data.is_correct_mode_selected = status_msg.correct_mode_selected;
     _rss_data.is_pre_alarm_warning_active = status_msg.pre_alarm_warning;
 
