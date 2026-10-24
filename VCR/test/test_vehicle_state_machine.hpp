@@ -18,6 +18,7 @@ bool called_reset_inverter_error = false;
 bool called_recalibrate_steering = false;
 bool calibrate_steering_pressed = false;
 bool steering_timeout = false;
+bool rss_go_pressed = false;
 
 void reset_all_booleans()
 {
@@ -37,6 +38,7 @@ void reset_all_booleans()
     called_recalibrate_steering = false;
     calibrate_steering_pressed = false;
     steering_timeout = false;
+    rss_go_pressed = false;
 }
 
 etl::delegate<bool()> mock_hv_over_threshold = etl::delegate<bool()>::create([]() -> bool { return hv_over_threshold; });
@@ -110,6 +112,8 @@ etl::delegate<void()> mock_steering_reset = etl::delegate<void()>::create(
         return;
     });
 
+etl::delegate<bool()> mock_rss_go_pressed = etl::delegate<bool()>::create([]() -> bool { return rss_go_pressed; });
+
 void ASSERT_DRIVETRAIN_COMMANDED(bool wrtd, bool rtd)
 {
     ASSERT_EQ(wanting_ready_to_drive, wrtd);
@@ -135,7 +139,8 @@ TEST(VehicleStateMachine, TractiveSystemNotActive)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -185,7 +190,8 @@ TEST(VehicleStateMachine, CalibratingPedals)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -261,7 +267,8 @@ TEST(VehicleStateMachine, TractiveSystemActive)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -344,7 +351,8 @@ TEST(VehicleStateMachine, WantingReadyToDrive)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -415,7 +423,8 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenNoHV)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -470,7 +479,8 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);
@@ -529,7 +539,8 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout)
         mock_recalibrate_steering,
         mock_is_calibrate_steering_pressed,
         mock_steering_timeout,
-        mock_steering_reset);
+        mock_steering_reset,
+        mock_rss_go_pressed);
     reset_all_booleans();
 
     state_machine.tick_state_machine(0);

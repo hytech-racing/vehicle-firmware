@@ -30,7 +30,8 @@ class VehicleStateMachine
         etl::delegate<void()> recalibrate_steering,
         etl::delegate<bool()> is_calibrate_steering_button_pressed,
         etl::delegate<bool()> check_steering_timeout,
-        etl::delegate<void()> reset_steering_timeout)
+        etl::delegate<void()> reset_steering_timeout,
+        etl::delegate<bool()> rss_button_pressed)
         : _check_hv_over_threshold(check_hv_over_threshold),
           _is_start_button_pressed(is_start_button_pressed),
           _is_brake_pressed(is_brake_pressed),
@@ -47,7 +48,8 @@ class VehicleStateMachine
           _send_recalibrate_steering_message(recalibrate_steering),
           _is_calibrate_steering_button_pressed(is_calibrate_steering_button_pressed),
           _check_steering_timeout(check_steering_timeout),
-          _reset_steering_timeout(reset_steering_timeout)
+          _reset_steering_timeout(reset_steering_timeout),
+          _is_rss_go_button_pressed(rss_button_pressed)
     {
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
@@ -95,6 +97,7 @@ class VehicleStateMachine
     etl::delegate<bool()> _is_calibrate_steering_button_pressed;
     etl::delegate<bool()> _check_steering_timeout;
     etl::delegate<void()> _reset_steering_timeout;
+    etl::delegate<bool()> _is_rss_go_button_pressed;
 };
 
 using VehicleStateMachineInstance = etl::singleton<VehicleStateMachine>;
