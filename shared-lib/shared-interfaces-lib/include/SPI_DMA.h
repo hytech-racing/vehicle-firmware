@@ -6,12 +6,21 @@
 #include <EventResponder.h>
 
 
+namespace spi_params_defaults
+{
+    constexpr const uint8_t ADC_DEFAULT_SPI_CS    = 10;
+    constexpr const uint8_t ADC_DEFAULT_SPI_SDI   = 12;
+    constexpr const uint8_t ADC_DEFAULT_SPI_SDO   = 11;
+    constexpr const uint8_t ADC_DEFAULT_SPI_CLK   = 13;
+    constexpr const int ADC_DEFAULT_SPI_SPEED = 2000000;
+};
+
 struct SPIParams_s {
-    const uint8_t spiPinCS;
-    const uint8_t spiPinSDI;
-    const uint8_t spiPinSDO;
-    const uint8_t spiPinCLK;
-    const int spiSpeed;
+    const uint8_t spiPinCS  = spi_params_defaults::ADC_DEFAULT_SPI_CS;
+    const uint8_t spiPinSDI = spi_params_defaults::ADC_DEFAULT_SPI_SDI;
+    const uint8_t spiPinSDO = spi_params_defaults::ADC_DEFAULT_SPI_SDO;
+    const uint8_t spiPinCLK = spi_params_defaults::ADC_DEFAULT_SPI_CLK;
+    const int spiSpeed      = spi_params_defaults::ADC_DEFAULT_SPI_SPEED;
 };
 
 template <size_t bufferSize>

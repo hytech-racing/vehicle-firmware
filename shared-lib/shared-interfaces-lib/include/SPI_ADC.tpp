@@ -2,20 +2,11 @@
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
-    EventResponder& eventRef,
-    const float scales[ADC_NUM_CHANNELS], 
-    const float offsets[ADC_NUM_CHANNELS],
-    const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
-    SPIParams_s spiParams)
-    : SPI_ADC(spiParams, eventRef, scales, offsets, channelTypes)
-    {};
-
-template <size_t bufferSize, int ADC_NUM_CHANNELS>
-SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(SPIParams_s spiParams,
         EventResponder& eventRef,
         const float scales[ADC_NUM_CHANNELS], 
         const float offsets[ADC_NUM_CHANNELS],
         const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
+        SPIParams_s spiParams,
         bool SSTRBpresent,
         uint8_t SSTRBpin)
     : SPIDMAInterface<bufferSize>(spiParams, eventRef,
