@@ -45,6 +45,7 @@ jobs:
   # build what actually changed.
   # ═══════════════════════════════════════════════════════════════════
   changes:
+    name: Detect changed subsystems
     runs-on: ubuntu-latest
     outputs:
       # Raw list of changed subsystem names, e.g. ["ACU","CCU"].
@@ -136,6 +137,7 @@ jobs:
   # Runs on every PR.
   # ═══════════════════════════════════════════════════════════════════
   format:
+    name: Format check
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -176,7 +178,7 @@ jobs:
   # CCU, VCF etc. all build at the same time.
   # ═══════════════════════════════════════════════════════════════════
   build:
-    name: build (${{ matrix.subsystem }})
+    name: Build & test (${{ matrix.subsystem }})
     needs: changes
     # Only run if at least one subsystem changed.
     if: needs.changes.outputs.subsystems != '[]'
