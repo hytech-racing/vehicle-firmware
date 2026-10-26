@@ -12,6 +12,10 @@ on:
     #   `if:` condition on the first job.
     branches: [main]
     # ^ Restricts this trigger to only PRs whose target branch is main.
+  workflow_dispatch:
+    # ^ Manual trigger from the Actions tab ("Run workflow"). Fallback for
+    #   when a merge didn't kick off a release (e.g. the source branch
+    #   wasn't named release/* or hotfix/*). Always releases main.
 
 jobs:
   # ═══════════════════════════════════════════════════════════════════
@@ -21,12 +25,14 @@ jobs:
   # ═══════════════════════════════════════════════════════════════════
   version:
     if: |
-      github.event.pull_request.merged == true &&
-      (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/'))
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/')))
     runs-on: ubuntu-latest
     # This `if:` is the main gate. Even though the workflow "runs" on
     # every PR close to main, this job's actual steps only execute if
-    # PR is actually merged and if it is actually a release branch
+    # PR is actually merged and if it is actually a release branch.
+    # Manual runs (workflow_dispatch) skip the branch check entirely.
 
     outputs:
       version: ${{ steps.version.outputs.version }}
