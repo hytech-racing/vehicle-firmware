@@ -15,10 +15,9 @@ namespace adc_default_parameters
     constexpr const unsigned int channels_within_mcp_adc = 8;
 }
 
-struct ADCPinout_s
-{
-    pin adc0_spi_cs_pin;
-    pin adc1_spi_cs_pin;
+struct ADCSPIParams_s {
+    SPIParams_s _adc0_params;
+    SPIParams_s _adc1_params;
 };
 
 struct ADCChannels_s
@@ -89,7 +88,7 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinouts;
+    ADCSPIParams_s spi_params;
     ADCChannels_s channels;
     ADCScales_s scales;
     ADCOffsets_s offsets;
@@ -125,12 +124,12 @@ class ADCInterface
 public:
 
     
-    ADCInterface(ADCPinout_s pinouts,
+    ADCInterface(ADCSPIParams_s spi_params,
                 ADCChannels_s channels,
                 ADCScales_s scales,
                 ADCOffsets_s offsets
     ) : _adc_parameters {
-            .pinouts = pinouts,
+            .spi_params = spi_params,
             .channels = channels,
             .scales = scales,
             .offsets = offsets
@@ -138,14 +137,16 @@ public:
         _adc0 (_spiEventADC0,
             adc0_scales().data(),
             adc0_offsets().data(),
-            adc_default_channels::adc0_channels
+            adc_default_channels::adc0_channels,
+            spi_params._adc0_params
         ),
         _adc1 (_spiEventADC1,
             adc0_scales().data(),
             adc0_offsets().data(),
-            adc_default_channels::adc1_channels
-        )
-    {};
+            adc_default_channels::adc1_channels,
+            spi_params._adc1_params
+        )  
+        {};
 
     void initADC0() { _adc0.initDMA(); }
     void initADC1() { _adc1.initDMA(); }
@@ -268,6 +269,7 @@ private:
 
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
     SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc0;
+
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
     SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc1;
 
