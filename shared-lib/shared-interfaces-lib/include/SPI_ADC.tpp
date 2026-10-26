@@ -24,7 +24,7 @@ SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::tick() {
-    if (this->_dmaBusy || (_SSTRBpresent && digitalRead(_SSTRBpin) == HIGH)) {
+    if (this->_dmaBusy || micros() - lastSampleTime < 1) {
         return;
     }
     _sample();
@@ -55,6 +55,7 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
     const uint32_t start = ARM_DWT_CYCCNT;
     setCommand();
     this->transfer();
+    lastSampleTime = micros();
     _cycles += (ARM_DWT_CYCCNT - start);
 };
 

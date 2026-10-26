@@ -45,6 +45,7 @@ class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC
     bool _SSTRBpresent = false;
     uint8_t _SSTRBpin = 0;
     volatile int _currChannel;
+    unsigned long lastSampleTime;
     uint32_t _cycles = 0;
     uint32_t _isrCycles = 0;
     uint32_t _totCycles = 0;
