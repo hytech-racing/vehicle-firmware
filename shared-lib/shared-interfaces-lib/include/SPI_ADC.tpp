@@ -24,6 +24,7 @@ SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::SPI_ADC(
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::tick() {
+    // for MCP ADCs, wait at least 1 microsecond before sampling next channel
     if (this->_dmaBusy || micros() - lastSampleTime < 1) {
         return;
     }
