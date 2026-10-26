@@ -1,8 +1,9 @@
 #ifndef ANALOGSENSORSINTERFACE
 #define ANALOGSENSORSINTERFACE
 
-#include <algorithm>
 #include "SharedFirmwareTypes.h"
+
+#include <algorithm>
 
 /**
  * The AnalogChannel class represents one individual "channel" of an ADC. Each Channel
@@ -12,7 +13,7 @@
  */
 class AnalogChannel
 {
-public:
+  public:
     /* Data */
     float scale;
     float offset;
@@ -23,16 +24,18 @@ public:
 
     /* Constructors */
     AnalogChannel(float scale, float offset, bool clamp, float clampLow, float clampHigh)
-    : scale(scale),
-      offset(offset),
-      clamp(clamp),
-      clampLow(clampLow),
-      clampHigh(clampHigh) {}
+        : scale(scale), offset(offset), clamp(clamp), clampLow(clampLow), clampHigh(clampHigh)
+    {
+    }
     AnalogChannel(float scale, float offset)
-    : AnalogChannel(scale, offset, false, __FLT_MIN__, __FLT_MAX__) {}
+        : AnalogChannel(scale, offset, false, __FLT_MIN__, __FLT_MAX__)
+    {
+    }
     AnalogChannel()
-    : AnalogChannel(1.0, 0.0, false, __FLT_MIN__, __FLT_MAX__) {}
-    
+        : AnalogChannel(1.0, 0.0, false, __FLT_MIN__, __FLT_MAX__)
+    {
+    }
+
     /* Functions*/
     /**
      * Calculates sensor output and whether result is in the sensor's defined bounds. This DOES NOT SAMPLE.
@@ -40,16 +43,12 @@ public:
      */
     AnalogConversion_s convert()
     {
-        float conversion = (lastSample* scale) + offset;
+        float conversion = (lastSample * scale) + offset;
         float clampedConversion = std::min(std::max(conversion, clampLow), clampHigh);
         AnalogSensorStatus_e returnStatus = AnalogSensorStatus_e::ANALOG_SENSOR_GOOD;
         if (clamp && (conversion > clampHigh || conversion < clampLow))
             returnStatus = AnalogSensorStatus_e::ANALOG_SENSOR_CLAMPED;
-        return {
-            lastSample,
-            clamp ? clampedConversion : conversion,
-            returnStatus
-        };
+        return {lastSample, clamp ? clampedConversion : conversion, returnStatus};
     }
 };
 
@@ -61,8 +60,7 @@ public:
 template <int N>
 class AnalogMultiSensor
 {
-protected:
-
+  protected:
     /**
      * Performs unit conversions on all channels.
      * @post The data field will be updated with the new conversions of each channel.
@@ -81,9 +79,10 @@ protected:
      */
     virtual void _sample();
 
-protected:
+  protected:
     AnalogChannel _channels[N];
-public:
+
+  public:
     AnalogConversionPacket_s<N> data;
 
     /* Functions */
@@ -96,10 +95,7 @@ public:
     /**
      * Used by systems to retrieve the data field.
      */
-    const AnalogConversionPacket_s<N>& get()
-    {
-        return data;
-    }
+    const AnalogConversionPacket_s<N>& get() { return data; }
 
     /**
      * Sets the scale of the internal conversion channel.
@@ -126,7 +122,8 @@ public:
      */
     void setChannelClamp(int channel, float clampLow, float clampHigh)
     {
-        if (channel < N) {
+        if (channel < N)
+        {
             _channels[channel].clampLow = clampLow;
             _channels[channel].clampHigh = clampHigh;
             _channels[channel].clamp = true;
@@ -141,8 +138,6 @@ public:
         setChannelScale(channel, scale);
         setChannelOffset(channel, offset);
     }
-
-
 };
 
 #endif /* ANALOGSENSORSINTERFACE */

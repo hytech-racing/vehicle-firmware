@@ -1,4 +1,4 @@
-#include "ACU_InterfaceTasks.h"
+#include "ACU_InterfaceTasks.hpp"
 
 const auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -30,7 +30,10 @@ static ACUAllDataType_s make_acu_all_data()
 
     // Faults and packet stats
     out.max_consecutive_invalid_packet_count = fault_data.max_consecutive_invalid_packet_count;
-    std::copy(fault_data.consecutive_invalid_packet_counts.begin(), fault_data.consecutive_invalid_packet_counts.end(), out.consecutive_invalid_packet_counts.begin());
+    std::copy(
+        fault_data.consecutive_invalid_packet_counts.begin(),
+        fault_data.consecutive_invalid_packet_counts.end(),
+        out.consecutive_invalid_packet_counts.begin());
     out.valid_packet_rate = fault_data.valid_packet_rate;
 
     auto watchdog = WatchdogMetricsInstance::instance().get_watchdog_metrics();
@@ -73,7 +76,7 @@ void initialize_all_interfaces()
     SPI.setClockDivider(SPI_CLOCK_DIV16); // 16MHz (Arduino Clock Frequency) / 16 = 1MHz -> SPI Clock
 
     SPI1.begin();
-    SPI1.setClockDivider(SPI_CLOCK_DIV16); // 16MHz (Arduino Clock Frequency) / 16 = 1MHz -> SPI Clock
+    SPI1.setClockDivider(SPI_CLOCK_DIV16);      // 16MHz (Arduino Clock Frequency) / 16 = 1MHz -> SPI Clock
     SPI1.setMOSI(ACUInterfaces::SPI1_MOSI_PIN); // set up pins because it's not the default SPI1 MISO
     SPI1.setSCK(ACUInterfaces::SPI1_SCK_PIN);
     SPI1.setMISO(ACUInterfaces::SPI1_MISO_PIN);
@@ -81,82 +84,67 @@ void initialize_all_interfaces()
     Serial.begin(ACUInterfaces::SERIAL_BAUDRATE);
     analogReadResolution(ACUInterfaces::ANALOG_READ_RESOLUTION);
     /* Watchdog Interface */
-    WatchdogInstance::create(WatchdogPinout_s {
-                                ACUInterfaces::TEENSY_OK_PIN,
-                                ACUInterfaces::WD_KICK_PIN,
-                                ACUInterfaces::N_FAULTED_STATE_PIN,
-                                ACUInterfaces::SW_NOT_OK_PIN
-                            }
-    );
+    WatchdogInstance::create(
+        WatchdogPinout_s{ACUInterfaces::TEENSY_OK_PIN, ACUInterfaces::WD_KICK_PIN, ACUInterfaces::N_FAULTED_STATE_PIN, ACUInterfaces::SW_NOT_OK_PIN});
     WatchdogInstance::instance().init();
 
     /* ADC Interface */
-    ADCInterfaceInstance::create(ADCPinout_s {
-                                    ACUInterfaces::IMD_OK_PIN,
-                                    ACUInterfaces::PRECHARGE_PIN,
-                                    ACUInterfaces::SHDN_OUT_PIN,
-                                    ACUInterfaces::HV_PLUS_OUT_OK_PIN,
-                                    ACUInterfaces::MAIN_OK_PIN,
-                                    ACUInterfaces::MAIN_UNDER_THRESH_PIN,
-                                    ACUInterfaces::PRECHARGE_THRESH_PIN,
-                                    ACUInterfaces::TS_OUT_FILTERED_PIN,
-                                    ACUInterfaces::PACK_OUT_FILTERED_PIN,
-                                    ACUInterfaces::BSPD_CURRENT_PIN,
-                                    ACUInterfaces::SCALED_24V_PIN,
-                                    ACUInterfaces::ADC0_CS_PIN,
-                                    ACUInterfaces::ADC0_MOSI_PIN,
-                                    ACUInterfaces::ADC0_MISO_PIN,
-                                    ACUInterfaces::ADC0_CLK_PIN,
-                                    ACUInterfaces::ADC0_NOT_SHDN_PIN
-                                },
-                                ADCChannels_s {
-                                    ACUInterfaces::ISO_PACK_N_CHANNEL,
-                                    ACUInterfaces::ISO_PACK_P_CHANNEL,
-                                    ACUInterfaces::PACK_VOLTAGE_SENSE_CHANNEL,
-                                    ACUInterfaces::SHUNT_CURRENT_OUT_CHANNEL,
-                                    ACUInterfaces::SHUNT_CURRENT_P_CHANNEL,
-                                    ACUInterfaces::SHUNT_CURRENT_N_CHANNEL,
-                                    ACUInterfaces::TS_OUT_FILTERED_CHANNEL,
-                                    ACUInterfaces::PACK_OUT_FILTERED_CHANNEL
-                                },
-                                ADCConversions_s {
-                                    ACUInterfaces::SHUTDOWN_CONV_FACTOR,
-                                    ACUInterfaces::PRECHARGE_CONV_FACTOR,
-                                    ACUInterfaces::PACK_AND_TS_OUT_CONV_FACTOR,
-                                    ACUInterfaces::SHDN_OUT_CONV_FACTOR,
-                                    ACUInterfaces::BSPD_CURRENT_CONV_FACTOR,
-                                    ACUInterfaces::GLV_CONV_FACTOR,
-                                    ACUInterfaces::STD_5V_3V3_CONVERSION_FACTOR
-                                },
-                                ADCScales_s {
-                                    ACUInterfaces::ISO_PACK_N_SCALE,
-                                    ACUInterfaces::ISO_PACK_P_SCALE,
-                                    ACUInterfaces::PACK_VOLTAGE_SENSE_SCALE,
-                                    ACUInterfaces::SHUNT_CURRENT_OUT_SCALE,
-                                    ACUInterfaces::SHUNT_CURRENT_P_SCALE,
-                                    ACUInterfaces::SHUNT_CURRENT_N_SCALE,
-                                    ACUInterfaces::TS_OUT_FILTERED_SCALE,
-                                    ACUInterfaces::PACK_OUT_FILTERED_SCALE
-                                },
-                                ADCOffsets_s {
-                                    ACUInterfaces::ISO_PACK_N_OFFSET,
-                                    ACUInterfaces::ISO_PACK_P_OFFSET,
-                                    ACUInterfaces::PACK_VOLTAGE_SENSE_OFFSET,
-                                    ACUInterfaces::SHUNT_CURRENT_OUT_OFFSET,
-                                    ACUInterfaces::SHUNT_CURRENT_P_OFFSET,
-                                    ACUInterfaces::SHUNT_CURRENT_N_OFFSET,
-                                    ACUInterfaces::TS_OUT_FILTERED_OFFSET,
-                                    ACUInterfaces::PACK_OUT_FILTERED_OFFSET
-                                },
-                                MAX114XChannels_s {
-                                    CHANNEL_TYPE_e::NOT_USED,
-                                    CHANNEL_TYPE_e::SINGLE,
-                                    CHANNEL_TYPE_e::NOT_USED,
-                                    CHANNEL_TYPE_e::NOT_USED
-                                },
-                                ACUInterfaces::ADC0_SPEED,
-                                ACUInterfaces::BIT_RESOLUTION
-    );
+    ADCInterfaceInstance::create(
+        ADCPinout_s{
+            ACUInterfaces::IMD_OK_PIN,
+            ACUInterfaces::PRECHARGE_PIN,
+            ACUInterfaces::SHDN_OUT_PIN,
+            ACUInterfaces::HV_PLUS_OUT_OK_PIN,
+            ACUInterfaces::MAIN_OK_PIN,
+            ACUInterfaces::MAIN_UNDER_THRESH_PIN,
+            ACUInterfaces::PRECHARGE_THRESH_PIN,
+            ACUInterfaces::TS_OUT_FILTERED_PIN,
+            ACUInterfaces::PACK_OUT_FILTERED_PIN,
+            ACUInterfaces::BSPD_CURRENT_PIN,
+            ACUInterfaces::SCALED_24V_PIN,
+            ACUInterfaces::ADC0_CS_PIN,
+            ACUInterfaces::ADC0_MOSI_PIN,
+            ACUInterfaces::ADC0_MISO_PIN,
+            ACUInterfaces::ADC0_CLK_PIN,
+            ACUInterfaces::ADC0_NOT_SHDN_PIN},
+        ADCChannels_s{
+            ACUInterfaces::ISO_PACK_N_CHANNEL,
+            ACUInterfaces::ISO_PACK_P_CHANNEL,
+            ACUInterfaces::PACK_VOLTAGE_SENSE_CHANNEL,
+            ACUInterfaces::SHUNT_CURRENT_OUT_CHANNEL,
+            ACUInterfaces::SHUNT_CURRENT_P_CHANNEL,
+            ACUInterfaces::SHUNT_CURRENT_N_CHANNEL,
+            ACUInterfaces::TS_OUT_FILTERED_CHANNEL,
+            ACUInterfaces::PACK_OUT_FILTERED_CHANNEL},
+        ADCConversions_s{
+            ACUInterfaces::SHUTDOWN_CONV_FACTOR,
+            ACUInterfaces::PRECHARGE_CONV_FACTOR,
+            ACUInterfaces::PACK_AND_TS_OUT_CONV_FACTOR,
+            ACUInterfaces::SHDN_OUT_CONV_FACTOR,
+            ACUInterfaces::BSPD_CURRENT_CONV_FACTOR,
+            ACUInterfaces::GLV_CONV_FACTOR,
+            ACUInterfaces::STD_5V_3V3_CONVERSION_FACTOR},
+        ADCScales_s{
+            ACUInterfaces::ISO_PACK_N_SCALE,
+            ACUInterfaces::ISO_PACK_P_SCALE,
+            ACUInterfaces::PACK_VOLTAGE_SENSE_SCALE,
+            ACUInterfaces::SHUNT_CURRENT_OUT_SCALE,
+            ACUInterfaces::SHUNT_CURRENT_P_SCALE,
+            ACUInterfaces::SHUNT_CURRENT_N_SCALE,
+            ACUInterfaces::TS_OUT_FILTERED_SCALE,
+            ACUInterfaces::PACK_OUT_FILTERED_SCALE},
+        ADCOffsets_s{
+            ACUInterfaces::ISO_PACK_N_OFFSET,
+            ACUInterfaces::ISO_PACK_P_OFFSET,
+            ACUInterfaces::PACK_VOLTAGE_SENSE_OFFSET,
+            ACUInterfaces::SHUNT_CURRENT_OUT_OFFSET,
+            ACUInterfaces::SHUNT_CURRENT_P_OFFSET,
+            ACUInterfaces::SHUNT_CURRENT_N_OFFSET,
+            ACUInterfaces::TS_OUT_FILTERED_OFFSET,
+            ACUInterfaces::PACK_OUT_FILTERED_OFFSET},
+        MAX114XChannels_s{CHANNEL_TYPE_e::NOT_USED, CHANNEL_TYPE_e::SINGLE, CHANNEL_TYPE_e::NOT_USED, CHANNEL_TYPE_e::NOT_USED},
+        ACUInterfaces::ADC0_SPEED,
+        ACUInterfaces::BIT_RESOLUTION);
     ADCInterfaceInstance::instance().init(sys_time::hal_millis());
 
     /* Fault Latch Manager */
@@ -197,32 +185,32 @@ void initialize_all_interfaces()
     // SoHPersistenceInterfaceInstance::instance().save(historical_ah_throughput, sys_time::hal_millis(), true);
 
     /* CAN Interfaces Construct */
-    CANInterfacesInstance::create(CCUInterfaceInstance::instance(),
-                                EMInterfaceInstance::instance()
-    );
+    CANInterfacesInstance::create(CCUInterfaceInstance::instance(), EMInterfaceInstance::instance());
 
-    ACUCANInterfaceInstance::create(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
+    ACUCANInterfaceInstance::create(
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
 
 
     handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
     handle_CAN_setup(ACUCANInterfaceInstance::instance().EM_CAN, ACUConstants::EM_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_em_can_receive);
 }
 
-HT_TASK::TaskResponse run_kick_watchdog(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     WatchdogInstance::instance().update_watchdog_state(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sample_bms_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse sample_bms_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto start = sys_time::hal_micros();
     // Serial.print("PREVIOUS SPI STATE: "); Serial.println(BMSDriverInstance_t::instance().get_spi_state_name());
     BMSDriverInstance_t::instance().read_data();
     auto data = BMSDriverInstance_t::instance().get_bms_data();
-    BMSFaultDataManagerInstance_t::instance().update_from_valid_packets(data.valid_read_packets,
-                                                                        BMSDriverInstance_t::instance().get_current_read_group(),
-                                                                        data.cs_index);
+    BMSFaultDataManagerInstance_t::instance().update_from_valid_packets(
+        data.valid_read_packets,
+        BMSDriverInstance_t::instance().get_current_read_group(),
+        data.cs_index);
 
     // Serial.print("CURRENT READ GROUP: "); Serial.println(BMSDriverInstance_t::instance().get_current_read_group_name());
     // Serial.print("CURRENT SPI STATE:  "); Serial.println(BMSDriverInstance_t::instance().get_spi_state_name());
@@ -239,14 +227,18 @@ HT_TASK::TaskResponse sample_bms_data(const unsigned long &sysMicros, const HT_T
 std::array<bool, ACUConstants::NUM_CELLS> check_and_get_balancing_status()
 {
     std::array<bool, ACUConstants::NUM_CELLS> cell_balancing_statuses = {false};
-    if(ACUControllerInstance::instance().get_status().balancing_enabled)
+    if (ACUControllerInstance::instance().get_status().balancing_enabled)
     {
-        ACUControllerInstance::instance().calculate_cell_balance_statuses(cell_balancing_statuses.data(), BMSDriverInstance_t::instance().get_bms_data().voltages.data(), ACUConstants::NUM_CELLS, BMSDriverInstance_t::instance().get_bms_data().min_cell_voltage);
+        ACUControllerInstance::instance().calculate_cell_balance_statuses(
+            cell_balancing_statuses.data(),
+            BMSDriverInstance_t::instance().get_bms_data().voltages.data(),
+            ACUConstants::NUM_CELLS,
+            BMSDriverInstance_t::instance().get_bms_data().min_cell_voltage);
     }
     return cell_balancing_statuses;
 }
 
-HT_TASK::TaskResponse write_cell_balancing_config(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse write_cell_balancing_config(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     BMSDriverInstance_t::instance().request_write_configuration(check_and_get_balancing_status());
     return HT_TASK::TaskResponse::YIELD;
@@ -258,15 +250,16 @@ HT_TASK::TaskResponse sample_adc(const unsigned long& sysMicros, const HT_TASK::
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse handle_send_ACU_core_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto data = make_acu_all_data();
-    ACUEthernetInterfaceInstance::instance().handle_send_ethernet_acu_core_data(ACUEthernetInterfaceInstance::instance().make_acu_core_data_msg(data.core_data));
+    ACUEthernetInterfaceInstance::instance().handle_send_ethernet_acu_core_data(
+        ACUEthernetInterfaceInstance::instance().make_acu_core_data_msg(data.core_data));
 
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // build a one-shot ACUAllData from current BMS + Watchdog getWatchDogData
     auto send_data = make_acu_all_data();
@@ -278,8 +271,7 @@ HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long &sys
         ADCInterfaceInstance::instance().read_global_lv_value(),
         ADCInterfaceInstance::instance().read_pack_out_filtered(),
         ADCInterfaceInstance::instance().read_ts_out_filtered(),
-        ADCInterfaceInstance::instance().read_shdn_voltage()
-    );
+        ADCInterfaceInstance::instance().read_shdn_voltage());
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -291,12 +283,18 @@ HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, c
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
     FaultLatchManagerInstance::instance().clear_if_not_faulted(ACUStateMachineInstance::instance().get_state() == ACUState_e::FAULTED);
-    FaultLatchManagerInstance::instance().update_imd_and_bms_latches(ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()), ACUControllerInstance::instance().get_status().bms_ok);
+    FaultLatchManagerInstance::instance().update_imd_and_bms_latches(
+        ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()),
+        ACUControllerInstance::instance().get_status().bms_ok);
 
-    //TODO: Where should I get veh_shdn_out_latched from?
-    VCRInterfaceInstance::instance().set_monitoring_data(!FaultLatchManagerInstance::instance().get_latches().imd_fault_latched, !FaultLatchManagerInstance::instance().get_latches().bms_fault_latched, FaultLatchManagerInstance::instance().get_latches().shdn_out_latched);
+    // TODO: Where should I get veh_shdn_out_latched from?
+    VCRInterfaceInstance::instance().set_monitoring_data(
+        !FaultLatchManagerInstance::instance().get_latches().imd_fault_latched,
+        !FaultLatchManagerInstance::instance().get_latches().bms_fault_latched,
+        FaultLatchManagerInstance::instance().get_latches().shdn_out_latched);
     VCRInterfaceInstance::instance().handle_enqueue_acu_ok_CAN_message();
 
     return HT_TASK::TaskResponse::YIELD;
@@ -305,14 +303,15 @@ HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, co
 HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     EM_MEASUREMENT_t msg = {};
-    msg.em_current_ro = HYTECH_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
-    msg.em_voltage_ro = HYTECH_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
-    CAN_util::enqueue_msg(&msg, &Pack_EM_MEASUREMENT_hytech, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
+    msg.em_current_ro = HT_CAN_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
+    msg.em_voltage_ro = HT_CAN_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
+    CAN_util::enqueue_msg(&msg, &Pack_EM_MEASUREMENT_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
     auto data = make_acu_all_data();
     CCUInterfaceInstance::instance().set_ACU_data<ACUConstants::NUM_CELLS, ACUConstants::NUM_CELL_TEMPS, ACUConstants::NUM_CHIPS>(data);
     CCUInterfaceInstance::instance().handle_enqueue_acu_status_CAN_message();
@@ -323,27 +322,43 @@ HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long& sysMicros, 
 }
 
 
-HT_TASK::TaskResponse enqueue_ACU_all_voltages_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
-    if (CCUInterfaceInstance::instance().is_connected_to_CCU()) {
+HT_TASK::TaskResponse enqueue_ACU_all_voltages_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    if (CCUInterfaceInstance::instance().is_connected_to_CCU())
+    {
         CCUInterfaceInstance::instance().handle_enqueue_acu_voltages_CAN_message();
     }
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
-    if (CCUInterfaceInstance::instance().is_connected_to_CCU()) {
+HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    if (CCUInterfaceInstance::instance().is_connected_to_CCU())
+    {
         CCUInterfaceInstance::instance().handle_enqueue_acu_temps_CAN_message();
     }
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse sample_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
-    process_ring_buffer(ACUCANInterfaceInstance::instance().ccu_can_rx_buffer, CANInterfacesInstance::instance(), sys_time::hal_millis(), ACUCANInterfaceInstance::instance().can_recv_switch, CANInterfaceType_e::CCU);
-    process_ring_buffer(ACUCANInterfaceInstance::instance().em_can_rx_buffer, CANInterfacesInstance::instance(), sys_time::hal_millis(), ACUCANInterfaceInstance::instance().can_recv_switch, CANInterfaceType_e::EM);
+HT_TASK::TaskResponse sample_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    process_ring_buffer(
+        ACUCANInterfaceInstance::instance().ccu_can_rx_buffer,
+        CANInterfacesInstance::instance(),
+        sys_time::hal_millis(),
+        ACUCANInterfaceInstance::instance().can_recv_switch,
+        CANInterfaceType_e::CCU);
+    process_ring_buffer(
+        ACUCANInterfaceInstance::instance().em_can_rx_buffer,
+        CANInterfacesInstance::instance(),
+        sys_time::hal_millis(),
+        ACUCANInterfaceInstance::instance().can_recv_switch,
+        CANInterfaceType_e::EM);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse idle_sample_interfaces(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse idle_sample_interfaces(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
     WatchdogMetricsInstance::instance().update_metrics(
         ADCInterfaceInstance::instance().read_global_lv_value(),
         ADCInterfaceInstance::instance().read_pack_out_filtered(),
@@ -359,8 +374,7 @@ HT_TASK::TaskResponse init_soh_persistence(const unsigned long& sysMicros, const
     // One-time setup (runs once at task registration, after both init phases complete): restore the
     // persisted lifetime Ah throughput into the controller so SoH is valid before the first eval tick.
     // The interface pushes restored data into the system; the system never depends on the interface.
-    ACUControllerInstance::instance().restore_lifetime_throughput(
-        SoHPersistenceInterfaceInstance::instance().get_lifetime_ah_throughput());
+    ACUControllerInstance::instance().restore_lifetime_throughput(SoHPersistenceInterfaceInstance::instance().get_lifetime_ah_throughput());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -368,9 +382,7 @@ HT_TASK::TaskResponse persist_soh_data(const unsigned long& sysMicros, const HT_
 {
     // Throttled persist of lifetime Ah throughput; the interface guards EEPROM endurance internally
     // and pulls the value from the controller's published status (interface-reads-system data flow).
-    SoHPersistenceInterfaceInstance::instance().save(
-        ACUControllerInstance::instance().get_status().lifetime_ah_throughput,
-        sys_time::hal_millis());
+    SoHPersistenceInterfaceInstance::instance().save(ACUControllerInstance::instance().get_status().lifetime_ah_throughput, sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 }
 /* Print Functions */
@@ -400,7 +412,8 @@ void print_bms_data(bms_data data)
     for (auto chip_voltages : data.voltages)
     {
         Serial.print("Cell ");
-        Serial.print (chip_index); Serial.print(" ");
+        Serial.print(chip_index);
+        Serial.print(" ");
         if (chip_voltages)
         {
             Serial.print((chip_voltages), 4);
@@ -408,7 +421,9 @@ void print_bms_data(bms_data data)
         }
         else
         {
-            Serial.print("The voltage at "); Serial.print(chip_index); Serial.println(" is not valid. ");
+            Serial.print("The voltage at ");
+            Serial.print(chip_index);
+            Serial.println(" is not valid. ");
         }
         chip_index++;
         if ((chip_index - 1) % ACUConstants::NUM_CHIPS == 0)
@@ -462,25 +477,40 @@ void print_bms_data(bms_data data)
     auto faults = BMSFaultDataManagerInstance_t::instance().get_fault_data();
     Serial.println(faults.max_consecutive_invalid_packet_count);
 
-    Serial.print("Valid Packet Rate: "); Serial.println(faults.valid_packet_rate);
+    Serial.print("Valid Packet Rate: ");
+    Serial.println(faults.valid_packet_rate);
 
     Serial.println("FAULTS DURING THIS BMS SAMPLE");
     for (size_t c = 0; c < ACUConstants::NUM_CHIPS; c++)
     {
         ValidPacketData_s v = data.valid_read_packets[c];
-        Serial.print("CHIP #"); Serial.print(c); Serial.print(":\t");
-        Serial.print(v.valid_read_cells_1_to_3); Serial.print(" ");
-        Serial.print(v.valid_read_cells_4_to_6); Serial.print(" ");
-        Serial.print(v.valid_read_cells_7_to_9); Serial.print(" ");
-        Serial.print(v.valid_read_cells_10_to_12); Serial.print(" ");
-        Serial.print(v.valid_read_gpios_1_to_3); Serial.print(" ");
-        Serial.print(v.valid_read_gpios_4_to_6); Serial.print("\t");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_1_to_3_count); Serial.print(" ");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_4_to_6_count); Serial.print(" ");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_7_to_9_count); Serial.print(" ");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_10_to_12_count); Serial.print(" ");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_gpio_1_to_3_count); Serial.print(" ");
-        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_gpio_4_to_6_count); Serial.println();
+        Serial.print("CHIP #");
+        Serial.print(c);
+        Serial.print(":\t");
+        Serial.print(v.valid_read_cells_1_to_3);
+        Serial.print(" ");
+        Serial.print(v.valid_read_cells_4_to_6);
+        Serial.print(" ");
+        Serial.print(v.valid_read_cells_7_to_9);
+        Serial.print(" ");
+        Serial.print(v.valid_read_cells_10_to_12);
+        Serial.print(" ");
+        Serial.print(v.valid_read_gpios_1_to_3);
+        Serial.print(" ");
+        Serial.print(v.valid_read_gpios_4_to_6);
+        Serial.print("\t");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_1_to_3_count);
+        Serial.print(" ");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_4_to_6_count);
+        Serial.print(" ");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_7_to_9_count);
+        Serial.print(" ");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_cell_10_to_12_count);
+        Serial.print(" ");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_gpio_1_to_3_count);
+        Serial.print(" ");
+        Serial.print(faults.chip_invalid_cmd_counts[c].invalid_gpio_4_to_6_count);
+        Serial.println();
     }
 
     Serial.println();
@@ -492,7 +522,7 @@ void print_bms_data(bms_data data)
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     // if (ACUControllerInstance::instance().get_status().bms_ok)
     // {
@@ -557,8 +587,8 @@ HT_TASK::TaskResponse debug_print(const unsigned long &sysMicros, const HT_TASK:
     // Serial.println("V");
     // Serial.println();
 
-    // Serial.print("Is charging enabled: "); Serial.print(ACUControllerInstance::instance().get_status().balancing_enabled ? "YES" : "NO"); Serial.println(" Balancing status : ");
-    // for(bool status : check_and_get_balancing_status()) {
+    // Serial.print("Is charging enabled: "); Serial.print(ACUControllerInstance::instance().get_status().balancing_enabled ? "YES" : "NO"); Serial.println("
+    // Balancing status : "); for(bool status : check_and_get_balancing_status()) {
     //     Serial.print(status);
     //     Serial.print(" ");
     // }

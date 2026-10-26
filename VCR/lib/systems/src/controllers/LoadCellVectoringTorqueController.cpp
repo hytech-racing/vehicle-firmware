@@ -1,21 +1,22 @@
-#include "controllers/LoadCellVectoringTorqueController.h"
+#include "controllers/LoadCellVectoringTorqueController.hpp"
 
 
-DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s &vcr_data, unsigned long curr_millis)
+DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s& vcr_data, unsigned long curr_millis)
 {
     DrivetrainCommand_s out = {
         {0.0f, 0.0f, 0.0f, 0.0f}, // speed rpms
         {0.0f, 0.0f, 0.0f, 0.0f}  // torques
     };
 
-    const PedalsSystemData_s &pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
-    const FrontLoadCellData_s &front_lc_data = vcr_data.interface_data.front_loadcell_data;
-    const RearLoadCellData_s &rear_lc_data = vcr_data.interface_data.rear_loadcell_data;
+    const PedalsSystemData_s& pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
+    const FrontLoadCellData_s& front_lc_data = vcr_data.interface_data.front_loadcell_data;
+    const RearLoadCellData_s& rear_lc_data = vcr_data.interface_data.rear_loadcell_data;
 
-    veh_vec<float> load_cell_data(static_cast<float>(front_lc_data.FL_loadcell_analog),
-                                  static_cast<float>(front_lc_data.FR_loadcell_analog),
-                                  static_cast<float>(rear_lc_data.RL_loadcell_analog),
-                                  static_cast<float>(rear_lc_data.RR_loadcell_analog));
+    veh_vec<float> load_cell_data(
+        static_cast<float>(front_lc_data.FL_loadcell_analog),
+        static_cast<float>(front_lc_data.FR_loadcell_analog),
+        static_cast<float>(rear_lc_data.RL_loadcell_analog),
+        static_cast<float>(rear_lc_data.RR_loadcell_analog));
 
     // Do sanity checks on raw data - FIX
     _load_cell_error_counts.FL = front_lc_data.valid_FL_sample ? 0 : _load_cell_error_counts.FL + 1;
@@ -23,7 +24,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
     _load_cell_error_counts.RL = rear_lc_data.valid_RL_sample ? 0 : _load_cell_error_counts.RL + 1;
     _load_cell_error_counts.RR = rear_lc_data.valid_RR_sample ? 0 : _load_cell_error_counts.RR + 1;
 
-    if (_load_cell_error_counts.FL < _max_error_count && _load_cell_error_counts.FR < _max_error_count && _load_cell_error_counts.RL < _max_error_count && _load_cell_error_counts.RR < _max_error_count)
+    if (_load_cell_error_counts.FL < _max_error_count
+        && _load_cell_error_counts.FR < _max_error_count
+        && _load_cell_error_counts.RL < _max_error_count
+        && _load_cell_error_counts.RR < _max_error_count)
     {
         // Calculate total normal force
         float sum_normal_force = load_cell_data.FL + load_cell_data.FR + load_cell_data.RL + load_cell_data.RR;

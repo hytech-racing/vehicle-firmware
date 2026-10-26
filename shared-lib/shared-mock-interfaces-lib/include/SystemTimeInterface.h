@@ -8,8 +8,7 @@ namespace sys_time
 
     void set_millis(unsigned long m);
     void set_micros(unsigned long m);
-}
-
+} // namespace sys_time
 
 
 #endif // SYSTEMTIMEINTERFACE_H

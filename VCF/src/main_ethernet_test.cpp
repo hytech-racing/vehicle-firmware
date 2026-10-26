@@ -1,34 +1,38 @@
-#include "VCFEthernetInterface.h"
+#include "VCFEthernetInterface.hpp"
+#include "etl/optional.h"
 
 #include <array>
 #include <cstring>
-#include "etl/optional.h"
 
 using namespace qindesign::network;
 EthernetUDP socket;
 
 void init_ethernet_device()
 {
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcf_ip, EthernetIPDefsInstance::instance().default_dns, EthernetIPDefsInstance::instance().default_gateway, EthernetIPDefsInstance::instance().car_subnet);
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().vcf_ip,
+        EthernetIPDefsInstance::instance().default_dns,
+        EthernetIPDefsInstance::instance().default_gateway,
+        EthernetIPDefsInstance::instance().car_subnet);
     socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
-    //recv_socket.begin(5555);
+    // recv_socket.begin(5555);
 }
 
 void test_send()
 {
-    hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(ADCInterfaceInstance::instance(),
-                                                                                        DashboardInterfaceInstance::instance(),
-                                                                                        PedalsSystemInstance::instance(),
-                                                                                        SteeringSystemInstance::instance(),
-                                                                                        BrakeRotorTempInterfaceInstance::instance()
-    );
+    hytech_msgs_VCFData_s msg = VCFEthernetInterfaceInstance::instance().make_vcf_data_msg(
+        ADCInterfaceInstance::instance(),
+        DashboardInterfaceInstance::instance(),
+        PedalsSystemInstance::instance(),
+        SteeringSystemInstance::instance(),
+        BrakeRotorTempInterfaceInstance::instance());
 
-    if (handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size, hytech_msgs_VCFData_s>(EthernetIPDefsInstance::instance().vcr_ip,
-                                                                                        EthernetIPDefsInstance::instance().VCRData_port,
-                                                                                        &socket,
-                                                                                        msg,
-                                                                                        &hytech_msgs_VCFData_s_msg)
-    )
+    if (handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size, hytech_msgs_VCFData_s>(
+            EthernetIPDefsInstance::instance().vcr_ip,
+            EthernetIPDefsInstance::instance().VCRData_port,
+            &socket,
+            msg,
+            &hytech_msgs_VCFData_s_msg))
     {
         Serial.println("Sent");
     }
@@ -40,9 +44,9 @@ void test_send()
 
 void test_receive()
 {
-    //handle_ethernet_socket_receive
-    //curr_millis, socket(recv), msg desc, sizeof buffer, ref to empty protoc struct
-    //return optional struct
+    // handle_ethernet_socket_receive
+    // curr_millis, socket(recv), msg desc, sizeof buffer, ref to empty protoc struct
+    // return optional struct
 }
 
 void setup()
@@ -52,16 +56,16 @@ void setup()
 
 void loop()
 {
-    etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&socket, &hytech_msgs_VCRData_s_msg);
+    etl::optional<hytech_msgs_VCRData_s> protoc_struct =
+        handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size, hytech_msgs_VCRData_s>(&socket, &hytech_msgs_VCRData_s_msg);
 
     if (protoc_struct)
     {
         Serial.printf("message RR: %d\n", (*protoc_struct).rear_loadcell_data.RR_loadcell_analog);
         Serial.printf("message RL: %d\n", (*protoc_struct).rear_loadcell_data.RL_loadcell_analog);
-
     }
 
 
-    //test_send();
-    //Serial.println("loopin");
+    // test_send();
+    // Serial.println("loopin");
 }

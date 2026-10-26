@@ -1,4 +1,4 @@
-#include "VCR_Globals.h"
+#include "VCR_Globals.hpp"
 
 
 /* From shared-firmware-types */
@@ -8,5 +8,3 @@
 VCRData_s vcr_data; // TODO: remove this entirely
 
 unsigned long pulseCount;
-
-

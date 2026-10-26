@@ -1,23 +1,18 @@
-#include "ADCInterface.h"
-#include "VCF_Constants.h"
+#include "ADCInterface.hpp"
+#include "VCF_Constants.hpp"
 
-unsigned long const DELAY = 100;
+const unsigned long DELAY = 100;
 unsigned long last = millis();
 
 void setup()
 {
-    SPI.begin();    //for ADC
-    Serial.begin(VCFInterfaces::SERIAL_BAUDRATE);    //for serial monitor
+    SPI.begin();                                  // for ADC
+    Serial.begin(VCFInterfaces::SERIAL_BAUDRATE); // for serial monitor
 
-    //create the ADC instance
+    // create the ADC instance
     ADCInterfaceInstance::create(
-        ADCPinout_s
-        {
-            VCFInterfaces::ADC0_CS,
-            VCFInterfaces::ADC1_CS
-        },
-        ADCChannels_s
-        {
+        ADCPinout_s{VCFInterfaces::ADC0_CS, VCFInterfaces::ADC1_CS},
+        ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
             VCFInterfaces::STEERING_2_CHANNEL,
@@ -33,10 +28,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_CHANNEL,
             VCFInterfaces::FL_SUS_POT_CHANNEL,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_CHANNEL,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL
-        },
-        ADCScales_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL},
+        ADCScales_s{
             VCFInterfaces::PEDAL_REF_2V5_SCALE,
             VCFInterfaces::STEERING_1_SCALE,
             VCFInterfaces::STEERING_2_SCALE,
@@ -52,10 +45,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_SCALE,
             VCFInterfaces::FL_SUS_POT_SCALE,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_SCALE,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE
-        },
-        ADCOffsets_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE},
+        ADCOffsets_s{
             VCFInterfaces::PEDAL_REF_2V5_OFFSET,
             VCFInterfaces::STEERING_1_OFFSET,
             VCFInterfaces::STEERING_2_OFFSET,
@@ -71,35 +62,33 @@ void setup()
             VCFInterfaces::FR_SUS_POT_OFFSET,
             VCFInterfaces::FL_SUS_POT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET
-        }
-    );
+            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 }
 
 void loop()
 {
     if (millis() - DELAY > last)
     {
-        ADCInterfaceInstance::instance().tick_adc0();
+        ADCInterfaceInstance::instance().tickADC0();
         Serial.print("\n===== ADC 0 =====\n");
-        Serial.printf("2V5 Pedal Reference Raw:  %d\n", ADCInterfaceInstance::instance().pedal_reference().raw);
-        Serial.printf("Steering 1 (CW) Raw:      %d\n", ADCInterfaceInstance::instance().get_steering_degrees_cw().raw);
-        Serial.printf("Steering 2 (CCW) Raw:     %d\n", ADCInterfaceInstance::instance().get_steering_degrees_ccw().raw);
-        Serial.printf("Acceleration 1 Raw:       %d\n", ADCInterfaceInstance::instance().get_acceleration_1().raw);
-        Serial.printf("Acceleration 2 Raw:       %d\n", ADCInterfaceInstance::instance().get_acceleration_2().raw);
-        Serial.printf("Brake 1 Raw:              %d\n", ADCInterfaceInstance::instance().get_brake_1().raw);
-        Serial.printf("Brake 2 Raw:              %d\n", ADCInterfaceInstance::instance().get_brake_2().raw);
+        Serial.printf("2V5 Pedal Reference Raw:  %d\n", ADCInterfaceInstance::instance().getPedalReference().raw);
+        Serial.printf("Steering 1 (CW) Raw:      %d\n", ADCInterfaceInstance::instance().getSteeringDegreesCW().raw);
+        Serial.printf("Steering 2 (CCW) Raw:     %d\n", ADCInterfaceInstance::instance().getSteeringDegreesCCW().raw);
+        Serial.printf("Acceleration 1 Raw:       %d\n", ADCInterfaceInstance::instance().getAcceleration1().raw);
+        Serial.printf("Acceleration 2 Raw:       %d\n", ADCInterfaceInstance::instance().getAcceleration2().raw);
+        Serial.printf("Brake 1 Raw:              %d\n", ADCInterfaceInstance::instance().getBrake1().raw);
+        Serial.printf("Brake 2 Raw:              %d\n", ADCInterfaceInstance::instance().getBrake2().raw);
 
-        ADCInterfaceInstance::instance().tick_adc1();
+        ADCInterfaceInstance::instance().tickADC1();
         Serial.printf("\n===== ADC 1 =====\n");
-        Serial.printf("SHDN H Raw:                %d\n", ADCInterfaceInstance::instance().shdn_h().raw);
-        Serial.printf("SHDN D Raw:                %d\n", ADCInterfaceInstance::instance().shdn_d().raw);
-        Serial.printf("FL Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().get_FL_load_cell().raw);
-        Serial.printf("FR Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().get_FR_load_cell().raw);
-        Serial.printf("FR Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().get_FR_sus_pot().raw);
-        Serial.printf("FL Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().get_FL_sus_pot().raw);
-        Serial.printf("Front Brake Pressure Raw:  %d\n", ADCInterfaceInstance::instance().get_brake_pressure_front().raw);
-        Serial.printf("Rear Brake Pressure Raw:   %d\n", ADCInterfaceInstance::instance().get_brake_pressure_rear().raw);
+        Serial.printf("SHDN H Raw:                %d\n", ADCInterfaceInstance::instance().getShutdownH().raw);
+        Serial.printf("SHDN D Raw:                %d\n", ADCInterfaceInstance::instance().getShutdownD().raw);
+        Serial.printf("FL Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().getFLLoadcell().raw);
+        Serial.printf("FR Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().getFRLoadcell().raw);
+        Serial.printf("FR Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().getFRSuspot().raw);
+        Serial.printf("FL Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().getFLSuspot().raw);
+        Serial.printf("Front Brake Pressure Raw:  %d\n", ADCInterfaceInstance::instance().getBrakePressureFront().raw);
+        Serial.printf("Rear Brake Pressure Raw:   %d\n", ADCInterfaceInstance::instance().getBrakePressureRear().raw);
 
         last = millis();
     }

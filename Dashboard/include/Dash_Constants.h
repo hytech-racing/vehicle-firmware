@@ -8,6 +8,7 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
+
 #include <variant_generic.h>
 
 using time_us = uint32_t;
@@ -22,6 +23,6 @@ namespace DashConstants
 
     constexpr uint8_t SCREEN_REFRESH_PRIORITY = 100;
     constexpr time_us SCREEN_REFRESH_PERIOD_US = 33333; // 33 333 us = 30 Hz
-};
+}; // namespace DashConstants
 
 #endif /* DASH_CONSTANTS_H */

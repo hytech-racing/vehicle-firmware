@@ -1,221 +1,187 @@
-#include "SteeringSystem.h"
+#include "SteeringSystem.hpp"
 
 
-void SteeringSystem::recalibrate_steering_digital()
+void SteeringSystem::recalibrateSteering()
 {
-    _params.min_steering_signal_analog = _min_observed_analog;
-    _params.max_steering_signal_analog = _max_observed_analog;
-    _params.min_steering_signal_digital = _min_observed_digital;
-    _params.max_steering_signal_digital = _max_observed_digital;
-
-    // Swap  min & max in the params if sensor is flipped
-    if (_params.min_steering_signal_digital > _params.max_steering_signal_digital)
-    {
-        std::swap(_params.min_steering_signal_digital, _params.max_steering_signal_digital);
-    }
-    if (_params.min_steering_signal_analog > _params.max_steering_signal_analog)
-    {
-        std::swap(_params.min_steering_signal_analog, _params.max_steering_signal_analog);
-    }
-
-    _params.span_signal_analog  = _params.max_steering_signal_analog - _params.min_steering_signal_analog;
-    _params.span_signal_digital = _params.max_steering_signal_digital-_params.min_steering_signal_digital;
-
-    _params.analog_tol_deg  = static_cast<float>(_params.span_signal_analog) * _params.analog_tolerance * _params.deg_per_count_analog;
-    _params.digital_tol_deg = static_cast<float>(_params.span_signal_digital) *_params.digital_tolerance * _params.deg_per_count_digital;
-
-    _params.analog_midpoint  = (_params.max_steering_signal_analog + _params.min_steering_signal_analog) / 2;
-    _params.digital_midpoint = (_params.max_steering_signal_digital + _params.min_steering_signal_digital) / 2;
-
-    _params.analog_min_with_margins  = static_cast<int32_t>(_params.min_steering_signal_analog - _params.analog_tol_deg); // NOLINT
-    _params.analog_max_with_margins  = static_cast<int32_t>(_params.max_steering_signal_analog + _params.analog_tol_deg); // NOLINT
-    _params.digital_min_with_margins = static_cast<int32_t>(_params.min_steering_signal_digital - _params.digital_tol_deg); // NOLINT
-    _params.digital_max_with_margins = static_cast<int32_t>(_params.max_steering_signal_digital + _params.digital_tol_deg); // NOLINT
-
-    if (_max_observed_analog > _min_observed_analog && _params.span_signal_analog > 2500) // NOLINT with 360 deg analog sensor, typical span is about 2000
-    {
-        _min_observed_analog = UINT32_MAX; // after calculating params, if the range is marginally greater than half the steering wheel adc, likely the min and max are clinging to a prior run that is not applicable, meaning we will need to reset the boundaries.
-        _max_observed_analog = 0;
-    }
-    if (_max_observed_digital > _min_observed_digital && _params.span_signal_digital > 9000) // NOLINT with digital sensor, typical span is about 9000
-    {
-        _min_observed_digital = UINT32_MAX;
-        _max_observed_digital = 0;
-    }
+    _recalibrateSensor(_params.analog, ANALOG_RAW_LIMITS);
+    _recalibrateSensor(_params.digital, DIGITAL_RAW_LIMITS);
 }
 
-void SteeringSystem::evaluate_steering(const uint32_t analog_raw, const SteeringEncoderReading_s digital_data, const uint32_t current_millis)
+void SteeringSystem::updateObservedExtremes(const uint32_t analog_raw, const uint32_t digital_raw)
 {
-    // Reset flags
-    _system_data.digital_oor_implausibility = false;
+    _updateSensorExtremes(_params.analog.observed_extremes, analog_raw, ANALOG_RAW_LIMITS);
+    _updateSensorExtremes(_params.digital.observed_extremes, digital_raw, DIGITAL_RAW_LIMITS);
+}
+
+void SteeringSystem::evaluateSteering(const uint32_t analog_raw, const SteeringEncoderReading_s& digital_reading, const uint32_t current_micros)
+{
+    // Update implause and error data
     _system_data.analog_oor_implausibility = false;
+    _system_data.digital_oor_implausibility = false;
     _system_data.sensor_disagreement_implausibility = false;
     _system_data.dtheta_exceeded_analog = false;
     _system_data.dtheta_exceeded_digital = false;
     _system_data.both_sensors_fail = false;
 
-    const uint32_t digital_raw = digital_data.rawValue;
-    _system_data.interface_sensor_error = (digital_data.status == SteeringEncoderStatus_e::ERROR);
-    _system_data.digital_raw = digital_raw;
-
+    // Update raw data
+    const uint32_t digital_raw = digital_reading.rawValue;
     _system_data.analog_raw = analog_raw;
-    _analog_angle_unfiltered = _convert_analog_sensor(analog_raw);
+    _system_data.digital_raw = digital_raw;
+    _system_data.interface_sensor_error = (digital_reading.status == SteeringEncoderStatus_e::ERROR);
 
-    // Conversion from raw ADC to degrees
-    _system_data.digital_steering_angle = _convert_digital_sensor(digital_raw);
+    // Update angle data
+    _analog_angle_unfiltered_deg = _convertAnalogRawToDeg(analog_raw);
+    const float digital_angle_deg = _convertDigitalRawToDeg(digital_raw);
+    _system_data.digital_steering_angle = digital_angle_deg;
 
-    uint32_t dt = 0;
-    if (current_millis - _prev_timestamp >= 2)
+    if (_is_first_tick)
     {
-        dt = current_millis - _prev_timestamp; //current_millis is seperate data input  
+        _analog_angle_filtered_deg = _applyAnalogLowpass(_analog_angle_unfiltered_deg);
+        _system_data.analog_steering_angle = _analog_angle_filtered_deg;
+
+        _last_internal_sample_us = current_micros;
+        _digital_angle_at_last_internal_sample_deg = digital_angle_deg;
+
+        _is_first_tick = false;
+        return;
     }
 
-    if (!_first_run) // Check that we not on the first run which would mean no previous data
+    // Filter and rates update at ~500 Hz, between updates the last values are held
+    const uint32_t elapsed_us = current_micros - _last_internal_sample_us;
+    if (elapsed_us >= INTERNAL_SAMPLE_THRESHOLD_US)
     {
-        if (dt >= 2)
-        {
-            float filtered_analog_angle = _filter_analog_angle(_analog_angle_unfiltered);
-            _system_data.analog_steering_angle = filtered_analog_angle; // Update the angle to the filtered value for downstream use and velocity calculation
-            float dtheta_analog = filtered_analog_angle - _prev_analog_vel_angle;
-            float dtheta_digital = _system_data.digital_steering_angle - _prev_digital_vel_angle;
+        const float new_filtered_analog_deg = _applyAnalogLowpass(_analog_angle_unfiltered_deg);
 
-            _system_data.analog_steering_velocity_deg_s = (dtheta_analog / static_cast<float>(dt)) * 1000.0f; // NOLINT 1000.0f is result of converting dt in millis to seconds
-            _system_data.digital_steering_velocity_deg_s = (dtheta_digital / static_cast<float>(dt)) * 1000.0f; // NOLINT 1000.0f is result of converting dt in millis to seconds
+        const float elapsed_sec = static_cast<float>(elapsed_us) / US_PER_SECOND;
+        _system_data.analog_steering_velocity_deg_s = (new_filtered_analog_deg - _analog_angle_filtered_deg) / elapsed_sec;
+        _system_data.digital_steering_velocity_deg_s = (digital_angle_deg - _digital_angle_at_last_internal_sample_deg) / elapsed_sec;
 
-            _last_filtered_analog_angle = filtered_analog_angle;
-        }
-        else
-        {
-            _system_data.analog_steering_angle = _last_filtered_analog_angle;
-        }
-
-        // Check if either sensor moved too much in one tick
-        _system_data.dtheta_exceeded_analog = _evaluate_steering_dtheta_exceeded(_system_data.analog_steering_velocity_deg_s);
-        _system_data.dtheta_exceeded_digital = _evaluate_steering_dtheta_exceeded(_system_data.digital_steering_velocity_deg_s); // use digital velocity for dtheta check since it's more precise and we are concerned about large changes in angle that could be caused by noise in the analog sensor
-
-        // Check if either sensor is out of range (pass in raw)
-        _system_data.analog_oor_implausibility = _evaluate_steering_oor_analog(analog_raw);
-        _system_data.digital_oor_implausibility = _evaluate_steering_oor_digital(digital_raw);
-
-        // Check if there is too much of a difference between sensor values
-        float sensor_difference = std::fabs(_system_data.analog_steering_angle - _system_data.digital_steering_angle);
-        bool sensors_agree = (sensor_difference <= _params.error_between_sensors_tolerance); //steeringParams.error
-        _system_data.sensor_disagreement_implausibility = !sensors_agree;
-
-        // Create an algorithm/checklist to determine which sensor we trust more,
-        // or, if we should have an algorithm to have a weighted calculation based on both values
-        bool analog_valid = !_system_data.analog_oor_implausibility && !_system_data.dtheta_exceeded_analog;
-        bool digital_valid = !_system_data.digital_oor_implausibility && !_system_data.dtheta_exceeded_digital && !_system_data.interface_sensor_error;
-
-        if (analog_valid && digital_valid)
-        {
-            /// NOTE: This is currently not doing anything essentially. It doesn't matter whether or not sensors agree.
-            // If sensors have acceptable difference, use digital as steering angle
-            if (sensors_agree)
-            {
-                _system_data.output_steering_angle = _system_data.digital_steering_angle;
-            }
-            else
-            {
-                _system_data.output_steering_angle = _system_data.digital_steering_angle; // Default to original, but we need to consider what we really want to put here
-            }
-        }
-        else if (analog_valid)
-        {
-            _system_data.output_steering_angle = _system_data.analog_steering_angle;
-        }
-        else if (digital_valid)
-        {
-            _system_data.output_steering_angle = _system_data.digital_steering_angle;
-        }
-        else // if both sensors fail
-        {
-            _system_data.output_steering_angle = _prev_digital_angle;
-            _system_data.both_sensors_fail = true;
-        }
+        _analog_angle_filtered_deg = new_filtered_analog_deg;
+        _digital_angle_at_last_internal_sample_deg = digital_angle_deg;
+        _last_internal_sample_us = current_micros;
     }
 
-    // Update states, 500Hz
-    if (dt >= 2)
-    {
-        _prev_timestamp = current_millis;
-        _prev_analog_vel_angle = _system_data.analog_steering_angle;
-        _prev_digital_vel_angle = _system_data.digital_steering_angle;
-    }
+    const float analog_angle_deg = _analog_angle_filtered_deg;
+    _system_data.analog_steering_angle = analog_angle_deg;
 
-    _prev_analog_angle = _system_data.analog_steering_angle;
-    _prev_digital_angle = _system_data.digital_steering_angle;
-    _first_run = false;
-}
+    // Update plausability check values
+    _system_data.dtheta_exceeded_analog = _isRateExceeded(_system_data.analog_steering_velocity_deg_s);
+    _system_data.dtheta_exceeded_digital = _isRateExceeded(_system_data.digital_steering_velocity_deg_s);
+    _system_data.analog_oor_implausibility = _isOutOfRange(analog_raw, _params.analog.oor_bounds);
+    _system_data.digital_oor_implausibility = _isOutOfRange(digital_raw, _params.digital.oor_bounds);
+    const float sensor_disagreement_deg = std::fabs(analog_angle_deg - digital_angle_deg);
+    _system_data.sensor_disagreement_implausibility = (sensor_disagreement_deg > _params.max_sensor_disagreement_deg);
 
-void SteeringSystem::update_observed_steering_limits(const uint32_t analog_raw, const uint32_t digital_raw)
-{
-    _min_observed_analog = std::min(_min_observed_analog, analog_raw);
-    _max_observed_analog = std::max(_max_observed_analog, analog_raw);
-    _min_observed_digital = std::min(_min_observed_digital, digital_raw); //NOLINT should both be uint32_t
-    _max_observed_digital = std::max(_max_observed_digital, digital_raw); //NOLINT ^
+    const bool is_analog_valid = !_system_data.analog_oor_implausibility && !_system_data.dtheta_exceeded_analog;
 
-    if (_min_observed_analog < 5) // NOLINT want to prevent sticking at 0 or clipping with small value
+    const bool is_digital_valid = !_system_data.digital_oor_implausibility && !_system_data.dtheta_exceeded_digital && !_system_data.interface_sensor_error;
+
+    // Sensor selection: prefer digital (higher resolution), fall back to analog
+    /// TODO: sensor_disagreement_implausibility is flagged but does not yet influence which sensor is trusted.
+    if (is_digital_valid)
     {
-        _min_observed_analog = UINT32_MAX; // clipping if it is at 0, it is likely sensor is clipping or clipped in past and reading is holding the 0 value.
+        _system_data.output_steering_angle = digital_angle_deg;
     }
-    if (_max_observed_analog > 3675) // NOLINT prevents clipping, this is slightly less than calculated value of actual max output of sensor with current resistor divider on VCF's ADC
+    else if (is_analog_valid)
     {
-        _max_observed_analog = 0; // clipping
+        _system_data.output_steering_angle = analog_angle_deg;
     }
-    if (_min_observed_digital < 10) // NOLINT want to prevent sticking at 0 or clipping
+    else
     {
-        _min_observed_digital = UINT32_MAX; // clipping on prior run.
-    }
-    if (_max_observed_digital > 16374) // NOLINT 16374 = 2^14 - 10 to prevent clipping with 14 bit resolution on sensor
-    {
-        _max_observed_digital = 0; // clipping
+        // Leave output_steering_angle unchanged, holding the last good value
+        _system_data.both_sensors_fail = true;
     }
 }
 
-float SteeringSystem::_convert_digital_sensor(const uint32_t digital_raw)
+void SteeringSystem::_updateSensorExtremes(SteeringSensorObservedExtremes_s& extremes, const uint32_t raw, const SteeringSensorRawLimits_s& limits)
 {
-    const int32_t offset =  _params.digital_midpoint-static_cast<int32_t>(digital_raw); //NOLINT
-    return static_cast<float>(offset) * _params.deg_per_count_digital; // bc diital sensor is flipped
-}
-
-float SteeringSystem::_convert_analog_sensor(const uint32_t analog_raw)
-{
-    // Get the raw value
-    const int32_t offset = static_cast<int32_t>(analog_raw) - _params.analog_midpoint; //NOLINT
-    return static_cast<float>(offset) * _params.deg_per_count_analog;
-}
-
-bool SteeringSystem::_evaluate_steering_oor_analog(const uint32_t steering_analog_raw) // RAW
-{
-    return (static_cast<int32_t>(steering_analog_raw) < _params.analog_min_with_margins || static_cast<int32_t>(steering_analog_raw) > _params.analog_max_with_margins);
-}
-
-bool SteeringSystem::_evaluate_steering_oor_digital(const uint32_t steering_digital_raw) // RAW
-{
-    return (static_cast<int32_t>(steering_digital_raw) < _params.digital_min_with_margins || static_cast<int32_t>(steering_digital_raw) > _params.digital_max_with_margins);
-}
-
-bool SteeringSystem::_evaluate_steering_dtheta_exceeded(float steering_velocity_deg_s)
-{
-    return (std::fabs(steering_velocity_deg_s) > _params.max_dtheta_threshold);
-}
-
-float SteeringSystem::_filter_analog_angle(float x)
-{
-    // First sample: pre-load the state so the output starts at x and
-    // there is no startup transient (otherwise the filter would ramp
-    // from 0 up to the first real value over ~50 ms).
-    if (!_bw_initialized)
+    if (raw < limits.min_unclipped_raw || raw > limits.max_unclipped_raw)
     {
-        _bw_z1 = (1.0f - kBwB0) * x;
-        _bw_z2 = (kBwB2 - kBwA2) * x;
-        _bw_initialized = true;
+        return; // clipped reading, would pin the extremes to the rail
+    }
+    extremes.min_raw = std::min(extremes.min_raw, raw);
+    extremes.max_raw = std::max(extremes.max_raw, raw);
+}
+
+void SteeringSystem::_recalibrateSensor(SteeringSensorParams_s& sensor, const SteeringSensorRawLimits_s& limits)
+{
+    SteeringSensorObservedExtremes_s& observed_extremes = sensor.observed_extremes;
+
+    /**
+     * @note If min > max, that just means no valid samples since the last reset
+     *       Keep the previous calibration
+     */
+    if (observed_extremes.min_raw > observed_extremes.max_raw)
+    {
+        return;
     }
 
-    // Direct Form II Transposed biquad: 5 multiplies, 4 adds, 2 floats of state.
-    float y = kBwB0 * x + _bw_z1;
-    _bw_z1 = kBwB1 * x - kBwA1 * y + _bw_z2;
-    _bw_z2 = kBwB2 * x - kBwA2 * y;
-    return y;
+    SteeringSensorCalibration_s& calibration_snapshot = sensor.calibration_snapshot;
+    calibration_snapshot.min_raw = observed_extremes.min_raw;
+    calibration_snapshot.max_raw = observed_extremes.max_raw;
+    calibration_snapshot.span_raw = calibration_snapshot.max_raw - calibration_snapshot.min_raw;
+    calibration_snapshot.center_raw = calibration_snapshot.min_raw + (calibration_snapshot.span_raw / 2);
+
+    sensor.oor_tolerance_raw = static_cast<float>(calibration_snapshot.span_raw) * sensor.oor_tolerance_fraction;
+    sensor.oor_bounds.min_valid_raw = static_cast<int32_t>(static_cast<float>(calibration_snapshot.min_raw) - sensor.oor_tolerance_raw);
+    sensor.oor_bounds.max_valid_raw = static_cast<int32_t>(static_cast<float>(calibration_snapshot.max_raw) + sensor.oor_tolerance_raw);
+
+    // A span wider than the sensor can physically produce means the extremes are stale. Clear them so the next sweep starts fresh
+    if (calibration_snapshot.span_raw > limits.max_plausible_span_raw)
+    {
+        observed_extremes = SteeringSensorObservedExtremes_s{};
+    }
+}
+
+float SteeringSystem::_convertAnalogRawToDeg(const uint32_t analog_raw) const
+{
+    const int32_t counts_from_center = static_cast<int32_t>(analog_raw) - static_cast<int32_t>(_params.analog.calibration_snapshot.center_raw);
+    return static_cast<float>(counts_from_center) * _params.analog.deg_per_count;
+}
+
+float SteeringSystem::_convertDigitalRawToDeg(const uint32_t digital_raw) const
+{
+    /**
+     * @note The digital encoder is mounted reversed: raw counts decrease as steering angle increases,
+     *       so the offset is taken the other way round to match the analog sign convention
+     */
+    const int32_t counts_from_center = static_cast<int32_t>(_params.digital.calibration_snapshot.center_raw) - static_cast<int32_t>(digital_raw);
+    return static_cast<float>(counts_from_center) * _params.digital.deg_per_count;
+}
+
+float SteeringSystem::_applyAnalogLowpass(const float analog_angle_deg)
+{
+    /**
+     * @note On the very first sample, we will pre-load the state to the steady-state values for this input
+     *       so the output starts at the input instead of ramping up from 0 over ~50 ms.
+     */
+    if (!_is_lowpass_initialized)
+    {
+        _lowpass_state_1 = (1.0f - LOWPASS_B0) * analog_angle_deg;
+        _lowpass_state_2 = (LOWPASS_B2 - LOWPASS_A2) * analog_angle_deg;
+        _is_lowpass_initialized = true;
+    }
+
+    // Output = the new input's (small) share + everything history has already contributed.
+    const float filtered_deg = (LOWPASS_B0 * analog_angle_deg) + _lowpass_state_1;
+
+    // Prepare for the next call. Next tick, this tick's input/output become "1 step ago", so add their b1/a1 contributions,
+    // plus the "2 steps ago" terms waiting in _lowpass_state_2
+    _lowpass_state_1 = (LOWPASS_B1 * analog_angle_deg) - (LOWPASS_A1 * filtered_deg) + _lowpass_state_2;
+
+    // Store this tick's contribution to the output two ticks from now (its b2/a2 terms) Next call, this gets folded into _lowpass_state_1 above
+    _lowpass_state_2 = (LOWPASS_B2 * analog_angle_deg) - (LOWPASS_A2 * filtered_deg);
+
+    return filtered_deg;
+}
+
+bool SteeringSystem::_isOutOfRange(const uint32_t raw, const SteeringSensorOutOfRangeBounds_s& bounds)
+{
+    const int32_t raw_signed = static_cast<int32_t>(raw);
+    return (raw_signed < bounds.min_valid_raw) || (raw_signed > bounds.max_valid_raw);
+}
+
+bool SteeringSystem::_isRateExceeded(const float rate_deg_per_s) const
+{
+    return std::fabs(rate_deg_per_s) > _params.max_steering_rate_deg_per_s;
 }

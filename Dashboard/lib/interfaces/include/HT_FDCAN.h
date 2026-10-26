@@ -2,9 +2,10 @@
 #define HT_FDCAN_WRAPPER
 
 /* External Includes */
-#include <stm32h7xx_hal.h>
-#include <stm32h750xx.h>
 #include "hytech.h"
+
+#include <stm32h750xx.h>
+#include <stm32h7xx_hal.h>
 
 /* Local Interface Includes */
 #include "ACUInterface.h"
@@ -32,7 +33,7 @@ int FDCAN_init();
  * The big switch statement converts the byte length (0-8) to the FDCAN DLC (Data Length Code) enum format the HAL expects.
  * Then the method adds the message to the TX FIFO queue
  */
-int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len);
+int FDCAN_write(uint32_t id, const uint8_t* data, uint8_t len);
 
 /**
  * @brief This method just stores pointers so that the interrupt handler can use them.
@@ -44,7 +45,7 @@ int FDCAN_write(uint32_t id, const uint8_t *data, uint8_t len);
  *        Then it calls DashCAN::dash_read_switch() to route it to the right interface
  *
  */
-void FDCAN_set_interfaces(CANInterfaces_s &interfaces);
+void FDCAN_set_interfaces(CANInterfaces_s& interfaces);
 
 /**
  * @brief This method configures the physical pins:
