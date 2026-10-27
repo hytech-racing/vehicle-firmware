@@ -22,11 +22,11 @@ void SPIDMAInterface<bufferSize>::initDMA() {
 
 template <size_t bufferSize>
 void SPIDMAInterface<bufferSize>::transfer() {
+    _rxBuf.fill(0);
     SPI.beginTransaction(SPISettings(_spiParams.spiSpeed, MSBFIRST, SPI_MODE0));
     digitalWrite(_spiParams.spiPinCS, LOW);
-    _rxBuf.fill(0);
-    SPI.transfer(_txBuf.data(), _rxBuf.data(), bufferSize, _eventRef);
     _dmaBusy = true;
+    SPI.transfer(_txBuf.data(), _rxBuf.data(), bufferSize, _eventRef);
 }
 
 template <size_t bufferSize>
