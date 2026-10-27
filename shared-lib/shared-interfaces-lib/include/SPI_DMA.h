@@ -50,7 +50,7 @@ class SPIDMAInterface {
         SPIParams_s _spiParams;
         std::array<uint8_t, bufferSize> _txBuf;
         std::array<uint8_t, bufferSize> _rxBuf;
-        bool _dmaBusy;
+        volatile bool _dmaBusy;
         EventResponder& _eventRef;
     private:
         static void dmaCallback(EventResponderRef ref);
