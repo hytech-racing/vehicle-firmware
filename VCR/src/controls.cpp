@@ -1,16 +1,16 @@
 #include "controls.hpp"
 
 
-void VCRControls::handleDrivetrainCommand(unsigned long curr_millis)
+void VCRControls::handleDrivetrainCommand(bool is_drive_enable_requested, unsigned long curr_millis)
 {
     if (_dt_system != nullptr) // if drivetrain initalized
     {
         ControllerMode_e mode = vcr_data.interface_data.dash_input_state.dial_state;
-        DrivetrainStatus_s drivetrain_status;
 
         auto dt_command = _tc_mux.evaluateTCMux(mode, vcr_data);
+        dt_command.is_drive_enable_requested = is_drive_enable_requested;   // controllers don't own enable, the VSM does
         _debug_dt_command = dt_command;
-        drivetrain_status = _dt_system->evaluate_drivetrain(dt_command, curr_millis);
+        _dt_system->evaluateDrivetrain(dt_command, curr_millis);
     }
 }
 

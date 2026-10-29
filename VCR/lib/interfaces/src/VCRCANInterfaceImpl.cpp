@@ -60,6 +60,11 @@ void VCRCANInterfaceImpl::receieveIDSwitch(CANInterfaces_s &interfaces,
             interfaces.acu_interface.receiveEMMeasurementMessage(msg, curr_millis);
             break;
         }
+        case BMS_VOLTAGES_CANID:
+        {
+            interfaces.acu_interface.receiveBMSVoltagesMessage(msg, curr_millis);
+            break;
+        }
         case DRIVEBRAIN_TORQUE_LIM_INPUT_CANID:
         {
             if (interface_type == CANInterfaceType_e::RAUX)

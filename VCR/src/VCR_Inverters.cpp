@@ -9,13 +9,14 @@ InverterInterface rr_inverter_interface(4);
 static InverterInterfaceFuncts_s makeOneInverterFuncts(InverterInterface& inv)
 {
     return InverterInterfaceFuncts_s {
-        .setMotorsTorque = [&inv](torque_nm desired_torque_nm) { return inv.setMotorTorque(desired_torque_nm); },
-        .setMotorsSpeed = [&inv](speed_rpm desired_speed_rpm)  { return inv.setMotorSpeed(desired_speed_rpm); },
-        .setMotorsIdle = [&inv]() { return inv.setMotorIdle(); },
-        .requestEnable = [&inv](bool enable) { return inv.requestEnable(enable); },
-        .isReportedModeMatchingDT = [&inv](DrivetrainControlMode_e expected_mode) { return inv.isReportedModeMatchingDTS(expected_mode); },
-        .getInverterStatus = [&inv]() { return inv.getStatus(sys_time::hal_millis()); },
-        .getMotorMechanics = [&inv]() { return inv.getMotorMechanics(); }
+        .setMotorsTorque = etl::delegate<void(torque_nm)>::create<InverterInterface, &InverterInterface::setMotorTorque>(inv),
+        .setMotorsSpeed = etl::delegate<void(speed_rpm)>::create<InverterInterface, &InverterInterface::setMotorSpeed>(inv),
+        .setMotorsIdle = etl::delegate<void()>::create<InverterInterface, &InverterInterface::setMotorIdle>(inv),
+        .requestEnable = etl::delegate<void(bool)>::create<InverterInterface, &InverterInterface::requestEnable>(inv),
+        .isReportedModeMatchingDT = etl::delegate<bool(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::isReportedModeMatchingDTS>(inv),
+        .getInverterStatus = etl::delegate<InverterStatus_s(unsigned long)>::create<InverterInterface, &InverterInterface::getStatus>(inv),
+        .getMotorMechanics = etl::delegate<MotorMechanics_s()>::create<InverterInterface, &InverterInterface::getMotorMechanics>(inv),
+        .sendCommands = etl::delegate<void(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::sendControlCommands>(inv)
     };
 }
 

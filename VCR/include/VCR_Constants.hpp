@@ -116,11 +116,13 @@ namespace VCRInterfaces
     // NOTE: Consider moving hearbeat's into their respective interfaces
     constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL;  // 20ms at 60mph is about 0.5 meters
     constexpr uint64_t ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
+    constexpr uint64_t ACU_BMS_VOLTAGES_MAX_HEARTBEAT_MS = 500;   // BMS_VOLTAGES is sent at 10 Hz
 }
 
 namespace VCRSystems
 {
     constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 36;
+    constexpr float MAX_PACK_TO_INVERTER_VOLTAGE_DIFF_V = 20.0f;   // TODO: placeholder, might need to change
     constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40; // milliseconds
     constexpr uint16_t CONTROL_MODE_MISTMATCH_THRESHOLD_MS = 10;
 }

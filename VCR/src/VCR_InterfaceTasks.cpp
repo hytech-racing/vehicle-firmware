@@ -24,8 +24,8 @@ void initializeAllInterfaces()
     WatchdogInterfaceInstance::instance().init();
 
     /* ---------- ACU Interface ---------- */
-    ACUInterfaceInstance::create(sys_time::hal_millis(),
-                                VCRInterfaces::ACU_ACU_OK_MAX_HEARTBEAT_MS
+    ACUInterfaceInstance::create(VCRInterfaces::ACU_ACU_OK_MAX_HEARTBEAT_MS,
+                                VCRInterfaces::ACU_BMS_VOLTAGES_MAX_HEARTBEAT_MS
     );
 
     /* ---------- ADC Interface ---------- */
@@ -154,7 +154,7 @@ HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK
 HT_TASK::TaskResponse updateACUHeartbeatTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().getLatestData(sys_time::hal_millis());
-    digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.is_heartbeat_ok);
+    digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.is_acu_ok_heartbeat_ok);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -305,7 +305,6 @@ namespace async_tasks
         VCRInterfaceData_s out;
 
         auto vcf_data = can_interfaces.vcf_interface.getLatestData();
-        auto acu_data = can_interfaces.acu_interface.getLatestData(sys_time::hal_millis());
         auto drivebrain_telem_data = can_interfaces.db_interface.getLatestDrivebrainCommandTELEM();
         auto drivebrain_raux_data = can_interfaces.db_interface.getLatestDrivebrainCommandRAUX();
 
@@ -314,10 +313,10 @@ namespace async_tasks
         auto rl_inv_mechanics = can_interfaces.rl_inverter_interface.getMotorMechanics();
         auto rr_inv_mechanics = can_interfaces.rr_inverter_interface.getMotorMechanics();
 
-        auto fl_inv_status = can_interfaces.fl_inverter_interface.getStatus();
-        auto fr_inv_status = can_interfaces.fr_inverter_interface.getStatus();
-        auto rl_inv_status = can_interfaces.rl_inverter_interface.getStatus();
-        auto rr_inv_status = can_interfaces.rr_inverter_interface.getStatus();
+        auto fl_inv_status = can_interfaces.fl_inverter_interface.getStatus(sys_time::hal_millis());
+        auto fr_inv_status = can_interfaces.fr_inverter_interface.getStatus(sys_time::hal_millis());
+        auto rl_inv_status = can_interfaces.rl_inverter_interface.getStatus(sys_time::hal_millis());
+        auto rr_inv_status = can_interfaces.rr_inverter_interface.getStatus(sys_time::hal_millis());
 
         // Telemetry: full data + limits per corner, now that InverterInterface exposes them
         out.inverter_data.FL = can_interfaces.fl_inverter_interface.getTelemetryData();
