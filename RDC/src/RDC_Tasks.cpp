@@ -115,7 +115,7 @@ void initializeDriverless()
  * @brief Checks that the hardware ID is within the expected range.
  * Should run before ADC init sets 12 bits (this check needs 10 bits).
  * A mismatch wont return.
-  */
+ */
 void hwCheck()
 {
     uint16_t hw_id = analogRead(PinAssignments::HW_ID_PIN);
