@@ -111,6 +111,23 @@ void initializeDriverless()
         etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetTSActiveValues>(DriverlessSystemInstance::instance()));
 }
 
+/**
+ * @brief Checks that the hardware ID is within the expected range.
+ * Should run before ADC init sets 12 bits (this check needs 10 bits).
+ * A mismatch wont return.
+  */
+void hwCheck()
+{
+    uint16_t hw_id = analogRead(PinAssignments::HW_ID_PIN);
+    if (hw_id < RDCConstants::HW_ID_WIN_LOW_BOUND || hw_id > RDCConstants::HW_ID_WIN_HIGH_BOUND)
+    {
+        while (true)
+        {
+            // empty for a silent loop with no watchdog kick
+        }
+    }
+}
+
 HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     CoreRDCCANInterfaceInstance::instance().sendAllCanMsgs();
