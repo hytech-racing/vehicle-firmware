@@ -13,10 +13,9 @@
 #include "VehicleStateMachine.hpp"
 
 /* Local Interface Includes */
-#include "VCFInterface.hpp"
 #include "ACUInterface.hpp"
-
 #include "DrivetrainSystem.hpp"
+#include "VCFInterface.hpp"
 
 
 /**

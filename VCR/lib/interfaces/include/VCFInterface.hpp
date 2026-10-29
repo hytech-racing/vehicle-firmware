@@ -6,8 +6,9 @@
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
-#include "shared_types.h"
 #include "ht_can.h"
+#include "shared_types.h"
+
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
@@ -25,13 +26,11 @@ struct VCFCANInterfaceData_s
 
 class VCFInterface
 {
-public:
-
+  public:
     VCFInterface() = delete;
 
-    VCFInterface(unsigned long init_millis,
-                unsigned long max_heartbeat_interval_ms
-    ) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
+    VCFInterface(unsigned long init_millis, unsigned long max_heartbeat_interval_ms)
+        : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
     {
         _curr_data.stamped_pedals.last_recv_millis = 0;
         _curr_data.stamped_steering.last_recv_millis = 0;
@@ -44,15 +43,15 @@ public:
     /// NOTE: Start button is RTD
     bool isStartButtonPressed() { return _curr_data.dash_input_state.start_btn_is_pressed; }
 
-    bool isBrakePressed() {return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
+    bool isBrakePressed() { return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
 
-    bool isPedalsRecalibratePressed() {return _curr_data.dash_input_state.preset_btn_is_pressed; }
+    bool isPedalsRecalibratePressed() { return _curr_data.dash_input_state.preset_btn_is_pressed; }
 
-    bool isSteeringRecalibratePressed() {return _curr_data.dash_input_state.data_btn_is_pressed; }
+    bool isSteeringRecalibratePressed() { return _curr_data.dash_input_state.data_btn_is_pressed; }
 
-    bool isPedalsHeartbeatNotOk() {return !_curr_data.stamped_pedals.heartbeat_ok; }
+    bool isPedalsHeartbeatNotOk() { return !_curr_data.stamped_pedals.heartbeat_ok; }
 
-    bool isSteeringHeartbeatNotOk() {return !_curr_data.stamped_steering.heartbeat_ok; }
+    bool isSteeringHeartbeatNotOk() { return !_curr_data.stamped_steering.heartbeat_ok; }
 
     void resetPedalsHeartbeat();
 
@@ -64,25 +63,23 @@ public:
 
     void receiveDashboardCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receiveFrontSuspensionCANMsg(const CAN_message_t &msg, unsigned long curr_millis);
+    void receiveFrontSuspensionCANMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
     VCFCANInterfaceData_s getLatestData() const;
 
     /**
      * @brief 4 methods below set various fields insid the DASHBOARD_BUZZER_CONTROL_t messages
      * @note TODO: Rename this message
-    */
+     */
     void enqueueDashboardStatesCANMessage(bool buzzer_flag, bool is_pedals_calibration_state, bool is_steering_calibration_state);
 
     void enqueueVehicleStateCANMessage(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
 
-private:
-
+  private:
     mutable VCFCANInterfaceData_s _curr_data;
     unsigned long _max_heartbeat_interval_ms;
     mutable bool _is_pedals_heartbeat_init;
     mutable bool _is_steering_heartbeat_init;
-
 };
 
 using VCFInterfaceInstance = etl::singleton<VCFInterface>;

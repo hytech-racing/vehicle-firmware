@@ -1,10 +1,9 @@
 #ifndef __SHAREDFIRMWARETYPES_H__
 #define __SHAREDFIRMWARETYPES_H__
-#include <stdint.h>
-
-#include <utility>
 #include <array>
 #include <stddef.h>
+#include <stdint.h>
+#include <utility>
 
 using speed_rpm = float;
 using torque_nm = float;
@@ -20,7 +19,7 @@ using time_ms = uint32_t;
 /**
  * AnalogSensorStatus_e gets packaged along with the AnalogConversion_s struct as
  * the output of an AnalogChannel.
-*/
+ */
 enum class AnalogSensorStatus_e
 {
     ANALOG_SENSOR_GOOD = 0,
@@ -47,7 +46,7 @@ struct AnalogConversion_s
 template <int N>
 struct AnalogConversionPacket_s
 {
-    std::array <AnalogConversion_s, N> conversions;
+    std::array<AnalogConversion_s, N> conversions;
 };
 
 /**
@@ -57,13 +56,13 @@ struct AnalogConversionPacket_s
 template <typename T>
 struct veh_vec
 {
-public:
+  public:
     T FL = {};
     T FR = {};
     T RL = {};
     T RR = {};
 
-public:
+  public:
     veh_vec() {};
     veh_vec(T _FL, T _FR, T _RL, T _RR)
     {
@@ -82,11 +81,7 @@ public:
         arr_out[3] = RR;
     }
 
-    std::array<T, 4> as_array() const
-    {
-        return {FL, FR, RL, RR};
-    }
-
+    std::array<T, 4> as_array() const { return {FL, FR, RL, RR}; }
 };
 
 struct TimestampedData_s
@@ -176,9 +171,9 @@ enum class SteeringEncoderStatus_e
 
 struct EncoderErrorFlags_s
 {
-    bool dataInvalid              = false;
-    bool operatingLimit           = false;
-    bool noData                   = false;
+    bool dataInvalid = false;
+    bool operatingLimit = false;
+    bool noData = false;
 };
 
 struct SteeringEncoderReading_s
@@ -208,7 +203,7 @@ struct DashInputState_s
     bool brightness_ctrl_btn_is_pressed : 1;
     bool preset_btn_is_pressed : 1;
     bool mc_reset_btn_is_pressed : 1; // Resets the motor controller errors
-    bool start_btn_is_pressed : 1; // The start button is the READY_TO_DRIVE button
+    bool start_btn_is_pressed : 1;    // The start button is the READY_TO_DRIVE button
     bool data_btn_is_pressed : 1;
     bool BUTTON_2 : 1;
     ControllerMode_e dial_state;
@@ -219,13 +214,13 @@ struct DashInputState_s
  */
 struct PedalsSystemData_s
 {
-    bool accel_is_implausible : 1; // Checks if either accel pedal is out of range OR they disagree by more than 10%
-    bool brake_is_implausible : 1; // Checks if brake sensor is out of range.
-    bool brake_is_pressed : 1; // True if brake pedal is pressed beyond the specified activationPercentage.
-    bool accel_is_pressed : 1; // True if the accel pedal is pressed beyond the specified activationPercentage.
-    bool mech_brake_is_active : 1; // True if the brake pedal is pressed beyond mechanical_activation_percentage.
+    bool accel_is_implausible : 1;                        // Checks if either accel pedal is out of range OR they disagree by more than 10%
+    bool brake_is_implausible : 1;                        // Checks if brake sensor is out of range.
+    bool brake_is_pressed : 1;                            // True if brake pedal is pressed beyond the specified activationPercentage.
+    bool accel_is_pressed : 1;                            // True if the accel pedal is pressed beyond the specified activationPercentage.
+    bool mech_brake_is_active : 1;                        // True if the brake pedal is pressed beyond mechanical_activation_percentage.
     bool brake_and_accel_pressed_implausibility_high : 1; // If accel is pressed at all while mech_brake_is_active.
-    bool implausibility_has_exceeded_max_duration : 1; // True if implausibility lasts more than 100ms
+    bool implausibility_has_exceeded_max_duration : 1;    // True if implausibility lasts more than 100ms
     float accel_percent;
     float brake_percent;
     float regen_percent; // When brake pedal is 0%, regen_percent is 0.0. When brakes are at mechanical_activation_percentage,
@@ -238,11 +233,11 @@ struct SteeringSystemData_s
     uint32_t analog_raw;
     uint32_t digital_raw;
 
-    float analog_steering_angle; //in degrees
-    float digital_steering_angle; //in degrees
-    float output_steering_angle; // represents the better output of the two sensors or some combination of the values
+    float analog_steering_angle;  // in degrees
+    float digital_steering_angle; // in degrees
+    float output_steering_angle;  // represents the better output of the two sensors or some combination of the values
 
-    float analog_steering_velocity_deg_s; //in degrees per second
+    float analog_steering_velocity_deg_s; // in degrees per second
     float digital_steering_velocity_deg_s;
 
     bool digital_oor_implausibility;
@@ -273,7 +268,7 @@ struct RearSusPotData_s
 
 /**
  * Creating Thermistor Data structure to account for storage of analog readings and actual temperature in degrees celsius
-*/
+ */
 struct ThermistorData_s
 {
     uint32_t thermistor_analog;
@@ -290,7 +285,7 @@ struct VCRThermistorData_s
 
 struct FlowmeterData_s
 {
-  float flowmeter_gallons_per_min;
+    float flowmeter_gallons_per_min;
 };
 
 /**
@@ -354,7 +349,6 @@ struct ShutdownSensingData_s
     bool vcf_is_linked : 1;
     bool ubiquiti_is_linked : 1;
     bool db_is_linked : 1;
-
 };
 
 /**
@@ -368,7 +362,7 @@ struct VCREthernetLinkData_s
     bool teensy_link : 1;
     bool debug_link : 1;
     bool ubiquiti_link : 1;
-    bool vn_link: 1;
+    bool vn_link : 1;
 };
 
 /**
@@ -417,36 +411,36 @@ struct TorqueControllerMuxStatus_s
 
 enum class DTIControlMode_e : uint8_t
 {
-    NONE_0             = 0,   // NOT USED per manual
-    MODE_SPEED         = 1,
-    MODE_CURRENT       = 2,
+    NONE_0 = 0, // NOT USED per manual
+    MODE_SPEED = 1,
+    MODE_CURRENT = 2,
     MODE_CURRENT_BRAKE = 3,
-    MODE_POSITION      = 4,
-    NONE_5             = 5,   // NOT USED
-    NONE_6             = 6,   // NOT USED
-    MODE_NONE          = 7,
+    MODE_POSITION = 4,
+    NONE_5 = 5, // NOT USED
+    NONE_6 = 6, // NOT USED
+    MODE_NONE = 7,
 };
 
 enum class DTIFaultCode_e : uint8_t
 {
-    NO_FAULTS            = 0x00,
-    OVERVOLTAGE          = 0x01,
-    UNDERVOLTAGE         = 0x02,
-    DRV_ERROR            = 0x03,   // transistor/transistor drive error
-    ABS_OVERCURRENT      = 0x04,   // AC current higher than set absolute maximum
-    CONTROLLER_OVERTEMP  = 0x05,
-    MOTOR_OVERTEMP       = 0x06,
-    SENSOR_WIRE_FAULT    = 0x07,   // sensor differential signal fault
-    SENSOR_GENERAL_FAULT = 0x08,   // error processing sensor signals
-    CAN_COMMAND_ERROR    = 0x09,   // received message had a parameter out of boundaries
-    ANALOG_INPUT_ERROR   = 0x0A,   // redundant output out of range
+    NO_FAULTS = 0x00,
+    OVERVOLTAGE = 0x01,
+    UNDERVOLTAGE = 0x02,
+    DRV_ERROR = 0x03,       // transistor/transistor drive error
+    ABS_OVERCURRENT = 0x04, // AC current higher than set absolute maximum
+    CONTROLLER_OVERTEMP = 0x05,
+    MOTOR_OVERTEMP = 0x06,
+    SENSOR_WIRE_FAULT = 0x07,    // sensor differential signal fault
+    SENSOR_GENERAL_FAULT = 0x08, // error processing sensor signals
+    CAN_COMMAND_ERROR = 0x09,    // received message had a parameter out of boundaries
+    ANALOG_INPUT_ERROR = 0x0A,   // redundant output out of range
 };
 
 /**
  * @brief Bundle of live important inverter operating data.
  * @note Essentially a direct field-for-field copy from InverterInterface's status messages.
  *       Deliberately excludes configured limits messages since those aren't live operating data.
-*/
+ */
 struct InverterData_s
 {
     // 0x1F — General control
@@ -486,7 +480,7 @@ struct InverterData_s
 /**
  * @brief Bundle of live current-limit configuration and limit-active statuses
  * @note Sent as a separate telemetry message from InverterData_s since its not crucial
-*/
+ */
 struct InverterLimits_s
 {
     // 0x25 — AC current limits
@@ -529,7 +523,7 @@ struct InverterLimits_s
  * @param DRIVE_ENABLED all inverters connected, HV present, drive enabled and confirmed
  *                      Equivalent to VSM READY_TO_DRIVE
  * @param FAULTED one or more inverters currently reporting a fault code
-*/
+ */
 enum class DrivetrainState_e
 {
     NOT_CONNECTED,
@@ -543,7 +537,7 @@ enum class DrivetrainState_e
 
 /**
  * @brief Provides info on which type of command a DrivetrainCommand_s represents: torque or speed
-*/
+ */
 enum class DrivetrainControlMode_e
 {
     TORQUE,
@@ -556,7 +550,7 @@ enum class DrivetrainControlMode_e
  * @param control_mode which of desired_torques/desired_speeds is meaningful this tick
  * @param desired_torques per-corner commanded torque, meaningful only when control_mode == TORQUE
  * @param desired_speeds per-corner commanded speed, meaningful only when control_mode == SPEED
-*/
+ */
 struct DrivetrainCommand_s
 {
     DrivetrainControlMode_e control_mode = DrivetrainControlMode_e::TORQUE;
@@ -571,7 +565,7 @@ struct DrivetrainCommand_s
  *       since one field can be fresh while another is stale
  * @note getCommand() strips the timestamps and hands back the plain DrivetrainCommand_s
  *       Freshness must be confirmed by the caller BEFORE calling this
-*/
+ */
 struct StampedDrivetrainCommand_s
 {
     StampedValue<DrivetrainControlMode_e> control_mode{{}, DrivetrainControlMode_e::TORQUE};
@@ -580,10 +574,7 @@ struct StampedDrivetrainCommand_s
 
     DrivetrainCommand_s getCommand()
     {
-        return { .control_mode = control_mode.data,
-                .desired_torques = desired_torques.veh_vec_data,
-                .desired_speeds = desired_speeds.veh_vec_data
-        };
+        return {.control_mode = control_mode.data, .desired_torques = desired_torques.veh_vec_data, .desired_speeds = desired_speeds.veh_vec_data};
     }
 };
 
@@ -598,17 +589,13 @@ struct StampedDrivetrainTorqueCommand_s
     StampedVehVec<speed_rpm> torque_limits;
     StampedVehVec<torque_nm> torque_setpoints;
 
-    DrivetrainTorqueCommand_s get_command()
-    {
-        return {.torque_limits= torque_limits.veh_vec_data,
-                .torque_setpoints = torque_setpoints.veh_vec_data};
-    }
+    DrivetrainTorqueCommand_s get_command() { return {.torque_limits = torque_limits.veh_vec_data, .torque_setpoints = torque_setpoints.veh_vec_data}; }
 };
 
 /**
  * @brief Real-time feedback report from the drivetrain, sourced from what each inverter actually measures/reports.
  * TODO: Update whats in here prolly
-*/
+ */
 struct DrivetrainDynamicReport_s
 {
     veh_vec<volt> measured_hv_bus_voltage;
@@ -623,10 +610,8 @@ struct DrivetrainDynamicReport_s
 };
 
 
-
-
-
-struct DrivebrainMessageLatencyInfo_s {
+struct DrivebrainMessageLatencyInfo_s
+{
     bool timing_failure;
     unsigned long worst_latency_millis;
 
@@ -635,7 +620,6 @@ struct DrivebrainMessageLatencyInfo_s {
     bool not_all_messages_received;
     bool latency_diff_too_high;
 };
-
 
 
 /**
@@ -699,7 +683,7 @@ struct StampedACUCoreData_s : TimestampedData_s
 /**
  * ACUAllData contains the detailed, unprocessed data from ACU sensors.
  */
-template<size_t num_cells, size_t num_cell_temps, size_t num_chips>
+template <size_t num_cells, size_t num_cell_temps, size_t num_chips>
 struct ACUAllData_s
 {
     ACUCoreData_s core_data;
@@ -811,7 +795,8 @@ struct DrivebrainControllerStatus_s
 /**
  * Struct containing the location data for the Loss of communication of VCR with other other ECUs.
  */
-struct VCRLOCData {
+struct VCRLOCData
+{
     bool acu_loc = false;
     bool vcf_loc = false;
 };

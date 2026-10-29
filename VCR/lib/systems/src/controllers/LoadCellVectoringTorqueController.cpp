@@ -1,24 +1,20 @@
 #include "controllers/LoadCellVectoringTorqueController.hpp"
 
 
-DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s &vcr_data, unsigned long curr_millis)
+DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s& vcr_data, unsigned long curr_millis)
 {
-    DrivetrainCommand_s out = { .control_mode = _params.control_mode,
-                                .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
-                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
-    };
+    DrivetrainCommand_s out = {.control_mode = _params.control_mode, .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f}, .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    const PedalsSystemData_s &pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
-    const FrontLoadCellData_s &front_loadcell_data = vcr_data.interface_data.front_loadcell_data;
-    const RearLoadCellData_s &rear_loadcell_data = vcr_data.interface_data.rear_loadcell_data;
+    const PedalsSystemData_s& pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
+    const FrontLoadCellData_s& front_loadcell_data = vcr_data.interface_data.front_loadcell_data;
+    const RearLoadCellData_s& rear_loadcell_data = vcr_data.interface_data.rear_loadcell_data;
 
     /// TODO: What deez units
     veh_vec<float> loadcell_data(
         static_cast<float>(front_loadcell_data.FL_loadcell_analog) * _params.scales.fl_loadcell_scale + _params.offsets.fl_loadcell_offset,
         static_cast<float>(front_loadcell_data.FR_loadcell_analog) * _params.scales.fr_loadcell_scale + _params.offsets.fr_loadcell_offset,
         static_cast<float>(rear_loadcell_data.RL_loadcell_analog) * _params.scales.rl_loadcell_scale + _params.offsets.rl_loadcell_offset,
-        static_cast<float>(rear_loadcell_data.RR_loadcell_analog) * _params.scales.rr_loadcell_scale + _params.offsets.rr_loadcell_offset
-    );
+        static_cast<float>(rear_loadcell_data.RR_loadcell_analog) * _params.scales.rr_loadcell_scale + _params.offsets.rr_loadcell_offset);
 
     // Track consecutive invalid samples per corner to detect a faulted/disconnected load cell
     _loadcell_error_counts.FL = front_loadcell_data.valid_FL_sample ? 0 : _loadcell_error_counts.FL + 1;
@@ -26,11 +22,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
     _loadcell_error_counts.RL = rear_loadcell_data.valid_RL_sample ? 0 : _loadcell_error_counts.RL + 1;
     _loadcell_error_counts.RR = rear_loadcell_data.valid_RR_sample ? 0 : _loadcell_error_counts.RR + 1;
 
-    bool are_all_load_cells_ok =
-        (_loadcell_error_counts.FL < _params.max_loadcell_error_count) &&
-        (_loadcell_error_counts.FR < _params.max_loadcell_error_count) &&
-        (_loadcell_error_counts.RL < _params.max_loadcell_error_count) &&
-        (_loadcell_error_counts.RR < _params.max_loadcell_error_count);
+    bool are_all_load_cells_ok = (_loadcell_error_counts.FL < _params.max_loadcell_error_count)
+                                 && (_loadcell_error_counts.FR < _params.max_loadcell_error_count)
+                                 && (_loadcell_error_counts.RL < _params.max_loadcell_error_count)
+                                 && (_loadcell_error_counts.RR < _params.max_loadcell_error_count);
 
     if (!are_all_load_cells_ok)
     {
@@ -59,7 +54,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
              *       fixed front/rear bias is applied here. Since the four load-cell fractions
              *       always sum to 1, the total delivered torque always equals total_torque_request
              *       exactly, regardless of actual weight distribution.
-            */
+             */
             float total_torque_request = accel_request * _params.motor_max_torque_nm * 4.0f;
 
             out.desired_torques.FL = std::min(0.0f, total_torque_request * loadcell_data.FL / sum_normal_force);
@@ -74,7 +69,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
              *       only, via regen_bias. accel_request is negative here and MOTOR_MAX_REGEN_TORQUE_NM
              *       is positive, so total_torque_request comes out negative naturally, matching the
              *       sign convention InverterInterface uses to route to SET_BRAKE_CURRENT vs SET_AC_CURRENT.
-            */
+             */
             float total_torque_request = dti_motor_params::MOTOR_MAX_REGEN_TORQUE_NM * accel_request;
 
             float rear_torque_fraction = _params.regen_bias;
@@ -89,7 +84,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
             out.desired_torques.RR = std::max(0.0f, rears_torque_share / 2.0f);
         }
     }
-    else   // SPEED
+    else // SPEED
     {
         // Same bias/split logic as TORQUE mode, just producing a speed target instead of a torque target.
         if (accel_request >= 0.0f)
@@ -106,7 +101,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s 
             /**
              * @note SET_ERPM's sign represents spin direction, not regen/braking
              *       Reverse rotation is what we want I beleive
-            */
+             */
             float total_speed_request = accel_request * _params.motor_max_rpm;
 
             float rear_speed_fraction = _params.regen_bias;

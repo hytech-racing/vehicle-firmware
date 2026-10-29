@@ -31,12 +31,12 @@ namespace VCRInterfaces
     constexpr int ADC1_CS = 36; // MCP3208. ADC1 in VCR schematic. Used for extra thermistors or extra sensors while testing.
 
     // Channels on ADC_0
-    constexpr int RL_LOADCELL_CHANNEL     = 0;
-    constexpr int RR_LOADCELL_CHANNEL     = 1;
-    constexpr int RL_SUS_POT_CHANNEL      = 2;
-    constexpr int RR_SUS_POT_CHANNEL      = 3;
-    constexpr int GLV_SENSE_CHANNEL       = 4;
-    constexpr int CURRENT_SENSE_CHANNEL   = 5;
+    constexpr int RL_LOADCELL_CHANNEL = 0;
+    constexpr int RR_LOADCELL_CHANNEL = 1;
+    constexpr int RL_SUS_POT_CHANNEL = 2;
+    constexpr int RR_SUS_POT_CHANNEL = 3;
+    constexpr int GLV_SENSE_CHANNEL = 4;
+    constexpr int CURRENT_SENSE_CHANNEL = 5;
     constexpr int REFERENCE_SENSE_CHANNEL = 6;
     // const int UNUSED_CHANNEL       = 7;
 
@@ -51,12 +51,12 @@ namespace VCRInterfaces
     constexpr int THERMISTOR_7_CHANNEL = 7;
 
     // Scaling and Offsets
-    constexpr float GLV_SENSE_SCALE = (float)(24.0/((2.77149877/3.3)*4096.0)); // unsure about the multiplication by 4.0865
-    constexpr int GLV_SENSE_OFFSET = 0; // No offset for GLV
-    constexpr float CURRENT_SENSE_SCALE = (float)(24/((2.77149877/3.3)*4096)); // unsure about the multiplication by 4.0865
-    constexpr int CURRENT_SENSE_OFFSET = 0; // No offset for CURRENT_SENSE
-    constexpr float REFERENCE_SENSE_SCALE = (float)(24/((2.77149877/3.3)*4096)); // unsure about the multiplication by 4.0865
-    constexpr int REFERENCE_SENSE_OFFSET = 0; // No offset for REFERENCE_SENSE
+    constexpr float GLV_SENSE_SCALE = (float)(24.0 / ((2.77149877 / 3.3) * 4096.0));   // unsure about the multiplication by 4.0865
+    constexpr int GLV_SENSE_OFFSET = 0;                                                // No offset for GLV
+    constexpr float CURRENT_SENSE_SCALE = (float)(24 / ((2.77149877 / 3.3) * 4096));   // unsure about the multiplication by 4.0865
+    constexpr int CURRENT_SENSE_OFFSET = 0;                                            // No offset for CURRENT_SENSE
+    constexpr float REFERENCE_SENSE_SCALE = (float)(24 / ((2.77149877 / 3.3) * 4096)); // unsure about the multiplication by 4.0865
+    constexpr int REFERENCE_SENSE_OFFSET = 0;                                          // No offset for REFERENCE_SENSE
 
     constexpr float LOADCELL_IIR_FILTER_ALPHA = 0.01f;
     constexpr float LBS_TO_NEWTONS = 4.4482216153;
@@ -114,18 +114,18 @@ namespace VCRInterfaces
     constexpr int WATCHDOG_PIN = 26;
     constexpr int SOFTWARE_OK_PIN = 27; // Watchdog's !RESET pin
     // NOTE: Consider moving hearbeat's into their respective interfaces
-    constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL;  // 20ms at 60mph is about 0.5 meters
+    constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL; // 20ms at 60mph is about 0.5 meters
     constexpr uint64_t ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
-    constexpr uint64_t ACU_BMS_VOLTAGES_MAX_HEARTBEAT_MS = 500;   // BMS_VOLTAGES is sent at 10 Hz
-}
+    constexpr uint64_t ACU_BMS_VOLTAGES_MAX_HEARTBEAT_MS = 500; // BMS_VOLTAGES is sent at 10 Hz
+} // namespace VCRInterfaces
 
 namespace VCRSystems
 {
     constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 36;
-    constexpr float MAX_PACK_TO_INVERTER_VOLTAGE_DIFF_V = 20.0f;   // TODO: placeholder, might need to change
-    constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40; // milliseconds
+    constexpr float MAX_PACK_TO_INVERTER_VOLTAGE_DIFF_V = 20.0f; // TODO: placeholder, might need to change
+    constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40;      // milliseconds
     constexpr uint16_t CONTROL_MODE_MISTMATCH_THRESHOLD_MS = 10;
-}
+} // namespace VCRSystems
 
 namespace VCRConstants
 {
@@ -138,7 +138,7 @@ namespace VCRConstants
     constexpr time_us ASYNC_MAIN_PERIOD_US = 100; // 100 us = 10 kHz
 
     constexpr uint8_t SEND_CAN_PRIORITY = 3;
-    constexpr time_us SEND_CAN_PERIOD_US  = 1000; // 1 000 us = 1 000 Hz
+    constexpr time_us SEND_CAN_PERIOD_US = 1000; // 1 000 us = 1 000 Hz
 
     constexpr uint8_t AMS_PRIORITY = 4;
     constexpr time_us AMS_UPDATE_PERIOD_US = 5000; // 5 000 us = 200 Hz
@@ -171,7 +171,7 @@ namespace VCRConstants
     constexpr time_us UPDATE_BRAKELIGHT_PERIOD_US = 50000; // 50 000 us = 20 Hz
 
     constexpr uint8_t ADC1_PRIORITY = 14;
-    constexpr time_us ADC1_SAMPLE_PERIOD_US = 10000;  // 10 000 us = 100 Hz
+    constexpr time_us ADC1_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t IOEXPANDER_PRIORITY = 15;
     constexpr time_us IOEXPANDER_SAMPLE_PERIOD_US = 5000; // 5 000 us = 200 Hz
@@ -184,5 +184,5 @@ namespace VCRConstants
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000;
     constexpr uint32_t RAUX_CAN_BAUDRATE = 500000;
     constexpr uint32_t INVERTER_CAN_BAUDRATE = 500000;
-}
+} // namespace VCRConstants
 #endif /* VCR_CONSTANTS */

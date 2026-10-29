@@ -1,14 +1,11 @@
 #include "controllers/SimpleController.hpp"
 
 
-DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, unsigned long curr_millis)
+DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s& state, unsigned long curr_millis)
 {
-    DrivetrainCommand_s out = { .control_mode = _params.control_mode,
-                                .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
-                                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}
-    };
+    DrivetrainCommand_s out = {.control_mode = _params.control_mode, .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f}, .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    const PedalsSystemData_s &pedals_data = state.interface_data.recvd_pedals_data.pedals_data;
+    const PedalsSystemData_s& pedals_data = state.interface_data.recvd_pedals_data.pedals_data;
     float accel_request = pedals_data.accel_percent - pedals_data.brake_percent;
 
     if (_params.control_mode == DrivetrainControlMode_e::TORQUE)
@@ -34,7 +31,7 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
             /**
              * @note accel_request is negative here, motor_max_regen_torque_nm is positive, so total_torque_request is negative
              *       sign signals regen/braking, matching how InverterInterface routes negative torque to SET_BRAKE_CURRENT
-            */
+             */
             float total_torque_request = _params.motor_max_regen_torque_nm * accel_request;
 
             // regen_bias IS the rear axle's fraction of total regen torque (same convention as accel_bias)
@@ -50,7 +47,7 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
             out.desired_torques.RR = rears_torque_share / 2.0f;
         }
     }
-    else   // SPEED
+    else // SPEED
     {
         // Same bias/split logic as TORQUE mode, just producing a speed target instead of a torque target.
         if (accel_request >= 0.0f)
@@ -73,7 +70,7 @@ DrivetrainCommand_s SimpleTorqueController::evaluate(const VCRData_s &state, uns
             /**
              * @note SET_ERPM's sign represents spin direction, not regen/braking
              *       Reverse rotation is what we want I beleive
-            */
+             */
             float total_speed_request = accel_request * _params.motor_max_rpm;
 
             float rear_speed_fraction = _params.regen_bias;

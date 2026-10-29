@@ -6,6 +6,7 @@
 
 /* External Includes */
 #include "ht_can.h"
+
 #include <FlexCAN_T4.h>
 
 
@@ -32,8 +33,7 @@ struct BrakeTempSensorData_s
  */
 class BrakeRotorTempInterface
 {
-public:
-
+  public:
     // default empty constructor will init state to zeros
     BrakeRotorTempInterface() {}
 
@@ -48,10 +48,9 @@ public:
      * Called by VCF's recv switch
      * @param msg the CAN msg to parse
      */
-    void receive_brake_rotor_temp_data(const CAN_message_t &msg);
+    void receive_brake_rotor_temp_data(const CAN_message_t& msg);
 
-private:
-
+  private:
     BrakeTempSensorData_s _temp_data;
 
     void _update_calculated_values(bool FR);

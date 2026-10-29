@@ -1,7 +1,7 @@
 #include "controllers/DrivebrainController.hpp"
 
 
-DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &curr_state, unsigned long curr_millis)
+DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s& curr_state, unsigned long curr_millis)
 {
     auto db_telem_input = curr_state.interface_data.latest_drivebrain_telem_command;
     auto db_raux_input = curr_state.interface_data.latest_drivebrain_auxillary_command;
@@ -49,15 +49,11 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &curr_state, 
         _raux_latency_info.worst_period_millis = 0;
     }
 
-    unsigned long aux_latency_millis = std::max(
-        curr_millis - db_raux_input.desired_speeds.last_recv_millis,
-        curr_millis - db_raux_input.desired_torques.last_recv_millis
-    );
+    unsigned long aux_latency_millis =
+        std::max(curr_millis - db_raux_input.desired_speeds.last_recv_millis, curr_millis - db_raux_input.desired_torques.last_recv_millis);
 
-    unsigned long telem_latency_millis = std::max(
-        curr_millis - db_telem_input.desired_speeds.last_recv_millis,
-        curr_millis - db_telem_input.desired_torques.last_recv_millis
-    );
+    unsigned long telem_latency_millis =
+        std::max(curr_millis - db_telem_input.desired_speeds.last_recv_millis, curr_millis - db_telem_input.desired_torques.last_recv_millis);
 
     _raux_latency_info.worst_period_millis = std::max(_raux_latency_info.worst_period_millis, aux_latency_millis);
     _telem_latency_info.worst_period_millis = std::max(_telem_latency_info.worst_period_millis, telem_latency_millis);
@@ -65,7 +61,10 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s &curr_state, 
     return msg_out;
 }
 
-void DrivebrainController::_checkDrivebrainCommandTimingFailure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info)
+void DrivebrainController::_checkDrivebrainCommandTimingFailure(
+    StampedDrivetrainCommand_s command,
+    unsigned long curr_millis,
+    MessageLatencyInfo_s& latency_info)
 {
     // Cases for timing_failure:
 

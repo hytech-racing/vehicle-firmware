@@ -1,31 +1,32 @@
 #include "VCREthernetInterface.hpp"
+
 #include "hytech_msgs_version.h"
 
 
 void VCREthernetInterface::initEthernetDevice()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcr_ip,
-                EthernetIPDefsInstance::instance().car_subnet,
-                EthernetIPDefsInstance::instance().default_gateway
-    );
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().vcr_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     _vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
     _vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
 }
 
-hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface &adc_interface,
-                                                            DrivetrainDynamicReport_s &drivetrain_data,
-                                                            const VCFInterface &vcf_interface,
-                                                            const VehicleStateMachine &vehicle_state_machine,
-                                                            const DrivetrainSystem &drivetrain_system,
-                                                            const InverterInterface &fl_inverter,
-                                                            const InverterInterface &fr_inverter,
-                                                            const InverterInterface &rl_inverter,
-                                                            const InverterInterface &rr_inverter,
-                                                            const VCRControls &vcr_controls
-)
+hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(
+    const ADCInterface& adc_interface,
+    DrivetrainDynamicReport_s& drivetrain_data,
+    const VCFInterface& vcf_interface,
+    const VehicleStateMachine& vehicle_state_machine,
+    const DrivetrainSystem& drivetrain_system,
+    const InverterInterface& fl_inverter,
+    const InverterInterface& fr_inverter,
+    const InverterInterface& rl_inverter,
+    const InverterInterface& rr_inverter,
+    const VCRControls& vcr_controls)
 {
-	auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCRData_s out;
 
     // has_data
@@ -63,13 +64,13 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
 
     IOExpanderInterfaceInstance::instance().read();
 
-    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);       // GPA0 = BSPD_OK_SENSE
-    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3);   // GPB3 = VCR_OK_SENSE
-    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);        // GPB1 = BMS_OK_SENSE
-    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);        // GPB2 = IMD_OK_SENSE
+    out.vcr_shutdown_data.bspd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortA(0);     // GPA0 = BSPD_OK_SENSE
+    out.vcr_shutdown_data.watchdog_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(3); // GPB3 = VCR_OK_SENSE
+    out.vcr_shutdown_data.bms_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(1);      // GPB1 = BMS_OK_SENSE
+    out.vcr_shutdown_data.imd_is_ok = IOExpanderInterfaceInstance::instance().getBitPortB(2);      // GPB2 = IMD_OK_SENSE
 
     // VCREthernetLinkData_s
-    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4);        // GPB4 = ACU_LINK_SENSE
+    out.ethernet_is_linked.acu_link = IOExpanderInterfaceInstance::instance().getBitPortB(4); // GPB4 = ACU_LINK_SENSE
     // out.ethernet_is_linked.debug_link = shared_state.interface_data.ethernet_is_linked.debug_link;   // TODO: fix this still
     out.ethernet_is_linked.drivebrain_link = IOExpanderInterfaceInstance::instance().getBitPortA(4); // GPA4 = DB_LINK_SENSE
     out.ethernet_is_linked.teensy_link = IOExpanderInterfaceInstance::instance().getBitPortB(5);     // GPB5 = TEENSY_LINK_SENSE
@@ -94,7 +95,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     out.current_sensor_data.bspd_current_high_sense = adc_interface.is_current_sense_high();
 
 
-    //DrivetrainDynamicReport_s
+    // DrivetrainDynamicReport_s
     out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measured_hv_bus_voltage.FL;
 
     _copyVehVecMembers(drivetrain_data.measured_speeds, out.drivetrain_data.measuredSpeeds);
@@ -103,8 +104,8 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     _copyVehVecMembers(drivetrain_data.measured_id_magnetizing_currents, out.drivetrain_data.measuredMagnetizingCurrents);
 
     // TorqueControllerMuxStatus
-    out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e) vcr_controls.getTCMuxStatus().active_error;
-    out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e) vcr_controls.getTCMuxStatus().active_controller_mode;
+    out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e)vcr_controls.getTCMuxStatus().active_error;
+    out.tcmux_status.active_controller_mode = (hytech_msgs_ControllerMode_e)vcr_controls.getTCMuxStatus().active_controller_mode;
     out.tcmux_status.active_torque_limit_value = vcr_controls.getTCMuxStatus().active_torque_limit_value;
     out.tcmux_status.output_is_bypassing_limits = vcr_controls.getTCMuxStatus().output_is_bypassing_limits;
 
@@ -138,14 +139,14 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(const ADCInterface 
     return out;
 }
 
-void VCREthernetInterface::receiveDrivebrainPBMsg(const hytech_msgs_MCUCommandData &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receiveDrivebrainPBMsg(const hytech_msgs_MCUCommandData& msg_in, VCRData_s& shared_state, unsigned long curr_millis)
 {
-    //TODO: Finish this function. This function could parse the message and put it into shared_state, but depending
-    //      on where things are defined, it might be cleaner for this function to simply return the new data. I do
-    //      not know yet. Definitely worth asking Ben.
+    // TODO: Finish this function. This function could parse the message and put it into shared_state, but depending
+    //       on where things are defined, it might be cleaner for this function to simply return the new data. I do
+    //       not know yet. Definitely worth asking Ben.
 }
 
-void VCREthernetInterface::receiveVCFPBMsg(const hytech_msgs_VCFData_s &msg_in, VCRData_s &shared_state, unsigned long curr_millis)
+void VCREthernetInterface::receiveVCFPBMsg(const hytech_msgs_VCFData_s& msg_in, VCRData_s& shared_state, unsigned long curr_millis)
 {
     // //DashInputState_s
     // shared_state.interface_data.dash_input_state.data_btn_is_pressed = msg_in.dash_input_state.data_btn_is_pressed;
@@ -159,7 +160,7 @@ void VCREthernetInterface::receiveVCFPBMsg(const hytech_msgs_VCFData_s &msg_in, 
     // shared_state.interface_data.dash_input_state.start_btn_is_pressed = msg_in.dash_input_state.start_btn_is_pressed;
 }
 
-void VCREthernetInterface::_copyInverterData(const InverterData_s &original, hytech_msgs_InverterData_s &destination)
+void VCREthernetInterface::_copyInverterData(const InverterData_s& original, hytech_msgs_InverterData_s& destination)
 {
     destination.control_mode = static_cast<uint32_t>(original.control_mode);
     destination.target_iq_apk = original.target_iq_apk;
@@ -186,7 +187,7 @@ void VCREthernetInterface::_copyInverterData(const InverterData_s &original, hyt
     destination.can_map_version = original.can_map_version;
 }
 
-void VCREthernetInterface::_copyInverterLimits(const InverterLimits_s &original, hytech_msgs_InverterLimits_s &destination)
+void VCREthernetInterface::_copyInverterLimits(const InverterLimits_s& original, hytech_msgs_InverterLimits_s& destination)
 {
     destination.max_ac_current_apk = original.max_ac_current_apk;
     destination.available_max_ac_current_apk = original.available_max_ac_current_apk;

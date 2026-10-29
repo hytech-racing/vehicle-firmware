@@ -5,10 +5,11 @@ void initialize_all_systems()
     /**
      * @note etl::delegate stores a pointer to the lambda it is created from, not a copy. The lambdas below are static so
      *       they outlive this function; a non-static lambda would leave every delegate dangling once we return.
-    */
+     */
 
     /* ---------- Drivetrain System ---------- */
-    static auto isHVStatusOK = []() -> bool {
+    static auto isHVStatusOK = []() -> bool
+    {
         unsigned long curr_millis = sys_time::hal_millis();
         ACUCANInterfaceData_s acu_data = ACUInterfaceInstance::instance().getLatestData(curr_millis);
 
@@ -33,35 +34,49 @@ void initialize_all_systems()
         return true;
     };
 
-    DrivetrainInstance::create(
-        makeInverterFuncts(),
-        etl::delegate<bool()>::create(isHVStatusOK)
-    );
+    DrivetrainInstance::create(makeInverterFuncts(), etl::delegate<bool()>::create(isHVStatusOK));
 
     /* ---------- Drivebrain Control System ---------- */
     // Must exist before the VSM below binds handleDrivetrainCommand to it
     VCRControlsInstance::create(&DrivetrainInstance::instance(), VCRSystems::MAX_ALLOWED_DB_LATENCY_MS);
 
     /* ---------- Vehicle State Machine ---------- */
-    static auto setMotorsIdle = []() -> void {
+    static auto setMotorsIdle = []() -> void
+    {
         fl_inverter_interface.setMotorIdle();
         fr_inverter_interface.setMotorIdle();
         rl_inverter_interface.setMotorIdle();
         rr_inverter_interface.setMotorIdle();
     };
 
-    static auto isVehicleLatched = []() -> bool {
-        return vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
-               vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
-               vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE &&
-               vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE;
+    static auto isVehicleLatched = []() -> bool
+    {
+        return vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE
+               && vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.FR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE
+               && vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RL > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE
+               && vcr_data.system_data.drivetrain_data.measured_hv_bus_voltage.RR > VCRSystems::INVERTER_MINIMUM_HV_VOLTAGE;
     };
 
-    static auto startBuzzer = []() -> void { VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(true, false, false); };
-    static auto sendRecalibratePedalsMessage = []() -> void { VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(false, true, false); };
-    static auto sendRecalibrateSteeringMessage = []() -> void { VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(false, false, true); };
-    static auto isDrivetrainFaulted = []() -> bool { return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::FAULTED; };
-    static auto isDrivetrainNotConnected = []() -> bool { return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::NOT_CONNECTED; };
+    static auto startBuzzer = []() -> void
+    {
+        VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(true, false, false);
+    };
+    static auto sendRecalibratePedalsMessage = []() -> void
+    {
+        VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(false, true, false);
+    };
+    static auto sendRecalibrateSteeringMessage = []() -> void
+    {
+        VCFInterfaceInstance::instance().enqueueDashboardStatesCANMessage(false, false, true);
+    };
+    static auto isDrivetrainFaulted = []() -> bool
+    {
+        return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::FAULTED;
+    };
+    static auto isDrivetrainNotConnected = []() -> bool
+    {
+        return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::NOT_CONNECTED;
+    };
 
     VCFInterface& vcf = VCFInterfaceInstance::instance();
 
@@ -81,11 +96,10 @@ void initialize_all_systems()
         etl::delegate<void()>::create(sendRecalibrateSteeringMessage),
         etl::delegate<bool()>::create(isDrivetrainFaulted),
         etl::delegate<bool()>::create(isDrivetrainNotConnected),
-        etl::delegate<void(bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance())
-    );
+        etl::delegate<void(bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance()));
 }
 
-HT_TASK::TaskResponse tickStateMachine(const unsigned long &sysMicros, const HT_TASK::TaskInfo &taskInfo)
+HT_TASK::TaskResponse tickStateMachine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VehicleStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
 

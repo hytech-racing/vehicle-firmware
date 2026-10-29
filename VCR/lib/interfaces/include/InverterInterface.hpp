@@ -6,11 +6,12 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <algorithm>
-#include "SharedFirmwareTypes.h"
-#include <FlexCAN_T4.h>
 #include "CANInterface.h"
+#include "SharedFirmwareTypes.h"
 #include "ht_can.h"
+
+#include <FlexCAN_T4.h>
+#include <algorithm>
 
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"
@@ -23,52 +24,53 @@
  *     Layout: [Packet ID: bits 10:5 (6 bits)] [Node ID: bits 4:0 (5 bits)]
  *   - For all limit booleans: 1 is active, 0 is inactive
  *
-*/
-
+ */
 
 
 namespace dti_default_params
 {
-    constexpr volt MINIMUM_HV_VOLTAGE = 200.0f;  // TODO: confirm real threshold against pack/HV config
-    constexpr volt MAXIMUM_HV_VOLTAGE = 620.f;   // TODO: confirm real threshold against pack/HV config
-    constexpr float LAMBDA_PM_WB = 0.0507f;      // Wb (Weber), from DTI F-MOT
-    constexpr float LD_HENRIES = 0.000243f;      // H, from DTI F-MOT
-    constexpr float LQ_HENRIES = 0.000371f;      // H, from DTI F-MOT
+    constexpr volt MINIMUM_HV_VOLTAGE = 200.0f; // TODO: confirm real threshold against pack/HV config
+    constexpr volt MAXIMUM_HV_VOLTAGE = 620.f;  // TODO: confirm real threshold against pack/HV config
+    constexpr float LAMBDA_PM_WB = 0.0507f;     // Wb (Weber), from DTI F-MOT
+    constexpr float LD_HENRIES = 0.000243f;     // H, from DTI F-MOT
+    constexpr float LQ_HENRIES = 0.000371f;     // H, from DTI F-MOT
     constexpr uint8_t NUM_POLE_PAIRS = 4;
-    constexpr unsigned long CONNECTION_TIMEOUT_MS = 200;    // TODO: tune against actual DTI broadcast rate
-}
+    constexpr unsigned long CONNECTION_TIMEOUT_MS = 200; // TODO: tune against actual DTI broadcast rate
+} // namespace dti_default_params
 
 
 /* ---------- Packet + Node IDs (Status and Command) ---------- */
 namespace dti_status_packet_ids
 {
     // Status (inverter -> VCR)
-    constexpr uint8_t STATUS_GENERAL_CONTROL    = 0x1F; // Control mode, Target Iq, Motor position, isMotorStill
-    constexpr uint8_t STATUS_GENERAL_ELEC       = 0x20; // ERPM, Duty, Input Voltage
-    constexpr uint8_t STATUS_AC_DC_CURRENT      = 0x21; // AC Current, DC Current
-    constexpr uint8_t STATUS_TEMP_AND_FAULT     = 0x22; // Controller Temp, Motor Temp, Fault code
-    constexpr uint8_t STATUS_FOC_CURRENTS       = 0x23; // Id, Iq
-    constexpr uint8_t STATUS_GENERAL_IO         = 0x24; // Throttle signal, Brake signal, Digital I/Os, Drive enable, Limit status bits, CAN map version
-    constexpr uint8_t STATUS_AC_CURRENT_LIMITS  = 0x25; // Configured max AC current, available max AC current, configured min AC current, available min AC current
-    constexpr uint8_t STATUS_DC_CURRENT_LIMITS  = 0x26; // Configured max DC current, available max DC current, configured min DC current, available min DC current
-}
+    constexpr uint8_t STATUS_GENERAL_CONTROL = 0x1F; // Control mode, Target Iq, Motor position, isMotorStill
+    constexpr uint8_t STATUS_GENERAL_ELEC = 0x20;    // ERPM, Duty, Input Voltage
+    constexpr uint8_t STATUS_AC_DC_CURRENT = 0x21;   // AC Current, DC Current
+    constexpr uint8_t STATUS_TEMP_AND_FAULT = 0x22;  // Controller Temp, Motor Temp, Fault code
+    constexpr uint8_t STATUS_FOC_CURRENTS = 0x23;    // Id, Iq
+    constexpr uint8_t STATUS_GENERAL_IO = 0x24;      // Throttle signal, Brake signal, Digital I/Os, Drive enable, Limit status bits, CAN map version
+    constexpr uint8_t STATUS_AC_CURRENT_LIMITS =
+        0x25; // Configured max AC current, available max AC current, configured min AC current, available min AC current
+    constexpr uint8_t STATUS_DC_CURRENT_LIMITS =
+        0x26; // Configured max DC current, available max DC current, configured min DC current, available min DC current
+} // namespace dti_status_packet_ids
 
 namespace dti_command_packet_ids
 {
     // Commands (VCR -> inverter)
-    constexpr uint8_t SET_AC_CURRENT                 = 0x01;
-    constexpr uint8_t SET_BRAKE_CURRENT              = 0x02;
-    constexpr uint8_t SET_ERPM                       = 0x03;   // unused in current-control design, kept for completeness
-    constexpr uint8_t SET_MOTOR_POSITION             = 0x04;
-    constexpr uint8_t SET_RELATIVE_AC_CURRENT        = 0x05;
-    constexpr uint8_t SET_RELATIVE_AC_BRAKE_CURRENT  = 0x06;
-    constexpr uint8_t SET_DIGITAL_OUTPUT             = 0x07;
-    constexpr uint8_t SET_MAX_AC_CURRENT             = 0x08;
-    constexpr uint8_t SET_MAX_AC_BRAKE_CURRENT       = 0x09;
-    constexpr uint8_t SET_MAX_DC_CURRENT             = 0x0A;
-    constexpr uint8_t SET_MAX_DC_BRAKE_CURRENT       = 0x0B;
-    constexpr uint8_t SET_DRIVE_ENABLE               = 0x0C;
-}
+    constexpr uint8_t SET_AC_CURRENT = 0x01;
+    constexpr uint8_t SET_BRAKE_CURRENT = 0x02;
+    constexpr uint8_t SET_ERPM = 0x03; // unused in current-control design, kept for completeness
+    constexpr uint8_t SET_MOTOR_POSITION = 0x04;
+    constexpr uint8_t SET_RELATIVE_AC_CURRENT = 0x05;
+    constexpr uint8_t SET_RELATIVE_AC_BRAKE_CURRENT = 0x06;
+    constexpr uint8_t SET_DIGITAL_OUTPUT = 0x07;
+    constexpr uint8_t SET_MAX_AC_CURRENT = 0x08;
+    constexpr uint8_t SET_MAX_AC_BRAKE_CURRENT = 0x09;
+    constexpr uint8_t SET_MAX_DC_CURRENT = 0x0A;
+    constexpr uint8_t SET_MAX_DC_BRAKE_CURRENT = 0x0B;
+    constexpr uint8_t SET_DRIVE_ENABLE = 0x0C;
+} // namespace dti_command_packet_ids
 
 namespace dti_node_ids
 {
@@ -76,45 +78,45 @@ namespace dti_node_ids
     constexpr uint8_t FR = 2;
     constexpr uint8_t RL = 3;
     constexpr uint8_t RR = 4;
-}
+} // namespace dti_node_ids
 
 /* ---------- Status messages (inverter -> VCR) ---------- */
-struct StatusGeneralControlMsg_s    // 0x1F
+struct StatusGeneralControlMsg_s // 0x1F
 {
     DTIControlMode_e control_mode;
-    float target_iq_apk;            // +/- 850 peak amperes (operational range)
+    float target_iq_apk; // +/- 850 peak amperes (operational range)
     float motor_position_deg;
-    bool is_motor_stationary;       // 1: still/stationary, 0: rotating
+    bool is_motor_stationary; // 1: still/stationary, 0: rotating
 };
 
-struct StatusGeneralElecMsg_s   // 0x20
+struct StatusGeneralElecMsg_s // 0x20
 {
-    int32_t erpm;               // Electrical RPM. ERPM = Motor RPM * number of the motor pole pairs. +/- 120 000 (operational range)
-    float duty_cycle_percent;   // Sign = motoring(+) vs regen(-)
-    float input_voltage;        // 0 - 1000 V (operational range)
+    int32_t erpm;             // Electrical RPM. ERPM = Motor RPM * number of the motor pole pairs. +/- 120 000 (operational range)
+    float duty_cycle_percent; // Sign = motoring(+) vs regen(-)
+    float input_voltage;      // 0 - 1000 V (operational range)
 };
 
-struct StatusActiveCurrentMsg_s     // 0x21
+struct StatusActiveCurrentMsg_s // 0x21
 {
-    float active_ac_current_apk;    // sign = motoring(+) vs regen(-), +/- 850 A_pk
-    float active_dc_current_amp;    // sign = motoring(+) vs regen(-), +/- 850 A
+    float active_ac_current_apk; // sign = motoring(+) vs regen(-), +/- 850 A_pk
+    float active_dc_current_amp; // sign = motoring(+) vs regen(-), +/- 850 A
 };
 
 
-struct StatusTempAndFaultMsg_s  // 0x22
+struct StatusTempAndFaultMsg_s // 0x22
 {
-    float controller_temp_c;    // -55 to +200 (operational range)
-    float motor_temp_c;         // -55 to +200 (operational range)
+    float controller_temp_c; // -55 to +200 (operational range)
+    float motor_temp_c;      // -55 to +200 (operational range)
     DTIFaultCode_e fault_code;
 };
 
-struct StatusFOCCurrentsMsg_s   // 0x23 — measured, not currently consumed downstream
+struct StatusFOCCurrentsMsg_s // 0x23 — measured, not currently consumed downstream
 {
-    float iq_apk;               // +/- 850 A_pk (operational range)
-    float id_apk;               // +/- 850 A_pk (operational range)
+    float iq_apk; // +/- 850 A_pk (operational range)
+    float id_apk; // +/- 850 A_pk (operational range)
 };
 
-struct StatusGeneralIOMsg_s                  // 0x24
+struct StatusGeneralIOMsg_s // 0x24
 {
     float throttle_signal_percent;
     float brake_signal_percent;
@@ -127,9 +129,9 @@ struct StatusGeneralIOMsg_s                  // 0x24
     bool is_digital_output_3_active;
     bool is_digital_output_4_active;
     bool is_drive_enabled;
-    bool is_capacitor_temp_limit_active;    // Inverter can limit the output power to not to overheat the internal capacitors. (only valid HW version 3.6 or newer)
+    bool is_capacitor_temp_limit_active; // Inverter can limit the output power to not to overheat the internal capacitors. (only valid HW version 3.6 or newer)
     bool is_dc_current_limit_active;
-    bool is_drive_enable_limit_active;      // NOTE: NOT an indicator of drive enable state
+    bool is_drive_enable_limit_active; // NOTE: NOT an indicator of drive enable state
     bool is_igbt_accel_temp_limit_active;
     bool is_igbt_temp_limit_active;
     bool is_input_voltage_limit_active;
@@ -138,50 +140,50 @@ struct StatusGeneralIOMsg_s                  // 0x24
     bool is_rpm_min_limit_active;
     bool is_rpm_max_limit_active;
     bool is_power_limit_active;
-    float can_map_version;                  // e.g. 25 -> "2.5"
+    float can_map_version; // e.g. 25 -> "2.5"
 };
 
-struct StatusACConfigCurrentMsg_s           // 0x25
+struct StatusACConfigCurrentMsg_s // 0x25
 {
-    float max_ac_current_apk;               // 0 to +850 A_pk
-    float available_max_ac_current_apk;     // affected by igbt/motor temp limiting etc.
-    float min_ac_current_apk;               // 0 to -850 A_pk
-    float available_min_ac_current_apk;     // affected by igbt/motor temp limiting etc.
+    float max_ac_current_apk;           // 0 to +850 A_pk
+    float available_max_ac_current_apk; // affected by igbt/motor temp limiting etc.
+    float min_ac_current_apk;           // 0 to -850 A_pk
+    float available_min_ac_current_apk; // affected by igbt/motor temp limiting etc.
 };
 
-struct StatusDCConfigCurrentMsg_s           // 0x26
+struct StatusDCConfigCurrentMsg_s // 0x26
 {
-    float max_dc_current_amp;               // 0 to +850 A. Configured w/CAN Tool
-    float available_max_dc_current_amp;     // affected by igbt/motor temp limiting etc.
-    float min_dc_current_amp;               // 0 to -850 A. Configured w/CAN Tool
-    float available_min_dc_current_amp;     // affected by igbt/motor temp limiting etc.
+    float max_dc_current_amp;           // 0 to +850 A. Configured w/CAN Tool
+    float available_max_dc_current_amp; // affected by igbt/motor temp limiting etc.
+    float min_dc_current_amp;           // 0 to -850 A. Configured w/CAN Tool
+    float available_min_dc_current_amp; // affected by igbt/motor temp limiting etc.
 };
 
 
 /* ---------- Command messages (VCR -> inverter) ---------- */
-struct SetACCurrentMsg_s                // 0x01
+struct SetACCurrentMsg_s // 0x01
 {
     float target_ac_current_apk;
     // +/- 850 A_pk (operational range). Sets target motor AC current.
     // Receiving this message auto-switches the inverter to current control mode.
 };
 
-struct SetBrakeCurrentMsg_s             // 0x02
+struct SetBrakeCurrentMsg_s // 0x02
 {
-    float target_brake_current_apk;     // 0 to +850 A_pk (operational range), positive-only
+    float target_brake_current_apk; // 0 to +850 A_pk (operational range), positive-only
 };
 
-struct SetERPMMsg_s     // 0x03
+struct SetERPMMsg_s // 0x03
 {
-    float target_erpm;  // +/- 100,000 (operational range)
+    float target_erpm; // +/- 100,000 (operational range)
 };
 
-struct SetMotorPositionMsg_s    // 0x04
+struct SetMotorPositionMsg_s // 0x04
 {
     float target_motor_position_deg;
 };
 
-struct SetRelativeACCurrentMsg_s    // 0x05
+struct SetRelativeACCurrentMsg_s // 0x05
 {
     float target_ac_current_percent;
     // This command sets a relative AC current to the minimum and maximum limits set by configuration.
@@ -189,11 +191,11 @@ struct SetRelativeACCurrentMsg_s    // 0x05
     // You do not need to know the motor limit parameters for this command
 };
 
-struct SetRelativeACBrakeCurrentMsg_s   // 0x06
+struct SetRelativeACBrakeCurrentMsg_s // 0x06
 {
     float target_ac_brake_current_percent;
 };
-struct SetDigitalOutputsMsg_s   // 0x07
+struct SetDigitalOutputsMsg_s // 0x07
 {
     bool is_digital_output_1_active;
     bool is_digital_output_2_active;
@@ -201,27 +203,27 @@ struct SetDigitalOutputsMsg_s   // 0x07
     bool is_digital_output_4_active;
 };
 
-struct SetMaxACCurrentMsg_s   // 0x08
+struct SetMaxACCurrentMsg_s // 0x08
 {
     float max_ac_current_apk;
 };
 
-struct SetMaxACBrakeCurrentMsg_s   // 0x09
+struct SetMaxACBrakeCurrentMsg_s // 0x09
 {
     float max_ac_brake_current_limit_apk;
 };
 
-struct SetMaxDCCurrentMsg_s   // 0x0A
+struct SetMaxDCCurrentMsg_s // 0x0A
 {
     float max_dc_current_limit_amp;
 };
 
-struct SetMaxDCBrakeCurrentMsg_s   // 0x0B
+struct SetMaxDCBrakeCurrentMsg_s // 0x0B
 {
     float max_dc_brake_current_amp;
 };
 
-struct SetDriveEnableMsg_s   // 0x0C
+struct SetDriveEnableMsg_s // 0x0C
 {
     bool is_drive_enabled;
 };
@@ -257,7 +259,7 @@ struct InverterSetMessages_s
  * @brief The latest setpoints requested through the Drivetrain-facing API. Nothing here reaches the
  *        CAN bus until sendControlCommands() runs
  * @note At most one of pending_ac_current_apk / pending_ac_brake_current_apk is nonzero
-*/
+ */
 struct InverterControlInputs_s
 {
 
@@ -279,43 +281,42 @@ struct DTIParams_s
 
 class InverterInterface
 {
-public:
-
+  public:
     InverterInterface() = delete;
 
     InverterInterface(uint8_t node_id)
-      : _node_id(node_id),
-        _dti_params {
-            .minimum_hv_voltage = dti_default_params::MINIMUM_HV_VOLTAGE,
-            .maximum_hv_voltage = dti_default_params::MAXIMUM_HV_VOLTAGE,
-            .lambda_pm_wb = dti_default_params::LAMBDA_PM_WB,
-            .ld_henries = dti_default_params::LD_HENRIES,
-            .lq_henries = dti_default_params::LQ_HENRIES,
-            .num_pole_pairs = dti_default_params::NUM_POLE_PAIRS,
-            .connection_timeout_ms = dti_default_params::CONNECTION_TIMEOUT_MS
-        }
-    {}
+        : _node_id(node_id),
+          _dti_params{
+              .minimum_hv_voltage = dti_default_params::MINIMUM_HV_VOLTAGE,
+              .maximum_hv_voltage = dti_default_params::MAXIMUM_HV_VOLTAGE,
+              .lambda_pm_wb = dti_default_params::LAMBDA_PM_WB,
+              .ld_henries = dti_default_params::LD_HENRIES,
+              .lq_henries = dti_default_params::LQ_HENRIES,
+              .num_pole_pairs = dti_default_params::NUM_POLE_PAIRS,
+              .connection_timeout_ms = dti_default_params::CONNECTION_TIMEOUT_MS}
+    {
+    }
 
     /**
      * NOTE: Limits are configured using two thresholds: a Limit Start and a Limit End value. Between these two values the allowed current is linearly reduced
      *       from 100% down to 0%. Below the start threshold no limiting is applied; above the end threshold the current is fully suppressed. Each active limit
      *       independently computes its maximum permissible current. The inverter takes the minimum across all active limits as the effective current ceiling
-    */
+     */
 
     /* ---------- Receiving Callbacks ---------- */
-    void receive_GENERAL_CONTROL(const CAN_message_t& can_msg, unsigned long curr_millis);       // 0x1F
-    void receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsigned long curr_millis);          // 0x20
-    void receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis);        // 0x21
-    void receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, unsigned long curr_millis);        // 0x22
-    void receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsigned long curr_millis);          // 0x23
-    void receive_GENERAL_IO(const CAN_message_t& can_msg, unsigned long curr_millis);            // 0x24
-    void receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis);     // 0x25
-    void receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis);     // 0x26
+    void receive_GENERAL_CONTROL(const CAN_message_t& can_msg, unsigned long curr_millis);   // 0x1F
+    void receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsigned long curr_millis);      // 0x20
+    void receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis);    // 0x21
+    void receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, unsigned long curr_millis);    // 0x22
+    void receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsigned long curr_millis);      // 0x23
+    void receive_GENERAL_IO(const CAN_message_t& can_msg, unsigned long curr_millis);        // 0x24
+    void receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis); // 0x25
+    void receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, unsigned long curr_millis); // 0x26
 
     /* ---------- Sending ---------- */
-   /**
-    * @note Each sender is self-validating: NaN/inf becomes 0, then the value is clamped to its own operational range
-    */
+    /**
+     * @note Each sender is self-validating: NaN/inf becomes 0, then the value is clamped to its own operational range
+     */
     void send_AC_CURRENT(float target_ac_current_apk);
     void send_BRAKE_CURRENT(float target_brake_current_apk);
     void send_ERPM(float target_erpm);
@@ -336,7 +337,7 @@ public:
     /**
      * @brief Primary method, which sends calls send_DRIVE_ENABLE and sends the pending setpoint for the given mode. Should be called every loop
      * @param mode decides which pending setpoint is sent (AC/brake current for TORQUE, ERPM for SPEED)
-    */
+     */
     void sendControlCommands(DrivetrainControlMode_e mode);
 
     /* ---------- InverterFuncts_s-facing API ---------- */
@@ -345,19 +346,19 @@ public:
      * @brief Method sets the torque produced by the motors by converting to current
      * @param torque_nm is signed!
      * @note Current value is stored in _control_inputs. Based on sign, store ac or ac brake current.
-    */
+     */
     void setMotorTorque(float torque_nm);
 
     /**
      * @brief Method sets the rpm produced by the motors by converting to ERPM
      * @param speed_rpm is signed!
      * @note ERPM value is stored in _control_inputs. The ERPM command accepts both positive and negative values
-    */
+     */
     void setMotorSpeed(float speed_rpm);
 
     /**
      * @brief Method sets the torque/speed produced by the motors to 0
-    */
+     */
     void setMotorIdle();
 
     /**
@@ -370,7 +371,7 @@ public:
      * @note Method to be used by Drivetrain, which is why we collapse DTI's finer-grained modes (MODE_CURRENT and MODE_CURRENT_BRAKE)
      *       into just TORQUE
      * @return True if the Drivetrain mode matches what the inverter is reporting, false otherwise
-    */
+     */
     bool isReportedModeMatchingDTS(DrivetrainControlMode_e expected_mode) const;
 
     InverterStatus_s getStatus(unsigned long curr_millis) const;
@@ -378,13 +379,13 @@ public:
 
     /**
      * @brief Builds InverterData_s, which is the telemetry-facing snapshot of live inverter data
-    */
+     */
     InverterData_s getTelemetryData() const;
 
     /**
      * @brief Builds InverterLimits_s, which is the telemetry-facing snapshot of live inverter limits configured
      * @note current-limit configuration and limit-active statuses
-    */
+     */
     InverterLimits_s getLimitsData() const;
 
     /* ---------- DTI-specific diagnostics ---------- */
@@ -393,21 +394,20 @@ public:
 
     /**
      * @return a reference to a StatusGeneralIOMsg_s object
-    */
+     */
     const StatusGeneralIOMsg_s& getIOStatus() const;
 
     /**
      * @return a reference to a StatusGeneralControlMsg_s object
-    */
+     */
     const StatusGeneralControlMsg_s& getControlStatus() const;
 
     /**
      * @return a reference to an InverterStatusMessages_s object
-    */
+     */
     const InverterStatusMessages_s& getAllInverterData() const;
 
-private:
-
+  private:
     uint8_t _node_id;
     DTIParams_s _dti_params;
 
@@ -417,12 +417,12 @@ private:
     InverterSetMessages_s _set_commands = {};
     InverterControlInputs_s _control_inputs = {};
 
-    bool _has_received = false;             // false until the first status frame arrives
+    bool _has_received = false; // false until the first status frame arrives
     unsigned long _last_recv_millis = 0;
 
     /**
      * @brief Records that a valid status frame arrived. Called by every receive_* callback.
-    */
+     */
     void _markReceived(unsigned long curr_millis);
 
     /**
@@ -430,7 +430,7 @@ private:
      * @note The formula used is provided in the datasheet
      * LINK: https://docs.zapdrive.eu/fsic/fsic_overview/#torque-estimation
      * @return Total AC Current vector magnitude, which can be directly sent as the target, returns 0 for non-finite torque
-    */
+     */
     float _convertTorqueToCurrent(float torque_nm) const;
 
     /**
@@ -438,20 +438,20 @@ private:
      * @note The formula used is provided in the datasheet
      * LINK: https://docs.zapdrive.eu/fsic/fsic_overview/#torque-estimation
      * @return The total torque provided based on the given iq and id currents
-    */
+     */
     float _convertCurrentToTorque(float id_apk, float iq_apk) const;
 
     /**
      * @brief Method converts a given speed (rpm) to another speed in different units (ERPM)
      * @note The formula is ERPM = RPM * NUM POLE PAIRS
-    */
+     */
     float _convertRPMToERPM(float speed_rpm) const;
 
     /**
      * @brief Method packs an inverter's node ID with the given packet ID into a standard 11-bit CAN ID
      * @param packet_id is any of the IDs (status or set) which are defined above
      * @note Layout: [Packet ID: bits 10:5] [Node ID: bits 4:0]
-    */
+     */
     uint16_t _packCANID(uint8_t packet_id) const;
 };
 

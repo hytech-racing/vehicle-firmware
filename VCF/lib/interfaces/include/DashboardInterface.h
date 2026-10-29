@@ -5,11 +5,12 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <MCP23017.h>
-#include <Wire.h>
+#include "FlexCAN_T4.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
-#include "FlexCAN_T4.h"
+
+#include <MCP23017.h>
+#include <Wire.h>
 
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
@@ -30,15 +31,9 @@ struct DashboardGPIOs_s
 
 class DashboardInterface
 {
-public:
-
-    DashboardInterface(DashboardGPIOs_s gpio,
-                    uint8_t io_expander_addr,
-                    TwoWire &i2c_bus
-    ) : _dashboard_gpios(gpio),
-        _io_expander(MCP23017(io_expander_addr, i2c_bus)),
-        _i2c_bus(i2c_bus)
-    {};
+  public:
+    DashboardInterface(DashboardGPIOs_s gpio, uint8_t io_expander_addr, TwoWire& i2c_bus)
+        : _dashboard_gpios(gpio), _io_expander(MCP23017(io_expander_addr, i2c_bus)), _i2c_bus(i2c_bus) {};
 
     /**
      * @brief Initializes GPIO pins and IO expander.
@@ -52,7 +47,7 @@ public:
 
     bool bms_ok = true;
     bool imd_ok = true;
-    void receive_ACU_OK(const CAN_message_t &can_msg);
+    void receive_ACU_OK(const CAN_message_t& can_msg);
 
     void set_dial_state(ControllerMode_e mode);
 
@@ -62,17 +57,15 @@ public:
 
     DashInputState_s get_dashboard_stored_state();
 
-private:
-
+  private:
     DashboardGPIOs_s _dashboard_gpios;
-    DashInputState_s _dashboard_outputs; // curr state, what the buttons are doing right now
+    DashInputState_s _dashboard_outputs;      // curr state, what the buttons are doing right now
     DashInputState_s _dashboard_stored_state; // previous state, what the buttons were doing last tick
     MCP23017 _io_expander;
-    TwoWire &_i2c_bus;
+    TwoWire& _i2c_bus;
     unsigned long _dash_created_millis;
 
     void _init_io_expander();
-
 };
 
 using DashboardInterfaceInstance = etl::singleton<DashboardInterface>;

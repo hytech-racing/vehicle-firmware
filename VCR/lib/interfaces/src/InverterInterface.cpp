@@ -1,4 +1,5 @@
 #include "InverterInterface.hpp"
+
 #include "VCRCANInterfaceImpl.hpp"
 
 /**
@@ -8,7 +9,7 @@
  *       When the datasheet specifies the scale is 10 for example: raw = physical value on the wire × 10
  *       PCAN's "Factor" field works the opposite direction: physical value on the wire = raw × Factor
  *       Which is why in PCAN we say factor is 0.1.
-*/
+ */
 
 
 /* ---------- Receiving ---------- */
@@ -17,10 +18,7 @@ void InverterInterface::receive_GENERAL_CONTROL(const CAN_message_t& can_msg, un
 {
     INV1_STATUS_GENERAL_CONTROL_t unpacked_msg{};
     Unpack_INV1_STATUS_GENERAL_CONTROL_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_CONTROL_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id);
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_GENERAL_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.general_control_msg;
     msg.control_mode = static_cast<DTIControlMode_e>(unpacked_msg.control_mode);
@@ -35,11 +33,7 @@ void InverterInterface::receive_GENERAL_ELEC(const CAN_message_t& can_msg, unsig
 {
     INV1_STATUS_GENERAL_ELEC_t unpacked_msg{};
     Unpack_INV1_STATUS_GENERAL_ELEC_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_ELEC_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_GENERAL_ELEC_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.general_elec_msg;
     msg.erpm = unpacked_msg.erpm;
@@ -53,11 +47,7 @@ void InverterInterface::receive_ACTIVE_CURRENT(const CAN_message_t& can_msg, uns
 {
     INV1_STATUS_ACTIVE_CURRENT_t unpacked_msg{};
     Unpack_INV1_STATUS_ACTIVE_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_ACTIVE_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_ACTIVE_CURRENT_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.active_current_msg;
     msg.active_ac_current_apk = HT_CAN_active_ac_current_apk_ro_fromS(unpacked_msg.active_ac_current_apk_ro);
@@ -70,11 +60,7 @@ void InverterInterface::receive_TEMP_AND_FAULT(const CAN_message_t& can_msg, uns
 {
     INV1_STATUS_TEMP_AND_FAULT_t unpacked_msg{};
     Unpack_INV1_STATUS_TEMP_AND_FAULT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_TEMP_AND_FAULT_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_TEMP_AND_FAULT_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.temp_and_fault_msg;
     msg.controller_temp_c = HT_CAN_controller_temp_c_ro_fromS(unpacked_msg.controller_temp_c_ro);
@@ -88,11 +74,7 @@ void InverterInterface::receive_FOC_CURRENTS(const CAN_message_t& can_msg, unsig
 {
     INV1_STATUS_FOC_CURRENTS_t unpacked_msg{};
     Unpack_INV1_STATUS_FOC_CURRENTS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_FOC_CURRENTS_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_FOC_CURRENTS_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.foc_current_msg;
     msg.id_apk = HT_CAN_id_apk_ro_fromS(unpacked_msg.id_apk_ro);
@@ -105,11 +87,7 @@ void InverterInterface::receive_GENERAL_IO(const CAN_message_t& can_msg, unsigne
 {
     INV1_STATUS_GENERAL_IO_t unpacked_msg{};
     Unpack_INV1_STATUS_GENERAL_IO_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_GENERAL_IO_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_GENERAL_IO_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.general_io_msg;
     msg.throttle_signal_percent = unpacked_msg.throttle_signal_percent;
@@ -134,7 +112,7 @@ void InverterInterface::receive_GENERAL_IO(const CAN_message_t& can_msg, unsigne
     msg.is_rpm_min_limit_active = unpacked_msg.is_rpm_min_limit_active;
     msg.is_rpm_max_limit_active = unpacked_msg.is_rpm_max_limit_active;
     msg.is_power_limit_active = unpacked_msg.is_power_limit_active;
-    msg.can_map_version = static_cast<float>(unpacked_msg.can_map_version) / 10.0f;   // raw 25 -> 2.5
+    msg.can_map_version = static_cast<float>(unpacked_msg.can_map_version) / 10.0f; // raw 25 -> 2.5
 
     _markReceived(curr_millis);
 }
@@ -143,11 +121,7 @@ void InverterInterface::receive_AC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
 {
     INV1_STATUS_AC_CONFIG_CURRENT_t unpacked_msg{};
     Unpack_INV1_STATUS_AC_CONFIG_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_AC_CONFIG_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_AC_CONFIG_CURRENT_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.ac_config_current_msg;
     msg.max_ac_current_apk = HT_CAN_max_ac_current_apk_ro_fromS(unpacked_msg.max_ac_current_apk_ro);
@@ -162,11 +136,7 @@ void InverterInterface::receive_DC_CONFIG_CURRENT(const CAN_message_t& can_msg, 
 {
     INV1_STATUS_DC_CONFIG_CURRENT_t unpacked_msg{};
     Unpack_INV1_STATUS_DC_CONFIG_CURRENT_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    CAN_util::enqueue_msg(&unpacked_msg,
-                        &Pack_INV1_STATUS_DC_CONFIG_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().telem_can_tx_buffer,
-                        can_msg.id
-    );
+    CAN_util::enqueue_msg(&unpacked_msg, &Pack_INV1_STATUS_DC_CONFIG_CURRENT_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer, can_msg.id);
 
     auto& msg = _feedback_data.dc_config_current_msg;
     msg.max_dc_current_amp = HT_CAN_max_dc_current_amp_ro_fromS(unpacked_msg.max_dc_current_amp_ro);
@@ -189,11 +159,11 @@ void InverterInterface::send_AC_CURRENT(float target_ac_current_apk)
     INV1_SET_AC_CURRENT_t msg_out{};
     msg_out.target_ac_current_apk_ro = HT_CAN_target_ac_current_apk_ro_toS(target_ac_current_apk);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_AC_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_AC_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_AC_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_AC_CURRENT));
 }
 
 void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
@@ -203,25 +173,25 @@ void InverterInterface::send_BRAKE_CURRENT(float target_brake_current_apk)
     INV1_SET_BRAKE_CURRENT_t msg_out{};
     msg_out.target_brake_current_apk_ro = HT_CAN_target_brake_current_apk_ro_toS(target_brake_current_apk);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_BRAKE_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_BRAKE_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_BRAKE_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_BRAKE_CURRENT));
 }
 
 void InverterInterface::send_ERPM(float target_erpm)
 {
-    target_erpm = std::isfinite(target_erpm) ? std::clamp(target_erpm, 0.0f, 100000.0f) : 0.0f;   // forward-only, never command reverse rotation
+    target_erpm = std::isfinite(target_erpm) ? std::clamp(target_erpm, 0.0f, 100000.0f) : 0.0f; // forward-only, never command reverse rotation
 
     INV1_SET_ERPM_t msg_out{};
     msg_out.target_erpm = target_erpm;
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_ERPM_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_ERPM)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_ERPM_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_ERPM));
 }
 
 void InverterInterface::send_MOTOR_POSITION(float target_motor_position_deg)
@@ -231,11 +201,11 @@ void InverterInterface::send_MOTOR_POSITION(float target_motor_position_deg)
     INV1_SET_MOTOR_POSITION_t msg_out{};
     msg_out.target_motor_position_deg_ro = HT_CAN_target_motor_position_deg_ro_toS(target_motor_position_deg);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MOTOR_POSITION_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_MOTOR_POSITION)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_MOTOR_POSITION_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_MOTOR_POSITION));
 }
 
 void InverterInterface::send_REL_AC_CURRENT(float target_ac_current_percent)
@@ -245,11 +215,11 @@ void InverterInterface::send_REL_AC_CURRENT(float target_ac_current_percent)
     INV1_SET_REL_AC_CURRENT_t msg_out{};
     msg_out.target_ac_current_percent_ro = HT_CAN_target_ac_current_percent_ro_toS(target_ac_current_percent);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_REL_AC_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_RELATIVE_AC_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_REL_AC_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_RELATIVE_AC_CURRENT));
 }
 
 void InverterInterface::send_REL_AC_BRAKE_CURRENT(float target_ac_brake_current_percent)
@@ -259,11 +229,11 @@ void InverterInterface::send_REL_AC_BRAKE_CURRENT(float target_ac_brake_current_
     INV1_SET_REL_AC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_ac_brake_current_percent_ro = HT_CAN_target_ac_brake_current_percent_ro_toS(target_ac_brake_current_percent);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_REL_AC_BRAKE_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_RELATIVE_AC_BRAKE_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_REL_AC_BRAKE_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_RELATIVE_AC_BRAKE_CURRENT));
 }
 
 void InverterInterface::send_DIGITAL_OUTPUTS()
@@ -281,11 +251,11 @@ void InverterInterface::send_MAX_AC_CURRENT(float target_max_ac_current_apk)
     // Uses the command signal's own scaling macro (was the 0x25 status signal's macro)
     msg_out.target_max_ac_current_apk_ro = HT_CAN_target_max_ac_current_apk_ro_toS(target_max_ac_current_apk);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_AC_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_MAX_AC_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_MAX_AC_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_MAX_AC_CURRENT));
 }
 
 void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_current_apk)
@@ -295,11 +265,11 @@ void InverterInterface::send_MAX_AC_BRAKE_CURRENT(float target_max_ac_brake_curr
     INV1_SET_MAX_AC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_max_ac_brake_current_apk_ro = HT_CAN_target_max_ac_brake_current_apk_ro_toS(target_max_ac_brake_current_apk);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_AC_BRAKE_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_MAX_AC_BRAKE_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_MAX_AC_BRAKE_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_MAX_AC_BRAKE_CURRENT));
 }
 
 void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_amp)
@@ -310,11 +280,11 @@ void InverterInterface::send_MAX_DC_CURRENT(float target_max_dc_current_amp)
     // Uses the command signal's own scaling macro (was the 0x26 status signal's macro)
     msg_out.target_max_dc_current_amp_ro = HT_CAN_target_max_dc_current_amp_ro_toS(target_max_dc_current_amp);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_DC_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_MAX_DC_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_MAX_DC_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_MAX_DC_CURRENT));
 }
 
 void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_current_amp)
@@ -324,11 +294,11 @@ void InverterInterface::send_MAX_DC_BRAKE_CURRENT(float target_max_dc_brake_curr
     INV1_SET_MAX_DC_BRAKE_CURRENT_t msg_out{};
     msg_out.target_max_dc_brake_current_amp_ro = HT_CAN_target_max_dc_brake_current_amp_ro_toS(target_max_dc_brake_current_amp);
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_MAX_DC_BRAKE_CURRENT_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_MAX_DC_BRAKE_CURRENT)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_MAX_DC_BRAKE_CURRENT_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_MAX_DC_BRAKE_CURRENT));
 }
 
 void InverterInterface::send_DRIVE_ENABLE()
@@ -336,11 +306,11 @@ void InverterInterface::send_DRIVE_ENABLE()
     INV1_SET_DRIVE_ENABLE_t msg_out{};
     msg_out.drive_enable_requested = _enable_requested;
 
-    CAN_util::enqueue_msg(&msg_out,
-                        &Pack_INV1_SET_DRIVE_ENABLE_ht_can,
-                        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
-                        _packCANID(dti_command_packet_ids::SET_DRIVE_ENABLE)
-    );
+    CAN_util::enqueue_msg(
+        &msg_out,
+        &Pack_INV1_SET_DRIVE_ENABLE_ht_can,
+        VCRCANInterfaceInstance::instance().inverter_can_tx_buffer,
+        _packCANID(dti_command_packet_ids::SET_DRIVE_ENABLE));
 }
 
 void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
@@ -355,30 +325,30 @@ void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
 
     switch (mode)
     {
-        case DrivetrainControlMode_e::TORQUE:
+    case DrivetrainControlMode_e::TORQUE:
+    {
+        // Only one command per cycle: the inverter likely follows whichever set-command it received last.
+        // Zero request (coast, or regen limited to zero at low speed) is sent as AC current 0, not brake current 0.
+        if (_control_inputs.pending_ac_brake_current_apk > 0.0f)
         {
-            // Only one command per cycle: the inverter likely follows whichever set-command it received last.
-            // Zero request (coast, or regen limited to zero at low speed) is sent as AC current 0, not brake current 0.
-            if (_control_inputs.pending_ac_brake_current_apk > 0.0f)
-            {
-                send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
-            }
-            else
-            {
-                send_AC_CURRENT(_control_inputs.pending_ac_current_apk);
-            }
-            break;
+            send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
         }
-        case DrivetrainControlMode_e::SPEED:
+        else
         {
-            send_ERPM(_control_inputs.pending_speed_erpm);
-            break;
+            send_AC_CURRENT(_control_inputs.pending_ac_current_apk);
         }
-        default:
-        {
-            send_AC_CURRENT(0.0f);   // unknown mode: command no torque
-            break;
-        }
+        break;
+    }
+    case DrivetrainControlMode_e::SPEED:
+    {
+        send_ERPM(_control_inputs.pending_speed_erpm);
+        break;
+    }
+    default:
+    {
+        send_AC_CURRENT(0.0f); // unknown mode: command no torque
+        break;
+    }
     }
 }
 
@@ -425,18 +395,18 @@ bool InverterInterface::isReportedModeMatchingDTS(DrivetrainControlMode_e expect
 
     switch (expected_mode)
     {
-        case DrivetrainControlMode_e::TORQUE:
-        {
-            return (reported_mode == DTIControlMode_e::MODE_CURRENT) || (reported_mode == DTIControlMode_e::MODE_CURRENT_BRAKE);
-        }
-        case DrivetrainControlMode_e::SPEED:
-        {
-            return (reported_mode == DTIControlMode_e::MODE_SPEED);
-        }
-        default:
-        {
-            return false;
-        }
+    case DrivetrainControlMode_e::TORQUE:
+    {
+        return (reported_mode == DTIControlMode_e::MODE_CURRENT) || (reported_mode == DTIControlMode_e::MODE_CURRENT_BRAKE);
+    }
+    case DrivetrainControlMode_e::SPEED:
+    {
+        return (reported_mode == DTIControlMode_e::MODE_SPEED);
+    }
+    default:
+    {
+        return false;
+    }
     }
 }
 
@@ -449,8 +419,7 @@ InverterStatus_s InverterInterface::getStatus(unsigned long curr_millis) const
     InverterStatus_s status{};
     status.is_inverter_connected = _has_received && (elapsed_ms < static_cast<long>(_dti_params.connection_timeout_ms));
     status.is_fault_code_present = (_feedback_data.temp_and_fault_msg.fault_code != DTIFaultCode_e::NO_FAULTS);
-    status.is_hv_present = status.is_inverter_connected &&
-                           (_feedback_data.general_elec_msg.input_voltage > _dti_params.minimum_hv_voltage);
+    status.is_hv_present = status.is_inverter_connected && (_feedback_data.general_elec_msg.input_voltage > _dti_params.minimum_hv_voltage);
     status.is_drive_enabled = _feedback_data.general_io_msg.is_drive_enabled;
     status.dc_bus_voltage = _feedback_data.general_elec_msg.input_voltage;
     status.last_recv_millis = _last_recv_millis;
@@ -583,9 +552,9 @@ float InverterInterface::_convertTorqueToCurrent(float motor_torque_nm) const
     // Id should only be zero in the base speed region or negative in the field weakening region
     float id_actual = std::min(_feedback_data.foc_current_msg.id_apk, 0.0f);
 
-    float lambda_effective = _dti_params.lambda_pm_wb +
-                            (_dti_params.ld_henries - _dti_params.lq_henries) * // negative value, -128 uH
-                            id_actual; // normally negative
+    float lambda_effective = _dti_params.lambda_pm_wb
+                             + (_dti_params.ld_henries - _dti_params.lq_henries) * // negative value, -128 uH
+                                   id_actual;                                      // normally negative
 
     if (motor_torque_nm == 0.0f)
     {
@@ -600,8 +569,9 @@ float InverterInterface::_convertTorqueToCurrent(float motor_torque_nm) const
 
 float InverterInterface::_convertCurrentToTorque(float id_apk, float iq_apk) const
 {
-    return 1.5f * static_cast<float>(_dti_params.num_pole_pairs) *
-        (_dti_params.lambda_pm_wb * iq_apk + (_dti_params.ld_henries - _dti_params.lq_henries) * id_apk * iq_apk);
+    return 1.5f
+           * static_cast<float>(_dti_params.num_pole_pairs)
+           * (_dti_params.lambda_pm_wb * iq_apk + (_dti_params.ld_henries - _dti_params.lq_henries) * id_apk * iq_apk);
 }
 
 float InverterInterface::_convertRPMToERPM(float motor_speed_rpm) const

@@ -50,7 +50,7 @@ namespace HTUnits
     using torque_nm = float;
     using speed_rpm = float;
     using volts = float;
-};
+}; // namespace HTUnits
 
 struct InverterStatus_s
 {

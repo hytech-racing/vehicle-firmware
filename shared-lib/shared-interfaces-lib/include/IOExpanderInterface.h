@@ -19,8 +19,7 @@ struct IOExpanderParams_s
 
 class IOExpanderInterface
 {
-public:
-
+  public:
     /**
      * We want to build this class like an abstract interface class, something you wil learn in CS1331. When building an abstract
      * interface class in C++, we always want to use virtual,
@@ -30,7 +29,7 @@ public:
      *
      * Destructor: A special member function in C++ that runs automatically when an object is destroyed. Syntax: ~ClassName
      *             It's job is to release any resources the object acquired during its lifetime.
-    */
+     */
     virtual ~IOExpanderInterface() = default;
 
     virtual void read() = 0;
@@ -38,6 +37,5 @@ public:
     virtual bool getBitPortA(uint8_t bit) = 0;
 
     virtual bool getBitPortB(uint8_t bit) = 0;
-
 };
 #endif

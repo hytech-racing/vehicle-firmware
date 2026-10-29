@@ -7,5 +7,3 @@
 VCRData_s vcr_data; // TODO: remove this entirely
 
 unsigned long pulseCount;
-
-

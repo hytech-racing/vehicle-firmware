@@ -6,15 +6,16 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
 #include "CANInterface.h"
+#include "SharedFirmwareTypes.h"
+
 #include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
-#include "DrivebrainInterface.hpp"
-#include "VCFInterface.hpp"
 #include "ACUInterface.hpp"
+#include "DrivebrainInterface.hpp"
 #include "InverterInterface.hpp"
+#include "VCFInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
@@ -30,35 +31,38 @@ using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_256, TX_SIZE_16>;
  */
 struct CANInterfaces_s
 {
-    explicit CANInterfaces_s(ACUInterface &acu_int,
-                            DrivebrainInterface &db_int,
-                            InverterInterface &fl_inv_int,
-                            InverterInterface &fr_inv_int,
-                            InverterInterface &rl_inv_int,
-                            InverterInterface &rr_inv_int,
-                            VCFInterface &vcf_int
-    ) : acu_interface(acu_int),
-        db_interface(db_int),
-        fl_inverter_interface(fl_inv_int),
-        fr_inverter_interface(fr_inv_int),
-        rl_inverter_interface(rl_inv_int),
-        rr_inverter_interface(rr_inv_int),
-        vcf_interface(vcf_int)
-    {};
+    explicit CANInterfaces_s(
+        ACUInterface& acu_int,
+        DrivebrainInterface& db_int,
+        InverterInterface& fl_inv_int,
+        InverterInterface& fr_inv_int,
+        InverterInterface& rl_inv_int,
+        InverterInterface& rr_inv_int,
+        VCFInterface& vcf_int)
+        : acu_interface(acu_int),
+          db_interface(db_int),
+          fl_inverter_interface(fl_inv_int),
+          fr_inverter_interface(fr_inv_int),
+          rl_inverter_interface(rl_inv_int),
+          rr_inverter_interface(rr_inv_int),
+          vcf_interface(vcf_int) {};
 
-    ACUInterface &acu_interface;
-    DrivebrainInterface &db_interface;
-    InverterInterface &fl_inverter_interface;
-    InverterInterface &fr_inverter_interface;
-    InverterInterface &rl_inverter_interface;
-    InverterInterface &rr_inverter_interface;
-    VCFInterface &vcf_interface;
+    ACUInterface& acu_interface;
+    DrivebrainInterface& db_interface;
+    InverterInterface& fl_inverter_interface;
+    InverterInterface& fr_inverter_interface;
+    InverterInterface& rl_inverter_interface;
+    InverterInterface& rr_inverter_interface;
+    VCFInterface& vcf_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 
 struct VCRCANInterface_s
 {
-    explicit VCRCANInterface_s(etl::delegate<void (CANInterfaces_s &, const CAN_message_t &, unsigned long, CANInterfaceType_e)> recv_switch_func) : can_recv_switch(recv_switch_func) {}
+    explicit VCRCANInterface_s(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recv_switch_func)
+        : can_recv_switch(recv_switch_func)
+    {
+    }
 
     FlexCAN_t<CAN1> TELEM_CAN;
     CANRXBuffer_t telem_can_rx_buffer;
@@ -73,21 +77,21 @@ struct VCRCANInterface_s
     CANTXBuffer_t inverter_can_tx_buffer;
 
 
-    etl::delegate<void (CANInterfaces_s &, const CAN_message_t &, uint32_t, CANInterfaceType_e)> can_recv_switch;
+    etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, uint32_t, CANInterfaceType_e)> can_recv_switch;
 };
 using VCRCANInterfaceInstance = etl::singleton<VCRCANInterface_s>;
 
 namespace VCRCANInterfaceImpl
 {
-    void onRAUXCANReceive(const CAN_message_t &msg);
+    void onRAUXCANReceive(const CAN_message_t& msg);
 
-    void onINVERTERCANReceive(const CAN_message_t &msg);
+    void onINVERTERCANReceive(const CAN_message_t& msg);
 
-    void onTELEMCANReceive(const CAN_message_t &msg);
+    void onTELEMCANReceive(const CAN_message_t& msg);
 
-    void receieveIDSwitch(CANInterfaces_s &interfaces, const CAN_message_t &msg, unsigned long millis, CANInterfaceType_e interface_type);
+    void receieveIDSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis, CANInterfaceType_e interface_type);
 
-    void sendAllCANMsgs(CANTXBuffer_t &buffer, FlexCAN_T4_Base *can_interface);
+    void sendAllCANMsgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
 }; // namespace VCRCANInterfaceImpl
 
 #endif // VCRCANINTERFACEIMPL_H

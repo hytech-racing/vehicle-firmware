@@ -20,8 +20,7 @@ void initialize_all_systems()
         .max_sensor_pedal_2 = VCFSystems::ACCEL_MAX_SENSOR_PEDAL_2,
         .deadzone_margin = VCFSystems::ACCEL_DEADZONE_MARGIN,
         .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-        .mechanical_activation_percentage = VCFSystems::ACCEL_MECHANICAL_ACTIVATION_PERCENTAGE
-    };
+        .mechanical_activation_percentage = VCFSystems::ACCEL_MECHANICAL_ACTIVATION_PERCENTAGE};
 
     PedalsParams brake_params = {
         .min_pedal_1 = EEPROMUtilities::read_eeprom_32bit(VCFSystems::BRAKE_1_MIN_ADDR),
@@ -35,8 +34,7 @@ void initialize_all_systems()
         .max_sensor_pedal_2 = VCFSystems::BRAKE_MAX_SENSOR_PEDAL_2,
         .deadzone_margin = VCFSystems::BRAKE_DEADZONE_MARGIN,
         .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-        .mechanical_activation_percentage = VCFSystems::BRAKE_MECHANICAL_ACTIVATION_PERCENTAGE
-    };
+        .mechanical_activation_percentage = VCFSystems::BRAKE_MECHANICAL_ACTIVATION_PERCENTAGE};
     PedalsSystemInstance::create(accel_params, brake_params); // pass in the two different params
 
     /* Steering System */
@@ -47,24 +45,25 @@ void initialize_all_systems()
         .max_steering_signal_digital = EEPROMUtilities::read_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_DIGITAL_ADDR),
         .analog_min_with_margins = EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MIN_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
         .analog_max_with_margins = EEPROMUtilities::read_eeprom_32bit(VCFSystems::ANALOG_MAX_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
-        .digital_min_with_margins = EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
-        .digital_max_with_margins = EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
+        .digital_min_with_margins =
+            EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
+        .digital_max_with_margins =
+            EEPROMUtilities::read_eeprom_32bit(VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR), // NOLINT this is prev saved value so it is ok
         .deg_per_count_analog = VCFSystems::DEG_PER_COUNT_ANALOG,
         .deg_per_count_digital = VCFSystems::DEG_PER_COUNT_DIGITAL,
         .analog_tolerance = VCFSystems::ANALOG_TOLERANCE,
         .digital_tolerance = VCFSystems::DIGITAL_TOLERANCE,
         .max_dtheta_threshold = VCFSystems::MAX_DTHETA_THRESHOLD,
-        .error_between_sensors_tolerance = VCFSystems::ERROR_BETWEEN_SENSORS_TOLERANCE
-    };
+        .error_between_sensors_tolerance = VCFSystems::ERROR_BETWEEN_SENSORS_TOLERANCE};
     steering_params.span_signal_analog = steering_params.max_steering_signal_analog - steering_params.min_steering_signal_analog;
     steering_params.analog_midpoint = (steering_params.max_steering_signal_analog + steering_params.min_steering_signal_analog) / 2;
     steering_params.span_signal_digital = steering_params.max_steering_signal_digital - steering_params.min_steering_signal_digital;
     steering_params.digital_midpoint = (steering_params.min_steering_signal_digital + steering_params.max_steering_signal_digital) / 2;
     SteeringSystemInstance::create(steering_params); // NOLINT thinks steering params is not initialized
-
 }
 
-HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo) {
+HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
     // Observed pedal values (ONLY USED FOR RECALIBRATION)
     // WARNING: These are the true min/max observed values, NOT the "value at min travel" and "value at max travel"
     //          that are defined in the PedalsParam struct.
@@ -87,7 +86,7 @@ HT_TASK::TaskResponse update_pedals_calibration_task(const unsigned long& sysMic
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueue_pedals_data(const unsigned long &sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueue_pedals_data(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     PEDALS_SYSTEM_DATA_t pedals_data = {};
 
@@ -110,7 +109,7 @@ HT_TASK::TaskResponse enqueue_pedals_data(const unsigned long &sys_micros, const
 
 HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    const uint32_t analog_raw = SteeringSystemInstance::instance().get_steering_system_data().analog_raw; // NOLINT thinks this is not initialized
+    const uint32_t analog_raw = SteeringSystemInstance::instance().get_steering_system_data().analog_raw;   // NOLINT thinks this is not initialized
     const uint32_t digital_raw = SteeringSystemInstance::instance().get_steering_system_data().digital_raw; // NOLINT thinks this is not initialized
 
     SteeringSystemInstance::instance().update_observed_steering_limits(analog_raw, digital_raw);
@@ -119,14 +118,30 @@ HT_TASK::TaskResponse update_steering_calibration_task(const unsigned long& sysM
     if (VCRInterfaceInstance::instance().is_in_steering_calibration_state())
     {
         SteeringSystemInstance::instance().recalibrate_steering_digital();
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_analog);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR, SteeringSystemInstance::instance().get_steering_params().max_steering_signal_analog);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::MIN_STEERING_SIGNAL_DIGITAL_ADDR, SteeringSystemInstance::instance().get_steering_params().min_steering_signal_digital);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::MAX_STEERING_SIGNAL_DIGITAL_ADDR, SteeringSystemInstance::instance().get_steering_params().max_steering_signal_digital);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::ANALOG_MIN_WITH_MARGINS_ADDR, SteeringSystemInstance::instance().get_steering_params().analog_min_with_margins);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::ANALOG_MAX_WITH_MARGINS_ADDR, SteeringSystemInstance::instance().get_steering_params().analog_max_with_margins);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR, SteeringSystemInstance::instance().get_steering_params().digital_min_with_margins);
-        EEPROMUtilities::write_eeprom_32bit(VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR, SteeringSystemInstance::instance().get_steering_params().digital_max_with_margins);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::MIN_STEERING_SIGNAL_ANALOG_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().min_steering_signal_analog);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::MAX_STEERING_SIGNAL_ANALOG_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().max_steering_signal_analog);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::MIN_STEERING_SIGNAL_DIGITAL_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().min_steering_signal_digital);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::MAX_STEERING_SIGNAL_DIGITAL_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().max_steering_signal_digital);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::ANALOG_MIN_WITH_MARGINS_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().analog_min_with_margins);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::ANALOG_MAX_WITH_MARGINS_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().analog_max_with_margins);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::DIGITAL_MIN_WITH_MARGINS_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().digital_min_with_margins);
+        EEPROMUtilities::write_eeprom_32bit(
+            VCFSystems::DIGITAL_MAX_WITH_MARGINS_ADDR,
+            SteeringSystemInstance::instance().get_steering_params().digital_max_with_margins);
     }
 
     return HT_TASK::TaskResponse::YIELD;

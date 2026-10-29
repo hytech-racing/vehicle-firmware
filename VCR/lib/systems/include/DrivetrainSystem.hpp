@@ -8,6 +8,7 @@
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 #include "shared_types.h"
+
 #include <cmath>
 
 
@@ -16,8 +17,8 @@
 namespace drivetrain_default_params
 {
     constexpr uint16_t CONTROL_MODE_MISMATCH_THRESHOLD_MS = 100;
-    constexpr uint16_t DRIVE_ENABLE_TIMEOUT_MS = 500;   // TODO: tune against measured DTI drive-enable response time
-}
+    constexpr uint16_t DRIVE_ENABLE_TIMEOUT_MS = 500; // TODO: tune against measured DTI drive-enable response time
+} // namespace drivetrain_default_params
 
 /**
  * @brief When user calls evaluate_drivetrain(), this is part of the returned status.
@@ -27,7 +28,7 @@ namespace drivetrain_default_params
  * @param CANNOT_SEND_NOT_CONNECTED Command was rejected because inverters are not yet connected
  * @param COMMAND_INVALID Command contained NaN/inf or an unknown control mode (motors are idled), or a nonzero command arrived
  *                        while the drivetrain was not READY
-*/
+ */
 enum class DrivetrainCmdResponse_e
 {
     COMMAND_OK = 0,
@@ -46,7 +47,7 @@ enum class DrivetrainCmdResponse_e
  * @param inverter_statuses per-corner status detail (FL/FR/RL/RR), so callers can diagnose corner individually
  * @param cmd_response Whether the command just passed into evaluate_drivetrain() was successful or invalid
  * @param current_dtsm_state the drivetrain state machine's state as of this evaluation.
-*/
+ */
 struct DrivetrainStatus_s
 {
     bool are_all_inverters_connected;
@@ -90,25 +91,26 @@ struct DrivetrainParams_s
  *   NOT_CONNECTED -> CONNECTED_HV_ABSENT -> CONNECTED_HV_PRESENT -> WANTING_OK -> READY
  *   WANTING_OK means drive enable has been requested from the inverters and we are waiting for all four to confirm
  *   FAULTED is entered on any inverter fault code and exits back to NOT_CONNECTED once faults clear
-*/
+ */
 class DrivetrainSystem
 {
-public:
-
+  public:
     DrivetrainSystem() = delete;
 
-    DrivetrainSystem(veh_vec<InverterInterfaceFuncts_s> inverter_interfaces_functs,
-                    etl::delegate<bool()> isHVStatusOK,
-                    DrivetrainParams_s drivetrain_params = {
-                        .control_mode_mismatch_threshold_ms = drivetrain_default_params::CONTROL_MODE_MISMATCH_THRESHOLD_MS,
-                        .drive_enable_timeout_ms = drivetrain_default_params::DRIVE_ENABLE_TIMEOUT_MS,
-                    }
-    ) :
-        _drivetrain_params(drivetrain_params),
-        _current_state(DrivetrainState_e::NOT_CONNECTED),
-        _inverter_interfaces_functs(inverter_interfaces_functs),
-        _isHVStatusOK(isHVStatusOK)
-    {}
+    DrivetrainSystem(
+        veh_vec<InverterInterfaceFuncts_s> inverter_interfaces_functs,
+        etl::delegate<bool()> isHVStatusOK,
+        DrivetrainParams_s drivetrain_params =
+            {
+                .control_mode_mismatch_threshold_ms = drivetrain_default_params::CONTROL_MODE_MISMATCH_THRESHOLD_MS,
+                .drive_enable_timeout_ms = drivetrain_default_params::DRIVE_ENABLE_TIMEOUT_MS,
+            })
+        : _drivetrain_params(drivetrain_params),
+          _current_state(DrivetrainState_e::NOT_CONNECTED),
+          _inverter_interfaces_functs(inverter_interfaces_functs),
+          _isHVStatusOK(isHVStatusOK)
+    {
+    }
 
     /**
      * @brief Advances the drivetrain state machine, applies this tick's command if READY, and sends commands to
@@ -116,7 +118,7 @@ public:
      * @param command this tick's desired torque or speed plus the drive enable request, built by whichever
      *                controller is currently active. Torques/speeds are only applied if the drivetrain is READY
      * @return a DrivetrainStatus_s snapshot
-    */
+     */
     DrivetrainStatus_s evaluateDrivetrain(const DrivetrainCommand_s& command, unsigned long current_millis);
 
     /* GETTERS */
@@ -125,8 +127,7 @@ public:
     const char* getStateName() const;
 
 
-private:
-
+  private:
     DrivetrainParams_s _drivetrain_params;
     DrivetrainState_e _current_state;
     unsigned long _last_state_changed_time = 0;
@@ -140,7 +141,7 @@ private:
     /**
      * @brief Method will check DC bus voltage (input voltage, x4) reported by the inverters is within expected thresholds
      *        and does not deviate from what ACU reports is pack voltage
-    */
+     */
     etl::delegate<bool()> _isHVStatusOK;
 
     /* INTERNAL FUNCTIONS FOR DTSM */
@@ -149,17 +150,17 @@ private:
      * @brief Method is how we transition states
      * @note Runs exit logic for the current state, updates _current_state, runs entry logic for new_state,
      *       and records the transition time (_last_state_changed_time)
-    */
+     */
     void _setState(DrivetrainState_e new_state, unsigned long current_millis);
 
     /**
      * @brief Runs once, on leaving prev_state, before the new state is entered
-    */
+     */
     void _handleExitLogic(DrivetrainState_e prev_state, unsigned long current_millis);
 
     /**
      * @brief Runs once, on entering new_state
-    */
+     */
     void _handleEntryLogic(DrivetrainState_e new_state, unsigned long current_millis);
 
     /**
@@ -167,47 +168,47 @@ private:
      * @note Method only contains pure state-machine logic, does not read or apply a DrivetrainCommand_s (i.e.) does not
      *       command the inverters/motors
      * @return the state after evaluation
-    */
+     */
     DrivetrainState_e _evaluateStateMachine(const DrivetrainCommand_s& command, unsigned long current_millis);
 
     /**
      * @brief Fills _inverter_statuses from each inverter's getInverterStatus()
-    */
+     */
     void _refreshInverterStatuses(unsigned long current_millis);
 
     /**
      * @brief Method checks if we are connected with each of the inverters.
      *        Connection in this case is defined as we are continously receiving CAN messages.
      * @return true if all inverters are connected, false otherwise
-    */
+     */
     bool _areAllInvertersConnected() const;
 
     /**
      * @brief Method checks if any of the 4 inverters (FL, FR, RL, RR) have a fault code
      * @return true if any inverter has a fault code, false otherwise
-    */
+     */
     bool _isAnyInverterFaulted() const;
 
     /**
      * @brief Method will check the drive enable flag per motor/inverter
      * @return True if all inverters are in the drive_enabled state, false otherwise
-    */
+     */
     bool _isDriveEnabled() const;
 
     /**
      * @brief Method will check the current Drivetrain mode is the same as the current mode reported by the inverters
      * @return True if they are mismatched (after the threshold), false otherwise
-    */
+     */
     bool _isControlModeMismatched(unsigned long current_millis) const;
 
     /**
      * @return true if the command's control mode is TORQUE or SPEED and all four values for that mode are finite
-    */
+     */
     bool _isCommandValid(const DrivetrainCommand_s& command) const;
 
     /**
      * @return true if any of the four values for the command's control mode is nonzero
-    */
+     */
     bool _isCommandNonZero(const DrivetrainCommand_s& command) const;
 
     /**
@@ -215,29 +216,28 @@ private:
      *        As redundancy, if the drive enable flag is going to be set low, we will also set the motor idle
      *        This should happen automatically, but since it is untested, we will just add this redundancy feature now
      * @param state is the state the flag will be set to
-    */
+     */
     void _setDriveEnable(bool state);
 
     /**
      * @brief Applies this tick's idle command to each corner by calling setMotorsIdle for every inverter
-    */
+     */
     void _setMotorsIdle();
 
     /**
      * @brief Applies this tick's torque command to each corner by calling setMotorsTorque for every inverter
-    */
+     */
     void _setMotorsTorque(const DrivetrainCommand_s& command, unsigned long current_millis);
 
     /**
      * @brief Applies this tick's speed command to each corner by calling setMotorsSpeed for every inverter
-    */
+     */
     void _setMotorsSpeed(const DrivetrainCommand_s& command, unsigned long current_millis);
 
     /**
      * @brief Calls sendCommands on every inverter with the last commanded control mode
-    */
+     */
     void _sendInverterCommands();
-
 };
 
 using DrivetrainInstance = etl::singleton<DrivetrainSystem>;

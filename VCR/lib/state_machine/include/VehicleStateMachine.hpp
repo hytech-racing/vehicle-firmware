@@ -6,14 +6,13 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
 #include "Logger.h"
+#include "SharedFirmwareTypes.h"
 
 
 class VehicleStateMachine
 {
-public:
-
+  public:
     VehicleStateMachine(
         etl::delegate<void()> setMotorsIdle,
         etl::delegate<bool()> isVehicleLatched,
@@ -30,24 +29,23 @@ public:
         etl::delegate<void()> sendRecalibrateSteeringMessage,
         etl::delegate<bool()> isDrivetrainFaulted,
         etl::delegate<bool()> isDrivetrainNotConnected,
-        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand
-    ) :
-        _setMotorsIdle(setMotorsIdle),
-        _isVehicleLatched(isVehicleLatched),
-        _isRTDPressed(isRTDPressed),
-        _startBuzzer(startBuzzer),
-        _isBrakePressed(isBrakePressed),
-        _isPedalsTimedOut(isPedalsTimedOut),
-        _isSteeringTimedOut(isSteeringTimedOut),
-        _resetPedalsHeartbeat(resetPedalsHeartbeat),
-        _resetSteeringHeartbeat(resetSteeringHeartbeat),
-        _isPedalsRecalibratePressed(isPedalsRecalibratePressed),
-        _isSteeringRecalibratePressed(isSteeringRecalibratePressed),
-        _sendRecalibratePedalsMessage(sendRecalibratePedalsMessage),
-        _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
-        _isDrivetrainFaulted(isDrivetrainFaulted),
-        _isDrivetrainNotConnected(isDrivetrainNotConnected),
-        _handleDrivetrainCommand(handleDrivetrainCommand)
+        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand)
+        : _setMotorsIdle(setMotorsIdle),
+          _isVehicleLatched(isVehicleLatched),
+          _isRTDPressed(isRTDPressed),
+          _startBuzzer(startBuzzer),
+          _isBrakePressed(isBrakePressed),
+          _isPedalsTimedOut(isPedalsTimedOut),
+          _isSteeringTimedOut(isSteeringTimedOut),
+          _resetPedalsHeartbeat(resetPedalsHeartbeat),
+          _resetSteeringHeartbeat(resetSteeringHeartbeat),
+          _isPedalsRecalibratePressed(isPedalsRecalibratePressed),
+          _isSteeringRecalibratePressed(isSteeringRecalibratePressed),
+          _sendRecalibratePedalsMessage(sendRecalibratePedalsMessage),
+          _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
+          _isDrivetrainFaulted(isDrivetrainFaulted),
+          _isDrivetrainNotConnected(isDrivetrainNotConnected),
+          _handleDrivetrainCommand(handleDrivetrainCommand)
     {
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
@@ -56,8 +54,7 @@ public:
 
     VehicleState_e get_state() const { return _current_state; }
 
-private:
-
+  private:
     VehicleState_e _current_state;
 
     /**

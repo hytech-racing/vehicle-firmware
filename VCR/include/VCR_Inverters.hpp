@@ -10,12 +10,12 @@
  *   - VCR_SystemTasks needs a hardware-agnostic bundle of callbacks
  *     (InverterFuncts_s) for the drivetrain system, via make_inverter_functs().
  *
-*/
+ */
 
-#include "VCR_Constants.hpp"
+#include "DrivetrainSystem.hpp" // only for the InverterFuncts_s return type
 #include "InverterInterface.hpp"
-#include "DrivetrainSystem.hpp"   // only for the InverterFuncts_s return type
 #include "SystemTimeInterface.h"
+#include "VCR_Constants.hpp"
 
 extern InverterInterface fl_inverter_interface;
 extern InverterInterface fr_inverter_interface;
@@ -24,7 +24,7 @@ extern InverterInterface rr_inverter_interface;
 
 /**
  * @brief Builds the DrivetrainSystem-facing function bundle for all four inverters.
-*/
+ */
 veh_vec<InverterInterfaceFuncts_s> makeInverterFuncts();
 
 #endif

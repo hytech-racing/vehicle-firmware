@@ -8,7 +8,7 @@ InverterInterface rr_inverter_interface(4);
 
 static InverterInterfaceFuncts_s makeOneInverterFuncts(InverterInterface& inv)
 {
-    return InverterInterfaceFuncts_s {
+    return InverterInterfaceFuncts_s{
         .setMotorsTorque = etl::delegate<void(torque_nm)>::create<InverterInterface, &InverterInterface::setMotorTorque>(inv),
         .setMotorsSpeed = etl::delegate<void(speed_rpm)>::create<InverterInterface, &InverterInterface::setMotorSpeed>(inv),
         .setMotorsIdle = etl::delegate<void()>::create<InverterInterface, &InverterInterface::setMotorIdle>(inv),
@@ -16,8 +16,7 @@ static InverterInterfaceFuncts_s makeOneInverterFuncts(InverterInterface& inv)
         .isReportedModeMatchingDT = etl::delegate<bool(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::isReportedModeMatchingDTS>(inv),
         .getInverterStatus = etl::delegate<InverterStatus_s(unsigned long)>::create<InverterInterface, &InverterInterface::getStatus>(inv),
         .getMotorMechanics = etl::delegate<MotorMechanics_s()>::create<InverterInterface, &InverterInterface::getMotorMechanics>(inv),
-        .sendCommands = etl::delegate<void(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::sendControlCommands>(inv)
-    };
+        .sendCommands = etl::delegate<void(DrivetrainControlMode_e)>::create<InverterInterface, &InverterInterface::sendControlCommands>(inv)};
 }
 
 veh_vec<InverterInterfaceFuncts_s> makeInverterFuncts()
@@ -26,6 +25,5 @@ veh_vec<InverterInterfaceFuncts_s> makeInverterFuncts()
         makeOneInverterFuncts(fl_inverter_interface),
         makeOneInverterFuncts(fr_inverter_interface),
         makeOneInverterFuncts(rl_inverter_interface),
-        makeOneInverterFuncts(rr_inverter_interface)
-    );
+        makeOneInverterFuncts(rr_inverter_interface));
 }

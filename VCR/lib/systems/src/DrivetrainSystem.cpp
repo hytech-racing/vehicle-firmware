@@ -20,7 +20,7 @@ DrivetrainStatus_s DrivetrainSystem::evaluateDrivetrain(const DrivetrainCommand_
         {
             _setMotorsTorque(command, current_millis);
         }
-        else    // _isCommandValid() guarantees SPEED here
+        else // _isCommandValid() guarantees SPEED here
         {
             _setMotorsSpeed(command, current_millis);
         }
@@ -32,8 +32,7 @@ DrivetrainStatus_s DrivetrainSystem::evaluateDrivetrain(const DrivetrainCommand_
     DrivetrainStatus_s status = {};
     status.are_all_inverters_connected = _areAllInvertersConnected();
     status.are_all_inverters_enabled = _isDriveEnabled();
-    status.is_control_mode_mismatch_detected = (current_dtsm_state == DrivetrainState_e::READY) &&
-                                               _isControlModeMismatched(current_millis);
+    status.is_control_mode_mismatch_detected = (current_dtsm_state == DrivetrainState_e::READY) && _isControlModeMismatched(current_millis);
 
     if (current_dtsm_state == DrivetrainState_e::NOT_CONNECTED)
     {
@@ -74,34 +73,34 @@ const char* DrivetrainSystem::getStateName() const
 {
     switch (_current_state)
     {
-        case DrivetrainState_e::NOT_CONNECTED:
-        {
-            return "INVERTERS ARE NOT CONNECTED";
-        }
-        case DrivetrainState_e::CONNECTED_HV_ABSENT:
-        {
-            return "INVERTERS ARE CONNECTED, HV IS NOT PRESENT/OK";
-        }
-        case DrivetrainState_e::CONNECTED_HV_PRESENT:
-        {
-            return "INVERTERS ARE CONNECTED, HV IS PRESENT/OK, DRIVE IS NOT ENABLED";
-        }
-        case DrivetrainState_e::WANTING_OK:
-        {
-            return "DRIVE ENABLE REQUESTED, WAITING FOR ALL INVERTERS TO CONFIRM";
-        }
-        case DrivetrainState_e::READY:
-        {
-            return "INVERTERS ARE CONNECTED, HV IS PRESENT/OK, DRIVE IS ENABLED";
-        }
-        case DrivetrainState_e::FAULTED:
-        {
-            return "ONE OR MORE INVERTERS FAULTED";
-        }
-        default:
-        {
-            return "UNKNOWN";
-        }
+    case DrivetrainState_e::NOT_CONNECTED:
+    {
+        return "INVERTERS ARE NOT CONNECTED";
+    }
+    case DrivetrainState_e::CONNECTED_HV_ABSENT:
+    {
+        return "INVERTERS ARE CONNECTED, HV IS NOT PRESENT/OK";
+    }
+    case DrivetrainState_e::CONNECTED_HV_PRESENT:
+    {
+        return "INVERTERS ARE CONNECTED, HV IS PRESENT/OK, DRIVE IS NOT ENABLED";
+    }
+    case DrivetrainState_e::WANTING_OK:
+    {
+        return "DRIVE ENABLE REQUESTED, WAITING FOR ALL INVERTERS TO CONFIRM";
+    }
+    case DrivetrainState_e::READY:
+    {
+        return "INVERTERS ARE CONNECTED, HV IS PRESENT/OK, DRIVE IS ENABLED";
+    }
+    case DrivetrainState_e::FAULTED:
+    {
+        return "ONE OR MORE INVERTERS FAULTED";
+    }
+    default:
+    {
+        return "UNKNOWN";
+    }
     }
 }
 
@@ -109,187 +108,187 @@ DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(const DrivetrainComman
 {
     switch (getCurrentState())
     {
-        case DrivetrainState_e::NOT_CONNECTED:
+    case DrivetrainState_e::NOT_CONNECTED:
+    {
+        /**
+         * @brief DEFAULT state, have not yet established CAN communication with all 4 inverters
+         * @note We are assuming the DTI's continously send status messages on startup
+         *
+         * ERROR MODES :
+         *  - The inverters we do have communication with are faulted
+         */
+
+        if (_isAnyInverterFaulted())
+        {
+            _setState(DrivetrainState_e::FAULTED, current_millis);
+        }
+        else if (_areAllInvertersConnected())
+        {
+            _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
+        }
+
+        break;
+    }
+    case DrivetrainState_e::CONNECTED_HV_ABSENT:
+    {
+        /**
+         * @brief CAN communication is established with all 4 inverters, but HV is not present/OK
+         * @note This state is the equivalent of TRACTIVE_SYSTEM_NOT_ACTIVE in the Vehicle State Machine
+         *
+         * ERROR MODES :
+         *  - Lose connection with one or more inverters
+         *  - Fault code from one or more inverters
+         */
+
+        if (!_areAllInvertersConnected())
+        {
+            // We will just enter NOT_CONNECTED; FAULTED state is only for fault codes
+            _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
+        }
+        else if (_isAnyInverterFaulted())
+        {
+            _setState(DrivetrainState_e::FAULTED, current_millis);
+        }
+        else if (_isHVStatusOK())
+        {
+            _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
+        }
+
+        break;
+    }
+    case DrivetrainState_e::CONNECTED_HV_PRESENT:
+    {
+        /**
+         * @brief CAN communication established with all 4 inverters and HV is OK, but drive is NOT enabled
+         * @note This state is the equivalent of TRACTIVE_ACTIVE in the Vehicle State Machine
+         *
+         * ERROR MODES
+         *  - Lose connection with one or more inverters (fatal)
+         *  - Fault code from one or more inverters
+         *  - HV is no longer present (Delatch before reaching RTD)
+         */
+
+        if (!_areAllInvertersConnected())
+        {
+            _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
+        }
+        else if (_isAnyInverterFaulted())
+        {
+            _setState(DrivetrainState_e::FAULTED, current_millis);
+        }
+        else if (!_isHVStatusOK())
+        {
+            _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
+        }
+        else if (command.is_drive_enable_requested)
+        {
+            // RTD requested: entry logic asks the inverters to enable, WANTING_OK waits for them to confirm
+            _setState(DrivetrainState_e::WANTING_OK, current_millis);
+        }
+
+        break;
+    }
+    case DrivetrainState_e::WANTING_OK:
+    {
+        /**
+         * @brief Drive enable has been sent to all inverters; waiting for all four to report it back
+         *
+         * ERROR MODES
+         *  - Lose connection with one or more inverters (fatal)
+         *  - Fault code from one or more inverters
+         *  - HV is no longer present (Delatch)
+         *  - Inverters never confirm within drive_enable_timeout_ms
+         */
+
+        if (!_areAllInvertersConnected())
+        {
+            _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
+        }
+        else if (_isAnyInverterFaulted())
+        {
+            _setState(DrivetrainState_e::FAULTED, current_millis);
+        }
+        else if (!_isHVStatusOK())
+        {
+            _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
+        }
+        else if (!command.is_drive_enable_requested)
+        {
+            _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
+        }
+        else if (_isDriveEnabled())
+        {
+            _setState(DrivetrainState_e::READY, current_millis);
+        }
+        else if ((current_millis - _last_state_changed_time) > _drivetrain_params.drive_enable_timeout_ms)
         {
             /**
-             * @brief DEFAULT state, have not yet established CAN communication with all 4 inverters
-             * @note We are assuming the DTI's continously send status messages on startup
-             *
-             * ERROR MODES :
-             *  - The inverters we do have communication with are faulted
-            */
-
-            if (_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::FAULTED, current_millis);
-            }
-            else if (_areAllInvertersConnected())
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
-            }
-
-            break;
+             * @note Not a fault code, so not FAULTED. Back off to HV_PRESENT.
+             *       If the enable request is still true, the next tick re-enters WANTING_OK and retries.
+             *       The VSM is responsible for leaving RTD (dropping the request) when the drivetrain
+             *       isn't READY after its grace period, which ends the retries.
+             */
+            _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
         }
-        case DrivetrainState_e::CONNECTED_HV_ABSENT:
+
+        break;
+    }
+    case DrivetrainState_e::READY:
+    {
+        /**
+         * @brief READY state: 1) Constant CAN communication with all 4 inverters
+         *                      2) HV is present and OK
+         *                      3) drive_enabled HIGH
+         * @note This state is the equivalent of READY_TO_DRIVE in the Vehicle State Machine
+         *
+         * ERROR MODES
+         *  - Lose connection with one or more inverters (fatal)
+         *  - Fault code from one or more inverters
+         *  - HV is no longer present (Delatch)
+         *  - Drive enable request dropped, or an inverter drops enable on its own
+         */
+
+        if (!_areAllInvertersConnected())
         {
-            /**
-             * @brief CAN communication is established with all 4 inverters, but HV is not present/OK
-             * @note This state is the equivalent of TRACTIVE_SYSTEM_NOT_ACTIVE in the Vehicle State Machine
-             *
-             * ERROR MODES :
-             *  - Lose connection with one or more inverters
-             *  - Fault code from one or more inverters
-            */
-
-            if (!_areAllInvertersConnected())
-            {
-                // We will just enter NOT_CONNECTED; FAULTED state is only for fault codes
-                _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
-            }
-            else if (_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::FAULTED, current_millis);
-            }
-            else if (_isHVStatusOK())
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
-            }
-
-            break;
+            _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
         }
-        case DrivetrainState_e::CONNECTED_HV_PRESENT:
+        else if (_isAnyInverterFaulted())
         {
-            /**
-             * @brief CAN communication established with all 4 inverters and HV is OK, but drive is NOT enabled
-             * @note This state is the equivalent of TRACTIVE_ACTIVE in the Vehicle State Machine
-             *
-             * ERROR MODES
-             *  - Lose connection with one or more inverters (fatal)
-             *  - Fault code from one or more inverters
-             *  - HV is no longer present (Delatch before reaching RTD)
-            */
-
-            if (!_areAllInvertersConnected())
-            {
-                _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
-            }
-            else if (_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::FAULTED, current_millis);
-            }
-            else if (!_isHVStatusOK())
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
-            }
-            else if (command.is_drive_enable_requested)
-            {
-                // RTD requested: entry logic asks the inverters to enable, WANTING_OK waits for them to confirm
-                _setState(DrivetrainState_e::WANTING_OK, current_millis);
-            }
-
-            break;
+            _setState(DrivetrainState_e::FAULTED, current_millis);
         }
-        case DrivetrainState_e::WANTING_OK:
+        else if (!_isHVStatusOK())
         {
-            /**
-             * @brief Drive enable has been sent to all inverters; waiting for all four to report it back
-             *
-             * ERROR MODES
-             *  - Lose connection with one or more inverters (fatal)
-             *  - Fault code from one or more inverters
-             *  - HV is no longer present (Delatch)
-             *  - Inverters never confirm within drive_enable_timeout_ms
-            */
-
-            if (!_areAllInvertersConnected())
-            {
-                _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
-            }
-            else if (_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::FAULTED, current_millis);
-            }
-            else if (!_isHVStatusOK())
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
-            }
-            else if (!command.is_drive_enable_requested)
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
-            }
-            else if (_isDriveEnabled())
-            {
-                _setState(DrivetrainState_e::READY, current_millis);
-            }
-            else if ((current_millis - _last_state_changed_time) > _drivetrain_params.drive_enable_timeout_ms)
-            {
-                /**
-                 * @note Not a fault code, so not FAULTED. Back off to HV_PRESENT.
-                 *       If the enable request is still true, the next tick re-enters WANTING_OK and retries.
-                 *       The VSM is responsible for leaving RTD (dropping the request) when the drivetrain
-                 *       isn't READY after its grace period, which ends the retries.
-                */
-                _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
-            }
-
-            break;
+            _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
         }
-        case DrivetrainState_e::READY:
+        else if (!command.is_drive_enable_requested || !_isDriveEnabled())
         {
-            /**
-             * @brief READY state: 1) Constant CAN communication with all 4 inverters
-             *                      2) HV is present and OK
-             *                      3) drive_enabled HIGH
-             * @note This state is the equivalent of READY_TO_DRIVE in the Vehicle State Machine
-             *
-             * ERROR MODES
-             *  - Lose connection with one or more inverters (fatal)
-             *  - Fault code from one or more inverters
-             *  - HV is no longer present (Delatch)
-             *  - Drive enable request dropped, or an inverter drops enable on its own
-            */
-
-            if (!_areAllInvertersConnected())
-            {
-                _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
-            }
-            else if (_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::FAULTED, current_millis);
-            }
-            else if (!_isHVStatusOK())
-            {
-                _setState(DrivetrainState_e::CONNECTED_HV_ABSENT, current_millis);
-            }
-            else if (!command.is_drive_enable_requested || !_isDriveEnabled())
-            {
-                // HV is still fine, so drop back one step rather than to HV_ABSENT
-                _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
-            }
-
-            break;
+            // HV is still fine, so drop back one step rather than to HV_ABSENT
+            _setState(DrivetrainState_e::CONNECTED_HV_PRESENT, current_millis);
         }
-        case DrivetrainState_e::FAULTED:
+
+        break;
+    }
+    case DrivetrainState_e::FAULTED:
+    {
+        /**
+         * @note DTI auto-clears faults internally once the underlying condition has cleared.
+         *       Drive enable is held LOW for the whole time we are in FAULTED (entry logic), so recovery must not
+         *       depend on the inverter reporting drive enabled.
+         *       On recovery we re-climb the ladder from NOT_CONNECTED. The drivetrain will re-enable if the
+         *       request is still true, so the VSM must leave RTD whenever the drivetrain leaves READY.
+         */
+
+        if (!_isAnyInverterFaulted())
         {
-            /**
-             * @note DTI auto-clears faults internally once the underlying condition has cleared.
-             *       Drive enable is held LOW for the whole time we are in FAULTED (entry logic), so recovery must not
-             *       depend on the inverter reporting drive enabled.
-             *       On recovery we re-climb the ladder from NOT_CONNECTED. The drivetrain will re-enable if the
-             *       request is still true, so the VSM must leave RTD whenever the drivetrain leaves READY.
-            */
-
-            if (!_isAnyInverterFaulted())
-            {
-                _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
-            }
-
-            break;
+            _setState(DrivetrainState_e::NOT_CONNECTED, current_millis);
         }
-        default:
-        {
-            break;
-        }
+
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
 
     return getCurrentState();
@@ -309,14 +308,14 @@ void DrivetrainSystem::_handleExitLogic(DrivetrainState_e prev_state, unsigned l
 
     switch (prev_state)
     {
-        case DrivetrainState_e::NOT_CONNECTED:
-        case DrivetrainState_e::CONNECTED_HV_ABSENT:
-        case DrivetrainState_e::CONNECTED_HV_PRESENT:
-        case DrivetrainState_e::WANTING_OK:
-        case DrivetrainState_e::READY:
-        case DrivetrainState_e::FAULTED:
-        default:
-            break;
+    case DrivetrainState_e::NOT_CONNECTED:
+    case DrivetrainState_e::CONNECTED_HV_ABSENT:
+    case DrivetrainState_e::CONNECTED_HV_PRESENT:
+    case DrivetrainState_e::WANTING_OK:
+    case DrivetrainState_e::READY:
+    case DrivetrainState_e::FAULTED:
+    default:
+        break;
     }
 }
 
@@ -324,30 +323,30 @@ void DrivetrainSystem::_handleEntryLogic(DrivetrainState_e new_state, unsigned l
 {
     switch (new_state)
     {
-        case DrivetrainState_e::WANTING_OK:
-        {
-            // Pending setpoints are already zero from the previous (disabled) state's entry logic
-            _setDriveEnable(true);
-            break;
-        }
-        case DrivetrainState_e::READY:
-        {
-            /**
-             * @note Drive enable is already requested from WANTING_OK. Restart the mismatch timer so the inverters
-             *       get the full threshold to switch into the commanded mode.
-            */
-            _last_control_mode_change_millis = current_millis;
-            break;
-        }
-        case DrivetrainState_e::NOT_CONNECTED:
-        case DrivetrainState_e::CONNECTED_HV_ABSENT:
-        case DrivetrainState_e::CONNECTED_HV_PRESENT:
-        case DrivetrainState_e::FAULTED:
-        default:
-        {
-            _setDriveEnable(false);
-            break;
-        }
+    case DrivetrainState_e::WANTING_OK:
+    {
+        // Pending setpoints are already zero from the previous (disabled) state's entry logic
+        _setDriveEnable(true);
+        break;
+    }
+    case DrivetrainState_e::READY:
+    {
+        /**
+         * @note Drive enable is already requested from WANTING_OK. Restart the mismatch timer so the inverters
+         *       get the full threshold to switch into the commanded mode.
+         */
+        _last_control_mode_change_millis = current_millis;
+        break;
+    }
+    case DrivetrainState_e::NOT_CONNECTED:
+    case DrivetrainState_e::CONNECTED_HV_ABSENT:
+    case DrivetrainState_e::CONNECTED_HV_PRESENT:
+    case DrivetrainState_e::FAULTED:
+    default:
+    {
+        _setDriveEnable(false);
+        break;
+    }
     }
 }
 
@@ -420,32 +419,32 @@ bool DrivetrainSystem::_isCommandValid(const DrivetrainCommand_s& command) const
 {
     switch (command.control_mode)
     {
-        case DrivetrainControlMode_e::TORQUE:
+    case DrivetrainControlMode_e::TORQUE:
+    {
+        for (const auto& torque : command.desired_torques.as_array())
         {
-            for (const auto& torque : command.desired_torques.as_array())
+            if (!std::isfinite(torque))
             {
-                if (!std::isfinite(torque))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
         }
-        case DrivetrainControlMode_e::SPEED:
+        return true;
+    }
+    case DrivetrainControlMode_e::SPEED:
+    {
+        for (const auto& speed : command.desired_speeds.as_array())
         {
-            for (const auto& speed : command.desired_speeds.as_array())
+            if (!std::isfinite(speed))
             {
-                if (!std::isfinite(speed))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
         }
-        default:
-        {
-            return false;
-        }
+        return true;
+    }
+    default:
+    {
+        return false;
+    }
     }
 }
 
@@ -453,32 +452,32 @@ bool DrivetrainSystem::_isCommandNonZero(const DrivetrainCommand_s& command) con
 {
     switch (command.control_mode)
     {
-        case DrivetrainControlMode_e::TORQUE:
+    case DrivetrainControlMode_e::TORQUE:
+    {
+        for (const auto& torque : command.desired_torques.as_array())
         {
-            for (const auto& torque : command.desired_torques.as_array())
+            if (torque != 0.0f)
             {
-                if (torque != 0.0f)
-                {
-                    return true;
-                }
+                return true;
             }
-            return false;
         }
-        case DrivetrainControlMode_e::SPEED:
+        return false;
+    }
+    case DrivetrainControlMode_e::SPEED:
+    {
+        for (const auto& speed : command.desired_speeds.as_array())
         {
-            for (const auto& speed : command.desired_speeds.as_array())
+            if (speed != 0.0f)
             {
-                if (speed != 0.0f)
-                {
-                    return true;
-                }
+                return true;
             }
-            return false;
         }
-        default:
-        {
-            return false;
-        }
+        return false;
+    }
+    default:
+    {
+        return false;
+    }
     }
 }
 

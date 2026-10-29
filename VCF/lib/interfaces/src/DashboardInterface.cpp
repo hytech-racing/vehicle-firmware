@@ -22,7 +22,7 @@ void DashboardInterface::sync_dashboard_stored_state()
     _dashboard_stored_state = _dashboard_outputs;
 }
 
-void DashboardInterface::receive_ACU_OK(const CAN_message_t &can_msg)
+void DashboardInterface::receive_ACU_OK(const CAN_message_t& can_msg)
 {
     ACU_OK_t unpacked_msg;
     Unpack_ACU_OK_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)
@@ -38,31 +38,31 @@ void DashboardInterface::set_dial_state(ControllerMode_e mode)
 
 void DashboardInterface::read_ioexpander()
 {
-    uint16_t data = _io_expander.read(); // read data from IOExpander
+    uint16_t data = _io_expander.read();                  // read data from IOExpander
     ControllerMode_e new_mode = ControllerMode_e::MODE_0; // default to mode 0
 
     // check for value of dial
-    if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 0)) // NOLINT 0 is pos of bit
+    if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 0)) // NOLINT 0 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_0;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 1)) // NOLINT 1 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 1)) // NOLINT 1 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_1;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 2)) // NOLINT 2 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 2)) // NOLINT 2 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_2;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 3)) // NOLINT 3 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 3)) // NOLINT 3 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_3;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 4)) // NOLINT 4 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 4)) // NOLINT 4 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_4;
     }
-    else if (IOExpanderUtilities::get_bit(data, (bool) MCP23017Port::B, 5)) // NOLINT 5 is pos of bit
+    else if (IOExpanderUtilities::get_bit(data, (bool)MCP23017Port::B, 5)) // NOLINT 5 is pos of bit
     {
         new_mode = ControllerMode_e::MODE_5;
     }
@@ -72,41 +72,41 @@ void DashboardInterface::read_ioexpander()
     // write to 8-seg display based on current mode
     switch (_dashboard_outputs.dial_state)
     {
-        case ControllerMode_e::MODE_0:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00000010); // NOLINT 0b0000 0010 = 2
-            break;
-        }
-        case ControllerMode_e::MODE_1:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b01010111); // NOLINT 0b0101 0111 = 87
-            break;
-        }
-        case ControllerMode_e::MODE_2:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00011000); // NOLINT 0b0001 1000 = 24
-            break;
-        }
-        case ControllerMode_e::MODE_3:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00010100); // NOLINT 0b0001 0100 = 20
-            break;
-        }
-        case ControllerMode_e::MODE_4:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b01000101); // NOLINT 0b0100 0101 = 69
-            break;
-        }
-        case ControllerMode_e::MODE_5:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b00100100); // NOLINT 0b0010 0100 = 36
-            break;
-        }
-        default:
-        {
-            _io_expander.writePort(MCP23017Port::A, 0b11110000); // NOLINT 0b1111 0000 = 240
-            break;
-        }
+    case ControllerMode_e::MODE_0:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00000010); // NOLINT 0b0000 0010 = 2
+        break;
+    }
+    case ControllerMode_e::MODE_1:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b01010111); // NOLINT 0b0101 0111 = 87
+        break;
+    }
+    case ControllerMode_e::MODE_2:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00011000); // NOLINT 0b0001 1000 = 24
+        break;
+    }
+    case ControllerMode_e::MODE_3:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00010100); // NOLINT 0b0001 0100 = 20
+        break;
+    }
+    case ControllerMode_e::MODE_4:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b01000101); // NOLINT 0b0100 0101 = 69
+        break;
+    }
+    case ControllerMode_e::MODE_5:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b00100100); // NOLINT 0b0010 0100 = 36
+        break;
+    }
+    default:
+    {
+        _io_expander.writePort(MCP23017Port::A, 0b11110000); // NOLINT 0b1111 0000 = 240
+        break;
+    }
     }
 }
 

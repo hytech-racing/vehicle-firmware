@@ -2,16 +2,17 @@
 #define ACUINTERFACE_H
 
 /* ETL Library */
+#include <etl/delegate.h>
 #include <etl/optional.h>
 #include <etl/singleton.h>
-#include <etl/delegate.h>
 
 /* External Includes */
-#include <array>
+#include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
-#include "CANInterface.h"
+
 #include <FlexCAN_T4.h>
+#include <array>
 
 
 namespace default_acu_params
@@ -26,7 +27,7 @@ namespace default_acu_params
     constexpr uint8_t NUM_CELL_TEMPS = 48;
     constexpr uint8_t NUM_BOARD_TEMPS = 12;
     constexpr uint8_t NUM_DATA_PER_GROUP = 3;
-}
+} // namespace default_acu_params
 
 struct ACUInterfaceData_s
 {
@@ -59,9 +60,9 @@ struct ACUInterfaceData_s
 
 class ACUInterface
 {
-public:
-
-    ACUInterface(unsigned long init_ms, unsigned long max_heartbeat_interval_ms) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
+  public:
+    ACUInterface(unsigned long init_ms, unsigned long max_heartbeat_interval_ms)
+        : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
     {
         _curr_data.last_recv_status_ms = 0;
         _curr_data.heartbeat_ok = false; // start out false
@@ -76,7 +77,7 @@ public:
         _curr_data.max_board_temp = 0;
     };
 
-    bool is_acu_heartbeat_not_ok() {return !_curr_data.heartbeat_ok; }
+    bool is_acu_heartbeat_not_ok() { return !_curr_data.heartbeat_ok; }
 
     void reset_acu_heartbeat();
 
@@ -92,11 +93,11 @@ public:
      * @brief Unpacks a BMS voltages CAN message and updates the current average, low, high, and pack
      *        voltage readings
      */
-    void receive_voltages_message(const CAN_message_t& msg, unsigned long curr_millis); //BMS_VOLTAGES and BMS_DETAILED_VOLTAGES
+    void receive_voltages_message(const CAN_message_t& msg, unsigned long curr_millis); // BMS_VOLTAGES and BMS_DETAILED_VOLTAGES
 
     /**
      * @brief
-    */
+     */
     void receive_detailed_voltages_message(const CAN_message_t& msg, unsigned long curr_millis);
 
     /**
@@ -127,12 +128,10 @@ public:
 
     ACUInterfaceData_s get_latest_data() { return _curr_data; };
 
-private:
-
+  private:
     ACUInterfaceData_s _curr_data;
     unsigned long _max_heartbeat_interval_ms;
     bool _first_received_message_heartbeat_init = false;
-
 };
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;

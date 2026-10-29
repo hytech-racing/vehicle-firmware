@@ -1,7 +1,7 @@
 #include "DisplayInterface.h"
 
 
-void DisplayInterface::init(SPI_HandleTypeDef *hspi)
+void DisplayInterface::init(SPI_HandleTypeDef* hspi)
 {
     // set non-needed Display pins low
     pinMode(PB4, OUTPUT);
@@ -12,14 +12,13 @@ void DisplayInterface::init(SPI_HandleTypeDef *hspi)
     _display.begin();
 
     _hspi = hspi;
-
 }
 
 void DisplayInterface::startup()
 {
     _display.drawBitmap(hytech_logo_x, hytech_logo_y, epd_bitmap_Hytech_Logo, hytech_logo_size, hytech_logo_size, 0);
-    //hytech_animation();
-    // driver_animation(StartupAnimations::NONE);
+    // hytech_animation();
+    //  driver_animation(StartupAnimations::NONE);
 }
 
 /**
@@ -79,10 +78,9 @@ void DisplayInterface::draw_background()
     //_display.fillRect(283, 36, 305 - 283, 210 - 36, _black);
     _display.fillRect(283 - 3, (36 + 210 - 36) / 2 + 15, 25, 7, _white);
     _display.fillRect(0, 215, 130, 25, _white);
-
 }
 
-void DisplayInterface::send_display_buffer(SPI_HandleTypeDef *hspi)
+void DisplayInterface::send_display_buffer(SPI_HandleTypeDef* hspi)
 {
     digitalWrite(PB4, HIGH); // set CS high before transmit, low in callback after transmit
     // SerialUSB.println("Starting DMA Transmit");
@@ -91,7 +89,7 @@ void DisplayInterface::send_display_buffer(SPI_HandleTypeDef *hspi)
     HAL_SPI_Transmit(hspi, toggle_vcom, sizeof(toggle_vcom), HAL_MAX_DELAY); // Test transmit to ensure SPI is working
     vcom = vcom ? 0x00 : SHARPMEM_BIT_VCOM;
 
-    SCB_CleanDCache_by_Addr((uint32_t *)_display.getBuffer(), _display.getBufferSize()); // Clean D-Cache before DMA transfer
+    SCB_CleanDCache_by_Addr((uint32_t*)_display.getBuffer(), _display.getBufferSize()); // Clean D-Cache before DMA transfer
     hspi2.Instance->CR1 &= ~SPI_CR1_SPE;
     HAL_SPI_Transmit_DMA(hspi, _display.getBuffer(), _display.getBufferSize()); // Transmit the display buffer using DMA
 }
@@ -168,7 +166,6 @@ void DisplayInterface::display_mode(int mode)
     _display.println(DisplayInterface::_twoDigits(mode));
 
     // SerialUSB.println(mph);
-
 }
 
 void DisplayInterface::display_min_cell(float min_cell_voltage)
