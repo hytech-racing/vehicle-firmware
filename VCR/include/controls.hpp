@@ -23,8 +23,15 @@
 
 // Regen has to be fully cut before the bus reaches the voltage the inverters treat as the top of the HV range
 static_assert(
-    tc_mux_regen_params::REGEN_VOLTAGE_CUTOFF_V <= dti_default_params::MAXIMUM_HV_VOLTAGE,
+    tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V <= dti_default_params::MAXIMUM_HV_VOLTAGE,
     "REGEN_VOLTAGE_CUTOFF_V must not exceed dti_default_params::MAXIMUM_HV_VOLTAGE");
+// The inverter-level cutoff is the hard guarantee for EV.3.3.3, so it has to sit at or above the rules speed on its own
+static_assert(
+    dti_default_params::BRAKE_CURRENT_CUTOFF_KPH >= tc_mux_default_params::RULES_MIN_REGEN_SPEED_KPH,
+    "EV.3.3.3: inverter brake current cutoff must be at or above 5 km/h");
+static_assert(
+    dti_default_params::BRAKE_CURRENT_REENABLE_KPH > dti_default_params::BRAKE_CURRENT_CUTOFF_KPH,
+    "brake current re-enable speed must be above the cutoff for hysteresis");
 
 class VCRControls
 {

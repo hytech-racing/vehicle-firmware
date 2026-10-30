@@ -55,7 +55,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::evaluateTCMux(Controll
 
         if (active_mode_evaluate_output.control_mode == DrivetrainControlMode_e::TORQUE)
         {
-            // Regen branch -> apply limits so that the pack voltage doesn't spike too high and regen fades out at low speed (EV.3.3.3)
+            // Regen branch -> apply limits so that the pack voltage doesn't spike too high and regen is derated at low speed (EV.3.3.3)
             if (active_mode_evaluate_output.desired_torques.FL < 0.0f
                 || active_mode_evaluate_output.desired_torques.FR < 0.0f
                 || active_mode_evaluate_output.desired_torques.RL < 0.0f
@@ -339,73 +339,68 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(
 {
     DrivetrainCommand_s command_output = desired_controller_out;
 
-    // Current motor and inverter behavior
-    DrivetrainDynamicReport_s dt_dynamic_data = dynamic_report;
-    auto current_speeds = dt_dynamic_data.measured_speeds.as_array();
-    auto current_inverter_voltage = dt_dynamic_data.measured_hv_bus_voltage.as_array();
-    auto command_speeds = desired_controller_out.desired_speeds.as_array();
+    auto current_speeds = dynamic_report.measured_speeds.as_array();
+    auto current_inverter_voltage = dynamic_report.measured_hv_bus_voltage.as_array();
 
-    float max_wheel_speed = 0.0f;
+    // Bus voltage derating: reduces regen as the highest inverter bus voltage approaches the cutoff so cells do not limit
     volt max_inverter_voltage = 0.0f;
-    bool are_all_wheels_regen = true; // true when all wheels are targeting speeds below the current wheel speed
-
     for (size_t i = 0; i < _params.num_motors; i++)
     {
-        max_wheel_speed = std::max(max_wheel_speed, static_cast<float>(fabs(current_speeds[i]) * physical_motor_scales::RPM_TO_KILOMETERS_PER_HOUR));
         max_inverter_voltage = std::max(max_inverter_voltage, current_inverter_voltage[i]);
-        are_all_wheels_regen &= (command_speeds[i] < static_cast<float>(fabs(current_speeds[i])) || command_speeds[i] == 0);
     }
+    float voltage_derate_range_v = tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V - tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V;
+    float voltage_derate_scale =
+        1.0f - std::clamp((max_inverter_voltage - tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V) / voltage_derate_range_v, 0.0f, 1.0f);
 
-    // full regen at or above REGEN_FULL_AT_OR_ABOVE_KPH, none at or below REGEN_ZERO_AT_OR_BELOW_KPH; linear ramp in between
-    float torque_scale_down = std::min(
-        1.0f,
-        std::max(
-            0.0f,
-            (max_wheel_speed - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH)
-                / (tc_mux_default_params::REGEN_FULL_AT_OR_ABOVE_KPH - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH))); // FIX: removed self-assignment
-                                                                                                                             // (was `= torque_scale_down =`)
-
-    // limit torque based on overvoltage so that cells do not limit; using linear ramp
-    float over_voltage_protection_scale = std::min(
-        1.0f,
-        std::max(
-            0.0f,
-            (max_inverter_voltage - tc_mux_default_params::REGEN_VOLTAGE_FADE_START_V)
-                / (tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V - tc_mux_default_params::REGEN_VOLTAGE_FADE_START_V)));
-    torque_scale_down *= (1.0f - over_voltage_protection_scale);
-
-    // regen power limit (what was wrong with this??)
-    // if (acu_data.tractive_system_current < 0) // we don't want to apply the regen power limit until we observe a negative
-    // {
-    //     float electrical_power = acu_data.max_measured_ts_out_voltage * (-1.0f * acu_data.tractive_system_current);
-    //     float wheelspeed_to_power_scale = std::min(1.0f, std::max(0.0f, 1 - (max_wheel_rpm / 20000.0f)));
-    //     torque_scale_down *= (1.0f - wheelspeed_to_power_scale);
-    // }
-
-    // over voltage, rules regen limit
-    if (are_all_wheels_regen)
+    // Speed derating: no regen at or below REGEN_ZERO_AT_OR_BELOW_KPH, full at or above REGEN_FULL_AT_OR_ABOVE_KPH, linear in between
+    float speed_derate_range_kph = tc_mux_default_params::REGEN_FULL_AT_OR_ABOVE_KPH - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH;
+    auto speedDerateScale = [speed_derate_range_kph](float wheel_rpm) -> float
     {
-        if (command_output.control_mode == DrivetrainControlMode_e::TORQUE)
+        float wheel_speed_kph = std::fabs(wheel_rpm) * physical_motor_scales::RPM_TO_KILOMETERS_PER_HOUR;
+        return std::clamp((wheel_speed_kph - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH) / speed_derate_range_kph, 0.0f, 1.0f);
+    };
+
+    if (command_output.control_mode == DrivetrainControlMode_e::TORQUE)
+    {
+        // Per wheel, using that wheel's own speed, and only on braking torque: positive torque is never scaled here.
+        // The speed and voltage derates are independent limits, so the stricter one applies (like the DTI's own limits)
+        auto limitRegenTorque = [&](torque_nm desired_torque_nm, float wheel_rpm) -> torque_nm
         {
-            command_output.desired_torques.FL *= torque_scale_down;
-            command_output.desired_torques.FR *= torque_scale_down;
-            command_output.desired_torques.RL *= torque_scale_down;
-            command_output.desired_torques.RR *= torque_scale_down;
+            return (desired_torque_nm < 0.0f) ? desired_torque_nm * std::min(speedDerateScale(wheel_rpm), voltage_derate_scale) : desired_torque_nm;
+        };
+
+        command_output.desired_torques.FL = limitRegenTorque(command_output.desired_torques.FL, current_speeds[0]);
+        command_output.desired_torques.FR = limitRegenTorque(command_output.desired_torques.FR, current_speeds[1]);
+        command_output.desired_torques.RL = limitRegenTorque(command_output.desired_torques.RL, current_speeds[2]);
+        command_output.desired_torques.RR = limitRegenTorque(command_output.desired_torques.RR, current_speeds[3]);
+    }
+    else if (command_output.control_mode == DrivetrainControlMode_e::SPEED)
+    {
+        auto command_speeds = desired_controller_out.desired_speeds.as_array();
+
+        float max_wheel_rpm = 0.0f;
+        bool are_all_wheels_regen = true; // true when all wheels are targeting speeds below the current wheel speed
+        for (size_t i = 0; i < _params.num_motors; i++)
+        {
+            max_wheel_rpm = std::max(max_wheel_rpm, std::fabs(current_speeds[i]));
+            are_all_wheels_regen &= (command_speeds[i] < std::fabs(current_speeds[i]) || command_speeds[i] == 0);
         }
-        else if (command_output.control_mode == DrivetrainControlMode_e::SPEED)
+        float regen_derate_scale = std::min(speedDerateScale(max_wheel_rpm), voltage_derate_scale);
+
+        if (are_all_wheels_regen)
         {
             /**
              * @note Linear interpolation used
              *       command_speeds are already below current_speeds here so scaling them further toward zero
              *       would WIDEN the speed error and command MORE aggressive braking/regen, not less.
-             *       Instead we interpolate the target toward the MEASURED (current) speed as torque_scale_down -> 0,
+             *       Instead we interpolate the target toward the MEASURED (current) speed as regen_derate_scale -> 0,
              *       which narrows the speed error the inner loop sees and should reduce the torque/regen it applies
              * @warning needs verification against actual DTI speed-loop behavior, ts might not work
              */
-            command_output.desired_speeds.FL = current_speeds[0] + torque_scale_down * (command_output.desired_speeds.FL - current_speeds[0]);
-            command_output.desired_speeds.FR = current_speeds[1] + torque_scale_down * (command_output.desired_speeds.FR - current_speeds[1]);
-            command_output.desired_speeds.RL = current_speeds[2] + torque_scale_down * (command_output.desired_speeds.RL - current_speeds[2]);
-            command_output.desired_speeds.RR = current_speeds[3] + torque_scale_down * (command_output.desired_speeds.RR - current_speeds[3]);
+            command_output.desired_speeds.FL = current_speeds[0] + regen_derate_scale * (command_output.desired_speeds.FL - current_speeds[0]);
+            command_output.desired_speeds.FR = current_speeds[1] + regen_derate_scale * (command_output.desired_speeds.FR - current_speeds[1]);
+            command_output.desired_speeds.RL = current_speeds[2] + regen_derate_scale * (command_output.desired_speeds.RL - current_speeds[2]);
+            command_output.desired_speeds.RR = current_speeds[3] + regen_derate_scale * (command_output.desired_speeds.RR - current_speeds[3]);
         }
     }
 

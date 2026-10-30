@@ -30,11 +30,11 @@ namespace tc_mux_default_params
     constexpr speed_rpm MAX_AVG_SPEED_RPM = 1.0f;     // TODO: PLACEHOLDER -- must be set to a real value before use
 
     // Regen, applied by _applyRegenLimit
-    constexpr float RULES_MIN_REGEN_SPEED_KPH = 5.0f; // EV.3.3.3: no regen between 0 and 5 km/h
-    constexpr float REGEN_ZERO_AT_OR_BELOW_KPH = 5.0f;   // no regen at or below this speed
-    constexpr float REGEN_FULL_AT_OR_ABOVE_KPH = 10.0f;  // full regen at or above this speed, linear ramp in between
-    constexpr volt REGEN_VOLTAGE_FADE_START_V = 520.0f;  // bus voltage where regen starts being reduced (based on DCIR)
-    constexpr volt REGEN_VOLTAGE_CUTOFF_V = 530.0f;      // bus voltage where regen is fully removed
+    constexpr float RULES_MIN_REGEN_SPEED_KPH = 5.0f;     // EV.3.3.3: no regen between 0 and 5 km/h
+    constexpr float REGEN_ZERO_AT_OR_BELOW_KPH = 5.0f;    // no regen at or below this speed
+    constexpr float REGEN_FULL_AT_OR_ABOVE_KPH = 10.0f;   // full regen at or above this speed, linear ramp in between
+    constexpr volt REGEN_VOLTAGE_DERATE_START_V = 520.0f; // bus voltage where regen starts being reduced (based on DCIR)
+    constexpr volt REGEN_VOLTAGE_CUTOFF_V = 530.0f;       // bus voltage where regen is fully removed
 }; // namespace tc_mux_default_params
 
 static_assert(
@@ -47,8 +47,8 @@ static_assert(
     tc_mux_default_params::REGEN_FULL_AT_OR_ABOVE_KPH > tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH,
     "regen speed ramp must go from zero to full as speed increases");
 static_assert(
-    tc_mux_default_params::REGEN_VOLTAGE_FADE_START_V < tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V,
-    "regen voltage fade must start below the cutoff");
+    tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V < tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V,
+    "regen voltage derating must start below the cutoff");
 
 struct TCMuxParams_s
 {

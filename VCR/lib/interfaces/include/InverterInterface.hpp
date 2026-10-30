@@ -15,6 +15,7 @@
 
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"
+#include "PhysicalParameters.hpp"
 
 /**
  * GENERAL INFORMATION
@@ -41,6 +42,11 @@ namespace dti_default_params
     constexpr float MAX_AC_CURRENT_APK = 850.0f;
     constexpr float MAX_DC_CURRENT_AMP = 850.0f;
     constexpr float MAX_ERPM = 100000.0f;
+
+    // Brake current is only sent while the motor is moving: below the cutoff the inverter is idled (AC current 0) so it can
+    // never push the car backwards, and regen stays off below EV.3.3.3's 5 km/h. Re-allowed above REENABLE (hysteresis).
+    constexpr float BRAKE_CURRENT_CUTOFF_KPH = 5.0f;
+    constexpr float BRAKE_CURRENT_REENABLE_KPH = 6.0f;
 } // namespace dti_default_params
 
 
@@ -271,6 +277,7 @@ struct InverterControlInputs_s
     float pending_ac_current_apk;       // meaningful only when control_mode == TORQUE
     float pending_ac_brake_current_apk; // meaningful only when control_mode == TORQUE
     float pending_speed_erpm;           // meaningful only when control_mode == SPEED
+    bool is_idle_requested;             // when true, AC current 0 is sent regardless of control mode
 };
 
 struct DTIParams_s
@@ -363,6 +370,7 @@ class InverterInterface
 
     /**
      * @brief Method sets the torque/speed produced by the motors to 0
+     * @note Idle is always sent as AC current 0, in any control mode. ERPM 0 would be a speed target that brakes hard.
      */
     void setMotorIdle();
 
@@ -423,12 +431,22 @@ class InverterInterface
     InverterControlInputs_s _control_inputs = {};
 
     bool _has_received = false; // false until the first status frame arrives
+
+    // Hysteresis state for the brake current speed cutoff, see dti_default_params::BRAKE_CURRENT_CUTOFF_KPH
+    bool _is_brake_current_allowed = false;
     unsigned long _last_recv_millis = 0;
 
     /**
      * @brief Records that a valid status frame arrived. Called by every receive_* callback.
      */
     void _markReceived(unsigned long curr_millis);
+
+    /**
+     * @brief Updates _is_brake_current_allowed from this motor's measured speed
+     * @note Disallowed below BRAKE_CURRENT_CUTOFF_KPH, when the inverter reports the motor stationary, or before any data arrived.
+     *       Only re-allowed above BRAKE_CURRENT_REENABLE_KPH so it does not chatter around the cutoff
+     */
+    void _updateBrakeCurrentAllowed();
 
     /**
      * @brief Method converts a given motor torque (nm) to the total AC Current vector magnitude (iq, id)

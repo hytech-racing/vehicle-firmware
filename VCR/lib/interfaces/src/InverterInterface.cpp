@@ -322,8 +322,9 @@ void InverterInterface::send_DRIVE_ENABLE()
 void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
 {
     send_DRIVE_ENABLE();
+    _updateBrakeCurrentAllowed();
 
-    if (!_enable_requested)
+    if (!_enable_requested || _control_inputs.is_idle_requested)
     {
         send_AC_CURRENT(0.0f);
         return;
@@ -337,7 +338,15 @@ void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
         // Zero request (coast, or regen limited to zero at low speed) is sent as AC current 0, not brake current 0.
         if (_control_inputs.pending_ac_brake_current_apk > 0.0f)
         {
-            send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
+            // Below the cutoff speed a braking request idles the motor instead, so brake current can never act at standstill
+            if (_is_brake_current_allowed)
+            {
+                send_BRAKE_CURRENT(_control_inputs.pending_ac_brake_current_apk);
+            }
+            else
+            {
+                send_AC_CURRENT(0.0f);
+            }
         }
         else
         {
@@ -364,6 +373,7 @@ void InverterInterface::sendControlCommands(DrivetrainControlMode_e mode)
 void InverterInterface::setMotorTorque(float requested_torque_nm)
 {
     float total_ac_current_mag = _convertTorqueToCurrent(requested_torque_nm);
+    _control_inputs.is_idle_requested = false;
 
     // Exactly one of the two is nonzero, so sendControlCommands() never sees a stale value from the other direction
     if (total_ac_current_mag >= 0.0f)
@@ -381,6 +391,7 @@ void InverterInterface::setMotorTorque(float requested_torque_nm)
 void InverterInterface::setMotorSpeed(float requested_speed_rpm)
 {
     _control_inputs.pending_speed_erpm = _convertRPMToERPM(requested_speed_rpm);
+    _control_inputs.is_idle_requested = false;
 }
 
 void InverterInterface::setMotorIdle()
@@ -388,6 +399,7 @@ void InverterInterface::setMotorIdle()
     _control_inputs.pending_ac_current_apk = 0.0f;
     _control_inputs.pending_ac_brake_current_apk = 0.0f;
     _control_inputs.pending_speed_erpm = 0.0f;
+    _control_inputs.is_idle_requested = true;
 }
 
 void InverterInterface::requestEnable(bool enable)
@@ -546,6 +558,22 @@ void InverterInterface::_markReceived(unsigned long curr_millis)
 {
     _last_recv_millis = curr_millis;
     _has_received = true;
+}
+
+void InverterInterface::_updateBrakeCurrentAllowed()
+{
+    float motor_rpm = static_cast<float>(_feedback_data.general_elec_msg.erpm) / static_cast<float>(_dti_params.num_pole_pairs);
+    float wheel_speed_kph = std::fabs(motor_rpm) * physical_motor_scales::RPM_TO_KILOMETERS_PER_HOUR;
+
+    if (!_has_received || _feedback_data.general_control_msg.is_motor_stationary || (wheel_speed_kph < dti_default_params::BRAKE_CURRENT_CUTOFF_KPH))
+    {
+        _is_brake_current_allowed = false;
+    }
+    else if (wheel_speed_kph > dti_default_params::BRAKE_CURRENT_REENABLE_KPH)
+    {
+        _is_brake_current_allowed = true;
+    }
+    // Between the two thresholds: keep the previous decision
 }
 
 float InverterInterface::_convertTorqueToCurrent(float motor_torque_nm) const
