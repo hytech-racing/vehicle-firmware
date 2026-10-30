@@ -24,14 +24,20 @@ namespace ttpms_default_params
     constexpr float HS_PRESSURE_SCALE_MBAR = 0.1f;
     constexpr float HS_PRESSURE_OFFSET_MBAR = 3000.0f;
 
-    /* Receiver programming constants (datasheet Appendix A.1 - A.3) */
-    constexpr uint16_t BASE_CONFIG_PROGRAMMING_CONSTANT = 0x7530;
-    constexpr uint16_t RF_CONFIG_PROGRAMMING_CONSTANT = 0x4E34;
-    constexpr uint16_t EMISSIVITY_T1_T6_PROGRAMMING_CONSTANT = 0x4E3E;
-    constexpr uint16_t EMISSIVITY_T7_T12_PROGRAMMING_CONSTANT = 0x4E3F;
-    constexpr uint16_t EMISSIVITY_T13_T16_PROGRAMMING_CONSTANT = 0x4E40;
-    constexpr uint8_t SENSOR_ASSIGNMENT_DEFAULT = 1;
-    constexpr uint8_t DEFAULT_EMISSIVITY_RAW = 0x4C; // 0.76, datasheet says DO NOT CHANGE
+
+    /* Receiver command IDs, called "Programming Constant" in the datasheet (Appendix A.1 - A.3) */
+
+    constexpr uint16_t BASE_CONFIG_COMMAND_ID = 0x7530;   // PROGRAMMING: CAN Base ID, Sensor Assignment, and Bit Rate Emissivity
+    constexpr uint16_t RF_CONFIG_COMMAND_ID = 0x4E34;     // PROGRAMMING: Network, Node ID, and RF Frequency
+
+    // “Emissivity” (Byte 5) must be set to “Custom” in order to activate custom emissivity assignments
+    constexpr uint16_t EMISSIVITY_T1_T6_COMMAND_ID = 0x4E3E;
+    constexpr uint16_t EMISSIVITY_T7_T12_COMMAND_ID = 0x4E3F;
+    constexpr uint16_t EMISSIVITY_T13_T16_COMMAND_ID = 0x4E40;
+
+    constexpr uint8_t SENSOR_ASSIGNMENT_DEFAULT = 1; // This cannot be changed
+    constexpr uint8_t EMISSIVITY_RAW_DEFAULT = 0x4C; // 0.76, datasheet says DO NOT CHANGE
+
     constexpr uint16_t MIN_BASE_CAN_ID = 0x001;
     constexpr uint16_t MAX_BASE_CAN_ID = 0x7FF - 5; // receiver uses base ID through base ID + 5
 
@@ -49,9 +55,9 @@ namespace ttpms_default_params
 }
 
 /**
- * Programming constants sent in bytes 0-1 of receiver configuration messages (datasheet Appendix A.1 - A.3)
+ * Command IDs sent in bytes 0-1 of receiver configuration messages ("Programming Constant" in datasheet Appendix A.1 - A.3)
  */
-struct TTPMSProgrammingCodes_s
+struct TTPMSCommandIDs_s
 {
     uint16_t base_config;
     uint16_t rf_config;
@@ -62,7 +68,7 @@ struct TTPMSProgrammingCodes_s
 
 struct TTPMSParams_s
 {
-    TTPMSProgrammingCodes_s programming_codes;
+    TTPMSCommandIDs_s command_ids;
 
     /* Health thresholds */
     uint16_t low_battery_threshold_mv;
@@ -74,7 +80,7 @@ struct TTPMSParams_s
 
     /* Receiver programming */
     uint8_t sensor_assignment_default;
-    uint8_t default_emissivity_raw;
+    uint8_t emissivity_raw_default;
     uint16_t min_base_can_id;
     uint16_t max_base_can_id;
     uint32_t min_rf_frequency_hz;
@@ -115,21 +121,20 @@ struct TTPMSSingleSensorData_s
 {
     /* Message 1 */
     uint16_t serial_number;
-    uint16_t bat_voltage;       // mV
-    float pressure;             // High-speed absolute pressure, mBar
-    float gauge_pressure;       // mBar
+    uint16_t battery_voltage_mv;    // mV
+    float pressure;                 // High-speed absolute pressure, mBar
+    float gauge_pressure;           // mBar
     /* Messages 2-5 */
     std::array<float, TEMP_CHANNELS> temp_data; // Infrared temps CH1 (inside) - CH16 (outside), degC
     /* Message 6 */
     uint16_t transmission_count;
-    int16_t rssi;               // dBm
-    float sensor_temp;          // Internal sensor temperature, degC
+    int16_t rssi_dbm;               // dBm
+    float sensor_temp;              // Internal sensor temperature, degC
     uint16_t node_id;
 
     /* Derived health status */
-    bool battery_low;           // bat_voltage below LOW_BATTERY_THRESHOLD_MV
-    bool rssi_weak;             // rssi below MIN_RSSI_DBM
-    bool sensor_over_temp;      // sensor_temp above MAX_SENSOR_TEMP_C
+    bool is_battery_low;           // bat_voltage below LOW_BATTERY_THRESHOLD_MV
+    bool is_rssi_weak;             // rssi below MIN_RSSI_DBM
 
     /* Receive timestamps */
     unsigned long last_pressure_recv_millis;    // Message 1
@@ -152,19 +157,19 @@ public:
     TTPMSInterface()
       : _ttpms_data{},
         _params {
-            .programming_codes = {
-                ttpms_default_params::BASE_CONFIG_PROGRAMMING_CONSTANT,
-                ttpms_default_params::RF_CONFIG_PROGRAMMING_CONSTANT,
-                ttpms_default_params::EMISSIVITY_T1_T6_PROGRAMMING_CONSTANT,
-                ttpms_default_params::EMISSIVITY_T7_T12_PROGRAMMING_CONSTANT,
-                ttpms_default_params::EMISSIVITY_T13_T16_PROGRAMMING_CONSTANT
+            .command_ids = {
+                ttpms_default_params::BASE_CONFIG_COMMAND_ID,
+                ttpms_default_params::RF_CONFIG_COMMAND_ID,
+                ttpms_default_params::EMISSIVITY_T1_T6_COMMAND_ID,
+                ttpms_default_params::EMISSIVITY_T7_T12_COMMAND_ID,
+                ttpms_default_params::EMISSIVITY_T13_T16_COMMAND_ID
             },
             .low_battery_threshold_mv = ttpms_default_params::LOW_BATTERY_THRESHOLD_MV,
             .min_rssi_dbm = ttpms_default_params::MIN_RSSI_DBM,
             .hs_pressure_scale_mbar = ttpms_default_params::HS_PRESSURE_SCALE_MBAR,
             .hs_pressure_offset_mbar =  ttpms_default_params::HS_PRESSURE_OFFSET_MBAR,
             .sensor_assignment_default = ttpms_default_params::SENSOR_ASSIGNMENT_DEFAULT,
-            .default_emissivity_raw =  ttpms_default_params::DEFAULT_EMISSIVITY_RAW,
+            .emissivity_raw_default =  ttpms_default_params::EMISSIVITY_RAW_DEFAULT,
             .min_base_can_id = ttpms_default_params::MIN_BASE_CAN_ID,
             .max_base_can_id = ttpms_default_params::MAX_BASE_CAN_ID,
             .min_rf_frequency_hz = ttpms_default_params::MIN_RF_FREQUENCY_HZ,
@@ -191,23 +196,10 @@ public:
     void receiveTTPMSData(const CAN_message_t &msg, unsigned long curr_millis);
 
     /**
-     * @brief Method to print all TTMPS data for a single wheel
-     * @param wheel_label is a string (i.e. FL, FR, etc.)
-     * @param sensor is a reference to data struct for a sensor
-    */
-    void printTTPMSData(const char* wheel_label, const TTPMSSingleSensorData_s &sensor);
-
-    /**
-     * @brief Returns true if a sensor has sent its pressure message within timeout_ms.
-     * Note: sensors sleep when uninflated/cold and only send every 240s when inflated and idle,
-     * so pick timeout_ms according to the expected operating state.
+     * @return true if a sensor has sent its pressure message within timeout_ms.
+     * @note Sensors sleep when uninflated/cold and only send every 240s when inflated and idle
      */
-    static bool isSensorActive(const TTPMSSingleSensorData_s &sensor, unsigned long curr_millis, unsigned long timeout_ms);
-
-    /**
-     * @brief Returns the current base CAN ID of the receiver for a given corner (default IDs)
-     */
-    static uint16_t getReceiverBaseID(TTPMSCorner_e corner);
+    bool isSensorActive(const TTPMSSingleSensorData_s &sensor, unsigned long curr_millis, unsigned long timeout_ms);
 
     /**
      * @brief Builds the basic receiver programming message (datasheet A.1)
@@ -254,14 +246,27 @@ public:
 
 private:
 
+    /**
+     * @brief Returns the current base CAN ID of the receiver for a given corner (default IDs)
+     */
+    uint16_t _getReceiverBaseID(TTPMSCorner_e corner) const;
+
+    /**
+     * @brief Checks if the battery health or RSSI (Received Signal Strength Indicator) of the sensors is too low.
+     */
     void _updateHealth(TTPMSSingleSensorData_s &sensor) const;
 
+    /**
+     * @brief Conversion method.
+     */
     float _hsPressureFromRaw(uint16_t raw) const;
 
-    static void _packProgrammingConstant(CAN_message_t &msg, TTPMSCorner_e corner, uint16_t programming_constant);
+    /**
+     * @brief Creates a CAN message based on the given corner and command ID
+    */
+    void _packCommandID(CAN_message_t &msg, TTPMSCorner_e corner, uint16_t command_id) const;
 
     TTPMSAllSensorData_s _ttpms_data;
-
     const TTPMSParams_s _params = {};
 
     std::array<CAN_message_t, ttpms_default_params::MAX_CONFIG_MSGS> _config_msgs;
@@ -271,7 +276,6 @@ private:
     unsigned long _last_config_send_millis = 0;
 
 };
-
 using TTPMSInterfaceInstance = etl::singleton<TTPMSInterface>;
 
 #endif // __TTPMSINTERFACE_H__

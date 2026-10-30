@@ -7,7 +7,6 @@ TTPMSAllSensorData_s TTPMSInterface::getTTPMSData() const
     return _ttpms_data;
 }
 
-
 void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned long curr_millis)
 {
     switch (can_msg.id)
@@ -24,7 +23,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.fl_ttpms.serial_number = unpacked_can_msg.LF_TTPMS_SN;
-                _ttpms_data.fl_ttpms.bat_voltage = unpacked_can_msg.LF_TTPMS_BAT_V;
+                _ttpms_data.fl_ttpms.battery_voltage_mv = unpacked_can_msg.LF_TTPMS_BAT_V;
                 _ttpms_data.fl_ttpms.pressure = _hsPressureFromRaw(unpacked_can_msg.LF_TTPMS_P_ro);
                 _ttpms_data.fl_ttpms.gauge_pressure = unpacked_can_msg.LF_TTPMS_P_GAUGE;
                 _ttpms_data.fl_ttpms.last_pressure_recv_millis = curr_millis;
@@ -109,7 +108,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.fl_ttpms.transmission_count = unpacked_can_msg.LF_TTPMS_TC;
-                _ttpms_data.fl_ttpms.rssi = unpacked_can_msg.LF_TTPMS_RSSI;
+                _ttpms_data.fl_ttpms.rssi_dbm = unpacked_can_msg.LF_TTPMS_RSSI;
                 _ttpms_data.fl_ttpms.sensor_temp = HYTECH_LF_TTPMS_T_ro_fromS(unpacked_can_msg.LF_TTPMS_T_ro);
                 _ttpms_data.fl_ttpms.node_id = unpacked_can_msg.LF_TTPMS_NODE_ID;
                 _ttpms_data.fl_ttpms.last_status_recv_millis = curr_millis;
@@ -131,7 +130,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.fr_ttpms.serial_number = unpacked_can_msg.RF_TTPMS_SN;
-                _ttpms_data.fr_ttpms.bat_voltage = unpacked_can_msg.RF_TTPMS_BAT_V;
+                _ttpms_data.fr_ttpms.battery_voltage_mv = unpacked_can_msg.RF_TTPMS_BAT_V;
                 _ttpms_data.fr_ttpms.pressure = _hsPressureFromRaw(unpacked_can_msg.RF_TTPMS_P_ro);
                 _ttpms_data.fr_ttpms.gauge_pressure = unpacked_can_msg.RF_TTPMS_P_GAUGE;
                 _ttpms_data.fr_ttpms.last_pressure_recv_millis = curr_millis;
@@ -217,7 +216,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.fr_ttpms.transmission_count = unpacked_can_msg.RF_TTPMS_TC;
-                _ttpms_data.fr_ttpms.rssi = unpacked_can_msg.RF_TTPMS_RSSI;
+                _ttpms_data.fr_ttpms.rssi_dbm = unpacked_can_msg.RF_TTPMS_RSSI;
                 _ttpms_data.fr_ttpms.sensor_temp = HYTECH_RF_TTPMS_T_ro_fromS(unpacked_can_msg.RF_TTPMS_T_ro);
                 _ttpms_data.fr_ttpms.node_id = unpacked_can_msg.RF_TTPMS_NODE_ID;
                 _ttpms_data.fr_ttpms.last_status_recv_millis = curr_millis;
@@ -239,7 +238,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.rl_ttpms.serial_number = unpacked_can_msg.LR_TTPMS_SN;
-                _ttpms_data.rl_ttpms.bat_voltage = unpacked_can_msg.LR_TTPMS_BAT_V;
+                _ttpms_data.rl_ttpms.battery_voltage_mv = unpacked_can_msg.LR_TTPMS_BAT_V;
                 _ttpms_data.rl_ttpms.pressure = _hsPressureFromRaw(unpacked_can_msg.LR_TTPMS_P_ro);
                 _ttpms_data.rl_ttpms.gauge_pressure = unpacked_can_msg.LR_TTPMS_P_GAUGE;
                 _ttpms_data.rl_ttpms.last_pressure_recv_millis = curr_millis;
@@ -325,7 +324,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.rl_ttpms.transmission_count = unpacked_can_msg.LR_TTPMS_TC;
-                _ttpms_data.rl_ttpms.rssi = unpacked_can_msg.LR_TTPMS_RSSI;
+                _ttpms_data.rl_ttpms.rssi_dbm = unpacked_can_msg.LR_TTPMS_RSSI;
                 _ttpms_data.rl_ttpms.sensor_temp = HYTECH_LR_TTPMS_T_ro_fromS(unpacked_can_msg.LR_TTPMS_T_ro);
                 _ttpms_data.rl_ttpms.node_id = unpacked_can_msg.LR_TTPMS_NODE_ID;
                 _ttpms_data.rl_ttpms.last_status_recv_millis = curr_millis;
@@ -347,7 +346,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.rr_ttpms.serial_number = unpacked_can_msg.RR_TTPMS_SN;
-                _ttpms_data.rr_ttpms.bat_voltage = unpacked_can_msg.RR_TTPMS_BAT_V;
+                _ttpms_data.rr_ttpms.battery_voltage_mv = unpacked_can_msg.RR_TTPMS_BAT_V;
                 _ttpms_data.rr_ttpms.pressure = _hsPressureFromRaw(unpacked_can_msg.RR_TTPMS_P_ro);
                 _ttpms_data.rr_ttpms.gauge_pressure = unpacked_can_msg.RR_TTPMS_P_GAUGE;
                 _ttpms_data.rr_ttpms.last_pressure_recv_millis = curr_millis;
@@ -433,7 +432,7 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
                 );
 
                 _ttpms_data.rr_ttpms.transmission_count = unpacked_can_msg.RR_TTPMS_TC;
-                _ttpms_data.rr_ttpms.rssi = unpacked_can_msg.RR_TTPMS_RSSI;
+                _ttpms_data.rr_ttpms.rssi_dbm = unpacked_can_msg.RR_TTPMS_RSSI;
                 _ttpms_data.rr_ttpms.sensor_temp = HYTECH_RR_TTPMS_T_ro_fromS(unpacked_can_msg.RR_TTPMS_T_ro);
                 _ttpms_data.rr_ttpms.node_id = unpacked_can_msg.RR_TTPMS_NODE_ID;
                 _ttpms_data.rr_ttpms.last_status_recv_millis = curr_millis;
@@ -445,63 +444,9 @@ void TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
     }
 }
 
-void TTPMSInterface::printTTPMSData(const char* wheel_label, const TTPMSSingleSensorData_s &sensor)
-{
-    Serial.print("[");
-    Serial.print(wheel_label);
-    Serial.print("] SN: ");
-    Serial.print(sensor.serial_number);
-    Serial.print("  BatV: ");
-    Serial.print(sensor.bat_voltage);
-    Serial.print("  Pressure: ");
-    Serial.print(sensor.pressure, 2);
-    Serial.print("  GaugeP: ");
-    Serial.println(sensor.gauge_pressure);
-
-    Serial.print("[");
-    Serial.print(wheel_label);
-    Serial.print("] TC: ");
-    Serial.print(sensor.transmission_count);
-    Serial.print("  RSSI: ");
-    Serial.print(sensor.rssi);
-    Serial.print("  SensorT: ");
-    Serial.print(sensor.sensor_temp, 1);
-    Serial.print("  NodeID: ");
-    Serial.print(sensor.node_id);
-    if (sensor.battery_low) { Serial.print("  [LOW BATTERY]"); }
-    if (sensor.rssi_weak) { Serial.print("  [WEAK RSSI]"); }
-    if (sensor.sensor_over_temp) { Serial.print("  [OVER TEMP]"); }
-    Serial.println();
-
-    Serial.print("[");
-    Serial.print(wheel_label);
-    Serial.print("] Temps: ");
-    for (int i = 0; i < TEMP_CHANNELS; i++)
-    {
-        Serial.print("T");
-        Serial.print(i + 1);
-        Serial.print("=");
-        Serial.print(sensor.temp_data[i], 2);
-        Serial.print(" ");
-    }
-    Serial.println();
-}
-
 bool TTPMSInterface::isSensorActive(const TTPMSSingleSensorData_s &sensor, unsigned long curr_millis, unsigned long timeout_ms)
 {
     return (sensor.last_pressure_recv_millis != 0) && ((curr_millis - sensor.last_pressure_recv_millis) <= timeout_ms);
-}
-
-uint16_t TTPMSInterface::getReceiverBaseID(TTPMSCorner_e corner)
-{
-    switch (corner)
-    {
-        case TTPMSCorner_e::LF: return LF_TTPMS_1_CANID;
-        case TTPMSCorner_e::RF: return RF_TTPMS_1_CANID;
-        case TTPMSCorner_e::LR: return LR_TTPMS_1_CANID;
-        case TTPMSCorner_e::RR: return RR_TTPMS_1_CANID;
-    }
-    return LF_TTPMS_1_CANID;
 }
 
 bool TTPMSInterface::buildBaseConfigMsg(TTPMSCorner_e corner, uint16_t new_base_id, TTPMSBitRate_e bit_rate,
@@ -517,7 +462,7 @@ bool TTPMSInterface::buildBaseConfigMsg(TTPMSCorner_e corner, uint16_t new_base_
         return false;
     }
 
-    _packProgrammingConstant(msg_out, corner, _params.programming_codes.base_config);
+    _packCommandID(msg_out, corner, _params.command_ids.base_config);
     msg_out.buf[2] = static_cast<uint8_t>(new_base_id >> 8);
     msg_out.buf[3] = static_cast<uint8_t>(new_base_id & 0xFF);
     msg_out.buf[4] = _params.sensor_assignment_default;
@@ -537,7 +482,7 @@ bool TTPMSInterface::buildRFConfigMsg(TTPMSCorner_e corner, uint8_t network_id, 
     }
 
     uint16_t frequency_raw = static_cast<uint16_t>(frequency_hz / _params.rf_frequency_resolution_hz);
-    _packProgrammingConstant(msg_out, corner, _params.programming_codes.rf_config);
+    _packCommandID(msg_out, corner, _params.command_ids.rf_config);
     msg_out.buf[2] = network_id;
     msg_out.buf[3] = node_id;
     msg_out.buf[4] = static_cast<uint8_t>(frequency_raw >> 8);
@@ -562,26 +507,26 @@ bool TTPMSInterface::buildEmissivityConfigMsgs(TTPMSCorner_e corner, const std::
     }
 
     // T1 - T6
-    _packProgrammingConstant(msgs_out[0], corner, _params.programming_codes.emissivity_t1_t6);
+    _packCommandID(msgs_out[0], corner, _params.command_ids.emissivity_t1_t6);
     for (size_t i = 0; i < 6; i++)
     {
         msgs_out[0].buf[2 + i] = emissivity_raw[i];
     }
 
     // T7 - T12
-    _packProgrammingConstant(msgs_out[1], corner, _params.programming_codes.emissivity_t7_t12);
+    _packCommandID(msgs_out[1], corner, _params.command_ids.emissivity_t7_t12);
     for (size_t i = 0; i < 6; i++)
     {
         msgs_out[1].buf[2 + i] = emissivity_raw[6 + i];
     }
 
     // T13 - T16, then the default emissivity which must not be changed
-    _packProgrammingConstant(msgs_out[2], corner, _params.programming_codes.emissivity_t13_t16);
+    _packCommandID(msgs_out[2], corner, _params.command_ids.emissivity_t13_t16);
     for (size_t i = 0; i < 4; i++)
     {
         msgs_out[2].buf[2 + i] = emissivity_raw[12 + i];
     }
-    msgs_out[2].buf[6] = _params.default_emissivity_raw;
+    msgs_out[2].buf[6] = _params.emissivity_raw_default;
     msgs_out[2].buf[7] = 0;
     return true;
 }
@@ -631,12 +576,23 @@ void TTPMSInterface::updateConfigSequence(unsigned long curr_millis)
     }
 }
 
+uint16_t TTPMSInterface::_getReceiverBaseID(TTPMSCorner_e corner) const
+{
+    switch (corner)
+    {
+        case TTPMSCorner_e::LF: return LF_TTPMS_1_CANID;
+        case TTPMSCorner_e::RF: return RF_TTPMS_1_CANID;
+        case TTPMSCorner_e::LR: return LR_TTPMS_1_CANID;
+        case TTPMSCorner_e::RR: return RR_TTPMS_1_CANID;
+    }
+    return LF_TTPMS_1_CANID;
+}
+
 void TTPMSInterface::_updateHealth(TTPMSSingleSensorData_s &sensor) const
 {
     // Only flag once the relevant message has actually been received
-    sensor.battery_low = (sensor.last_pressure_recv_millis != 0) && (sensor.bat_voltage < _params.low_battery_threshold_mv);
-    sensor.rssi_weak = (sensor.last_status_recv_millis != 0) && (sensor.rssi < _params.min_rssi_dbm);
-    sensor.sensor_over_temp = (sensor.last_status_recv_millis != 0) && (sensor.sensor_temp > _params.max_sensor_temp_c);
+    sensor.is_battery_low = (sensor.last_pressure_recv_millis != 0) && (sensor.battery_voltage_mv < _params.low_battery_threshold_mv);
+    sensor.is_rssi_weak = (sensor.last_status_recv_millis != 0) && (sensor.rssi_dbm < _params.min_rssi_dbm);
 }
 
 float TTPMSInterface::_hsPressureFromRaw(uint16_t raw) const
@@ -646,12 +602,12 @@ float TTPMSInterface::_hsPressureFromRaw(uint16_t raw) const
     return (static_cast<float>(static_cast<int16_t>(raw)) * _params.hs_pressure_scale_mbar) + _params.hs_pressure_offset_mbar;
 }
 
-void TTPMSInterface::_packProgrammingConstant(CAN_message_t &msg, TTPMSCorner_e corner, uint16_t programming_constant)
+void TTPMSInterface::_packCommandID(CAN_message_t &msg, TTPMSCorner_e corner, uint16_t command_id) const
 {
     msg = CAN_message_t();
-    msg.id = getReceiverBaseID(corner);
+    msg.id = _getReceiverBaseID(corner);
     msg.len = 8;
     msg.flags.extended = 0;
-    msg.buf[0] = static_cast<uint8_t>(programming_constant >> 8);  // Big-endian / Motorola
-    msg.buf[1] = static_cast<uint8_t>(programming_constant & 0xFF);
+    msg.buf[0] = static_cast<uint8_t>(command_id >> 8);  // Big-endian / Motorola
+    msg.buf[1] = static_cast<uint8_t>(command_id & 0xFF);
 }
