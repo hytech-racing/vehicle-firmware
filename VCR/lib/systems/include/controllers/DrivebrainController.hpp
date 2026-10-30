@@ -61,7 +61,7 @@ class DrivebrainController
   private:
     DrivebrainControllerParams_s _params;
     bool _should_run_controller = true;
-    bool _last_reset_worse_latency_clock = 0;
+    unsigned long _last_reset_worse_latency_clock = 0;
     MessageLatencyInfo_s _raux_latency_info = {false, 0};
     MessageLatencyInfo_s _telem_latency_info = {false, 0};
     SimpleTorqueController _emergency_control{{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
