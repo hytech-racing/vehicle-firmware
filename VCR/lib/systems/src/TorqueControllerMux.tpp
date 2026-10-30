@@ -15,14 +15,15 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::evaluateTCMux(Controll
                                        || (requested_controller_mode == ControllerMode_e::MODE_3)
                                        || (requested_controller_mode == ControllerMode_e::MODE_4);
 
-    if (!is_requested_mode_supported)
+    int requested_mode_index = static_cast<int>(requested_controller_mode);
+    int active_mode_index = static_cast<int>(_curr_tc_mux_status.active_controller_mode);
+
+    // The controller array is indexed by dial mode, so a supported mode can still be past the end of a smaller mux
+    if (!is_requested_mode_supported || (requested_mode_index >= static_cast<int>(num_controllers)) || (active_mode_index >= static_cast<int>(num_controllers)))
     {
         _curr_tc_mux_status.active_error = TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS;
         return EMPTY_COMMAND;
     }
-
-    int requested_mode_index = static_cast<int>(requested_controller_mode);
-    int active_mode_index = static_cast<int>(_curr_tc_mux_status.active_controller_mode);
 
     if ((!_controller_evals[active_mode_index]) || (!_controller_evals[requested_mode_index]))
     {
