@@ -32,6 +32,7 @@ HT_TASK::Task kick_watchdog_task(&initWatchdog, &runKickWatchdog, RDCConstants::
 HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrint, RDCConstants::DEBUG_PRINT_PRIORITY, RDCConstants::DEBUG_PRINT_PERIOD_US);
 void setup()
 {
+    hwCheck();
     initializeAllInterfaces();
     initializeDriverless();
 
