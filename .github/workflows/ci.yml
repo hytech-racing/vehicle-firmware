@@ -9,6 +9,8 @@ on:
     branches: [main, develop]
   push:
     branches: [develop]
+  # Manual run from the Actions tab ("Run workflow") on any branch, no PR needed
+  workflow_dispatch:
 
 # ─────────────────────────────────────────────────────────────────────
 #                             Permissions
@@ -45,6 +47,7 @@ jobs:
   # build what actually changed.
   # ═══════════════════════════════════════════════════════════════════
   changes:
+    name: Detect changed subsystems
     runs-on: ubuntu-latest
     outputs:
       # Raw list of changed subsystem names, e.g. ["ACU","CCU"].
@@ -56,18 +59,18 @@ jobs:
       - uses: actions/checkout@v4
 
       # Detects which subsystem folders changed in this push/PR.
-      # platformio.ini and .clang-tidy are shared config, so a change to
-      # either counts as a change to every subsystem (full rebuild).
+      # platformio.ini, .clang-tidy and shared-lib/ are used by every
+      # subsystem, so a change to any of them rebuilds everything.
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy']
-            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
-            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
-            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
-            RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy']
-            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
+            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
 
       # For each changed subsystem, look up its build/test environment
       # names from platformio.ini use the `custom_subsystem` key.
@@ -136,6 +139,7 @@ jobs:
   # Runs on every PR.
   # ═══════════════════════════════════════════════════════════════════
   format:
+    name: Format check
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -176,7 +180,7 @@ jobs:
   # CCU, VCF etc. all build at the same time.
   # ═══════════════════════════════════════════════════════════════════
   build:
-    name: build (${{ matrix.subsystem }})
+    name: Build & test (${{ matrix.subsystem }})
     needs: changes
     # Only run if at least one subsystem changed.
     if: needs.changes.outputs.subsystems != '[]'
