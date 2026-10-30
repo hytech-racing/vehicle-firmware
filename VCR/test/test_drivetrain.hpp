@@ -1,520 +1,401 @@
-#ifndef __TEST_DRIVETRAIN__
-#define __TEST_DRIVETRAIN__
+#ifndef TEST_DRIVETRAIN_HPP
+#define TEST_DRIVETRAIN_HPP
+
 #include "DrivetrainSystem.hpp"
-#include "shared_types.hpp"
 
-#include "gtest/gtest.h"
+#include <cmath>
+#include <gtest/gtest.h>
 
-InverterStatus_s FL_status = {};
-InverterStatus_s FR_status = {};
-InverterStatus_s RL_status = {};
-InverterStatus_s RR_status = {};
-
-MotorMechanics_s FL_motor_mechanics = {};
-MotorMechanics_s FR_motor_mechanics = {};
-MotorMechanics_s RL_motor_mechanics = {};
-MotorMechanics_s RR_motor_mechanics = {};
-
-bool ef_is_active = false;
-void set_ef_active_pin(bool value)
-{
-    ef_is_active = value;
-}
-
+/**
+ * @brief Stands in for one InverterInterface. Tests set what it reports and read back what the drivetrain commanded.
+ */
 class MockInverterInterface
 {
   public:
-    DrivetrainSystem::InverterFuncts_s inverter_functs;
+    /* What this inverter reports */
+    InverterStatus_s status = {};
+    bool is_mode_matching = true;
 
-    MockInverterInterface(InverterStatus_s& status, MotorMechanics_s& m_mech)
-        : inverter_status(status), motor_mechanics(m_mech)
+    /* What the drivetrain told it */
+    float last_torque_nm = NAN;
+    float last_speed_rpm = NAN;
+    int idle_calls = 0;
+    bool is_enable_requested = false;
+    int send_calls = 0;
+    DrivetrainControlMode_e last_sent_mode = DrivetrainControlMode_e::TORQUE;
+
+    void setTorque(torque_nm torque) { last_torque_nm = torque; }
+    void setSpeed(speed_rpm speed) { last_speed_rpm = speed; }
+    void setIdle() { idle_calls++; }
+    void requestEnable(bool enable) { is_enable_requested = enable; }
+    bool isModeMatching(DrivetrainControlMode_e mode) { return is_mode_matching; }
+    InverterStatus_s getStatus(unsigned long curr_millis) { return status; }
+    MotorMechanics_s getMechanics() { return {}; }
+    void sendCommands(DrivetrainControlMode_e mode)
     {
-
-        using namespace std::placeholders;
-
-        inverter_functs.set_speed = std::bind(&MockInverterInterface::set_speed, this, _1, _2);
-        inverter_functs.set_idle = std::bind(&MockInverterInterface::set_idle, this);
-        inverter_functs.set_inverter_control_word = std::bind(&MockInverterInterface::set_inverter_control_word, this, _1);
-        inverter_functs.get_status = std::bind(&MockInverterInterface::get_status, this);
-        inverter_functs.get_motor_mechanics = std::bind(&MockInverterInterface::get_motor_mechanics, this);
+        send_calls++;
+        last_sent_mode = mode;
     }
 
-    InverterControlWord_s get_control_word() { return _last_control_word; }
-    InverterControlInput_s get_control_input() { return _last_control_input; }
-
-  private:
-    InverterStatus_s& inverter_status;
-    MotorMechanics_s& motor_mechanics;
-    InverterControlWord_s _last_control_word;
-    InverterControlInput_s _last_control_input;
-
-    void set_speed(float desired_rpm, float torque_limit_nm)
+    InverterInterfaceFuncts_s functs()
     {
-        _last_control_input.speed_rpm_setpoint = desired_rpm;
-        _last_control_input.positive_torque_limit = ::fabs(torque_limit_nm);
-        _last_control_input.negative_torque_limit = -1.0f * ::fabs(torque_limit_nm);
-        return;
+        return InverterInterfaceFuncts_s{
+            .setMotorsTorque = etl::delegate<void(torque_nm)>::create<MockInverterInterface, &MockInverterInterface::setTorque>(*this),
+            .setMotorsSpeed = etl::delegate<void(speed_rpm)>::create<MockInverterInterface, &MockInverterInterface::setSpeed>(*this),
+            .setMotorsIdle = etl::delegate<void()>::create<MockInverterInterface, &MockInverterInterface::setIdle>(*this),
+            .requestEnable = etl::delegate<void(bool)>::create<MockInverterInterface, &MockInverterInterface::requestEnable>(*this),
+            .isReportedModeMatchingDT =
+                etl::delegate<bool(DrivetrainControlMode_e)>::create<MockInverterInterface, &MockInverterInterface::isModeMatching>(*this),
+            .getInverterStatus = etl::delegate<InverterStatus_s(unsigned long)>::create<MockInverterInterface, &MockInverterInterface::getStatus>(*this),
+            .getMotorMechanics = etl::delegate<MotorMechanics_s()>::create<MockInverterInterface, &MockInverterInterface::getMechanics>(*this),
+            .sendCommands = etl::delegate<void(DrivetrainControlMode_e)>::create<MockInverterInterface, &MockInverterInterface::sendCommands>(*this)};
     }
-
-    void set_idle()
-    {
-        // inverter_status.speed_rpm = 0;
-        return;
-    }
-
-    void set_inverter_control_word(InverterControlWord_s control_word)
-    {
-        _last_control_word = control_word;
-        return;
-    }
-
-    InverterStatus_s get_status() { return inverter_status; }
-
-    MotorMechanics_s get_motor_mechanics() { return motor_mechanics; }
 };
 
-MockInverterInterface FL(FL_status, FL_motor_mechanics);
-MockInverterInterface FR(FR_status, FR_motor_mechanics);
-MockInverterInterface RL(RL_status, RL_motor_mechanics);
-MockInverterInterface RR(RR_status, RR_motor_mechanics);
-
-veh_vec<DrivetrainSystem::InverterFuncts_s> mock_inverter_functs = {FL.inverter_functs, FR.inverter_functs, RL.inverter_functs, RR.inverter_functs};
-
-DrivetrainInit_s init = {DrivetrainModeRequest_e::INIT_DRIVE_MODE};
-DrivetrainResetError_s reset = {true};
-DrivetrainSystem::CmdVariant cmd = init;
-
-void ASSERT_CONTROL_WORD_EQ(InverterControlWord_s actual, InverterControlWord_s expected)
+class DrivetrainTest : public ::testing::Test
 {
-    ASSERT_EQ(actual.inverter_enable, expected.inverter_enable);
-    ASSERT_EQ(actual.hv_enable, expected.hv_enable);
-    ASSERT_EQ(actual.driver_enable, expected.driver_enable);
-    ASSERT_EQ(actual.remove_error, expected.remove_error);
+  protected:
+    MockInverterInterface fl, fr, rl, rr;
+    bool is_hv_ok = false;
+    bool isHVOk() { return is_hv_ok; }
+
+    DrivetrainSystem drivetrain{
+        veh_vec<InverterInterfaceFuncts_s>(fl.functs(), fr.functs(), rl.functs(), rr.functs()),
+        etl::delegate<bool()>::create<DrivetrainTest, &DrivetrainTest::isHVOk>(*this)};
+
+    unsigned long now = 0;
+
+    std::array<MockInverterInterface*, 4> all() { return {&fl, &fr, &rl, &rr}; }
+
+    void setAllConnected(bool connected)
+    {
+        for (auto* inv : all())
+        {
+            inv->status.is_inverter_connected = connected;
+        }
+    }
+
+    void setAllDriveEnabled(bool enabled)
+    {
+        for (auto* inv : all())
+        {
+            inv->status.is_drive_enabled = enabled;
+        }
+    }
+
+    static DrivetrainCommand_s torqueCommand(float torque_nm, bool enable)
+    {
+        return DrivetrainCommand_s{
+            .control_mode = DrivetrainControlMode_e::TORQUE,
+            .desired_torques = {torque_nm, torque_nm, torque_nm, torque_nm},
+            .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f},
+            .is_drive_enable_requested = enable};
+    }
+
+    static DrivetrainCommand_s speedCommand(float speed_rpm, bool enable)
+    {
+        return DrivetrainCommand_s{
+            .control_mode = DrivetrainControlMode_e::SPEED,
+            .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
+            .desired_speeds = {speed_rpm, speed_rpm, speed_rpm, speed_rpm},
+            .is_drive_enable_requested = enable};
+    }
+
+    DrivetrainStatus_s tick(const DrivetrainCommand_s& command, unsigned long dt_ms = 10)
+    {
+        now += dt_ms;
+        return drivetrain.evaluateDrivetrain(command, now);
+    }
+
+    void goToHVPresent()
+    {
+        setAllConnected(true);
+        tick(torqueCommand(0.0f, false));
+        ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_ABSENT);
+        is_hv_ok = true;
+        tick(torqueCommand(0.0f, false));
+        ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_PRESENT);
+    }
+
+    void goToReady()
+    {
+        goToHVPresent();
+        tick(torqueCommand(0.0f, true));
+        ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::WANTING_OK);
+        setAllDriveEnabled(true);
+        tick(torqueCommand(0.0f, true));
+        ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::READY);
+    }
+};
+
+/* ---------- State ladder ---------- */
+
+TEST_F(DrivetrainTest, StartsNotConnected)
+{
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::NOT_CONNECTED);
 }
 
-void ASSERT_CONTROL_INPUT_EQ(InverterControlInput_s actual, InverterControlInput_s expected)
+TEST_F(DrivetrainTest, StaysNotConnectedUntilAllFourInvertersConnect)
 {
-    ASSERT_EQ(actual.speed_rpm_setpoint, expected.speed_rpm_setpoint);
-    ASSERT_EQ(actual.positive_torque_limit, expected.positive_torque_limit);
-    ASSERT_EQ(actual.negative_torque_limit, expected.negative_torque_limit);
+    fl.status.is_inverter_connected = true;
+    fr.status.is_inverter_connected = true;
+    rl.status.is_inverter_connected = true;
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::NOT_CONNECTED);
+
+    rr.status.is_inverter_connected = true;
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_ABSENT);
 }
 
-TEST(DrivetrainTest, test)
+TEST_F(DrivetrainTest, HVOkMovesToHVPresent)
 {
-    DrivetrainSystem drivetrain = DrivetrainSystem(mock_inverter_functs, etl::delegate<void(bool)>::create<set_ef_active_pin>());
-
-    FL_status.hv_present = false;
-    FR_status.hv_present = false;
-    RL_status.hv_present = false;
-    RR_status.hv_present = false;
-
-    FL_status.connected = false;
-    FR_status.connected = false;
-    RL_status.connected = false;
-    RR_status.connected = false;
-
-    FL_status.quit_dc_on = false;
-    FR_status.quit_dc_on = false;
-    RL_status.quit_dc_on = false;
-    RR_status.quit_dc_on = false;
-
-    FL_status.quit_inverter_on = false;
-    FR_status.quit_inverter_on = false;
-    RL_status.quit_inverter_on = false;
-    RR_status.quit_inverter_on = false;
-
-    FL_status.error = false;
-    FR_status.error = false;
-    RL_status.error = false;
-    RR_status.error = false;
-
-    // Calling init() when inverters are not connected (should stay in NOT_CONNECTED)
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_CONNECTED);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::CANNOT_INIT_NOT_CONNECTED);
-
-    // Calling init (to disabled) when inverters are still not connected (should stay NOT_CONNECTED)
-    DrivetrainInit_s init_disabled = {DrivetrainModeRequest_e::UNINITIALIZED};
-    drivetrain.evaluate_drivetrain(init_disabled);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_CONNECTED);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init when only two of the inverters are connected (should stay in NOT_CONNECTED)
-    FL_status.connected = true;
-    FR_status.connected = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_CONNECTED);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::CANNOT_INIT_NOT_CONNECTED);
-
-    // Calling init when the other two are connected (should stay in NOT_CONNECTED)
-    FL_status.connected = false;
-    FR_status.connected = false;
-    RL_status.connected = true;
-    RR_status.connected = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_CONNECTED);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::CANNOT_INIT_NOT_CONNECTED);
-
-    // Calling init when all four are connected (should move to NOT_ENABLED_NO_HV_PRESENT)
-    FL_status.connected = true;
-    FR_status.connected = true;
-    RL_status.connected = true;
-    RR_status.connected = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init while HV is only present on some inverters (should stay in NOT_ENABLED_HV_PRESENT)
-    FL_status.hv_present = true;
-    FR_status.hv_present = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init while HV is only present on all inverters (should move to NOT_ENABLED_HV_PRESENT)
-    RL_status.hv_present = true;
-    RR_status.hv_present = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init() while some inverters are ready (should stay in NOT_ENABLED_HV_PRESENT)
-    FL_status.system_ready = true;
-    FR_status.system_ready = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init() while all inverters are ready (should move to INVERTERS_READY)
-    RL_status.system_ready = true;
-    RR_status.system_ready = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_EQ(drivetrain.get_status().cmd_resp, DrivetrainCmdResponse_e::COMMAND_OK);
-
-    // Calling init() with various combinations of requesting_init, inverters_ready, and quit_dc_on
-    // (requesting init) && (inverters NOT ready) && (quit dc NOT on)
-    RL_status.system_ready = false;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_HV_PRESENT); // Returns to HV_PRESENT because RL not ready
-    ASSERT_EQ(ef_is_active, false);
-
-    // (requesting init) && (inverters ready) && (quit dc NOT on)
-    RL_status.system_ready = true;
-    drivetrain.evaluate_drivetrain(init); // Returning to INVERTERS_READY state
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY);
-    ASSERT_EQ(ef_is_active, false);
-
-    // (NOT requesting init) && (inverters ready) && (quit dc NOT on)
-    drivetrain.evaluate_drivetrain(init_disabled);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY);
-    ASSERT_EQ(ef_is_active, false);
-
-    // (requesting init) && (inverters ready) && (quit dc NOT on)
-    RL_status.quit_dc_on = true;
-    RR_status.quit_dc_on = true;
-    FL_status.quit_dc_on = false;
-    FR_status.quit_dc_on = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY); // Stays in INVERTERS_READY because NOT quit_dc_on
-    ASSERT_EQ(ef_is_active, false);
-
-    // (NOT requesting init) && (inverters ready) && (quit dc on)
-    FL_status.quit_dc_on = true;
-    drivetrain.evaluate_drivetrain(init_disabled);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY); // Stays in INVERTERS_READY because NOT requesting init
-    ASSERT_EQ(ef_is_active, false);
-
-    // (requesting init) && (inverters ready) && (quit dc on)
-    uint32_t arbitrary_time_ms = 2001;
-    sys_time::set_millis(arbitrary_time_ms);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Goes to INVERTERS_HV_ENABLED because all conditions have been met
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Requesting init before 50ms have passed (inverters should not be enabled yet)
-    sys_time::set_millis(arbitrary_time_ms + 49);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED);
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Requesting init after 50ms have passed (inverters should be getting enabled)
-    sys_time::set_millis(arbitrary_time_ms + 51);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Goes to INVERTERS_HV_ENABLED because all conditions have been met
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Calling init() with various combinations of (hv_enabled && inverters_ready && inverters_enabled)
-    // hv_enabled, inverters ready, inverters NOT enabled
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Stays in same state
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // hv_enabled, inverters NOT ready, inverters NOT enabled
-    RL_status.system_ready = false;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Stays in same state
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // hv NOT enabled, inverters ready, inverters NOT enabled
-    RL_status.system_ready = true;
-    RL_status.quit_dc_on = false;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_READY); // steps back to INVERTERS_READY
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, true, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // hv enabled, inverters ready, inverters NOT enabled
-    RL_status.quit_dc_on = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // return to INVERTERS_HV_ENABLED
-
-    sys_time::set_millis(arbitrary_time_ms + 150);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED); // stays in INVERTERS_HV_ENABLED
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // hv enabled, inverters ready, inverters PARTIALLY enabled
-    RL_status.quit_inverter_on = true;
-    RR_status.quit_inverter_on = true;
-    FL_status.quit_inverter_on = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED);
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // hv enabled, inverters ready, inverters enabled
-    FR_status.quit_inverter_on = true;
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::ENABLED_DRIVE_MODE);
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Invalid drive command, return to INVERTERS_HV_ENABLED
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::INVERTERS_HV_ENABLED);
-    ASSERT_EQ(ef_is_active, true);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::ENABLED_DRIVE_MODE);
-
-    // Valid drive command, stays in ENABLED_DRIVE_MODE
-    DrivetrainCommand_s drive_command = {{1000, 1000, 1000, 1000}, {9999, 9999, 9999, 9999}};
-    drivetrain.evaluate_drivetrain(drive_command);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::ENABLED_DRIVE_MODE);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {true, true, true, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {1000, 9999.0f, -9999.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {1000, 9999.0f, -9999.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {1000, 9999.0f, -9999.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {1000, 9999.0f, -9999.0f});
-
-    // Error present, going to ERROR
-    FR_status.error = true;
-    drivetrain.evaluate_drivetrain(drive_command);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::ERROR);
-    drivetrain.evaluate_drivetrain(drive_command); // Evaluate once in the ERROR state
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Clearing errors but error still present
-    drivetrain.evaluate_drivetrain(reset);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::CLEARING_ERRORS);
-    drivetrain.evaluate_drivetrain(reset);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::CLEARING_ERRORS);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, true, true, true});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, true, true, true});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, true, true, true});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, true, true, true});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
-    // Clearing errors and error is gone
-    FR_status.error = false;
-    drivetrain.evaluate_drivetrain(reset);
-    ASSERT_EQ(drivetrain.get_state(), DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
-    drivetrain.evaluate_drivetrain(init);
-    ASSERT_EQ(ef_is_active, false);
-    ASSERT_CONTROL_WORD_EQ(FL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(FR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RL.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_WORD_EQ(RR.get_control_word(), {false, false, false, false});
-    ASSERT_CONTROL_INPUT_EQ(FL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
-    ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
+    goToHVPresent();
 }
 
-#endif
+TEST_F(DrivetrainTest, DriveEnableRequestMovesToWantingOkAndRequestsEnable)
+{
+    goToHVPresent();
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::WANTING_OK);
+    for (auto* inv : all())
+    {
+        EXPECT_TRUE(inv->is_enable_requested);
+    }
+}
+
+TEST_F(DrivetrainTest, AllInvertersConfirmingEnableMovesToReady)
+{
+    goToReady();
+}
+
+TEST_F(DrivetrainTest, WantingOkStaysUntilAllFourConfirm)
+{
+    goToHVPresent();
+    tick(torqueCommand(0.0f, true));
+    fl.status.is_drive_enabled = true;
+    fr.status.is_drive_enabled = true;
+    rl.status.is_drive_enabled = true;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::WANTING_OK);
+}
+
+TEST_F(DrivetrainTest, WantingOkTimesOutBackToHVPresent)
+{
+    goToHVPresent();
+    tick(torqueCommand(0.0f, true));
+    ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::WANTING_OK);
+
+    tick(torqueCommand(0.0f, true), drivetrain_default_params::DRIVE_ENABLE_TIMEOUT_MS + 1);
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_PRESENT);
+}
+
+TEST_F(DrivetrainTest, DroppingRequestInWantingOkReturnsToHVPresent)
+{
+    goToHVPresent();
+    tick(torqueCommand(0.0f, true));
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_PRESENT);
+}
+
+TEST_F(DrivetrainTest, DroppingRequestInReadyDisablesAndIdles)
+{
+    goToReady();
+    int idle_before = fl.idle_calls;
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_PRESENT);
+    for (auto* inv : all())
+    {
+        EXPECT_FALSE(inv->is_enable_requested);
+    }
+    EXPECT_GT(fl.idle_calls, idle_before);
+}
+
+TEST_F(DrivetrainTest, InverterDroppingEnableLeavesReady)
+{
+    goToReady();
+    rr.status.is_drive_enabled = false;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_PRESENT);
+}
+
+TEST_F(DrivetrainTest, LosingHVInReadyGoesToHVAbsent)
+{
+    goToReady();
+    is_hv_ok = false;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::CONNECTED_HV_ABSENT);
+}
+
+TEST_F(DrivetrainTest, LosingAnInverterGoesToNotConnected)
+{
+    goToReady();
+    fr.status.is_inverter_connected = false;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::NOT_CONNECTED);
+    for (auto* inv : all())
+    {
+        EXPECT_FALSE(inv->is_enable_requested);
+    }
+}
+
+/* ---------- Faults ---------- */
+
+TEST_F(DrivetrainTest, FaultCodeFromReadyGoesToFaultedAndDisables)
+{
+    goToReady();
+    rl.status.is_fault_code_present = true;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::FAULTED);
+    for (auto* inv : all())
+    {
+        EXPECT_FALSE(inv->is_enable_requested);
+    }
+}
+
+TEST_F(DrivetrainTest, FaultCodeWhileConnectingGoesToFaulted)
+{
+    rl.status.is_inverter_connected = true;
+    rl.status.is_fault_code_present = true;
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::FAULTED);
+}
+
+TEST_F(DrivetrainTest, FaultOnDisconnectedInverterIsIgnored)
+{
+    // A stale fault code from an inverter we are not hearing from should not latch FAULTED
+    rl.status.is_inverter_connected = false;
+    rl.status.is_fault_code_present = true;
+    tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::NOT_CONNECTED);
+}
+
+TEST_F(DrivetrainTest, ClearedFaultRestartsFromNotConnected)
+{
+    goToReady();
+    rl.status.is_fault_code_present = true;
+    tick(torqueCommand(0.0f, true));
+    ASSERT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::FAULTED);
+
+    rl.status.is_fault_code_present = false;
+    tick(torqueCommand(0.0f, true));
+    EXPECT_EQ(drivetrain.getCurrentState(), DrivetrainState_e::NOT_CONNECTED);
+}
+
+/* ---------- Commands ---------- */
+
+TEST_F(DrivetrainTest, TorqueIsAppliedPerCornerOnlyWhenReady)
+{
+    goToReady();
+    DrivetrainCommand_s cmd = torqueCommand(0.0f, true);
+    cmd.desired_torques = {1.0f, 2.0f, 3.0f, 4.0f};
+    DrivetrainStatus_s status = tick(cmd);
+
+    EXPECT_EQ(status.cmd_response, DrivetrainCmdResponse_e::COMMAND_OK);
+    EXPECT_FLOAT_EQ(fl.last_torque_nm, 1.0f);
+    EXPECT_FLOAT_EQ(fr.last_torque_nm, 2.0f);
+    EXPECT_FLOAT_EQ(rl.last_torque_nm, 3.0f);
+    EXPECT_FLOAT_EQ(rr.last_torque_nm, 4.0f);
+}
+
+TEST_F(DrivetrainTest, NonzeroTorqueWhenNotReadyIsRejectedAndNotApplied)
+{
+    goToHVPresent();
+    DrivetrainStatus_s status = tick(torqueCommand(10.0f, false));
+    EXPECT_EQ(status.cmd_response, DrivetrainCmdResponse_e::COMMAND_INVALID);
+    for (auto* inv : all())
+    {
+        EXPECT_TRUE(std::isnan(inv->last_torque_nm));
+    }
+}
+
+TEST_F(DrivetrainTest, CommandWhileNotConnectedReportsNotConnected)
+{
+    DrivetrainStatus_s status = tick(torqueCommand(0.0f, false));
+    EXPECT_EQ(status.cmd_response, DrivetrainCmdResponse_e::CANNOT_SEND_NOT_CONNECTED);
+}
+
+TEST_F(DrivetrainTest, NonFiniteTorqueIdlesAndIsRejected)
+{
+    goToReady();
+    tick(torqueCommand(3.0f, true));
+    int idle_before = fl.idle_calls;
+
+    DrivetrainCommand_s cmd = torqueCommand(10.0f, true);
+    cmd.desired_torques.RR = NAN;
+    DrivetrainStatus_s status = tick(cmd);
+
+    // One bad corner idles every corner rather than applying the other three
+    EXPECT_EQ(status.cmd_response, DrivetrainCmdResponse_e::COMMAND_INVALID);
+    EXPECT_GT(fl.idle_calls, idle_before);
+    EXPECT_FLOAT_EQ(fl.last_torque_nm, 3.0f);
+    EXPECT_FALSE(std::isnan(rr.last_torque_nm));
+}
+
+TEST_F(DrivetrainTest, SpeedCommandIsAppliedInSpeedMode)
+{
+    goToReady();
+    tick(speedCommand(1500.0f, true));
+    for (auto* inv : all())
+    {
+        EXPECT_FLOAT_EQ(inv->last_speed_rpm, 1500.0f);
+    }
+    tick(speedCommand(1500.0f, true));
+    EXPECT_EQ(fl.last_sent_mode, DrivetrainControlMode_e::SPEED);
+}
+
+TEST_F(DrivetrainTest, CommandsAreSentToEveryInverterEveryTickInEveryState)
+{
+    tick(torqueCommand(0.0f, false)); // NOT_CONNECTED
+    goToReady();
+    for (auto* inv : all())
+    {
+        EXPECT_EQ(inv->send_calls, static_cast<int>(now / 10));
+    }
+}
+
+/* ---------- Control mode mismatch ---------- */
+
+TEST_F(DrivetrainTest, ModeMismatchIgnoredWithinThreshold)
+{
+    goToReady();
+    fl.is_mode_matching = false;
+    DrivetrainStatus_s status = tick(torqueCommand(0.0f, true), 10);
+    EXPECT_FALSE(status.is_control_mode_mismatch_detected);
+}
+
+TEST_F(DrivetrainTest, ModeMismatchFlaggedAfterThreshold)
+{
+    goToReady();
+    fl.is_mode_matching = false;
+    DrivetrainStatus_s status = tick(torqueCommand(0.0f, true), drivetrain_default_params::CONTROL_MODE_MISMATCH_THRESHOLD_MS + 1);
+    EXPECT_TRUE(status.is_control_mode_mismatch_detected);
+}
+
+TEST_F(DrivetrainTest, ModeMismatchNotReportedOutsideReady)
+{
+    goToHVPresent();
+    fl.is_mode_matching = false;
+    DrivetrainStatus_s status = tick(torqueCommand(0.0f, false), 1000);
+    EXPECT_FALSE(status.is_control_mode_mismatch_detected);
+}
+
+/* ---------- Misc ---------- */
+
+TEST_F(DrivetrainTest, StatusReportsPerCornerInverterStatuses)
+{
+    setAllConnected(true);
+    rr.status.dc_bus_voltage = 512.0f;
+    DrivetrainStatus_s status = tick(torqueCommand(0.0f, false));
+    EXPECT_TRUE(status.are_all_inverters_connected);
+    EXPECT_FLOAT_EQ(status.inverter_statuses.RR.dc_bus_voltage, 512.0f);
+}
+
+TEST_F(DrivetrainTest, StateNameIsNeverNull)
+{
+    EXPECT_NE(drivetrain.getStateName(), nullptr);
+    goToReady();
+    EXPECT_NE(drivetrain.getStateName(), nullptr);
+}
+
+#endif // TEST_DRIVETRAIN_HPP
