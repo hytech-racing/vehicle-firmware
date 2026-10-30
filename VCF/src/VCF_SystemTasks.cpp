@@ -107,7 +107,7 @@ void initializeAllSystems()
     BuzzerControllerInstance::create();
 }
 
-HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse CAN_tasks::enqueuePedalsMsgTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     PEDALS_SYSTEM_DATA_t pedals_data = {};
 
@@ -124,7 +124,7 @@ HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, 
     pedals_data.accel_pedal_ro = HT_CAN_accel_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().accel_percent);
     pedals_data.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
 
-    CAN_util::enqueue_msg(&pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -162,7 +162,7 @@ HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse CAN_tasks::enqueueSteeringMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     STEERING_DATA_t msg_out;
     SteeringSystemData_s steering_system_data = SteeringSystemInstance::instance().getSteeringSystemData();
@@ -178,7 +178,7 @@ HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros,
     msg_out.steering_analog_raw = steering_system_data.analog_raw;
     msg_out.steering_digital_raw = steering_system_data.digital_raw;
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_STEERING_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_STEERING_DATA_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 

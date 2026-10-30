@@ -93,18 +93,13 @@ void initializeAllInterfaces()
     /* VCR Interface */
     VCRInterfaceInstance::create();
 
-    /* CAN Interfaces */
-    CANInterfacesInstance::create(
+    /* CAN Interface */
+    VCFCANInterfaceInstance::create(
         ACUInterfaceInstance::instance(),
         BrakeRotorTempInterfaceInstance::instance(),
         DashboardInterfaceInstance::instance(),
         VCRInterfaceInstance::instance());
-
-    VCFCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
-
-    handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
-    handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
+    VCFCANInterfaceInstance::instance().init(VCFConstants::TELEM_CAN_BAUDRATE, VCFConstants::FAUX_CAN_BAUDRATE);
 
     /* Ethernet */
     VCFEthernetInterfaceInstance::create();
@@ -171,10 +166,9 @@ HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_
 //     return HT_TASK::TaskResponse::YIELD;
 // }
 
-HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse CAN_tasks::enqueueDashboardMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    CANInterfaces_s can_interfaces = CANInterfacesInstance::instance();
-    DashInputState_s dash_outputs = can_interfaces.dash_interface.getDashboardOutputs();
+    DashInputState_s dash_outputs = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
     DASH_INPUT_t msg_out;
     msg_out.dim_button = dash_outputs.btn_dim_read_is_pressed;
@@ -187,25 +181,24 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     msg_out.right_shifter_button = dash_outputs.BUTTON_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
-    CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_DASH_INPUT_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse CAN_tasks::enqueueFrontSuspensionMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FRONT_SUSPENSION_t msg_out;
     msg_out.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
     msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
     msg_out.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
     msg_out.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
-    CAN_util::enqueue_msg(&msg_out, &Pack_FRONT_SUSPENSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_FRONT_SUSPENSION_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse CAN_tasks::clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
-    VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer, &VCFCANInterfaceInstance::instance().FRONT_AUX_CAN);
+    VCFCANInterfaceInstance::instance().sendAllTxBuffers();
 
     return HT_TASK::TaskResponse::YIELD;
 }

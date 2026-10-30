@@ -15,18 +15,22 @@ HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_mai
 HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PRIORITY, VCFConstants::PEDALS_SAMPLE_PERIOD_US);
 HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PRIORITY, VCFConstants::LOADCELL_SAMPLE_PERIOD_US);
 HT_TASK::Task
-    pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PRIORITY, VCFConstants::PEDALS_SEND_PERIOD_US);
+    pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &CAN_tasks::enqueuePedalsMsgTask, VCFConstants::PEDALS_SEND_PRIORITY, VCFConstants::PEDALS_SEND_PERIOD_US);
 HT_TASK::Task
     steering_evaluate(HT_TASK::DUMMY_FUNCTION, &evaluateSteeringTask, VCFConstants::STEERING_SAMPLE_PRIORITY, VCFConstants::STEERING_SAMPLE_PERIOD_US);
-HT_TASK::Task
-    steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PRIORITY, VCFConstants::STEERING_SEND_PERIOD_US);
+HT_TASK::Task steering_message_enqueue(
+    HT_TASK::DUMMY_FUNCTION,
+    &CAN_tasks::enqueueSteeringMsgTask,
+    VCFConstants::STEERING_SEND_PRIORITY,
+    VCFConstants::STEERING_SEND_PERIOD_US);
 HT_TASK::Task front_suspension_message_enqueue(
     HT_TASK::DUMMY_FUNCTION,
-    &enqueueFrontSuspensionCANDataTask,
+    &CAN_tasks::enqueueFrontSuspensionMsgTask,
     VCFConstants::LOADCELL_SEND_PRIORITY,
     VCFConstants::LOADCELL_SEND_PERIOD_US);
-HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
-HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
+HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &CAN_tasks::clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
+HT_TASK::Task
+    dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &CAN_tasks::enqueueDashboardMsgTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
 HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
 HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PRIORITY, VCFConstants::ETHERNET_SEND_PERIOD_US);
 HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_PRIORITY, VCFConstants::BUZZER_WRITE_PERIOD_US);
@@ -85,18 +89,7 @@ namespace async_tasks
     // these are async tasks. we want these to run as fast as possible p much
     void handle_async_CAN_receive() // NOLINT caps for CAN
     {
-        process_ring_buffer(
-            VCFCANInterfaceInstance::instance().telem_can_rx_buffer,
-            CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
-            VCFCANInterfaceInstance::instance().can_recv_switch,
-            CANInterfaceType_e::TELEM);
-        process_ring_buffer(
-            VCFCANInterfaceInstance::instance().front_aux_can_rx_buffer,
-            CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
-            VCFCANInterfaceInstance::instance().can_recv_switch,
-            CANInterfaceType_e::FAUX);
+        VCFCANInterfaceInstance::instance().processAllRxBuffers(sys_time::hal_millis());
     }
 
     void handle_async_recvs()

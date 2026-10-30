@@ -12,7 +12,7 @@
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
-#include "VCFCANInterfaceImpl.hpp"
+#include "VCFCANInterface.hpp"
 #include "VCRInterface.hpp"
 
 /* Local System Includes */
@@ -33,13 +33,9 @@ extern etl::delegate<bool()> arePedalsCalibrating;
  */
 void initializeAllSystems();
 
-::HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-
 ::HT_TASK::TaskResponse updatePedalsCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info);
-
-::HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
@@ -48,6 +44,16 @@ void initializeAllSystems();
 ::HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief CAN enqueue tasks for system data. See VCF_InterfaceTasks.hpp for the rest of this namespace.
+ */
+namespace CAN_tasks
+{
+    ::HT_TASK::TaskResponse enqueuePedalsMsgTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
+
+    ::HT_TASK::TaskResponse enqueueSteeringMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+} // namespace CAN_tasks
 
 
 #endif
