@@ -1,398 +1,311 @@
-#ifndef __TEST_TCMUX__
-#define __TEST_TCMUX__
-#include "SharedFirmwareTypes.h"
+#ifndef TEST_TCMUX_HPP
+#define TEST_TCMUX_HPP
+
 #include "SystemTimeInterface.h"
 #include "TorqueControllerMux.hpp"
-#include "controllers/DrivebrainController.hpp"
-#include "controllers/SimpleController.hpp"
 
-#include "gtest/gtest.h"
-#include <functional>
-// TODO
-// - [x] test to ensure that the size checking for desired modes works and failes properly
-template <typename quad_array_type>
-void set_four_outputs(quad_array_type& out, float val)
+#include <gtest/gtest.h>
+
+using ControllerEval = std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>;
+
+/**
+ * @brief TorqueControllerMux's constructor is private and only VCRControls is a friend. The real VCRControls (VCR/include/controls.hpp)
+ *        is not part of the test build, so this stand-in is the friend here and only exists to construct muxes for the tests.
+ */
+class VCRControls
 {
-    out.FL = val;
-    out.FR = val;
-    out.RL = val;
-    out.RR = val;
-}
-
-template <typename cmd_type>
-void set_outputs_rpm(cmd_type& cmd, float rpm, float torque)
-{
-    set_four_outputs(cmd.desired_speeds, rpm);
-    set_four_outputs(cmd.torque_limits, torque);
-}
-
-template <typename cmd_type>
-void set_outputs(cmd_type& cmd, float mps, float torque)
-{
-    set_outputs_rpm(cmd, METERS_PER_SECOND_TO_RPM * mps, torque);
-}
-
-
-TEST(TorqueControllerMuxTesting, test_construction)
-{
-    auto test_func = [](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
+  public:
+    template <size_t N>
+    static TorqueControllerMux<N> makeMux(std::array<ControllerEval, N> evals, std::array<bool, N> bypass, TCMuxParams_s params)
     {
-        return {};
-    };
-    TorqueControllerMux<2> test({test_func, test_func}, {false, false});
-}
+        return TorqueControllerMux<N>(evals, bypass, params);
+    }
+};
 
-TEST(TorqueControllerMuxTesting, test_invalid_controller_request_error)
+namespace tcmux_test
 {
+    // Loose limits so a test only sees the limit it is about
+    constexpr TCMuxParams_s LOOSE_PARAMS = {
+        .max_speed_during_mode_change = tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE,
+        .max_torque_delta_during_mode_change = tc_mux_default_params::MAX_TORQUE_DELTA_DURING_MODE_CHANGE,
+        .max_power_limit_watts = 1.0e9f,
+        .max_avg_torque_nm = 1000.0f,
+        .max_avg_speed_rpm = 1.0e6f,
+        .num_motors = 4};
 
-    auto test_func = [](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
+    constexpr float REGEN_MIDPOINT_KPH = (tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH + tc_mux_default_params::REGEN_FULL_AT_OR_ABOVE_KPH) / 2.0f;
+
+    float kphToRPM(float kph)
     {
-        return {};
-    };
-    TorqueControllerMux<2> test({test_func, nullptr}, {false, false});
-    auto res = test.get_drivetrain_command(ControllerMode_e::MODE_2, TorqueLimit_e::TCMUX_FULL_TORQUE, {});
-
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS);
-    for (int i = 0; i < 4; i++)
-    {
-
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0);
+        return kph / physical_motor_scales::RPM_TO_KILOMETERS_PER_HOUR;
     }
 
-    res = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, {});
-
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER);
-    for (int i = 0; i < 4; i++)
+    ControllerEval constantTorque(veh_vec<torque_nm> torques)
     {
+        return [torques](const VCRData_s&, unsigned long) -> DrivetrainCommand_s
+        {
+            return {.control_mode = DrivetrainControlMode_e::TORQUE, .desired_torques = torques, .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
+        };
+    }
 
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0);
+    ControllerEval constantTorque(float torque)
+    {
+        return constantTorque({torque, torque, torque, torque});
+    }
+
+    ControllerEval constantSpeed(float speed_rpm)
+    {
+        return [speed_rpm](const VCRData_s&, unsigned long) -> DrivetrainCommand_s
+        {
+            return {
+                .control_mode = DrivetrainControlMode_e::SPEED,
+                .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
+                .desired_speeds = {speed_rpm, speed_rpm, speed_rpm, speed_rpm}};
+        };
+    }
+
+    VCRData_s makeVCRData(veh_vec<speed_rpm> speeds_rpm, volt bus_voltage = 400.0f)
+    {
+        VCRData_s state = {};
+        state.system_data.drivetrain_data.measured_speeds = speeds_rpm;
+        state.system_data.drivetrain_data.measured_hv_bus_voltage = {bus_voltage, bus_voltage, bus_voltage, bus_voltage};
+        return state;
+    }
+
+    VCRData_s makeVCRData(float speed_rpm, volt bus_voltage = 400.0f)
+    {
+        return makeVCRData({speed_rpm, speed_rpm, speed_rpm, speed_rpm}, bus_voltage);
+    }
+
+    /// Single limited controller in MODE_0, the common case for limit tests
+    TorqueControllerMux<1> singleControllerMux(ControllerEval eval, TCMuxParams_s params = LOOSE_PARAMS)
+    {
+        return VCRControls::makeMux<1>({eval}, {false}, params);
+    }
+} // namespace tcmux_test
+
+using namespace tcmux_test;
+
+/* ---------- Mode selection ---------- */
+
+TEST(TorqueControllerMuxTest, UnsupportedDialModeReturnsZeroAndFlagsError)
+{
+    auto mux = VCRControls::makeMux<5>(
+        {constantTorque(5.0f), constantTorque(5.0f), constantTorque(5.0f), constantTorque(5.0f), constantTorque(5.0f)},
+        {false, false, false, false, false},
+        LOOSE_PARAMS);
+
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_2, makeVCRData(0.0f));
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS);
+    for (float t : out.desired_torques.as_array())
+    {
+        EXPECT_FLOAT_EQ(t, 0.0f);
     }
 }
 
-// ensure that swapping to a controller that has a higher desired output speed than previously
-// commanded that we dont switch
-TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
+TEST(TorqueControllerMuxTest, ModeBeyondSmallMuxIsRejectedNotIndexedOutOfBounds)
 {
-    DrivetrainCommand_s out1;
-    set_outputs(out1, 0, 1);
-    DrivetrainCommand_s out2;
-    set_outputs(out2, 6, 1);
-    auto test_func_1 = [&out1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
-    {
-        return out1;
-    };
-    auto test_func_2 = [&out2](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
-    {
-        return out2;
-    };
-
-    TorqueControllerMux<2> test({test_func_1, test_func_2}, {false, false});
-    VCRData_s state;
-    set_four_outputs(state.system_data.drivetrain_data.measuredSpeeds, 10000.0);
-
-    auto res1 = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    res1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    ASSERT_EQ(test.get_tc_mux_status().active_controller_mode, ControllerMode_e::MODE_0);
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH);
-
-    set_outputs(out1, 0, 1);
-    set_outputs(out2, 0, 1);
-    set_four_outputs(state.system_data.drivetrain_data.measuredSpeeds, 0);
-
-    res1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    ASSERT_EQ(test.get_tc_mux_status().active_controller_mode, ControllerMode_e::MODE_1);
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::NO_ERROR);
+    auto mux = singleControllerMux(constantTorque(5.0f));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_4, makeVCRData(0.0f));
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 0.0f);
 }
 
-TEST(TorqueControllerMuxTesting, test_torque_diff_swap_limit)
+TEST(TorqueControllerMuxTest, UnboundControllerReturnsZeroAndFlagsError)
 {
-    DrivetrainCommand_s inst1, inst2;
-    auto test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
-    {
-        return inst1;
-    };
-    auto test_func_2 = [&inst2](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
-    {
-        return inst2;
-    };
-    set_outputs(inst1, 0.1, 1);
-    set_outputs(inst2, 3, 10);
-    TorqueControllerMux<2> test({test_func_1, test_func_2}, {false, false});
-    VCRData_s state;
-
-    state.system_data.drivetrain_data = {};
-
-    auto out1 = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    ASSERT_EQ(test.get_tc_mux_status().active_controller_mode, ControllerMode_e::MODE_0);
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH);
-
-    // tick it a bunch of times
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    out1 = test.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH);
-
-    ASSERT_EQ(test.get_tc_mux_status().active_controller_mode, ControllerMode_e::MODE_0);
-
-    ASSERT_EQ(out1.torque_limits.FL, 1);
-    ASSERT_EQ(out1.torque_limits.FR, 1);
-    ASSERT_EQ(out1.torque_limits.RL, 1);
-    ASSERT_EQ(out1.torque_limits.RR, 1);
+    auto mux = VCRControls::makeMux<2>({constantTorque(5.0f), ControllerEval{}}, {false, false}, LOOSE_PARAMS);
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_1, makeVCRData(0.0f));
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 0.0f);
 }
 
-// TEST(TorqueControllerMuxTesting, test_construction_with_new_controller_orgs)
-// {
-//     // mode 0
-//     TorqueControllerSimple tc_simple(1.0f, 1.0f);
-//     // mode 1
-//     TorqueControllerLoadCellVectoring tc_vec;
-//     // mode 2
-//     DummyQueue_s q;
-//     CASESystem<DummyQueue_s> case_sys(&q, 100, 70, 550, {});
-//     TorqueControllerCASEWrapper<DummyQueue_s> case_wrapper(&case_sys);
-
-//     // mode 3
-//     TorqueControllerSimpleLaunch simple_launch;
-//     // mode 4
-//     TorqueControllerSlipLaunch slip_launch;
-
-//     TorqueControllerMux<5>
-//         torque_controller_mux({static_cast<Controller *>(&tc_simple),
-//                                static_cast<Controller *>(&tc_vec),
-//                                static_cast<Controller *>(&case_wrapper),
-//                                static_cast<Controller *>(&simple_launch),
-//                                static_cast<Controller *>(&slip_launch)},
-//                               {false, false, true, false, false});
-// }
-
-TEST(TorqueControllerMuxTesting, test_mode0_evaluation)
+TEST(TorqueControllerMuxTest, ActiveControllerOutputIsPassedThrough)
 {
-
-    // mode 0
-    TorqueControllerSimpleParams_s standard_params;
-    float max_torque = standard_params.amk_max_torque;
-    TorqueControllerSimple tc_simple(standard_params);
-    //     // mode 1
-    //     TorqueControllerLoadCellVectoring tc_vec;
-    //     // mode 2
-    //     DummyQueue_s q;
-    //     CASESystem<DummyQueue_s> case_sys(&q, 100, 70, 550, {});
-    //     TorqueControllerCASEWrapper<DummyQueue_s> case_wrapper(&case_sys);
-
-    //     // mode 3
-    //     TorqueControllerSimpleLaunch simple_launch;
-    //     // mode 4
-    //     TorqueControllerSlipLaunch slip_launch;
-    //     TorqueControllerMux<5> torque_controller_mux({static_cast<Controller *>(&tc_simple),
-    //                                                   static_cast<Controller *>(&tc_vec),
-    //                                                   static_cast<Controller *>(&case_wrapper),
-    //                                                   static_cast<Controller *>(&simple_launch),
-    //                                                   static_cast<Controller *>(&slip_launch)},
-    //                                                  {false, true, false, false, false});
-    TorqueControllerMux<1> torque_controller_mux(
-        {std::bind(&TorqueControllerSimple::evaluate, std::ref(tc_simple), std::placeholders::_1, std::placeholders::_2)},
-        {false});
-
-    VCRData_s mode_0_input_state;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.5f;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.brake_percent = 0.0f;
-
-    DrivetrainCommand_s out = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    ASSERT_NEAR(out.torque_limits.FL, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.FR, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.RL, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-    ASSERT_NEAR(out.torque_limits.RR, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-
-    //     mode_0_input_state = {{}, {}, {}, {}, {.accelPercent = 0.0f, .brakePercent = 0.0f,
-    //     .regenPercent = 0.0}, {}, {}, {}}; out =
-    //     torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0,
-    //     TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state); ASSERT_EQ(out.torque_limits.FL,
-    //     0); ASSERT_EQ(out.torque_limits.FR, 0); ASSERT_EQ(out.torque_limits.FR, 0);
-    //     ASSERT_EQ(out.torque_limits.FR, 0);
-
-    // out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_1,
-    // TorqueLimit_e::TCMUX_FULL_TORQUE, mode_1_input_state);
+    auto mux = singleControllerMux(constantTorque({1.0f, 2.0f, 3.0f, 4.0f}));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(0.0f));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 1.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.FR, 2.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RL, 3.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RR, 4.0f);
 }
 
-TEST(TorqueControllerMuxTesting, test_power_limit)
+/* ---------- Switching controllers ---------- */
+
+TEST(TorqueControllerMuxTest, SwitchesWhenSlowAndTorqueClose)
 {
-    // mode 0
-    TorqueControllerSimpleParams_s standard_params;
-    float max_torque = standard_params.amk_max_torque;
-    TorqueControllerSimple tc_simple(standard_params);
-
-    DrivetrainDynamicReport_s drivetrain_data = {};
-    set_four_outputs(drivetrain_data.measuredSpeeds, 1000.0f);
-
-    VCRData_s mode_0_input_state;
-    mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.5f;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.brake_percent = 0.0f;
-
-    float new_power_lim = 20000.0f;
-    TorqueControllerMux<1> torque_controller_mux(
-        {std::bind(&TorqueControllerSimple::evaluate, std::ref(tc_simple), std::placeholders::_1, std::placeholders::_2)},
-        {false},
-        TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
-        TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
-        new_power_lim);
-
-    DrivetrainCommand_s out = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    ASSERT_NEAR(out.torque_limits.FL, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.FR, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.RL, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-    ASSERT_NEAR(out.torque_limits.RR, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-
-
-    float rpm_set = 20000.0f;
-    set_four_outputs(drivetrain_data.measuredSpeeds, rpm_set);
-    mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
-    out = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-
-    ASSERT_NEAR(
-        ((out.torque_limits.FL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.FR * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RR * (rpm_set * RPM_TO_RAD_PER_SECOND))),
-        new_power_lim,
-        0.1);
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.6f;
-    set_four_outputs(drivetrain_data.measuredSpeeds, rpm_set);
-    mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
-    (void)torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    (void)torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    (void)torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    (void)torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    out = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    ASSERT_NEAR(
-        ((out.torque_limits.FL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.FR * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RR * (rpm_set * RPM_TO_RAD_PER_SECOND))),
-        new_power_lim,
-        0.1);
+    auto mux = VCRControls::makeMux<2>({constantTorque(1.0f), constantTorque(1.2f)}, {false, false}, LOOSE_PARAMS);
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_1, makeVCRData(0.0f));
+    EXPECT_EQ(mux.getTCMuxStatus().active_controller_mode, ControllerMode_e::MODE_1);
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::NO_ERROR);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 1.2f);
 }
 
-TEST(TorqueControllerMuxTesting, test_torque_limit)
+TEST(TorqueControllerMuxTest, DoesNotSwitchWhileMovingTooFast)
 {
+    auto mux = VCRControls::makeMux<2>({constantTorque(1.0f), constantTorque(1.0f)}, {false, false}, LOOSE_PARAMS);
+    float too_fast_rpm = 2.0f * tc_mux_default_params::MAX_SPEED_DURING_MODE_CHANGE * physical_motor_scales::METERS_PER_SECOND_TO_RPM;
 
-    // TestControllerType inst1;
-    DrivetrainCommand_s inst1;
-    auto test_func_1 = [&inst1](const VCRData_s& state, unsigned long m) -> DrivetrainCommand_s
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_1, makeVCRData(too_fast_rpm));
+    EXPECT_EQ(mux.getTCMuxStatus().active_controller_mode, ControllerMode_e::MODE_0);
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 1.0f);
+}
+
+TEST(TorqueControllerMuxTest, DoesNotSwitchWhenTorqueJumpIsTooLarge)
+{
+    auto mux = VCRControls::makeMux<2>({constantTorque(0.0f), constantTorque(5.0f)}, {false, false}, LOOSE_PARAMS);
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_1, makeVCRData(0.0f));
+    EXPECT_EQ(mux.getTCMuxStatus().active_controller_mode, ControllerMode_e::MODE_0);
+    EXPECT_EQ(mux.getTCMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 0.0f);
+}
+
+/* ---------- Bypass ---------- */
+
+TEST(TorqueControllerMuxTest, BypassedControllerIsNotLimited)
+{
+    // Regen at standstill would be zeroed by the mux, a bypassed controller (drivebrain) passes it straight through.
+    // The inverter-level brake current cutoff is what protects against this case.
+    auto mux = VCRControls::makeMux<1>({constantTorque(-5.0f)}, {true}, LOOSE_PARAMS);
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(0.0f));
+    EXPECT_TRUE(mux.getTCMuxStatus().output_is_bypassing_limits);
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, -5.0f);
+}
+
+TEST(TorqueControllerMuxTest, LimitedControllerReportsNotBypassing)
+{
+    auto mux = singleControllerMux(constantTorque(1.0f));
+    mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(0.0f));
+    EXPECT_FALSE(mux.getTCMuxStatus().output_is_bypassing_limits);
+}
+
+/* ---------- Torque and power limits ---------- */
+
+TEST(TorqueControllerMuxTest, AverageTorqueLimitScalesAllWheelsKeepingRatios)
+{
+    TCMuxParams_s params = LOOSE_PARAMS;
+    params.max_avg_torque_nm = 2.0f;
+    auto mux = singleControllerMux(constantTorque({2.0f, 2.0f, 6.0f, 6.0f}), params); // average 4 Nm
+
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(0.0f));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 1.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.FR, 1.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RL, 3.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RR, 3.0f);
+}
+
+TEST(TorqueControllerMuxTest, TorqueUnderAverageLimitIsUnchanged)
+{
+    TCMuxParams_s params = LOOSE_PARAMS;
+    params.max_avg_torque_nm = 10.0f;
+    auto mux = singleControllerMux(constantTorque(5.0f), params);
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(0.0f));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 5.0f);
+}
+
+TEST(TorqueControllerMuxTest, PowerLimitCapsTotalMechanicalPower)
+{
+    TCMuxParams_s params = LOOSE_PARAMS;
+    params.max_power_limit_watts = 1000.0f;
+    auto mux = singleControllerMux(constantTorque(10.0f), params);
+
+    float rpm = 1000.0f;
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(rpm));
+
+    float omega = rpm * physical_motor_scales::RPM_TO_RAD_PER_SECOND;
+    float total_power = 0.0f;
+    for (float t : out.desired_torques.as_array())
     {
-        return inst1;
-    };
-    set_outputs(inst1, 500, 10.0);
-    inst1.torque_limits.FL = 5;
-    TorqueControllerMux<1> test({test_func_1}, {false});
-
-    DrivetrainDynamicReport_s drivetrain_data = {};
-    set_four_outputs(drivetrain_data.measuredSpeeds, 500.0f);
-
-    VCRData_s mode_0_input_state;
-    mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.5f;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.brake_percent = 0.0f;
-    mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.regen_percent = 0.0f;
-    auto drive_command = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, mode_0_input_state);
-
-    ASSERT_EQ(drive_command.torque_limits.FL, 5.0f);
-    ASSERT_EQ(drive_command.torque_limits.FR, 10.0f);
-    ASSERT_EQ(drive_command.torque_limits.RL, 10.0f);
-    ASSERT_EQ(drive_command.torque_limits.RR, 10.0f);
-
-    set_outputs(inst1, 500, 20.0);
-    inst1.torque_limits.FL = 5;
-
-    drive_command = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, mode_0_input_state);
-
-    ASSERT_LT(drive_command.torque_limits.FL, 3.5f);
-    ASSERT_LT(drive_command.torque_limits.FR, 12.5f);
-    ASSERT_LT(drive_command.torque_limits.RL, 12.5f);
-    ASSERT_LT(drive_command.torque_limits.RR, 12.5f);
-
-    printf("torque 1: %.2f\n", drive_command.torque_limits.FL);
-    printf("torque 2: %.2f\n", drive_command.torque_limits.FR);
-    printf("torque 3: %.2f\n", drive_command.torque_limits.RL);
-    printf("torque 4: %.2f\n", drive_command.torque_limits.RR);
-}
-
-TEST(TorqueControllerMuxTesting, test_null_pointer_error_state)
-{
-    TorqueControllerMux<1> test({nullptr}, {true});
-    VCRData_s state;
-    auto res = test.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, state);
-    for (int i = 0; i < 4; i++)
-    {
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0f);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0f);
+        total_power += t * omega;
     }
-    ASSERT_EQ(test.get_tc_mux_status().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER);
+    EXPECT_NEAR(total_power, 1000.0f, 1.0f);
 }
 
-TEST(TorqueControllerMuxTesting, test_drivebrain_and_simple_controller_integration)
+/* ---------- Regen derating (torque mode) ---------- */
+
+TEST(TorqueControllerMuxTest, FullRegenAboveDerateSpeed)
 {
-    TorqueControllerSimple simple_controller;
-    DrivebrainController db_controller(10);
-
-    StampedDrivetrainCommand_s data;
-    data.desired_speeds.last_recv_millis = 1000;
-    data.desired_speeds.recvd = true;
-    data.torque_limits.last_recv_millis = 1000;
-    sys_time::set_millis(1000);
-    data.torque_limits.recvd = true;
-    data.torque_limits.veh_vec_data = {1, 1, 1, 1};
-    data.desired_speeds.veh_vec_data = {1, 1, 1, 1};
-
-    // TorqueControllerMuxStatus_s status = {};
-    // status.active_controller_mode = current_control_mode;
-    PedalsSystemData_s pedals_data = {};
-    pedals_data.brake_percent = 0.20;
-    pedals_data.accel_percent = 0.0;
-
-    VCRData_s state;
-    state.interface_data.latest_drivebrain_telem_command = data;
-    state.interface_data.recvd_pedals_data.pedals_data = pedals_data;
-
-    // VCRData_s state;
-
-
-    TorqueControllerMux<2> torque_controller_mux(
-        {std::bind(&TorqueControllerSimple::evaluate, std::ref(simple_controller), std::placeholders::_1, std::placeholders::_2),
-         std::bind(&DrivebrainController::evaluate, std::ref(db_controller), std::placeholders::_1, std::placeholders::_2)},
-        {false, true});
-
-    auto res = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    res = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    EXPECT_FALSE(db_controller.get_timing_failure_status());
-    EXPECT_FLOAT_EQ(res.desired_speeds.FL, data.desired_speeds.veh_vec_data.FL);
-
-    data.desired_speeds.last_recv_millis = 3000;
-    data.torque_limits.last_recv_millis = 2000;
-    sys_time::set_millis(3000);
-    state.interface_data.latest_drivebrain_telem_command = data;
-    res = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-
-    EXPECT_TRUE(db_controller.get_timing_failure_status());
-
-
-    state.interface_data.dash_input_state.mc_reset_btn_is_pressed = true;
-    res = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    data.torque_limits.last_recv_millis = 3000;
-    state.interface_data.latest_drivebrain_telem_command = data;
-    res = torque_controller_mux.get_drivetrain_command(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
-    EXPECT_FALSE(db_controller.get_timing_failure_status());
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(12.0f)));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, -5.0f);
 }
 
-#endif // __TEST_TCMUX__
+TEST(TorqueControllerMuxTest, NoRegenAtOrBelowRulesSpeed)
+{
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    for (float kph : {0.0f, 4.0f, tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH})
+    {
+        DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(kph)));
+        for (float t : out.desired_torques.as_array())
+        {
+            EXPECT_FLOAT_EQ(t, 0.0f) << "at " << kph << " km/h";
+        }
+    }
+}
+
+TEST(TorqueControllerMuxTest, RegenRampsLinearlyBetweenZeroAndFullSpeeds)
+{
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(REGEN_MIDPOINT_KPH)));
+    EXPECT_NEAR(out.desired_torques.FL, -2.5f, 1e-3f);
+}
+
+TEST(TorqueControllerMuxTest, RegenIsDeratedPerWheel)
+{
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData({kphToRPM(12.0f), kphToRPM(12.0f), kphToRPM(12.0f), kphToRPM(3.0f)}));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, -5.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RR, 0.0f); // stopped wheel gets no regen even though the others are moving
+}
+
+TEST(TorqueControllerMuxTest, RegenDerateUsesWheelSpeedMagnitude)
+{
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(-kphToRPM(12.0f)));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, -5.0f);
+}
+
+TEST(TorqueControllerMuxTest, PositiveTorqueIsNeverRegenDerated)
+{
+    auto mux = singleControllerMux(constantTorque({5.0f, -5.0f, 5.0f, -5.0f}));
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(3.0f)));
+    EXPECT_FLOAT_EQ(out.desired_torques.FL, 5.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.FR, 0.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RL, 5.0f);
+    EXPECT_FLOAT_EQ(out.desired_torques.RR, 0.0f);
+}
+
+TEST(TorqueControllerMuxTest, RegenDeratedByBusVoltage)
+{
+    auto mux = singleControllerMux(constantTorque(-5.0f));
+    float mid_voltage = (tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V + tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V) / 2.0f;
+
+    DrivetrainCommand_s half = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(12.0f), mid_voltage));
+    EXPECT_NEAR(half.desired_torques.FL, -2.5f, 1e-3f);
+
+    DrivetrainCommand_s none = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(12.0f), tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V));
+    EXPECT_FLOAT_EQ(none.desired_torques.FL, 0.0f);
+}
+
+TEST(TorqueControllerMuxTest, RegenUsesTheStricterOfSpeedAndVoltageDerating)
+{
+    auto mux = singleControllerMux(constantTorque(-8.0f));
+    float quarter_voltage = tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V
+                            + 0.75f * (tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V - tc_mux_default_params::REGEN_VOLTAGE_DERATE_START_V); // 0.25
+
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(kphToRPM(REGEN_MIDPOINT_KPH), quarter_voltage)); // speed 0.5
+    EXPECT_NEAR(out.desired_torques.FL, -2.0f, 1e-3f); // min(0.5, 0.25) * -8, not 0.5 * 0.25 * -8
+}
+
+/* ---------- Regen derating (speed mode) ---------- */
+
+TEST(TorqueControllerMuxTest, SpeedModeZeroTargetIsPulledTowardMeasuredSpeedWhenDerated)
+{
+    auto mux = singleControllerMux(constantSpeed(0.0f));
+    float rpm = kphToRPM(REGEN_MIDPOINT_KPH);
+
+    DrivetrainCommand_s out = mux.evaluateTCMux(ControllerMode_e::MODE_0, makeVCRData(rpm));
+    EXPECT_NEAR(out.desired_speeds.FL, rpm / 2.0f, 1.0f); // half way between measured speed and the 0 target
+}
+
+#endif // TEST_TCMUX_HPP
