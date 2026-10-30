@@ -14,6 +14,7 @@
 #include "DashboardInterface.h"
 #include "OrbisInterface.h"
 #include "SystemTimeInterface.h"
+#include "TTPMSInterface.h"
 #include "VCFCANInterfaceImpl.h"
 #include "VCFEthernetInterface.h"
 #include "VCRInterface.h"

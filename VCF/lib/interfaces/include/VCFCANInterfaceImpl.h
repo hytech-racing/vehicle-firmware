@@ -14,6 +14,7 @@
 #include "ACUInterface.h"
 #include "BrakeRotorTempInterface.h"
 #include "DashboardInterface.h"
+#include "TTPMSInterface.h"
 #include "VCRInterface.h"
 
 /* Globally accessible types */
@@ -33,16 +34,19 @@ struct CANInterfaces_s
     explicit CANInterfaces_s(ACUInterface &acu_int,
                             BrakeRotorTempInterface &brake_rotor_temp_int,
                             DashboardInterface &dash_int,
+                            TTPMSInterface &ttpms_int,
                             VCRInterface &vcr_int
     ) : acu_interface(acu_int),
         brake_rotor_temp_interface(brake_rotor_temp_int),
         dash_interface(dash_int),
+        ttpms_interface(ttpms_int),
         vcr_interface(vcr_int)
     {};
 
     ACUInterface &acu_interface;
     BrakeRotorTempInterface &brake_rotor_temp_interface;
     DashboardInterface &dash_interface;
+    TTPMSInterface &ttpms_interface;
     VCRInterface &vcr_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;

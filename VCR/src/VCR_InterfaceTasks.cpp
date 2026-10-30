@@ -113,9 +113,6 @@ void initialize_all_interfaces()
                                         }
     );
 
-    /* ---------- TTPMS Interface ---------- */
-    TTPMSInterfaceInstance::create();
-
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
 
@@ -130,7 +127,6 @@ void initialize_all_interfaces()
                                 fr_inverter_interface,
                                 rl_inverter_interface,
                                 rr_inverter_interface,
-                                TTPMSInterfaceInstance::instance(),
                                 VCFInterfaceInstance::instance()
     );
 
@@ -547,13 +543,6 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_analog);
     // Serial.print(" Thermistor 7 degrees C: ");
     // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_degrees_C);
-
-    /* TTPMS Data */
-    auto& ttpms_interface = TTPMSInterfaceInstance::instance();
-    ttpms_interface.printTTPMSData("FL", ttpms_interface.getTTPMSData().fl_ttpms);
-    ttpms_interface.printTTPMSData("FR", ttpms_interface.getTTPMSData().fr_ttpms);
-    ttpms_interface.printTTPMSData("RL", ttpms_interface.getTTPMSData().rl_ttpms);
-    ttpms_interface.printTTPMSData("RR", ttpms_interface.getTTPMSData().rr_ttpms);
 
     Serial.println();
 

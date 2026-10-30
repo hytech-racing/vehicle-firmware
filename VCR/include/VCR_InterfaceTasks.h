@@ -21,7 +21,6 @@
 #include "VCRCANInterfaceImpl.h"
 #include "VCREthernetInterface.h"
 #include "WatchdogInterface.h"
-#include "TTPMSInterface.h"
 
 /* Local System Includes */
 #include "VehicleStateMachine.h"

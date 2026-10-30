@@ -74,6 +74,34 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s &interfaces, const CAN
             interfaces.brake_rotor_temp_interface.receive_brake_rotor_temp_data(msg);
             break;
         }
+        case LF_TTPMS_1_CANID:
+        case LF_TTPMS_2_CANID:
+        case LF_TTPMS_3_CANID:
+        case LF_TTPMS_4_CANID:
+        case LF_TTPMS_5_CANID:
+        case LF_TTPMS_6_CANID:
+        case RF_TTPMS_1_CANID:
+        case RF_TTPMS_2_CANID:
+        case RF_TTPMS_3_CANID:
+        case RF_TTPMS_4_CANID:
+        case RF_TTPMS_5_CANID:
+        case RF_TTPMS_6_CANID:
+        case LR_TTPMS_1_CANID:
+        case LR_TTPMS_2_CANID:
+        case LR_TTPMS_3_CANID:
+        case LR_TTPMS_4_CANID:
+        case LR_TTPMS_5_CANID:
+        case LR_TTPMS_6_CANID:
+        case RR_TTPMS_1_CANID:
+        case RR_TTPMS_2_CANID:
+        case RR_TTPMS_3_CANID:
+        case RR_TTPMS_4_CANID:
+        case RR_TTPMS_5_CANID:
+        case RR_TTPMS_6_CANID:
+        {
+            interfaces.ttpms_interface.receiveTTPMSData(msg, millis);
+            break;
+        }
         default:
         {
             break;

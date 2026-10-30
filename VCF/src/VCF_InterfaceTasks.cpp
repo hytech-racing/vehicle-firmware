@@ -85,6 +85,9 @@ void initialize_all_interfaces()
     /* Brake Rotor Temp Interface */
     BrakeRotorTempInterfaceInstance::create();
 
+    /* TTPMS Interface */
+    TTPMSInterfaceInstance::create();
+
     /* Dashboard Interface */
     DashboardGPIOs_s dashboard_gpios = {
         .BRIGHTNESS_CONTROL_PIN = VCFInterfaces::BRIGHTNESS_CONTROL_PIN,
@@ -107,6 +110,7 @@ void initialize_all_interfaces()
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(),
                                 BrakeRotorTempInterfaceInstance::instance(),
                                 DashboardInterfaceInstance::instance(),
+                                TTPMSInterfaceInstance::instance(),
                                 VCRInterfaceInstance::instance()
     );
 
@@ -198,6 +202,7 @@ HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, co
 
 HT_TASK::TaskResponse handle_CAN_send(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
+    TTPMSInterfaceInstance::instance().updateConfigSequence(sysMicros / 1000); // No-op unless a TTPMS receiver config sequence was started
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer, &VCFCANInterfaceInstance::instance().FRONT_AUX_CAN);
 
@@ -487,6 +492,14 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
         Serial.print("\t");
     }
     Serial.println();
+
+    /* TTPMS Data */
+    Serial.println("\nTTPMS:");
+    auto& ttpms_interface = TTPMSInterfaceInstance::instance();
+    ttpms_interface.printTTPMSData("FL", ttpms_interface.getTTPMSData().fl_ttpms);
+    ttpms_interface.printTTPMSData("FR", ttpms_interface.getTTPMSData().fr_ttpms);
+    ttpms_interface.printTTPMSData("RL", ttpms_interface.getTTPMSData().rl_ttpms);
+    ttpms_interface.printTTPMSData("RR", ttpms_interface.getTTPMSData().rr_ttpms);
 
     return HT_TASK::TaskResponse::YIELD;
 }

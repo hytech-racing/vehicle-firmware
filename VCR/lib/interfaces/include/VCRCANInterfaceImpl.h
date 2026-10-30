@@ -15,7 +15,6 @@
 #include "VCFInterface.h"
 #include "ACUInterface.h"
 #include "InverterInterface.h"
-#include "TTPMSInterface.h"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
@@ -37,7 +36,6 @@ struct CANInterfaces_s
                             InverterInterface &fr_inv_int,
                             InverterInterface &rl_inv_int,
                             InverterInterface &rr_inv_int,
-                            TTPMSInterface &ttpms_int,
                             VCFInterface &vcf_int
     ) : acu_interface(acu_int),
         db_interface(db_int),
@@ -45,7 +43,6 @@ struct CANInterfaces_s
         fr_inverter_interface(fr_inv_int),
         rl_inverter_interface(rl_inv_int),
         rr_inverter_interface(rr_inv_int),
-        ttpms_interface(ttpms_int),
         vcf_interface(vcf_int)
     {};
 
@@ -55,7 +52,6 @@ struct CANInterfaces_s
     InverterInterface &fr_inverter_interface;
     InverterInterface &rl_inverter_interface;
     InverterInterface &rr_inverter_interface;
-    TTPMSInterface &ttpms_interface;
     VCFInterface &vcf_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
