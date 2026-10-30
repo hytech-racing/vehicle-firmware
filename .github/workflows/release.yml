@@ -1,4 +1,4 @@
-name: Release
+name: Release on merge to main
 # When a release/* branch gets merged into main, this computes the next
 # version number, tags it, builds firmware for all five subsystems, and
 # publishes a single GitHub Release with one firmware file per board.
@@ -24,7 +24,6 @@ jobs:
   # and creates/pushes the tag if not. Uses compute_version.py script.
   # ═══════════════════════════════════════════════════════════════════
   version:
-    name: Compute version & tag
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true &&
@@ -96,7 +95,6 @@ jobs:
   # same pattern as the CI workflow.
   # ═══════════════════════════════════════════════════════════════════
   build:
-    name: Build (${{ matrix.subsystem }})
     needs: version
     # ^ `needs:` makes this job wait for `version` to finish successfully
     #   before starting.
@@ -165,7 +163,6 @@ jobs:
   # computed in job 1.
   # ═══════════════════════════════════════════════════════════════════
   release:
-    name: Publish GitHub Release
     needs: [version, build]
     if: needs.version.outputs.exists == 'false'
     runs-on: ubuntu-latest
