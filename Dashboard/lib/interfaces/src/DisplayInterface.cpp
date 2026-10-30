@@ -73,7 +73,7 @@ void DisplayInterface::draw_background()
     _display.clear_display_buffer();
     _display.fillRect(0, 0, 320, 240, _white);
 
-    //_display.drawBitmap(0, 0, epd_bitmap_ht_can_dashboard, 320, 240, _black);
+    //_display.drawBitmap(0, 0, epd_bitmap_hytech_dashboard, 320, 240, _black);
     _display.fillRect(320 - 40, 30, 40, 200, _white);
     //_display.fillRect(283, 36, 305 - 283, 210 - 36, _black);
     _display.fillRect(283 - 3, (36 + 210 - 36) / 2 + 15, 25, 7, _white);

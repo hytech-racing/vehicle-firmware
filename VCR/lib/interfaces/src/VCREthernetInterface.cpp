@@ -24,7 +24,8 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(
     const InverterInterface& fr_inverter,
     const InverterInterface& rl_inverter,
     const InverterInterface& rr_inverter,
-    const VCRControls& vcr_controls)
+    const VCRControls& vcr_controls,
+    float lv_bat_current_sensor_amp)
 {
     auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCRData_s out;
@@ -93,6 +94,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataPBMsg(
     out.current_sensor_data.current_refererence_unfiltered = adc_interface.get_bspd_reference_current().conversion;
     out.current_sensor_data.bpsd_brake_high_sense = adc_interface.is_brake_sense_high();
     out.current_sensor_data.bspd_current_high_sense = adc_interface.is_current_sense_high();
+    out.current_sensor_data.lv_bat_current_sensor_A = lv_bat_current_sensor_amp;
 
 
     // DrivetrainDynamicReport_s

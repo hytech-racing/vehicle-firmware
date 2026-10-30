@@ -1,31 +1,32 @@
-#include "BrakeRotorTempInterface.h"
+#include "BrakeRotorTempInterface.hpp"
 
 
-BrakeTempSensorData_s BrakeRotorTempInterface::get_brake_rotor_temp_data() const
+BrakeTempSensorData_s BrakeRotorTempInterface::getBrakeRotorTempData() const
 {
     return _temp_data;
 }
 
-void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t& msg)
+void BrakeRotorTempInterface::receiveBrakeRotorTempCANMsgs(const CAN_message_t& msg)
 {
     switch (msg.id)
     {
-    case FL_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
-    {
-        // unpack the msg
-        FL_BRAKE_ROTOR_TEMP_CH1_CH4_t unpacked_msg;
-        Unpack_FL_BRAKE_ROTOR_TEMP_CH1_CH4_ht_can(&unpacked_msg, msg.buf, msg.len); // NOLINT array decay to pointer
+    // TODO: FL_BRAKE_ROTOR_TEMP_CH1_CH4 removed from HT_CAN (ID 0x4C4 collided with INV4_STATUS_DC_CONFIG_CURRENT), restore once re-IDed
+    // case FL_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
+    // {
+    //     // unpack the msg
+    //     FL_BRAKE_ROTOR_TEMP_CH1_CH4_t unpacked_msg;
+    //     Unpack_FL_BRAKE_ROTOR_TEMP_CH1_CH4_ht_can(&unpacked_msg, msg.buf, msg.len); // NOLINT array decay to pointer
 
-        // copy data over to interface data
-        std::get<0>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_1_ro_fromS(unpacked_msg.brake_temp_channel_1_ro);
-        std::get<1>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_2_ro_fromS(unpacked_msg.brake_temp_channel_2_ro);
-        std::get<2>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_3_ro_fromS(unpacked_msg.brake_temp_channel_3_ro);
-        std::get<3>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_4_ro_fromS(unpacked_msg.brake_temp_channel_4_ro);
+    //     // copy data over to interface data
+    //     std::get<0>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_1_ro_fromS(unpacked_msg.brake_temp_channel_1_ro);
+    //     std::get<1>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_2_ro_fromS(unpacked_msg.brake_temp_channel_2_ro);
+    //     std::get<2>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_3_ro_fromS(unpacked_msg.brake_temp_channel_3_ro);
+    //     std::get<3>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_4_ro_fromS(unpacked_msg.brake_temp_channel_4_ro);
 
-        // update FL outputs
-        _update_calculated_values(false);
-        break;
-    }
+    //     // update FL outputs
+    //     _updateCalculatedValues(false);
+    //     break;
+    // }
     case FL_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:
     {
         // unpack the msg
@@ -39,7 +40,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<7>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_8_ro_fromS(unpacked_msg.brake_temp_channel_8_ro);
 
         // update FL outputs
-        _update_calculated_values(false);
+        _updateCalculatedValues(false);
         break;
     }
     case FL_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
@@ -55,7 +56,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<11>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_12_ro_fromS(unpacked_msg.brake_temp_channel_12_ro);
 
         // update FL outputs
-        _update_calculated_values(false);
+        _updateCalculatedValues(false);
         break;
     }
     case FL_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
@@ -71,7 +72,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<15>(_temp_data.fl_sensor.channel_data) = HT_CAN_brake_temp_channel_16_ro_fromS(unpacked_msg.brake_temp_channel_16_ro);
 
         // update FL outputs
-        _update_calculated_values(false);
+        _updateCalculatedValues(false);
         break;
     }
     case FR_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
@@ -87,7 +88,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<3>(_temp_data.fr_sensor.channel_data) = HT_CAN_brake_temp_channel_4_ro_fromS(unpacked_msg.brake_temp_channel_4_ro);
 
         // update FR outputs
-        _update_calculated_values(true);
+        _updateCalculatedValues(true);
         break;
     }
     case FR_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:
@@ -103,7 +104,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<7>(_temp_data.fr_sensor.channel_data) = HT_CAN_brake_temp_channel_8_ro_fromS(unpacked_msg.brake_temp_channel_8_ro);
 
         // update FR outputs
-        _update_calculated_values(true);
+        _updateCalculatedValues(true);
         break;
     }
     case FR_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
@@ -119,7 +120,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<11>(_temp_data.fr_sensor.channel_data) = HT_CAN_brake_temp_channel_12_ro_fromS(unpacked_msg.brake_temp_channel_12_ro);
 
         // update FR outputs
-        _update_calculated_values(true);
+        _updateCalculatedValues(true);
         break;
     }
     case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
@@ -135,10 +136,9 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
         std::get<15>(_temp_data.fr_sensor.channel_data) = HT_CAN_brake_temp_channel_16_ro_fromS(unpacked_msg.brake_temp_channel_16_ro);
 
         // update FR outputs
-        _update_calculated_values(true);
+        _updateCalculatedValues(true);
         break;
     }
-
     default:
     {
         break;
@@ -146,12 +146,7 @@ void BrakeRotorTempInterface::receive_brake_rotor_temp_data(const CAN_message_t&
     }
 }
 
-/**
- * Helper method to update the calculated values of max and avg temps for each sensor after new data is
- * received. Will only update for the specified sensor.
- * @param sensor corresponds to which sensor was updated. FL = 0, FR = 1
- */
-void BrakeRotorTempInterface::_update_calculated_values(bool sensor)
+void BrakeRotorTempInterface::_updateCalculatedValues(bool sensor)
 {
     if (sensor)
     { // check if FR needs to be updated

@@ -77,6 +77,14 @@ void initializeAllInterfaces()
             VCRInterfaces::COOLANT_TEMP_OFFSET});
     ADCInterfaceInstance::instance().init();
 
+    /* ---------- Ethernet Interface ---------- */
+    VCREthernetInterfaceInstance::create();
+    VCREthernetInterfaceInstance::instance().initEthernetDevice();
+
+    /* ---------- Maintenance Panel ADC Interface ---------- */
+    ADS112InterfaceInstance::create(Serial8, VCRInterfaces::MPB_ADC_SCALES, VCRInterfaces::MPB_ADC_OFFSETS);
+    ADS112InterfaceInstance::instance().init();
+
     /* ---------- Drivebrain Interface ---------- */
     DrivebrainInterfaceInstance::create(
         EthernetIPDefsInstance::instance().drivebrain_ip,
@@ -94,9 +102,8 @@ void initializeAllInterfaces()
     /* ---------- VCF Interface ---------- */
     VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
 
-    /* ---------- Ethernet Interface ---------- */
-    VCREthernetInterfaceInstance::create();
-    VCREthernetInterfaceInstance::instance().initEthernetDevice();
+    /* ---------- RSS Interface ---------- */
+    RSSInterfaceInstance::create(VCRInterfaces::RSS_NODE_ID);
 
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(
@@ -106,14 +113,15 @@ void initializeAllInterfaces()
         fr_inverter_interface,
         rl_inverter_interface,
         rr_inverter_interface,
-        VCFInterfaceInstance::instance());
+        VCFInterfaceInstance::instance(),
+        RSSInterfaceInstance::instance());
 
     VCRCANInterfaceInstance::create(
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::receieveIDSwitch>());
 
     handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::onINVERTERCANReceive);
     handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::onTELEMCANReceive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::onRAUXCANReceive);
+    // handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::onRAUXCANReceive);
 }
 
 HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
@@ -126,6 +134,12 @@ HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK
 HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ADCInterfaceInstance::instance().tick_adc1();
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse readMPBADCTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    ADS112InterfaceInstance::instance().tick();
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -222,7 +236,7 @@ HT_TASK::TaskResponse enqueueInverterCANDataTask(const unsigned long& sysMicros,
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueVehicleStateCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFInterfaceInstance::instance().enqueueVehicleStateCANMessage(
         VehicleStateMachineInstance::instance().get_state(),
@@ -252,7 +266,8 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
             fr_inverter_interface,
             rl_inverter_interface,
             rr_inverter_interface,
-            VCRControlsInstance::instance()));
+            VCRControlsInstance::instance(),
+            ADS112InterfaceInstance::instance().get_channel(VCRInterfaces::LV_BAT_CURRENT_SENSOR_CHANNEL).conversion));
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -280,9 +295,10 @@ namespace async_tasks
             CANInterfaceType_e::RAUX);
     }
 
-    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces)
+    VCRInterfaceData_s gatherLatestInterfaceData(CANInterfaces_s& can_interfaces)
     {
-        VCRInterfaceData_s out;
+        // Start from the current data so fields written by other tasks (shutdown sensing, ethernet links) are kept
+        VCRInterfaceData_s out = vcr_data.interface_data;
 
         auto vcf_data = can_interfaces.vcf_interface.getLatestData();
         auto drivebrain_telem_data = can_interfaces.db_interface.getLatestDrivebrainCommandTELEM();
@@ -320,6 +336,7 @@ namespace async_tasks
         out.inverter_data.RR.input_voltage = rr_inv_status.dc_bus_voltage;
 
         out.recvd_pedals_data = vcf_data.stamped_pedals;
+        out.recvd_steering_data = vcf_data.stamped_steering;
         out.front_loadcell_data = vcf_data.front_loadcell_data;
         out.front_suspot_data = vcf_data.front_suspot_data;
         out.dash_input_state = vcf_data.dash_input_state;
@@ -329,11 +346,11 @@ namespace async_tasks
         return out;
     }
 
-    HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+    HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
         handleCANReceive();
 
-        VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
+        VCRInterfaceData_s new_interface_data = gatherLatestInterfaceData(CANInterfacesInstance::instance());
 
         vcr_data.system_data.drivetrain_data.measured_speeds = {
             new_interface_data.inverter_data.FL.speed_rpm,

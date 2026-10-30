@@ -1,19 +1,19 @@
-#include "ACUInterface.h"
+#include "ACUInterface.hpp"
 
-#include "CCUCANInterfaceImpl.h" // this needs to fixed at some point
+#include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
 
 
-void ACUInterface::reset_acu_heartbeat()
+void ACUInterface::resetACUHeartbeat()
 {
     _curr_data.heartbeat_ok = true;
 }
 
-void ACUInterface::set_is_charging_enabled(bool state)
+void ACUInterface::setIsChargingEnabled(bool state)
 {
     _curr_data.is_charging_enabled = state;
 }
 
-void ACUInterface::receive_status_message(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSStatusCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_STATUS_t bms_status_msg;
     Unpack_BMS_STATUS_ht_can(&bms_status_msg, &msg.buf[0], msg.len);
@@ -28,7 +28,7 @@ void ACUInterface::receive_status_message(const CAN_message_t& msg, unsigned lon
     _curr_data.last_recv_status_ms = curr_millis;
 }
 
-void ACUInterface::receive_voltages_message(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_VOLTAGES_t voltages_msg;
     Unpack_BMS_VOLTAGES_ht_can(&voltages_msg, &msg.buf[0], msg.len);
@@ -38,7 +38,7 @@ void ACUInterface::receive_voltages_message(const CAN_message_t& msg, unsigned l
     _curr_data.pack_voltage = HT_CAN_total_pack_voltage_ro_fromS(static_cast<float>(voltages_msg.total_pack_voltage_ro));
 }
 
-void ACUInterface::receive_detailed_voltages_message(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSDetailedVoltagesCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_DETAILED_VOLTAGES_t voltages_msg;
     Unpack_BMS_DETAILED_VOLTAGES_ht_can(&voltages_msg, &msg.buf[0], msg.len);
@@ -53,7 +53,7 @@ void ACUInterface::receive_detailed_voltages_message(const CAN_message_t& msg, u
     _curr_data.cell_voltages[cell_base_index + 2] = HT_CAN_voltage_2_ro_fromS(voltages_msg.voltage_2_ro);
 }
 
-void ACUInterface::receive_onboard_temps_message(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_TEMPS_t board_temps;
     Unpack_BMS_TEMPS_ht_can(&board_temps, &msg.buf[0], msg.len);
@@ -62,7 +62,7 @@ void ACUInterface::receive_onboard_temps_message(const CAN_message_t& msg, unsig
     _curr_data.max_cell_temp = HT_CAN_max_cell_temp_ro_fromS(board_temps.max_cell_temp_ro);
 }
 
-void ACUInterface::receive_detailed_temps_message(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSDetailedTempsCANMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_DETAILED_TEMPS_t detailed_temps;
     Unpack_BMS_DETAILED_TEMPS_ht_can(&detailed_temps, &msg.buf[0], msg.len);
@@ -84,7 +84,7 @@ void ACUInterface::receive_detailed_temps_message(const CAN_message_t& msg, unsi
     }
 }
 
-void ACUInterface::receive_onboard_detailed_temps(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveBMSBoardTemps(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BMS_BOARD_DETAILED_TEMPS_t onboard_detailed_temps{};
     Unpack_BMS_BOARD_DETAILED_TEMPS_ht_can(&onboard_detailed_temps, &msg.buf[0], msg.len);
@@ -92,14 +92,14 @@ void ACUInterface::receive_onboard_detailed_temps(const CAN_message_t& msg, unsi
     _curr_data.board_temps[ic_id] = HT_CAN_temp_0_ro_fromS(onboard_detailed_temps.temp_0_ro);
 }
 
-void ACUInterface::receive_state_of_charge(const CAN_message_t& msg, unsigned long curr_millis)
+void ACUInterface::receiveStateOfChargeCANMSG(const CAN_message_t& msg, unsigned long curr_millis)
 {
     STATE_OF_CHARGE_t soc_msg{};
     Unpack_STATE_OF_CHARGE_ht_can(&soc_msg, &msg.buf[0], msg.len);
     _curr_data.SoC = HT_CAN_SoC_ro_fromS(soc_msg.SoC_ro);
 }
 
-void ACUInterface::enqueue_ccu_status_data()
+void ACUInterface::enqueueCCUStatusCANMsg()
 {
     CCU_STATUS_t ccu_status = {};
     ccu_status.charger_enabled = _curr_data.is_charging_enabled;

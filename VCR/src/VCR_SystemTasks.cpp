@@ -1,6 +1,7 @@
 #include "VCR_SystemTasks.hpp"
 
-void initialize_all_systems()
+
+void initializeAllSystems()
 {
     /**
      * @note etl::delegate stores a pointer to the lambda it is created from, not a copy. The lambdas below are static so
@@ -96,7 +97,8 @@ void initialize_all_systems()
         etl::delegate<void()>::create(sendRecalibrateSteeringMessage),
         etl::delegate<bool()>::create(isDrivetrainFaulted),
         etl::delegate<bool()>::create(isDrivetrainNotConnected),
-        etl::delegate<void(bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance()));
+        etl::delegate<void(bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance()),
+        etl::delegate<bool()>::create<RSSInterface, &RSSInterface::isGoButtonPressed>(RSSInterfaceInstance::instance()));
 }
 
 HT_TASK::TaskResponse tickStateMachine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)

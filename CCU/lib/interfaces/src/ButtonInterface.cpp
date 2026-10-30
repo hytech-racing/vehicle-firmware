@@ -1,4 +1,4 @@
-#include "ButtonInterface.h"
+#include "ButtonInterface.hpp"
 
 
 void ButtonInterface::update(unsigned long current_millis)
@@ -43,32 +43,35 @@ void ButtonInterface::update(unsigned long current_millis)
     _button_state.last_read = read;
 }
 
-bool ButtonInterface::is_pressed()
+bool ButtonInterface::isPressed()
 {
-    if (_button_state.press_event) {
+    if (_button_state.press_event)
+    {
         _button_state.press_event = false;
         return true;
     }
     return false;
 }
 
-bool ButtonInterface::is_released()
+bool ButtonInterface::isReleased()
 {
-    if (_button_state.release_event) {
+    if (_button_state.release_event)
+    {
         _button_state.release_event = false;
         return true;
     }
     return false;
 }
 
-bool ButtonInterface::is_held()
+bool ButtonInterface::isHeld()
 {
     return _button_state.current_state;
 }
 
-unsigned long ButtonInterface::get_hold_duration_ms(unsigned long current_millis)
+unsigned long ButtonInterface::getHoldDurationMs(unsigned long current_millis)
 {
-    if (_button_state.current_state) {
+    if (_button_state.current_state)
+    {
         return current_millis - _button_state.press_start_time_ms;
     }
     return 0;

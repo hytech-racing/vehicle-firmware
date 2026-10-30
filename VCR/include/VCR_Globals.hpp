@@ -1,5 +1,5 @@
-#ifndef VCR_GLOBALS
-#define VCR_GLOBALS
+#ifndef VCR_GLOBALS_HPP
+#define VCR_GLOBALS_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>

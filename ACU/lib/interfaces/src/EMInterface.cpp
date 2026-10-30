@@ -1,4 +1,4 @@
-#include "EMInterface.h"
+#include "EMInterface.hpp"
 
 
 void EMInterface::receive_EM_measurement_message(const CAN_message_t& msg, uint32_t curr_millis)

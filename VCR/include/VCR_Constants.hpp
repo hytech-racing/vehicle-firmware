@@ -1,8 +1,10 @@
-#ifndef VCR_CONSTANTS
-#define VCR_CONSTANTS
+#ifndef VCR_CONSTANTS_HPP
+#define VCR_CONSTANTS_HPP
 
 /* External Includes */
 #include "SharedFirmwareTypes.h"
+
+#include <array>
 
 using pin = uint8_t;
 using time_us = uint32_t;
@@ -96,6 +98,39 @@ namespace VCRInterfaces
     constexpr const float TEST_TEMP_OFFSET = 386;
 
 
+    /* ---------- Maintenance Panel ADC (ADS112U04, on Serial8) ---------- */
+    constexpr int MPB_ADC_NUM_CHANNELS = 4;
+
+    // Channels
+    constexpr int LV_BAT_CURRENT_SENSOR_CHANNEL = 0;
+    constexpr int MAINTENANCE_AUX_1_CHANNEL = 1;
+    constexpr int SHDN_P_CHANNEL = 2;
+    constexpr int SHDN_Q_CHANNEL = 3;
+
+    // Raw ADS112 voltage: V_adc = raw * 5.0 / 32768
+    constexpr float MPB_ADC_FULL_SCALE_COUNTS = 32768.0f;
+    constexpr float MPB_ADC_REFERENCE_VOLTAGE = 5.0f;
+    constexpr float MPB_ADC_VOLTAGE_SCALE = MPB_ADC_REFERENCE_VOLTAGE / MPB_ADC_FULL_SCALE_COUNTS;
+    constexpr float MPB_ADC_VOLTAGE_OFFSET = 0.0f;
+
+    // LV battery current sensor: 2.5 V at 0 A, 100 mV / A
+    constexpr float LV_BAT_CURRENT_SENSOR_ZERO_CURRENT_VOLTAGE = 2.5f;
+    constexpr float LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A = 0.100f;
+    constexpr float LV_BAT_CURRENT_SENSOR_SCALE = MPB_ADC_VOLTAGE_SCALE / LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A;
+    constexpr float LV_BAT_CURRENT_SENSOR_OFFSET = -1.0f * (LV_BAT_CURRENT_SENSOR_ZERO_CURRENT_VOLTAGE / LV_BAT_CURRENT_SENSOR_SENSITIVITY_V_PER_A);
+
+    // Shutdown sense voltage dividers
+    constexpr float SHDN_VOLTAGE_DIVIDER_SCALE = 0.136f;
+    constexpr float MPB_SHDN_VOLTAGE_SCALE = MPB_ADC_VOLTAGE_SCALE * SHDN_VOLTAGE_DIVIDER_SCALE;
+    constexpr float MPB_SHDN_VOLTAGE_OFFSET = 0.0f;
+
+    // Indexed by channel
+    constexpr std::array<float, MPB_ADC_NUM_CHANNELS> MPB_ADC_SCALES =
+        {LV_BAT_CURRENT_SENSOR_SCALE, MPB_ADC_VOLTAGE_SCALE, MPB_SHDN_VOLTAGE_SCALE, MPB_SHDN_VOLTAGE_SCALE};
+
+    constexpr std::array<float, MPB_ADC_NUM_CHANNELS> MPB_ADC_OFFSETS =
+        {LV_BAT_CURRENT_SENSOR_OFFSET, MPB_ADC_VOLTAGE_OFFSET, MPB_SHDN_VOLTAGE_OFFSET, MPB_SHDN_VOLTAGE_OFFSET};
+
     /* ---------- IOExpander Interface ---------- */
     constexpr uint8_t IOEXPANDER_I2C_ADDRESS = 0x20;
 
@@ -117,11 +152,14 @@ namespace VCRInterfaces
     constexpr unsigned long VCF_PEDALS_MAX_HEARTBEAT_MS = 50UL; // 20ms at 60mph is about 0.5 meters
     constexpr uint64_t ACU_ACU_OK_MAX_HEARTBEAT_MS = 500;
     constexpr uint64_t ACU_BMS_VOLTAGES_MAX_HEARTBEAT_MS = 500; // BMS_VOLTAGES is sent at 10 Hz
+
+    /* --------- RSS Constants ---------- */
+    constexpr uint8_t RSS_NODE_ID = 2;
 } // namespace VCRInterfaces
 
 namespace VCRSystems
 {
-    constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 36;
+    constexpr int INVERTER_MINIMUM_HV_VOLTAGE = 60;
     constexpr float MAX_PACK_TO_INVERTER_VOLTAGE_DIFF_V = 20.0f; // TODO: placeholder, might need to change
     constexpr unsigned long MAX_ALLOWED_DB_LATENCY_MS = 40;      // milliseconds
     constexpr uint16_t CONTROL_MODE_MISTMATCH_THRESHOLD_MS = 10;
@@ -175,6 +213,8 @@ namespace VCRConstants
 
     constexpr uint8_t IOEXPANDER_PRIORITY = 15;
     constexpr time_us IOEXPANDER_SAMPLE_PERIOD_US = 5000; // 5 000 us = 200 Hz
+    constexpr uint8_t MPB_ADC_PRIORITY = 16;
+    constexpr time_us MPB_ADC_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t DEBUG_PRIORITY = 50;
     constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
@@ -182,7 +222,7 @@ namespace VCRConstants
 
     /* --------- CAN Constants ---------- */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000;
-    constexpr uint32_t RAUX_CAN_BAUDRATE = 500000;
+    constexpr uint32_t RAUX_CAN_BAUDRATE = 1000000; // CTRE Kraken runs CAN 2.0B at 1 Mbit/s
     constexpr uint32_t INVERTER_CAN_BAUDRATE = 500000;
 } // namespace VCRConstants
 #endif /* VCR_CONSTANTS */

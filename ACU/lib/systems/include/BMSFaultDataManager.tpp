@@ -1,4 +1,4 @@
-#include "BMSFaultDataManager.h"
+#include "BMSFaultDataManager.hpp"
 
 template <size_t num_chips>
 void BMSFaultDataManager<num_chips>::update_from_valid_packets(const std::array<ValidPacketData_s, num_chips>& valid_read_packets,

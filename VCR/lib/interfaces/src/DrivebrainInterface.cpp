@@ -65,15 +65,17 @@ void DrivebrainInterface::receiveDrivebrainTorqueCommandRAUX(const CAN_message_t
 
 void DrivebrainInterface::handleEnqueueSuspensionCANData(const ADCInterface& adc_instance)
 {
-    REAR_SUSPENSION_t rear_sus_msg;
+    // TODO: REAR_SUSPENSION removed from HT_CAN (ID 0x0E4 collided with INV4_SET_DIGITAL_OUTPUTS), restore once re-IDed
+    (void)adc_instance;
+    // REAR_SUSPENSION_t rear_sus_msg;
 
-    rear_sus_msg.rl_load_cell =
-        adc_instance.get_filtered_RL_load_cell(); // TODO: probably want to make the CAN msg preserve some decimal points like the sus pots
-    rear_sus_msg.rr_load_cell = adc_instance.get_filtered_RR_load_cell();
-    rear_sus_msg.rl_shock_pot_ro = HT_CAN_rl_shock_pot_ro_toS(adc_instance.get_filtered_RL_sus_pot());
-    rear_sus_msg.rr_shock_pot_ro = HT_CAN_rr_shock_pot_ro_toS(adc_instance.get_filtered_RR_sus_pot());
+    // rear_sus_msg.rl_load_cell =
+    //     adc_instance.get_filtered_RL_load_cell(); // TODO: probably want to make the CAN msg preserve some decimal points like the sus pots
+    // rear_sus_msg.rr_load_cell = adc_instance.get_filtered_RR_load_cell();
+    // rear_sus_msg.rl_shock_pot_ro = HT_CAN_rl_shock_pot_ro_toS(adc_instance.get_filtered_RL_sus_pot());
+    // rear_sus_msg.rr_shock_pot_ro = HT_CAN_rr_shock_pot_ro_toS(adc_instance.get_filtered_RR_sus_pot());
 
-    CAN_util::enqueue_msg(&rear_sus_msg, &Pack_REAR_SUSPENSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    // CAN_util::enqueue_msg(&rear_sus_msg, &Pack_REAR_SUSPENSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void DrivebrainInterface::handleEnqueueCoolantTempCANData(const ADCInterface& adc_instance)

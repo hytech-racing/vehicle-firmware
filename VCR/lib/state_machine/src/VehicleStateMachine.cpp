@@ -89,7 +89,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
         }
 
         // Check for RTD state change
-        if (_isRTDPressed() && _isBrakePressed() && _isDrivetrainFaulted())
+        if ((_isRTDPressed() || _isRSSGoButtonPressed()) && _isBrakePressed())
         {
             _setState(VehicleState_e::READY_TO_DRIVE, current_millis);
             break;

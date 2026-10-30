@@ -29,7 +29,8 @@ class VehicleStateMachine
         etl::delegate<void()> sendRecalibrateSteeringMessage,
         etl::delegate<bool()> isDrivetrainFaulted,
         etl::delegate<bool()> isDrivetrainNotConnected,
-        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand)
+        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand,
+        etl::delegate<bool()> isRSSGoButtonPressed)
         : _setMotorsIdle(setMotorsIdle),
           _isVehicleLatched(isVehicleLatched),
           _isRTDPressed(isRTDPressed),
@@ -45,7 +46,8 @@ class VehicleStateMachine
           _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
           _isDrivetrainFaulted(isDrivetrainFaulted),
           _isDrivetrainNotConnected(isDrivetrainNotConnected),
-          _handleDrivetrainCommand(handleDrivetrainCommand)
+          _handleDrivetrainCommand(handleDrivetrainCommand),
+          _isRSSGoButtonPressed(isRSSGoButtonPressed)
     {
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
@@ -92,6 +94,7 @@ class VehicleStateMachine
     etl::delegate<bool()> _isDrivetrainFaulted;
     etl::delegate<bool()> _isDrivetrainNotConnected;
     etl::delegate<void(bool, unsigned long)> _handleDrivetrainCommand;
+    etl::delegate<bool()> _isRSSGoButtonPressed;
 };
 
 using VehicleStateMachineInstance = etl::singleton<VehicleStateMachine>;

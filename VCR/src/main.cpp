@@ -16,13 +16,13 @@ HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
 HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, kickWatchdogTask, VCRConstants::WATCHDOG_PRIORITY, VCRConstants::WATCHDOG_KICK_PERIOD_US);
-HT_TASK::Task async_main_task(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCRConstants::ASYNC_MAIN_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task async_main_task(HT_TASK::DUMMY_FUNCTION, &async_tasks::handleAsyncMain, VCRConstants::ASYNC_MAIN_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
 HT_TASK::Task send_CAN_task(
     HT_TASK::DUMMY_FUNCTION,
     sendAllCANDataTask,
     VCRConstants::SEND_CAN_PRIORITY,
     VCRConstants::SEND_CAN_PERIOD_US); // Sends all messages from the CAN queue
-HT_TASK::Task ams_system_task(HT_TASK::DUMMY_FUNCTION, updateACUHeartbeatTask, VCRConstants::AMS_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task ams_system_task(HT_TASK::DUMMY_FUNCTION, updateACUHeartbeatTask, VCRConstants::AMS_PRIORITY, VCRConstants::AMS_UPDATE_PERIOD_US);
 HT_TASK::Task enqueue_suspension_CAN_task(
     HT_TASK::DUMMY_FUNCTION,
     enqueueSuspensionCANDataTask,
@@ -41,7 +41,7 @@ HT_TASK::Task enqueue_coolant_temp_CAN_task(
     VCRConstants::COOLANT_TEMP_SEND_PERIOD_US);
 HT_TASK::Task enqueue_dashboard_CAN_task(
     HT_TASK::DUMMY_FUNCTION,
-    enqueueVehicleStateCANDataTask,
+    enqueueDashboardCANDataTask,
     VCRConstants::DASHBOARD_SEND_PRIORITY,
     VCRConstants::DASHBOARD_SEND_PERIOD_US);
 HT_TASK::Task
@@ -55,10 +55,14 @@ HT_TASK::Task
     update_brakelight_task(HT_TASK::DUMMY_FUNCTION, updateBrakelightTask, VCRConstants::UPDATE_BRAKELIGHT_PRIORITY, VCRConstants::UPDATE_BRAKELIGHT_PERIOD_US);
 HT_TASK::Task adc_1_sample_task(HT_TASK::DUMMY_FUNCTION, readADC1Task, VCRConstants::ADC1_PRIORITY, VCRConstants::ADC1_SAMPLE_PERIOD_US);
 HT_TASK::Task IOExpander_read_task(HT_TASK::DUMMY_FUNCTION, readIOExpanderTask, VCRConstants::IOEXPANDER_PRIORITY, VCRConstants::IOEXPANDER_SAMPLE_PERIOD_US);
+HT_TASK::Task mpb_adc_sample_task(HT_TASK::DUMMY_FUNCTION, readMPBADCTask, VCRConstants::MPB_ADC_PRIORITY, VCRConstants::MPB_ADC_SAMPLE_PERIOD_US);
 HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, debugPrintTask, VCRConstants::DEBUG_PRIORITY, VCRConstants::DEBUG_PERIOD_US);
 
 void setup()
 {
+    initializeAllInterfaces();
+    initializeAllSystems();
+
     // Configure pins
     pinMode(VCRInterfaces::MOTOR_COOLING_CONTROL_PIN, OUTPUT);
     pinMode(VCRInterfaces::INVERTER_COOLING_CONTROL_PIN, OUTPUT);
@@ -78,32 +82,22 @@ void setup()
 
     // Schedule scheduler tasks
     scheduler.schedule(adc_0_sample_task);
-    // scheduler.schedule(adc_1_sample_task);
-
+    scheduler.schedule(adc_1_sample_task);
+    scheduler.schedule(mpb_adc_sample_task);
     scheduler.schedule(kick_watchdog_task);
-
     scheduler.schedule(ams_system_task); // ensure ACU connection
     scheduler.schedule(enqueue_suspension_CAN_task);
     scheduler.schedule(enqueue_dashboard_CAN_task);
-
     scheduler.schedule(send_CAN_task);
-
     scheduler.schedule(vcr_data_ethernet_send);
-
     scheduler.schedule(enqueue_inverter_CAN_task);
     scheduler.schedule(enqueue_coolant_temp_CAN_task);
     scheduler.schedule(async_main_task);
-
     scheduler.schedule(enqueue_controls_CAN_task);
-
     // scheduler.schedule(debug_state_print_task);
-
     scheduler.schedule(update_brakelight_task);
-
     // scheduler.schedule(update_sample_flowmeter);
-
     scheduler.schedule(IOExpander_read_task);
-
     scheduler.schedule(run_enable_motor_cooling);
     scheduler.schedule(run_enable_inverter_cooling);
 }

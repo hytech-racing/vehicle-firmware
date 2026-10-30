@@ -7,7 +7,7 @@
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
-#include "shared_types.h"
+#include "shared_types.hpp"
 
 #include <FlexCAN_T4.h>
 

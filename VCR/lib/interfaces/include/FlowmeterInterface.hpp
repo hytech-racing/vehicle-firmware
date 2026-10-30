@@ -1,5 +1,5 @@
-#ifndef FLOWMETERINTERFACE_H
-#define FLOWMETERINTERFACE_H
+#ifndef FLOWMETER_INTERFACE_HPP
+#define FLOWMETER_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>

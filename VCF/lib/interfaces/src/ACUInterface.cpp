@@ -1,7 +1,7 @@
-#include "ACUInterface.h"
+#include "ACUInterface.hpp"
 
 
-void ACUInterface::receive_ACU_voltages(const CAN_message_t& can_msg)
+void ACUInterface::receiveACUVoltages(const CAN_message_t& can_msg)
 {
     BMS_VOLTAGES_t unpacked_msg;
     Unpack_BMS_VOLTAGES_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT (implicitly decay pointer)

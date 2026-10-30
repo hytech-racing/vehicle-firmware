@@ -1,25 +1,21 @@
+#include "ADCInterface.hpp"
 #include "Arduino.h"
-#include "ADCInterface.h"
-#include "VCR_Constants.h"
-
 #include "Logger.h"
+#include "VCR_Constants.hpp"
 
-unsigned long const DELAY = 100;
+const unsigned long DELAY = 100;
 unsigned long last = millis();
 
 void setup()
 {
-    SPI.begin();    //for ADC
-    Serial.begin(115200);    //for serial monitor
+    SPI.begin();          // for ADC
+    Serial.begin(115200); // for serial monitor
 
-    //create the ADC instance
-     // Instantiate ADC interface
+    // create the ADC instance
+    //  Instantiate ADC interface
     ADCInterfaceInstance::create(
-        ADCPinout_s {
-            VCRInterfaces::ADC0_CS,
-            VCRInterfaces::ADC1_CS
-        },
-        ADCChannels_s {
+        ADCPinout_s{VCRInterfaces::ADC0_CS, VCRInterfaces::ADC1_CS},
+        ADCChannels_s{
             VCRInterfaces::GLV_SENSE_CHANNEL,
             VCRInterfaces::CURRENT_SENSE_CHANNEL,
             VCRInterfaces::REFERENCE_SENSE_CHANNEL,
@@ -34,9 +30,8 @@ void setup()
             VCRInterfaces::THERMISTOR_4_CHANNEL,
             VCRInterfaces::THERMISTOR_5_CHANNEL,
             VCRInterfaces::THERMISTOR_6_CHANNEL,
-            VCRInterfaces::THERMISTOR_7_CHANNEL
-        },
-        ADCScales_s {
+            VCRInterfaces::THERMISTOR_7_CHANNEL},
+        ADCScales_s{
             VCRInterfaces::GLV_SENSE_SCALE,
             VCRInterfaces::CURRENT_SENSE_SCALE,
             VCRInterfaces::REFERENCE_SENSE_SCALE,
@@ -53,7 +48,7 @@ void setup()
             VCRInterfaces::THERMISTOR_6_SCALE,
             VCRInterfaces::THERMISTOR_7_SCALE,
         },
-        ADCOffsets_s {
+        ADCOffsets_s{
             VCRInterfaces::GLV_SENSE_OFFSET,
             VCRInterfaces::CURRENT_SENSE_OFFSET,
             VCRInterfaces::REFERENCE_SENSE_OFFSET,
@@ -69,8 +64,7 @@ void setup()
             VCRInterfaces::THERMISTOR_5_OFFSET,
             VCRInterfaces::THERMISTOR_6_OFFSET,
             VCRInterfaces::THERMISTOR_7_OFFSET,
-        }
-    );
+        });
 }
 
 void loop()

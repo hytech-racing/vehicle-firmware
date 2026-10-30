@@ -83,7 +83,6 @@ void VCRCANInterfaceImpl::receieveIDSwitch(CANInterfaces_s& interfaces, const CA
         {
             interfaces.db_interface.receiveDrivebrainSpeedCommandTELEM(msg, curr_millis);
         }
-        interfaces.db_interface.receiveDrivebrainSpeedCommandTELEM(msg, curr_millis);
         break;
     }
 
@@ -264,6 +263,17 @@ void VCRCANInterfaceImpl::receieveIDSwitch(CANInterfaces_s& interfaces, const CA
             break;
         }
         }
+
+    case RSS_STATUS_CANID:
+    {
+        interfaces.rss_interface.receiveRSSStatusCANMsg(msg, curr_millis);
+        break;
+    }
+    case RSS_BOOT_UP_CANID:
+    {
+        interfaces.rss_interface.receiveRSSBootCANmsg(msg, curr_millis);
+        break;
+    }
 
     default:
     {

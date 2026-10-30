@@ -135,6 +135,12 @@ struct PedalSensorData_s
     uint32_t brake_2;
 };
 
+struct BrakeFluidPressureData_s
+{
+    uint16_t brake_fluid_pressure_data_front;
+    uint16_t brake_fluid_pressure_data_rear;
+};
+
 struct FrontLoadCellData_s
 {
     uint32_t FL_loadcell_analog;
@@ -387,14 +393,23 @@ struct EnergyMeterData_s
     float em_voltage; // Voltage, in volts, from the EM.
 };
 
+/// @brief Defines modes of torque limit to be processed in torque limit map for exact values.
+enum class TorqueLimit_e
+{
+    TCMUX_FULL_TORQUE = 0,
+    TCMUX_MID_TORQUE = 1,
+    TCMUX_LOW_TORQUE = 2,
+    TCMUX_NUM_TORQUE_LIMITS = 3,
+};
+
 /// @brief Defines errors for TC Mux to use to maintain system safety
 enum class TorqueControllerMuxError_e
 {
-    NO_ERROR,
-    ERROR_SPEED_DIFF_TOO_HIGH,
-    ERROR_TORQUE_DIFF_TOO_HIGH,
-    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS,
-    ERROR_CONTROLLER_NULL_POINTER
+    NO_ERROR = 0,
+    ERROR_SPEED_DIFF_TOO_HIGH = 1,
+    ERROR_TORQUE_DIFF_TOO_HIGH = 2,
+    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS = 3,
+    ERROR_CONTROLLER_NULL_POINTER = 4
 };
 
 /// @brief packages TC Mux indicators: errors, mode, torque limit, bypass
@@ -403,6 +418,7 @@ struct TorqueControllerMuxStatus_s
     TorqueControllerMuxError_e active_error;
     ControllerMode_e active_controller_mode;
     ControllerMode_e prev_controller_mode;
+    TorqueLimit_e active_torque_limit_enum;
     float active_torque_limit_value;
     bool output_is_bypassing_limits;
 };
@@ -776,15 +792,15 @@ struct VCFHeartbeatData_s
 
 enum class VehicleState_e
 {
-    TRACTIVE_SYSTEM_NOT_ACTIVE,
-    TRACTIVE_SYSTEM_ACTIVE,
-    READY_TO_DRIVE,
-    WANTING_RECALIBRATE_PEDALS,
-    RECALIBRATING_PEDALS,
-    WANTING_RECALIBRATE_STEERING,
-    RECALIBRATING_STEERING,
-    ERROR,
-    NUM_STATES
+    TRACTIVE_SYSTEM_NOT_ACTIVE = 0,
+    TRACTIVE_SYSTEM_ACTIVE = 1,
+    WANTING_READY_TO_DRIVE = 2,
+    READY_TO_DRIVE = 3,
+    WANTING_RECALIBRATE_PEDALS = 4,
+    RECALIBRATING_PEDALS = 5,
+    WANTING_RECALIBRATE_STEERING = 6,
+    RECALIBRATING_STEERING = 7,
+    ERROR = 8 // not in the HT_proto enum, VCR-only
 };
 
 struct DrivebrainControllerStatus_s
@@ -834,6 +850,7 @@ struct VCRInterfaceData_s
     FlowmeterData_s flowmeter_data = {};
     CurrentSensorData_s current_sensor_data = {};
     StampedPedalsSystemData_s recvd_pedals_data = {};
+    StampedSteeringSystemData_s recvd_steering_data = {};
     veh_vec<InverterData_s> inverter_data = {};
     veh_vec<InverterLimits_s> inverter_limits = {};
     DashInputState_s dash_input_state = {};
@@ -848,6 +865,43 @@ struct VCRData_s
     VCRSystemData_s system_data;
     VCRInterfaceData_s interface_data;
     FWVersionInfo fw_version_info;
+};
+
+/**---------------------------------------------------
+ *              DRIVERLESS SHARED TYPES
+----------------------------------------------------*/
+
+// EBS pressure data and heartbeat information.
+struct EBSData_s
+{
+    bool pressure_heartbeat_ok;
+    unsigned long pressure_last_recv_millis;
+    bool supervisor_ok;
+    bool ebs_engaged;
+    uint32_t pressure_1;
+    uint32_t pressure_2;
+};
+
+// Driverless system states. Values match DRIVERLESS_STATUS_AND_STARTUP.
+enum class DriverlessSystemState_e
+{
+    OFF = 0,
+    STARTUP_NO_TS = 1,
+    STARTUP_TS_ACTIVE = 2,
+    READY = 3,
+    DRIVING = 4,
+    EMERGENCY = 5,
+    FINISHED = 6
+};
+
+enum class DriverlessMission_e
+{
+    OFF = 0,
+    ACCELERATION = 1,
+    SKIDPAD = 2,
+    AUTOCROSS = 3,
+    TRACKDRIVE = 4,
+    INESPECTION = 5
 };
 
 #endif // __SHAREDFIRMWARETYPES_H__
