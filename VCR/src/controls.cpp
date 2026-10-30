@@ -1,13 +1,21 @@
 #include "controls.hpp"
 
 
-void VCRControls::handleDrivetrainCommand(bool is_drive_enable_requested, unsigned long curr_millis)
+void VCRControls::handleDrivetrainCommand(bool is_drive_enable_requested, bool is_torque_allowed, unsigned long curr_millis)
 {
     if (_dt_system != nullptr) // if drivetrain initalized
     {
         ControllerMode_e mode = vcr_data.interface_data.dash_input_state.dial_state;
 
+        // The mux is evaluated every tick so its controller selection stays current, but its output is only used in READY_TO_DRIVE
         auto dt_command = _tc_mux.evaluateTCMux(mode, vcr_data);
+        if (!is_torque_allowed)
+        {
+            dt_command = {
+                .control_mode = DrivetrainControlMode_e::TORQUE,
+                .desired_torques = {0.0f, 0.0f, 0.0f, 0.0f},
+                .desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f}};
+        }
         dt_command.is_drive_enable_requested = is_drive_enable_requested; // controllers don't own enable, the VSM does
         _debug_dt_command = dt_command;
         _dt_system->evaluateDrivetrain(dt_command, curr_millis);

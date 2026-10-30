@@ -29,7 +29,8 @@ class VehicleStateMachine
         etl::delegate<void()> sendRecalibrateSteeringMessage,
         etl::delegate<bool()> isDrivetrainFaulted,
         etl::delegate<bool()> isDrivetrainNotConnected,
-        etl::delegate<void(bool, unsigned long)> handleDrivetrainCommand,
+        etl::delegate<bool()> isDrivetrainReady,
+        etl::delegate<void(bool, bool, unsigned long)> handleDrivetrainCommand,
         etl::delegate<bool()> isRSSGoButtonPressed)
         : _setMotorsIdle(setMotorsIdle),
           _isVehicleLatched(isVehicleLatched),
@@ -46,6 +47,7 @@ class VehicleStateMachine
           _sendRecalibrateSteeringMessage(sendRecalibrateSteeringMessage),
           _isDrivetrainFaulted(isDrivetrainFaulted),
           _isDrivetrainNotConnected(isDrivetrainNotConnected),
+          _isDrivetrainReady(isDrivetrainReady),
           _handleDrivetrainCommand(handleDrivetrainCommand),
           _isRSSGoButtonPressed(isRSSGoButtonPressed)
     {
@@ -93,7 +95,12 @@ class VehicleStateMachine
     etl::delegate<void()> _sendRecalibrateSteeringMessage;
     etl::delegate<bool()> _isDrivetrainFaulted;
     etl::delegate<bool()> _isDrivetrainNotConnected;
-    etl::delegate<void(bool, unsigned long)> _handleDrivetrainCommand;
+    etl::delegate<bool()> _isDrivetrainReady;
+    /**
+     * @param is_drive_enable_requested ask the inverters to enable (TRACTIVE_SYSTEM_ACTIVE, WANTING_READY_TO_DRIVE, READY_TO_DRIVE)
+     * @param is_torque_allowed pass controller torque through, otherwise zero torque is commanded (READY_TO_DRIVE only)
+     */
+    etl::delegate<void(bool, bool, unsigned long)> _handleDrivetrainCommand;
     etl::delegate<bool()> _isRSSGoButtonPressed;
 };
 

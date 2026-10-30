@@ -183,6 +183,7 @@ HT_TASK::TaskResponse enableInverterCoolingTask(const unsigned long& sysMicros, 
 {
     VehicleState_e vehicle_state = VehicleStateMachineInstance::instance().get_state(); // NOLINT will alway be populated so its ok
     bool enable_state = vehicle_state == VehicleState_e::TRACTIVE_SYSTEM_ACTIVE
+                        || vehicle_state == VehicleState_e::WANTING_READY_TO_DRIVE
                         || vehicle_state == VehicleState_e::READY_TO_DRIVE
                         || VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_2
                         || VCFInterfaceInstance::instance().getLatestData().dash_input_state.dial_state == ControllerMode_e::MODE_5;

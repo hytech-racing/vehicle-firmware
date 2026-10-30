@@ -12,24 +12,14 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
          * @note TRACTIVE_SYSTEM_NOT_ACTIVE just means that we have not LATCHED
          *
          * ERROR MODES :
-         *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
-         *  - If DTSM in in FAULTED -> VSM will stay in current state since FAULTED is not a fatal issue
-         */
+         *  - If DTSM in FAULTED -> no effect here. Recalibration is still allowed.
+         *  - NOTE: Latching is decided by ACU, not the VSM TRACTIVE_SYSTEM_ACTIVE will
+         *          not reach WANTING_READY_TO_DRIVE until the fault clears, but we will do nothing here.
+        */
 
-        // Error mode(s) checking
-        if (_isDrivetrainNotConnected())
-        {
-            _setState(VehicleState_e::ERROR, current_millis);
-            break;
-        }
+        _setMotorsIdle();
+        _handleDrivetrainCommand(false, false, current_millis);
 
-        if (_isDrivetrainFaulted())
-        {
-            // If we are faulted, then we will not allow any recalibration
-            break;
-        }
-
-        // Check for latch state change
         if (_isVehicleLatched())
         {
             _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
@@ -49,36 +39,28 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
             break;
         }
 
-        // Set drivetrain idle for safety
-        _setMotorsIdle();
-        _handleDrivetrainCommand(false, current_millis); // what does this do?
-
         break;
     }
     case VehicleState_e::TRACTIVE_SYSTEM_ACTIVE:
     {
         /**
          * @brief State when vehicle is LATCHED
-         * @note TRACTIVE_SYSTEM_NOT_ACTIVE just means that we have not LATCHED
+         * @note Drive enable is requested as soon as we latch so the drivetrain climbs to READY on its own, with zero torque.
+         *       Once it is READY we move to WANTING_READY_TO_DRIVE and wait for the driver.
          * @note We will not allow steering or pedals recalibration in this state since they should happen rarely, and
          *       only when car is not moving/we are settin up the car pre-race
          *
          * ERROR MODES :
-         *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
-         *  - If DTSM in in FAULTED -> VSM will stay in current state since FAULTED is not a fatal issue
+         *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters (can discuss this but best for safety)
+         *  - If DTSM in FAULTED -> stay here, the drivetrain recovers on its own once the fault clears
          *  - If vehicle becomes unlatched, return to TRACTIVE_SYSTEM_NOT_ACTIVE
          */
 
-        // Error mode(s) checking
+        _handleDrivetrainCommand(true, false, current_millis);
+
         if (_isDrivetrainNotConnected())
         {
             _setState(VehicleState_e::ERROR, current_millis);
-            break;
-        }
-
-        if (_isDrivetrainFaulted())
-        {
-            // If we are faulted, then we will not allow any recalibration
             break;
         }
 
@@ -88,7 +70,46 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
             break;
         }
 
-        // Check for RTD state change
+        if (_isDrivetrainReady())
+        {
+            _setState(VehicleState_e::WANTING_READY_TO_DRIVE, current_millis);
+            break;
+        }
+
+        break;
+    }
+    case VehicleState_e::WANTING_READY_TO_DRIVE:
+    {
+        /**
+         * @brief Drivetrain is READY (inverters enabled, zero torque) and we are waiting for the driver to request RTD
+         *
+         * ERROR MODES :
+         *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
+         *  - If DTSM in FAULTED or no longer READY -> back to TRACTIVE_SYSTEM_ACTIVE
+         *  - If vehicle becomes unlatched, return to TRACTIVE_SYSTEM_NOT_ACTIVE
+         */
+
+        _handleDrivetrainCommand(true, false, current_millis);
+
+        if (_isDrivetrainNotConnected())
+        {
+            _setState(VehicleState_e::ERROR, current_millis);
+            break;
+        }
+
+        if (!_isVehicleLatched())
+        {
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            break;
+        }
+
+        if (_isDrivetrainFaulted() || !_isDrivetrainReady())
+        {
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            break;
+        }
+
+        // Driver requests RTD
         if ((_isRTDPressed() || _isRSSGoButtonPressed()) && _isBrakePressed())
         {
             _setState(VehicleState_e::READY_TO_DRIVE, current_millis);
@@ -100,30 +121,23 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
     case VehicleState_e::READY_TO_DRIVE:
     {
         /**
-         * @brief Vehicle can move at this state (LATCHED and RTD pressed)
+         * @brief Vehicle can move at this state (LATCHED, drivetrain READY, RTD pressed): controller torque is passed through
          * @note We will not allow steering or pedals recalibration in this state since they should happen rarely, and
          *       only when car is not moving/we are settin up the car pre-race
          *
          * ERROR MODES :
          *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
-         *  - If DTSM in in FAULTED -> Only lose RTD, stay latched (not fatal issue)
+         *  - If DTSM in FAULTED or no longer READY -> Only lose RTD, stay latched (we won't make it a fatal issue)
          *  - If vehicle becomes unlatched, return to TRACTIVE_SYSTEM_NOT_ACTIVE
          *  - If pedals heartbeat timesout/misses -> Only lose RTD, stay latched (not HV issue)
          *  - If steering heartbeat timesout/misses -> Only lose RTD, stay latched (not HV issue)
          */
 
-        _handleDrivetrainCommand(true, current_millis);
+        _handleDrivetrainCommand(true, true, current_millis);
 
-        // Error mode(s) checking
         if (_isDrivetrainNotConnected())
         {
             _setState(VehicleState_e::ERROR, current_millis);
-            break;
-        }
-
-        if (_isDrivetrainFaulted())
-        {
-            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
 
@@ -133,15 +147,34 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
             break;
         }
 
-        if (_isPedalsTimedOut())
+        if (_isDrivetrainFaulted() || !_isDrivetrainReady())
         {
             _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
 
-        if (_isSteeringTimedOut())
+        if (_isPedalsTimedOut() || _isSteeringTimedOut())
         {
             _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            break;
+        }
+
+        break;
+    }
+    case VehicleState_e::ERROR:
+    {
+        /**
+         * @brief Lost communication with the inverters while latched
+         * @note Motors are idled and drive-disable keeps being sent while waiting. Once the inverters are back, return to
+         *       TRACTIVE_SYSTEM_NOT_ACTIVE and climb normally from there, so RTD has to be requested again. Never needs a power cycle.
+         */
+
+        _setMotorsIdle();
+        _handleDrivetrainCommand(false, false, current_millis);
+
+        if (!_isDrivetrainNotConnected())
+        {
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
         }
 
         break;
@@ -152,17 +185,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
          * @brief State is used to ensure that pedals recalibration is wanted, not just accidental
          * @note This serves as software debounce protection
          * @note We will only allow recalibration during TRACTIVE_SYSTEM_NOT_ACTIVE, thus we can just return there
-         *
-         * ERROR MODES :
-         *  - If DTSM in NOT_CONNECTED -> VSM goes to ERROR since we have lost communication with inverters
          */
-
-        // Error mode(s) checking
-        if (_isDrivetrainNotConnected())
-        {
-            _setState(VehicleState_e::ERROR, current_millis);
-            break;
-        }
 
         // Accidental press
         if (!_isPedalsRecalibratePressed())
@@ -176,7 +199,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
             _setState(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
         }
 
-        _handleDrivetrainCommand(false, current_millis);
+        _handleDrivetrainCommand(false, false, current_millis);
         break;
     }
     case VehicleState_e::WANTING_RECALIBRATE_STEERING:
@@ -185,7 +208,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
          *
          */
 
-        _handleDrivetrainCommand(false, current_millis);
+        _handleDrivetrainCommand(false, false, current_millis);
 
         if (!_isSteeringRecalibratePressed())
         {
@@ -201,7 +224,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
     }
     case VehicleState_e::RECALIBRATING_PEDALS:
     {
-        _handleDrivetrainCommand(false, current_millis);
+        _handleDrivetrainCommand(false, false, current_millis);
 
         if (!_isPedalsRecalibratePressed())
         {
@@ -222,7 +245,7 @@ VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_milli
          * @note Only leave the
          */
 
-        _handleDrivetrainCommand(false, current_millis);
+        _handleDrivetrainCommand(false, false, current_millis);
 
         if (!_isSteeringRecalibratePressed())
         {

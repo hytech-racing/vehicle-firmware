@@ -78,6 +78,10 @@ void initializeAllSystems()
     {
         return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::NOT_CONNECTED;
     };
+    static auto isDrivetrainReady = []() -> bool
+    {
+        return DrivetrainInstance::instance().getCurrentState() == DrivetrainState_e::READY;
+    };
 
     VCFInterface& vcf = VCFInterfaceInstance::instance();
 
@@ -97,7 +101,8 @@ void initializeAllSystems()
         etl::delegate<void()>::create(sendRecalibrateSteeringMessage),
         etl::delegate<bool()>::create(isDrivetrainFaulted),
         etl::delegate<bool()>::create(isDrivetrainNotConnected),
-        etl::delegate<void(bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance()),
+        etl::delegate<bool()>::create(isDrivetrainReady),
+        etl::delegate<void(bool, bool, unsigned long)>::create<VCRControls, &VCRControls::handleDrivetrainCommand>(VCRControlsInstance::instance()),
         etl::delegate<bool()>::create<RSSInterface, &RSSInterface::isGoButtonPressed>(RSSInterfaceInstance::instance()));
 }
 

@@ -60,9 +60,10 @@ class VCRControls
      * @brief Primary function in VCRControls, allowing us to command the drivetrain based on vehicle state
      * @note After the drivetrain state machine determines that the drivetrain must be commanded, it invokes
      *       this function, which will find the function from the tc_mux and invoke the correct one on the drivetrain system
-     * @param is_drive_enable_requested true only while the VSM is in READY_TO_DRIVE
+     * @param is_drive_enable_requested whether the inverters should be enabled (VSM: latched states)
+     * @param is_torque_allowed whether controller torque is passed through, otherwise zero torque is commanded (VSM: READY_TO_DRIVE only)
      */
-    void handleDrivetrainCommand(bool is_drive_enable_requested, unsigned long curr_millis);
+    void handleDrivetrainCommand(bool is_drive_enable_requested, bool is_torque_allowed, unsigned long curr_millis);
 
     /**
      * @note Drivebrain is considered in control if there is no latency/timing failure and if we are running mode 4
