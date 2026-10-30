@@ -505,11 +505,11 @@ uint16_t TTPMSInterface::getReceiverBaseID(TTPMSCorner_e corner)
 }
 
 bool TTPMSInterface::buildBaseConfigMsg(TTPMSCorner_e corner, uint16_t new_base_id, TTPMSBitRate_e bit_rate,
-                                        TTPMSEmissivityMode_e emissivity_mode, CAN_message_t &msg_out)
+                                        TTPMSEmissivityMode_e emissivity_mode, CAN_message_t &msg_out) const
 {
     uint8_t bit_rate_raw = static_cast<uint8_t>(bit_rate);
     uint8_t emissivity_raw = static_cast<uint8_t>(emissivity_mode);
-    if (new_base_id < TTPMSConstants::MIN_BASE_CAN_ID || new_base_id > TTPMSConstants::MAX_BASE_CAN_ID ||
+    if (new_base_id < _params.min_base_can_id || new_base_id > _params.max_base_can_id ||
         bit_rate_raw < static_cast<uint8_t>(TTPMSBitRate_e::BITRATE_1MBPS) ||
         bit_rate_raw > static_cast<uint8_t>(TTPMSBitRate_e::BITRATE_100KBPS) ||
         emissivity_raw > static_cast<uint8_t>(TTPMSEmissivityMode_e::CUSTOM))
@@ -517,10 +517,10 @@ bool TTPMSInterface::buildBaseConfigMsg(TTPMSCorner_e corner, uint16_t new_base_
         return false;
     }
 
-    _packProgrammingConstant(msg_out, corner, TTPMSConstants::BASE_CONFIG_PROGRAMMING_CONSTANT);
+    _packProgrammingConstant(msg_out, corner, _params.programming_codes.base_config);
     msg_out.buf[2] = static_cast<uint8_t>(new_base_id >> 8);
     msg_out.buf[3] = static_cast<uint8_t>(new_base_id & 0xFF);
-    msg_out.buf[4] = TTPMSConstants::SENSOR_ASSIGNMENT_DEFAULT;
+    msg_out.buf[4] = _params.sensor_assignment_default;
     msg_out.buf[5] = bit_rate_raw;
     msg_out.buf[6] = emissivity_raw;
     msg_out.buf[7] = 0;
@@ -528,16 +528,16 @@ bool TTPMSInterface::buildBaseConfigMsg(TTPMSCorner_e corner, uint16_t new_base_
 }
 
 bool TTPMSInterface::buildRFConfigMsg(TTPMSCorner_e corner, uint8_t network_id, uint8_t node_id,
-                                      uint32_t frequency_hz, CAN_message_t &msg_out)
+                                      uint32_t frequency_hz, CAN_message_t &msg_out) const
 {
-    if (frequency_hz < TTPMSConstants::MIN_RF_FREQUENCY_HZ || frequency_hz > TTPMSConstants::MAX_RF_FREQUENCY_HZ ||
-        (frequency_hz % TTPMSConstants::RF_FREQUENCY_RESOLUTION_HZ) != 0)
+    if (frequency_hz < _params.min_rf_frequency_hz || frequency_hz > _params.max_rf_frequency_hz ||
+        (frequency_hz % _params.rf_frequency_resolution_hz) != 0)
     {
         return false;
     }
 
-    uint16_t frequency_raw = static_cast<uint16_t>(frequency_hz / TTPMSConstants::RF_FREQUENCY_RESOLUTION_HZ);
-    _packProgrammingConstant(msg_out, corner, TTPMSConstants::RF_CONFIG_PROGRAMMING_CONSTANT);
+    uint16_t frequency_raw = static_cast<uint16_t>(frequency_hz / _params.rf_frequency_resolution_hz);
+    _packProgrammingConstant(msg_out, corner, _params.programming_codes.rf_config);
     msg_out.buf[2] = network_id;
     msg_out.buf[3] = node_id;
     msg_out.buf[4] = static_cast<uint8_t>(frequency_raw >> 8);
@@ -548,13 +548,13 @@ bool TTPMSInterface::buildRFConfigMsg(TTPMSCorner_e corner, uint8_t network_id, 
 }
 
 bool TTPMSInterface::buildEmissivityConfigMsgs(TTPMSCorner_e corner, const std::array<float, TEMP_CHANNELS> &emissivity,
-                                               std::array<CAN_message_t, 3> &msgs_out)
+                                               std::array<CAN_message_t, 3> &msgs_out) const
 {
     std::array<uint8_t, TEMP_CHANNELS> emissivity_raw;
     for (size_t i = 0; i < TEMP_CHANNELS; i++)
     {
         // Small tolerance so values like 0.01f / 1.0f are not rejected by float rounding
-        if (emissivity[i] < (TTPMSConstants::MIN_EMISSIVITY - 0.001f) || emissivity[i] > (TTPMSConstants::MAX_EMISSIVITY + 0.001f))
+        if (emissivity[i] < (_params.min_emissivity - 0.001f) || emissivity[i] > (_params.max_emissivity + 0.001f))
         {
             return false;
         }
@@ -562,33 +562,33 @@ bool TTPMSInterface::buildEmissivityConfigMsgs(TTPMSCorner_e corner, const std::
     }
 
     // T1 - T6
-    _packProgrammingConstant(msgs_out[0], corner, TTPMSConstants::EMISSIVITY_T1_T6_PROGRAMMING_CONSTANT);
+    _packProgrammingConstant(msgs_out[0], corner, _params.programming_codes.emissivity_t1_t6);
     for (size_t i = 0; i < 6; i++)
     {
         msgs_out[0].buf[2 + i] = emissivity_raw[i];
     }
 
     // T7 - T12
-    _packProgrammingConstant(msgs_out[1], corner, TTPMSConstants::EMISSIVITY_T7_T12_PROGRAMMING_CONSTANT);
+    _packProgrammingConstant(msgs_out[1], corner, _params.programming_codes.emissivity_t7_t12);
     for (size_t i = 0; i < 6; i++)
     {
         msgs_out[1].buf[2 + i] = emissivity_raw[6 + i];
     }
 
     // T13 - T16, then the default emissivity which must not be changed
-    _packProgrammingConstant(msgs_out[2], corner, TTPMSConstants::EMISSIVITY_T13_T16_PROGRAMMING_CONSTANT);
+    _packProgrammingConstant(msgs_out[2], corner, _params.programming_codes.emissivity_t13_t16);
     for (size_t i = 0; i < 4; i++)
     {
         msgs_out[2].buf[2 + i] = emissivity_raw[12 + i];
     }
-    msgs_out[2].buf[6] = TTPMSConstants::DEFAULT_EMISSIVITY_RAW;
+    msgs_out[2].buf[6] = _params.default_emissivity_raw;
     msgs_out[2].buf[7] = 0;
     return true;
 }
 
 bool TTPMSInterface::startConfigSequence(const CAN_message_t *msgs, size_t num_msgs, unsigned long curr_millis)
 {
-    if (_config_active || msgs == nullptr || num_msgs == 0 || num_msgs > TTPMSConstants::MAX_CONFIG_MSGS)
+    if (_config_active || msgs == nullptr || num_msgs == 0 || num_msgs > ttpms_default_params::MAX_CONFIG_MSGS)
     {
         return false;
     }
@@ -600,7 +600,7 @@ bool TTPMSInterface::startConfigSequence(const CAN_message_t *msgs, size_t num_m
     _num_config_msgs = num_msgs;
     _config_active = true;
     _config_start_millis = curr_millis;
-    _last_config_send_millis = curr_millis - TTPMSConstants::CONFIG_SEND_PERIOD_MS; // send on first update
+    _last_config_send_millis = curr_millis - _params.config_send_period_ms; // send on first update
     return true;
 }
 
@@ -611,7 +611,7 @@ void TTPMSInterface::updateConfigSequence(unsigned long curr_millis)
         return;
     }
 
-    if ((curr_millis - _config_start_millis) > TTPMSConstants::CONFIG_SEND_DURATION_MS)
+    if ((curr_millis - _config_start_millis) > _params.config_send_duration_ms)
     {
         // Datasheet: do NOT continuously send CAN messages to the receiver. Power cycle it now to apply.
         _config_active = false;
@@ -619,7 +619,7 @@ void TTPMSInterface::updateConfigSequence(unsigned long curr_millis)
         return;
     }
 
-    if ((curr_millis - _last_config_send_millis) >= TTPMSConstants::CONFIG_SEND_PERIOD_MS)
+    if ((curr_millis - _last_config_send_millis) >= _params.config_send_period_ms)
     {
         for (size_t i = 0; i < _num_config_msgs; i++)
         {
@@ -631,19 +631,19 @@ void TTPMSInterface::updateConfigSequence(unsigned long curr_millis)
     }
 }
 
-void TTPMSInterface::_updateHealth(TTPMSSingleSensorData_s &sensor)
+void TTPMSInterface::_updateHealth(TTPMSSingleSensorData_s &sensor) const
 {
     // Only flag once the relevant message has actually been received
-    sensor.battery_low = (sensor.last_pressure_recv_millis != 0) && (sensor.bat_voltage < TTPMSConstants::LOW_BATTERY_THRESHOLD_MV);
-    sensor.rssi_weak = (sensor.last_status_recv_millis != 0) && (sensor.rssi < TTPMSConstants::MIN_RSSI_DBM);
-    sensor.sensor_over_temp = (sensor.last_status_recv_millis != 0) && (sensor.sensor_temp > TTPMSConstants::MAX_SENSOR_TEMP_C);
+    sensor.battery_low = (sensor.last_pressure_recv_millis != 0) && (sensor.bat_voltage < _params.low_battery_threshold_mv);
+    sensor.rssi_weak = (sensor.last_status_recv_millis != 0) && (sensor.rssi < _params.min_rssi_dbm);
+    sensor.sensor_over_temp = (sensor.last_status_recv_millis != 0) && (sensor.sensor_temp > _params.max_sensor_temp_c);
 }
 
-float TTPMSInterface::_hsPressureFromRaw(uint16_t raw)
+float TTPMSInterface::_hsPressureFromRaw(uint16_t raw) const
 {
     // Datasheet specifies HS pressure as signed, but the DBC declares it unsigned, so reinterpret here.
     // Without this, absolute pressures below 3000 mBar (typical FSAE tire pressures) decode as ~9000+ mBar.
-    return (static_cast<float>(static_cast<int16_t>(raw)) * TTPMSConstants::HS_PRESSURE_SCALE_MBAR) + TTPMSConstants::HS_PRESSURE_OFFSET_MBAR;
+    return (static_cast<float>(static_cast<int16_t>(raw)) * _params.hs_pressure_scale_mbar) + _params.hs_pressure_offset_mbar;
 }
 
 void TTPMSInterface::_packProgrammingConstant(CAN_message_t &msg, TTPMSCorner_e corner, uint16_t programming_constant)
