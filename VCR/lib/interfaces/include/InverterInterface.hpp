@@ -29,13 +29,18 @@
 
 namespace dti_default_params
 {
-    constexpr volt MINIMUM_HV_VOLTAGE = 200.0f; // TODO: confirm real threshold against pack/HV config
-    constexpr volt MAXIMUM_HV_VOLTAGE = 620.f;  // TODO: confirm real threshold against pack/HV config
+    constexpr volt MINIMUM_HV_VOLTAGE = 420.0f; // TODO: confirm real threshold against pack/HV config
+    constexpr volt MAXIMUM_HV_VOLTAGE = 595.f;  // TODO: confirm real threshold against pack/HV config
     constexpr float LAMBDA_PM_WB = 0.0507f;     // Wb (Weber), from DTI F-MOT
     constexpr float LD_HENRIES = 0.000243f;     // H, from DTI F-MOT
     constexpr float LQ_HENRIES = 0.000371f;     // H, from DTI F-MOT
     constexpr uint8_t NUM_POLE_PAIRS = 4;
     constexpr unsigned long CONNECTION_TIMEOUT_MS = 200; // TODO: tune against actual DTI broadcast rate
+
+    // Operational ranges from the datasheet, every sender clamps to these
+    constexpr float MAX_AC_CURRENT_APK = 850.0f;
+    constexpr float MAX_DC_CURRENT_AMP = 850.0f;
+    constexpr float MAX_ERPM = 100000.0f;
 } // namespace dti_default_params
 
 

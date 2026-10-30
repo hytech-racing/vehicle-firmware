@@ -1,10 +1,10 @@
 #include "VCR_Inverters.hpp"
 
 
-InverterInterface fl_inverter_interface(1);
-InverterInterface fr_inverter_interface(2);
-InverterInterface rl_inverter_interface(3);
-InverterInterface rr_inverter_interface(4);
+InverterInterface fl_inverter_interface(dti_node_ids::FL);
+InverterInterface fr_inverter_interface(dti_node_ids::FR);
+InverterInterface rl_inverter_interface(dti_node_ids::RL);
+InverterInterface rr_inverter_interface(dti_node_ids::RR);
 
 static InverterInterfaceFuncts_s makeOneInverterFuncts(InverterInterface& inv)
 {

@@ -21,6 +21,11 @@
 #include "controllers/SimpleLaunchController.hpp"
 
 
+// Regen has to be fully cut before the bus reaches the voltage the inverters treat as the top of the HV range
+static_assert(
+    tc_mux_regen_params::REGEN_VOLTAGE_CUTOFF_V <= dti_default_params::MAXIMUM_HV_VOLTAGE,
+    "REGEN_VOLTAGE_CUTOFF_V must not exceed dti_default_params::MAXIMUM_HV_VOLTAGE");
+
 class VCRControls
 {
   public:

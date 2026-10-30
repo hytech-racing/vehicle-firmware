@@ -339,18 +339,6 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(
 {
     DrivetrainCommand_s command_output = desired_controller_out;
 
-    // EV.3.3.3: "powertrain must not regenerate energy when vehicle speed is between 0 and 5 km/hr"
-    const float no_regen_limit_kph = 10.0f;
-    const float full_regen_limit_kph = 5.0f;
-
-    // Based on DCIR
-    const volt start_regen_voltage_limit = 520.0f;
-    const volt max_regen_voltage_limit = 530.0f;
-
-    // Mechanical power limit
-    const watt start_regen_power_limit_watt = 30000.0f;
-    const watt max_regen_power_limit_watt = 50000.0f;
-
     // Current motor and inverter behavior
     DrivetrainDynamicReport_s dt_dynamic_data = dynamic_report;
     auto current_speeds = dt_dynamic_data.measured_speeds.as_array();
@@ -368,14 +356,22 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_applyRegenLimit(
         are_all_wheels_regen &= (command_speeds[i] < static_cast<float>(fabs(current_speeds[i])) || command_speeds[i] == 0);
     }
 
-    // begin limiting regen at no_regen_limit_kph and completely limit regen at full_regen_limit_kph; using linear ramp
-    float torque_scale_down =
-        std::min(1.0f, std::max(0.0f, (max_wheel_speed - full_regen_limit_kph) / (no_regen_limit_kph - full_regen_limit_kph))); // FIX: removed self-assignment
-                                                                                                                                // (was `= torque_scale_down =`)
+    // full regen at or above REGEN_FULL_AT_OR_ABOVE_KPH, none at or below REGEN_ZERO_AT_OR_BELOW_KPH; linear ramp in between
+    float torque_scale_down = std::min(
+        1.0f,
+        std::max(
+            0.0f,
+            (max_wheel_speed - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH)
+                / (tc_mux_default_params::REGEN_FULL_AT_OR_ABOVE_KPH - tc_mux_default_params::REGEN_ZERO_AT_OR_BELOW_KPH))); // FIX: removed self-assignment
+                                                                                                                             // (was `= torque_scale_down =`)
 
     // limit torque based on overvoltage so that cells do not limit; using linear ramp
-    float over_voltage_protection_scale =
-        std::min(1.0f, std::max(0.0f, (max_inverter_voltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
+    float over_voltage_protection_scale = std::min(
+        1.0f,
+        std::max(
+            0.0f,
+            (max_inverter_voltage - tc_mux_default_params::REGEN_VOLTAGE_FADE_START_V)
+                / (tc_mux_default_params::REGEN_VOLTAGE_CUTOFF_V - tc_mux_default_params::REGEN_VOLTAGE_FADE_START_V)));
     torque_scale_down *= (1.0f - over_voltage_protection_scale);
 
     // regen power limit (what was wrong with this??)

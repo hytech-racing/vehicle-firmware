@@ -26,6 +26,9 @@ namespace simple_tc_default_params
     constexpr DrivetrainControlMode_e SIMPLE_CONTROLLER_MODE = DrivetrainControlMode_e::TORQUE;
 } // namespace simple_tc_default_params
 
+static_assert(simple_tc_default_params::ACCEL_BIAS >= 0.0f && simple_tc_default_params::ACCEL_BIAS <= 1.0f, "ACCEL_BIAS is a rear fraction in [0, 1]");
+static_assert(simple_tc_default_params::REGEN_BIAS >= 0.0f && simple_tc_default_params::REGEN_BIAS <= 1.0f, "REGEN_BIAS is a rear fraction in [0, 1]");
+
 struct SimpleTCParams_s
 {
     speed_rpm motor_max_rpm;

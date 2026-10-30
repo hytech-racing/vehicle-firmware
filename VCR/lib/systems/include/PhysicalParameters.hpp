@@ -12,6 +12,23 @@ namespace dti_motor_params
     constexpr meters WHEEL_DIAMETER_METERS = 0.4064f;
 } // namespace dti_motor_params
 
+static_assert(
+    dti_motor_params::MOTOR_MAX_RPM > 0.0f,
+    "MOTOR_MAX_RPM must be positive");
+static_assert(
+    dti_motor_params::MOTOR_MAX_TORQUE_NM > 0.0f,
+    "MOTOR_MAX_TORQUE_NM must be positive");
+// Regen torque is a magnitude: controllers negate it themselves
+static_assert(
+    dti_motor_params::MOTOR_MAX_REGEN_TORQUE_NM >= 0.0f,
+    "MOTOR_MAX_REGEN_TORQUE_NM is a magnitude and must not be negative");
+static_assert(
+    dti_motor_params::MOTOR_MAX_REGEN_TORQUE_NM <= dti_motor_params::MOTOR_MAX_TORQUE_NM,
+    "MOTOR_MAX_REGEN_TORQUE_NM must not exceed MOTOR_MAX_TORQUE_NM");
+static_assert(
+    dti_motor_params::MOTOR_MAX_POWER_WATTS > 0.0f,
+    "MOTOR_MAX_POWER_WATTS must be positive");
+
 namespace physical_motor_scales
 {
     constexpr float RPM_TO_METERS_PER_SECOND = dti_motor_params::WHEEL_DIAMETER_METERS * 3.1415f / dti_motor_params::MOTOR_GEARBOX_RATIO / 60.0f;
