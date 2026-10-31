@@ -20,11 +20,11 @@ struct VCFCANInterfaceData_s
 
 class VCFInterface
 {
-public:
-
+  public:
     VCFInterface() = delete;
 
-    VCFInterface(unsigned long init_millis, unsigned long max_heartbeat_interval_ms) : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
+    VCFInterface(unsigned long init_millis, unsigned long max_heartbeat_interval_ms)
+        : _max_heartbeat_interval_ms(max_heartbeat_interval_ms)
     {
         _curr_data.stamped_pedals.last_recv_millis = 0;
         _curr_data.stamped_pedals.heartbeat_ok = false; // start out false
@@ -44,19 +44,15 @@ public:
 
     int get_control_mode() { return _control_mode; }
 
-    VCFCANInterfaceData_s get_curr_data() {return _curr_data;}
+    VCFCANInterfaceData_s get_curr_data() { return _curr_data; }
 
-private:
-
+  private:
     VCFCANInterfaceData_s _curr_data;
     int _control_mode = 0;
     unsigned long _max_heartbeat_interval_ms;
     bool _first_received_message_heartbeat_init = false;
-
 };
 
 using VCFInterfaceInstance = etl::singleton<VCFInterface>;
 
 #endif // __VCFINTERFACE_H__
-
-
