@@ -33,3 +33,8 @@ template <size_t bufferSize>
 void SPIDMAInterface<bufferSize>::setTxBuf(std::array<uint8_t, bufferSize>& txBuf) {
     _txBuf = txBuf;
 }
+
+template <size_t bufferSize>
+bool SPIDMAInterface<bufferSize>::isBusy() {
+    return _dmaBusy;
+}

@@ -2,11 +2,17 @@
 
 void ADCInterface::tickADC0()
 {
+    if (_adc1.isBusy()) {
+        return;
+    }
     _adc0.tick();
 }
 
 void ADCInterface::tickADC1()
 {
+    if (_adc0.isBusy()) {
+        return;
+    }
     _adc1.tick();
 }
 

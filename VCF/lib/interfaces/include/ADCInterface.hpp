@@ -21,6 +21,17 @@ struct ADCPinout_s
     pin adc1_spi_cs_pin;
 };
 
+namespace adc1 {
+    const SPIParams_s adc1_params {
+        38,
+        12,
+        11,
+        13,
+        2000000
+    };
+}
+
+
 struct ADCChannels_s
 {
     /* ADC 0 */
@@ -140,10 +151,11 @@ public:
             adc0_offsets().data(),
             adc_default_channels::adc0_channels
         ),
-        _adc1 (_spiEventADC1,
-            adc0_scales().data(),
-            adc0_offsets().data(),
-            adc_default_channels::adc1_channels
+        _adc1 (adc1::adc1_params, 
+                _spiEventADC1,
+                adc1_scales().data(),
+                adc1_offsets().data(),
+                adc_default_channels::adc1_channels
         )
     {};
 

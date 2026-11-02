@@ -1,6 +1,5 @@
 #include "VCF_InterfaceTasks.hpp"
 
-
 void initializeAllInterfaces()
 {
     SPI.begin();

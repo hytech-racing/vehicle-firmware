@@ -30,10 +30,11 @@ class SPIDMAInterface {
         virtual void transfer();
         virtual void transferComplete();
 
-
         bool getDMAState() { return _dmaBusy; }
 
         void setTxBuf(std::array<uint8_t, bufferSize>& txBuf);
+
+        bool isBusy();
 
         const std::array<uint8_t, bufferSize>& getRxBuf() { return _rxBuf; }
 
@@ -41,7 +42,7 @@ class SPIDMAInterface {
         SPIParams_s _spiParams;
         std::array<uint8_t, bufferSize> _txBuf;
         std::array<uint8_t, bufferSize> _rxBuf;
-        bool _dmaBusy;
+        volatile bool _dmaBusy;
         EventResponder& _eventRef;
     private:
         static void dmaCallback(EventResponderRef ref);
