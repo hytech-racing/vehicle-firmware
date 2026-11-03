@@ -1,7 +1,7 @@
 #include "CoreRDCCANInterface.hpp"
 #include "ht_can.h"
 
-void FDCInterface::receiveEbsPressure(const CAN_message_t &msg, unsigned long curr_millis)
+void FDCInterface::receiveEbsPressure(const CAN_message_t& msg, unsigned long curr_millis)
 {
     // TODO: Make the CAN message template add to ht can
     // basically we copy the pedals msg receive from VCR here
@@ -21,7 +21,7 @@ void FDCInterface::receiveEbsPressure(const CAN_message_t &msg, unsigned long cu
     _current_ebs_data.pressure_last_recv_millis = curr_millis;
 }
 
-void FDCInterface::receiveBrakeData(const CAN_message_t &msg, unsigned long curr_millis)
+void FDCInterface::receiveBrakeData(const CAN_message_t& msg, unsigned long curr_millis)
 {
     BRAKE_PRESSURE_t brake_data;
 
@@ -31,7 +31,7 @@ void FDCInterface::receiveBrakeData(const CAN_message_t &msg, unsigned long curr
     _current_brake_data.brake_fluid_pressure_data_rear = brake_data.brake_pressure_2;
 }
 
-void FDCInterface::receiveDVMission(const CAN_message_t &msg, unsigned long curr_millis)
+void FDCInterface::receiveDVMission(const CAN_message_t& msg, unsigned long curr_millis)
 {
     FDC_DRIVERLESS_MISSION_t dv_mission;
 

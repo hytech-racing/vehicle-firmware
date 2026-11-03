@@ -5,7 +5,7 @@
 
 class WatchdogMetrics
 {
-public:
+  public:
     struct WatchdogMetricsData_s
     {
         volt max_measured_glv;
@@ -30,12 +30,10 @@ public:
 
     WatchdogMetricsData_s get_watchdog_metrics();
 
-private:
-
+  private:
     static constexpr float VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
     static constexpr uint32_t MIN_ALLOWED_INVALID_SHDN_OUT_MS = 10;
     WatchdogMetricsData_s _watchdog_metrics_data;
-
 };
 
 using WatchdogMetricsInstance = etl::singleton<WatchdogMetrics>;

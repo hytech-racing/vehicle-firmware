@@ -46,7 +46,7 @@ namespace default_encoder_params
 
     // 4 valid transitions per full encoder detent/click.
     constexpr int TRANSITIONS_PER_DETENT = 4;
-}
+} // namespace default_encoder_params
 
 struct RotaryEncoderPinout_s
 {
@@ -73,14 +73,11 @@ struct RotaryEncoderState_s
 
 class RotaryEncoderInterface
 {
-public:
-
-    RotaryEncoderInterface(RotaryEncoderPinout_s pinout,
-                        RotaryEncoderState_s state = RotaryEncoderState_s{}
-    ) : _pinout(pinout),
-        _state(state),
-        _enc_switch_button(pinout.enc_switch_pin)
-    {}
+  public:
+    RotaryEncoderInterface(RotaryEncoderPinout_s pinout, RotaryEncoderState_s state = RotaryEncoderState_s{})
+        : _pinout(pinout), _state(state), _enc_switch_button(pinout.enc_switch_pin)
+    {
+    }
 
     void init();
 
@@ -88,7 +85,7 @@ public:
      * @note Call this from the main loop
      *       Encoder movement is handled by interrupts
      *       Button debounce/state is still handled here
-    */
+     */
     void tick(unsigned long current_millis);
 
     float getValue() const;
@@ -105,8 +102,7 @@ public:
 
     bool isSwitchHeld();
 
-private:
-
+  private:
     RotaryEncoderPinout_s _pinout;
     RotaryEncoderState_s _state;
     ButtonInterface _enc_switch_button;
@@ -128,7 +124,6 @@ private:
     void _decrementFromISR();
 
     float _clamp(float value) const;
-
 };
 
 using RotaryEncoderInterfaceInstance = etl::singleton<RotaryEncoderInterface>;

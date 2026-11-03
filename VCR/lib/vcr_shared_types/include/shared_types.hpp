@@ -9,13 +9,13 @@ namespace HTUnits
     using torque_nm = float;
     using speed_rpm = float;
     using volts = float;
-};
+}; // namespace HTUnits
 
-/** 
- * Drivetrain system accessible structs for 
+/**
+ * Drivetrain system accessible structs for
  * requesting change of state
  */
-struct InverterControlWord_s 
+struct InverterControlWord_s
 {
     bool inverter_enable : 1;
     bool hv_enable : 1;
@@ -23,28 +23,28 @@ struct InverterControlWord_s
     bool remove_error : 1;
 };
 
-struct InverterControlInput_s 
+struct InverterControlInput_s
 {
     int16_t speed_rpm_setpoint;
-    float positive_torque_limit; 
+    float positive_torque_limit;
     float negative_torque_limit;
 };
 
 struct InverterControlParams_s
 {
-    uint16_t speed_control_kp; 
+    uint16_t speed_control_kp;
     uint16_t speed_control_ki;
     uint16_t speed_control_kd;
 };
 
-/** 
- * For the most part these are mirrors of the lower-level CAN struct data, 
+/**
+ * For the most part these are mirrors of the lower-level CAN struct data,
  * except with already fully float-ized data
-**/
+ **/
 struct InverterStatus_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
-    unsigned long last_recv_millis = 0; 
+    unsigned long last_recv_millis = 0;
     bool hv_present : 1;
     bool connected : 1;
     bool system_ready : 1;
@@ -62,7 +62,7 @@ struct InverterStatus_s
 struct InverterTemps_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
-    unsigned long last_recv_millis = 0; 
+    unsigned long last_recv_millis = 0;
     HTUnits::celcius motor_temp;
     HTUnits::celcius inverter_temp;
     HTUnits::celcius igbt_temp;
@@ -71,7 +71,7 @@ struct InverterTemps_s
 struct InverterPower_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
-    unsigned long last_recv_millis = 0; 
+    unsigned long last_recv_millis = 0;
     HTUnits::watts active_power;
     HTUnits::var reactive_power;
 };
@@ -79,7 +79,7 @@ struct InverterPower_s
 struct MotorMechanics_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
-    unsigned long last_recv_millis = 0; 
+    unsigned long last_recv_millis = 0;
     HTUnits::watts actual_power;
     HTUnits::torque_nm actual_torque;
     HTUnits::speed_rpm actual_speed;
@@ -88,7 +88,7 @@ struct MotorMechanics_s
 struct InverterControlFeedback_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
-    unsigned long last_recv_millis = 0; 
+    unsigned long last_recv_millis = 0;
     uint16_t speed_control_kp;
     uint16_t speed_control_ki;
     uint16_t speed_control_kd;
@@ -104,4 +104,3 @@ struct InverterFeedbackData_s
 };
 
 #endif // SHARED_TYPES_H
-

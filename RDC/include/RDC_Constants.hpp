@@ -8,6 +8,8 @@ using time_us = uint32_t;
 namespace RDCConstants
 {
     /* ---------- Task Priorities & Periods ---------- */
+    const int SERIAL_BAUDRATE = 115200;
+
     constexpr uint8_t SEND_CAN_PRIORITY = 5;
     constexpr time_us SEND_CAN_PERIOD_US = 10000; // 10000 us = 100 HZ
 
@@ -29,7 +31,7 @@ namespace RDCConstants
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 100;
     constexpr time_us DEBUG_PRINT_PERIOD_US = 100000; // 100000 us = 10 HZ
     /* --------- CAN Constants ---------- */
-    constexpr uint32_t DRIVERLESS_CAN_BAUDRATE = 500000;
+    constexpr uint32_t DRIVERLESS_CAN_BAUDRATE = 1000000;
 
     /* ---------- EBS Constants ---------- */
     constexpr uint16_t EBS_HEARTBEAT_TIMEOUT_MS = 1000;        // 1000ms = 1 second

@@ -38,27 +38,20 @@ struct WatchdogInterfaceParams_s
  */
 class WatchdogInterface
 {
-public:
-
-    WatchdogInterface(WatchdogPinout_s pinout,
-                    uint32_t watchdog_kick_interval_ms = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL_MS
-    ): _watchdog_parameters {
-            pinout,
-            watchdog_kick_interval_ms
-        }
-    {};
+  public:
+    WatchdogInterface(WatchdogPinout_s pinout, uint32_t watchdog_kick_interval_ms = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL_MS)
+        : _watchdog_parameters{pinout, watchdog_kick_interval_ms} {};
 
     void init();
 
-     /**
+    /**
      * Get/update watchdog state
      * @param curr_millis time of VCF time
      * @post IF reach interval, _watchdog_time updated and state switched
-    */
+     */
     bool update_watchdog_state(unsigned long curr_millis);
 
-private:
-
+  private:
     const WatchdogInterfaceParams_s _watchdog_parameters = {};
 
     /**
@@ -70,7 +63,6 @@ private:
      * @brief current output level driven on the watchdog kick pin, true = HIGH
      */
     bool _watchdog_state = false;
-
 };
 
 using WatchdogInterfaceInstance = etl::singleton<WatchdogInterface>;

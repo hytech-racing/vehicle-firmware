@@ -9,11 +9,11 @@ void NeopixelController::init_neopixels()
     // set init color for every led
     for (int i = 0; i < _neopixel_count; i++)
     {
-        _neopixels.setPixelColor(i, (uint32_t) LED_color_e::INIT_COLOR);
+        _neopixels.setPixelColor(i, (uint32_t)LED_color_e::INIT_COLOR);
         // BMS and IMD are off according to rules
         if (i == LED_ID_e::BMS || i == LED_ID_e::IMD)
         {
-            _neopixels.setPixelColor(i, (uint32_t) LED_color_e::GREEN);
+            _neopixels.setPixelColor(i, (uint32_t)LED_color_e::GREEN);
         }
     }
     // write data to neopixels
@@ -32,8 +32,8 @@ void NeopixelController::dim_neopixels()
     _neopixels.setBrightness(_current_brightness);
 }
 
-//TODO: Update for dash CAN
-void NeopixelController::refresh_neopixels(CANInterfaces_s &interfaces)
+// TODO: Update for dash CAN
+void NeopixelController::refresh_neopixels(CANInterfaces_s& interfaces)
 {
 
     // // If we are in pedals recalibration state, LIGHT UP DASHBOARD ALL RED.
@@ -68,46 +68,46 @@ void NeopixelController::refresh_neopixels(CANInterfaces_s &interfaces)
     LED_color_e torque_mode_color = LED_color_e::OFF;
     switch (interfaces.vcr_interface.get_torque_limit_mode())
     {
-        case TorqueLimit_e::TCMUX_LOW_TORQUE:
-        {
-            torque_mode_color = LED_color_e::RED;
-            break;
-        }
-        case TorqueLimit_e::TCMUX_MID_TORQUE:
-        {
-            torque_mode_color = LED_color_e::YELLOW;
-            break;
-        }
-        case TorqueLimit_e::TCMUX_FULL_TORQUE:
-        {
-            torque_mode_color = LED_color_e::GREEN;
-            break;
-        }
-        default:
-        {
-            torque_mode_color = LED_color_e::OFF;
-            break;
-        }
+    case TorqueLimit_e::TCMUX_LOW_TORQUE:
+    {
+        torque_mode_color = LED_color_e::RED;
+        break;
+    }
+    case TorqueLimit_e::TCMUX_MID_TORQUE:
+    {
+        torque_mode_color = LED_color_e::YELLOW;
+        break;
+    }
+    case TorqueLimit_e::TCMUX_FULL_TORQUE:
+    {
+        torque_mode_color = LED_color_e::GREEN;
+        break;
+    }
+    default:
+    {
+        torque_mode_color = LED_color_e::OFF;
+        break;
+    }
     }
 
     LED_color_e ready_drive_color = LED_color_e::OFF;
     switch (interfaces.vcr_interface.get_curr_car_state())
     {
-        case VehicleState_e::READY_TO_DRIVE:
-        {
-            interfaces.vcr_interface.get_drivebrain_in_control() ? ready_drive_color = LED_color_e::BLUE : ready_drive_color = LED_color_e::GREEN;
-            break;
-        }
-        case VehicleState_e::WANTING_READY_TO_DRIVE:
-        {
-            ready_drive_color = LED_color_e::YELLOW;
-            break;
-        }
-        default:
-        {
-            ready_drive_color = LED_color_e::RED;
-            break;
-        }
+    case VehicleState_e::READY_TO_DRIVE:
+    {
+        interfaces.vcr_interface.get_drivebrain_in_control() ? ready_drive_color = LED_color_e::BLUE : ready_drive_color = LED_color_e::GREEN;
+        break;
+    }
+    case VehicleState_e::WANTING_READY_TO_DRIVE:
+    {
+        ready_drive_color = LED_color_e::YELLOW;
+        break;
+    }
+    default:
+    {
+        ready_drive_color = LED_color_e::RED;
+        break;
+    }
     }
 
     constexpr float glv_critical_voltage = 22.0f;
@@ -155,10 +155,9 @@ void NeopixelController::refresh_neopixels(CANInterfaces_s &interfaces)
     set_neopixel_color(LED_ID_e::BMS, interfaces.acu_interface.get_curr_data().bms_ok ? LED_color_e::GREEN : LED_color_e::RED);
 
     _neopixels.show();
-
 }
 
 void NeopixelController::set_neopixel_color(LED_ID_e led, LED_color_e color)
 {
-    _neopixels.setPixelColor(led, (uint32_t) color);
+    _neopixels.setPixelColor(led, (uint32_t)color);
 }

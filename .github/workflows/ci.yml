@@ -149,9 +149,10 @@ jobs:
 
           # Pin the clang-format version: different versions can format
           # the same code slightly differently. Developers should use the
-          # same major version locally.
+          # same version locally (pip install clang-format==23.1.1).
+          # .clang-format uses options that need clang-format 20 or newer.
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clang-format-18
+          sudo apt-get install -y -qq clang-format-20
 
           # Only check tracked files inside the subsystem folders, so
           # build output and downloaded libraries are never checked.
@@ -166,7 +167,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format-18 --dry-run --Werror "${files[@]}"
+          clang-format-20 --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 3 — build

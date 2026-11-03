@@ -23,14 +23,14 @@ namespace ACUInterfaces
 
     /* ADC Versions*/
     /* Channels on ADC */
-    constexpr int ISO_PACK_N_CHANNEL         = 0;
-    constexpr int ISO_PACK_P_CHANNEL         = 1;
+    constexpr int ISO_PACK_N_CHANNEL = 0;
+    constexpr int ISO_PACK_P_CHANNEL = 1;
     constexpr int PACK_VOLTAGE_SENSE_CHANNEL = 2;
-    constexpr int SHUNT_CURRENT_OUT_CHANNEL  = 3;
-    constexpr int SHUNT_CURRENT_P_CHANNEL    = 4;
-    constexpr int SHUNT_CURRENT_N_CHANNEL    = 5;
-    constexpr int TS_OUT_FILTERED_CHANNEL    = 6;
-    constexpr int PACK_OUT_FILTERED_CHANNEL  = 7;
+    constexpr int SHUNT_CURRENT_OUT_CHANNEL = 3;
+    constexpr int SHUNT_CURRENT_P_CHANNEL = 4;
+    constexpr int SHUNT_CURRENT_N_CHANNEL = 5;
+    constexpr int TS_OUT_FILTERED_CHANNEL = 6;
+    constexpr int PACK_OUT_FILTERED_CHANNEL = 7;
 
     /* SCALE/OFFSETS on ADC */
     const float ISO_PACK_N_SCALE = 0.0656553030302;
@@ -50,14 +50,14 @@ namespace ACUInterfaces
     const float TS_OUT_FILTERED_OFFSET = 0;
     const float PACK_OUT_FILTERED_OFFSET = 0;
 
-    constexpr const size_t TEENSY_OK_PIN = 3; // > Needs to stay HIGH while wd_kick_pin flips to keep BMS_OK high
-    constexpr const size_t WD_KICK_PIN = 4;       // > Needs to flip at 100 Hz to keep BMS_OK high
-    constexpr const size_t SW_NOT_OK_PIN = 5;  // should be HIGH by default, and then set LOW after traversing state machine
-    constexpr const size_t N_FAULTED_STATE_PIN = 6;    // > Input to Safety Light, true when teensy is not in FAULT state
+    constexpr const size_t TEENSY_OK_PIN = 3;       // > Needs to stay HIGH while wd_kick_pin flips to keep BMS_OK high
+    constexpr const size_t WD_KICK_PIN = 4;         // > Needs to flip at 100 Hz to keep BMS_OK high
+    constexpr const size_t SW_NOT_OK_PIN = 5;       // should be HIGH by default, and then set LOW after traversing state machine
+    constexpr const size_t N_FAULTED_STATE_PIN = 6; // > Input to Safety Light, true when teensy is not in FAULT state
 
     constexpr const size_t BSPD_CURRENT_PIN = 15;
-    constexpr const size_t SHDN_OUT_PIN = 16; // < READ from SHDN hardware, can leave FAULT state if goes to HIGH to signify car startup
-    constexpr const size_t PRECHARGE_PIN = 17; // READ from PRECHARGE
+    constexpr const size_t SHDN_OUT_PIN = 16;       // < READ from SHDN hardware, can leave FAULT state if goes to HIGH to signify car startup
+    constexpr const size_t PRECHARGE_PIN = 17;      // READ from PRECHARGE
     constexpr const size_t HV_PLUS_OUT_OK_PIN = 19; // READ from HV OUT OK
     constexpr const size_t MAIN_OK_PIN = 20;
     constexpr const size_t MAIN_UNDER_THRESH_PIN = 21;
@@ -72,7 +72,7 @@ namespace ACUInterfaces
 
     constexpr const size_t SCALED_24V_PIN = 41;
 
-    constexpr const float SHUTDOWN_CONV_FACTOR = 0.1155F; // voltage divider -> 4.7k / (4.7k + 36k)
+    constexpr const float SHUTDOWN_CONV_FACTOR = 0.1155F;  // voltage divider -> 4.7k / (4.7k + 36k)
     constexpr const float PRECHARGE_CONV_FACTOR = 0.6623F; // voltage divider -> 10k / (5.1k + 10k)
     constexpr const float PACK_AND_TS_OUT_CONV_FACTOR = 0.00482F;
     constexpr const float SHDN_OUT_CONV_FACTOR = 0.11545F;
@@ -81,7 +81,7 @@ namespace ACUInterfaces
     constexpr const float STD_5V_3V3_CONVERSION_FACTOR = 0.641F;
 
     constexpr const float BIT_RESOLUTION = 4096.0F;
-}
+} // namespace ACUInterfaces
 
 namespace ACUSystems
 {
@@ -91,11 +91,11 @@ namespace ACUSystems
     constexpr const volt MIN_PACK_TOTAL_VOLTAGE = 420.0;
     constexpr const celsius CHARGING_OT_THRESH = 60.0;
     constexpr const celsius RUNNING_OT_THRESH = 60.0;
-    constexpr const volt VOLTAGE_DIFF_TO_INIT_CB = 0.02;      // differential with lowest cell voltage to enable cell balancing for a cell
+    constexpr const volt VOLTAGE_DIFF_TO_INIT_CB = 0.02; // differential with lowest cell voltage to enable cell balancing for a cell
     constexpr const celsius BALANCE_TEMP_LIMIT_C = 50.0;
     constexpr const celsius BALANCE_ENABLE_TEMP_THRESH_C = 35.0;
     constexpr const volt TS_ISOLATION_VOLTAGE = 100;
-}
+} // namespace ACUSystems
 namespace ACUConstants
 {
     constexpr size_t NUM_CELLS = 126;
@@ -104,7 +104,7 @@ namespace ACUConstants
     constexpr size_t NUM_CHIP_SELECTS = 2;
 
     const float VALID_SHDN_OUT_MIN_VOLTAGE_THRESHOLD = 12.0F;
-    const uint32_t MIN_ALLOWED_INVALID_SHDN_OUT_MS = 10;  // 10 ms -- requies 100 Hz samp freq.
+    const uint32_t MIN_ALLOWED_INVALID_SHDN_OUT_MS = 10; // 10 ms -- requies 100 Hz samp freq.
 
     // Initialize chip_select, chip_select_per_chip, and address
     constexpr std::array<int, NUM_CHIP_SELECTS> CS = {36, 38};
@@ -167,11 +167,11 @@ namespace ACUConstants
     constexpr time_us SOH_PERSIST_PERIOD_US = 1000000UL; // 1 000 000 us = 1 Hz
 
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 20;
-    constexpr time_us DEBUG_PRINT_PERIOD_US = 2000000UL; //250000UL; // 250 000 us = 4 Hz
+    constexpr time_us DEBUG_PRINT_PERIOD_US = 2000000UL; // 250000UL; // 250 000 us = 4 Hz
 
     /* CAN Constants */
     const uint32_t VEH_CAN_BAUDRATE = 1000000;
     const uint32_t EM_CAN_BAUDRATE = 500000;
-}
+} // namespace ACUConstants
 
 #endif

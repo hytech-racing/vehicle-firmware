@@ -15,21 +15,20 @@
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"
 #include "TorqueControllerMux.hpp"
-#include "controllers/SimpleController.hpp"
-#include "controllers/LoadCellVectoringTorqueController.hpp"
-#include "controllers/SimpleLaunchController.hpp"
 #include "controllers/DrivebrainController.hpp"
+#include "controllers/LoadCellVectoringTorqueController.hpp"
+#include "controllers/SimpleController.hpp"
+#include "controllers/SimpleLaunchController.hpp"
 
 class VCRControls
 {
-public:
-
+  public:
     /**
      * Explicit constructor that passes in a pointer to an already-instantiated DrivetrainSystem.
      * @param max_allowed_db_latency_ms The maximum allowed latency between commands from the
      *                                  DriveBrain before considering the connection invalid.
      */
-    explicit VCRControls(DrivetrainSystem *dt_system, uint32_t max_allowed_db_latency_ms);
+    explicit VCRControls(DrivetrainSystem* dt_system, uint32_t max_allowed_db_latency_ms);
 
     DrivetrainCommand_s _debug_dt_command = {};
 
@@ -63,16 +62,14 @@ public:
 
     TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.get_tc_mux_status(); }
 
-private:
-
+  private:
     TorqueControllerSimple _mode0; // this needs to be first for tc_mux to have a valid capture
     LoadCellVectoringTorqueController _mode1;
     SimpleLaunchController _mode3;
     DrivebrainController _mode4;
     TCMuxType _tc_mux;
     TorqueLimit_e _torque_limit = TorqueLimit_e::TCMUX_FULL_TORQUE;
-    DrivetrainSystem *_dt_system = nullptr;
-
+    DrivetrainSystem* _dt_system = nullptr;
 };
 
 using VCRControlsInstance = etl::singleton<VCRControls>;

@@ -3,7 +3,8 @@
 using namespace default_flowmeter_params;
 
 
-FlowmeterInterface::FlowmeterInterface(const size_t flowmeter_pin) : _pin(flowmeter_pin), _last_sample_timestamp_ms(0UL)
+FlowmeterInterface::FlowmeterInterface(const size_t flowmeter_pin)
+    : _pin(flowmeter_pin), _last_sample_timestamp_ms(0UL)
 {
     pinMode(_pin, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(_pin), count_pulse, RISING);

@@ -1,23 +1,18 @@
 #include "ADCInterface.hpp"
 #include "VCF_Constants.hpp"
 
-unsigned long const DELAY = 100;
+const unsigned long DELAY = 100;
 unsigned long last = millis();
 
 void setup()
 {
-    SPI.begin();    //for ADC
-    Serial.begin(VCFInterfaces::SERIAL_BAUDRATE);    //for serial monitor
+    SPI.begin();                                  // for ADC
+    Serial.begin(VCFInterfaces::SERIAL_BAUDRATE); // for serial monitor
 
-    //create the ADC instance
+    // create the ADC instance
     ADCInterfaceInstance::create(
-        ADCPinout_s
-        {
-            VCFInterfaces::ADC0_CS,
-            VCFInterfaces::ADC1_CS
-        },
-        ADCChannels_s
-        {
+        ADCPinout_s{VCFInterfaces::ADC0_CS, VCFInterfaces::ADC1_CS},
+        ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
             VCFInterfaces::STEERING_2_CHANNEL,
@@ -33,10 +28,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_CHANNEL,
             VCFInterfaces::FL_SUS_POT_CHANNEL,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_CHANNEL,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL
-        },
-        ADCScales_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL},
+        ADCScales_s{
             VCFInterfaces::PEDAL_REF_2V5_SCALE,
             VCFInterfaces::STEERING_1_SCALE,
             VCFInterfaces::STEERING_2_SCALE,
@@ -52,10 +45,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_SCALE,
             VCFInterfaces::FL_SUS_POT_SCALE,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_SCALE,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE
-        },
-        ADCOffsets_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE},
+        ADCOffsets_s{
             VCFInterfaces::PEDAL_REF_2V5_OFFSET,
             VCFInterfaces::STEERING_1_OFFSET,
             VCFInterfaces::STEERING_2_OFFSET,
@@ -71,9 +62,7 @@ void setup()
             VCFInterfaces::FR_SUS_POT_OFFSET,
             VCFInterfaces::FL_SUS_POT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET
-        }
-    );
+            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 }
 
 void loop()

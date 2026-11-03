@@ -5,8 +5,9 @@
 #include <stdint.h>
 
 /* External Includes */
-#include "shared_types.hpp"
 #include "FlexCAN_T4.h"
+#include "shared_types.hpp"
+
 #include <CANInterface.h>
 #include <ht_can.h>
 
@@ -38,13 +39,9 @@ struct InverterCANIds_s
  */
 class InverterInterface
 {
-public:
-
-    InverterInterface(uint32_t inv_control_word_id,
-                    uint32_t inv_control_input_id,
-                    uint32_t inv_control_params_id,
-                    InverterParams_s inverter_params
-    ) : _inverter_params(inverter_params)
+  public:
+    InverterInterface(uint32_t inv_control_word_id, uint32_t inv_control_input_id, uint32_t inv_control_params_id, InverterParams_s inverter_params)
+        : _inverter_params(inverter_params)
     {
         inverter_ids.inv_control_word_id = inv_control_word_id;
         inverter_ids.inv_control_parameter_id = inv_control_params_id;
@@ -52,15 +49,15 @@ public:
     }
 
     /* receiving callbacks */
-    void receive_INV_STATUS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_STATUS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_TEMPS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_TEMPS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_DYNAMICS(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_DYNAMICS(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_POWER(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_POWER(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_FEEDBACK(const CAN_message_t &can_msg, unsigned long curr_millis);
+    void receive_INV_FEEDBACK(const CAN_message_t& can_msg, unsigned long curr_millis);
 
     /* Sending */
     void send_INV_SETPOINT_COMMAND();
@@ -89,15 +86,13 @@ public:
 
     InverterFeedbackData_s get_all_inverter_data() const;
 
-private:
-
+  private:
     InverterCANIds_s inverter_ids;
     InverterControlInput_s _inverter_control_inputs;
     InverterControlWord_s _inverter_control_word;
     InverterControlParams_s _inverter_control_params;
     InverterFeedbackData_s _feedback_data;
     InverterParams_s _inverter_params;
-
 };
 
 

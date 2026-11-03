@@ -15,8 +15,7 @@ struct VCRCANInterfaceData_s
 
 class VCRInterface
 {
-public:
-
+  public:
     VCRInterface() = delete;
 
     VCRInterface(unsigned long init_millis)
@@ -33,8 +32,7 @@ public:
 
     void handle_enqueue_acu_ok_CAN_message();
 
-private:
-
+  private:
     VCRCANInterfaceData_s _curr_data;
 
     unsigned long _min_charging_enable_threshold;

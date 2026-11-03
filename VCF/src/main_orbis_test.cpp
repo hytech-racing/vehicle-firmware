@@ -1,5 +1,6 @@
-#include <Arduino.h>
 #include "OrbisInterface.hpp"
+
+#include <Arduino.h>
 
 constexpr int SAMPLE_RATE = 5000;
 
@@ -11,16 +12,17 @@ void setup()
 {
     Serial.begin(orbis_constants::DEFAULT_BAUD_RATE);
 
-    while(!Serial);
-    Serial.println("Serial Monitor connected.");        // Debug line
+    while (!Serial)
+        ;
+    Serial.println("Serial Monitor connected."); // Debug line
 
     OrbisInterfaceInstance::create(&Serial2);
 
 
-    Serial.println("Calling Self-Calib");                  // Debug line
+    Serial.println("Calling Self-Calib"); // Debug line
 
-    bool _isCalibrated = false;    // Assume sensor is not calibrated
-    while (!_isCalibrated) //NOLINT
+    bool _isCalibrated = false; // Assume sensor is not calibrated
+    while (!_isCalibrated)      // NOLINT
     {
         _isCalibrated = OrbisInterfaceInstance::instance().perform_self_calibration();
     }
@@ -55,18 +57,47 @@ void loop()
         OrbisInterfaceInstance::instance().sample();
 
         SteeringEncoderReading_s result = OrbisInterfaceInstance::instance().get_last_reading();
-        if (result.errors.dataInvalid)   { Serial.println("General error"); }
-        if (result.errors.operatingLimit) { Serial.println("General warning"); }
-        if (result.errors.noData)         { Serial.println("No data"); }
+        if (result.errors.dataInvalid)
+        {
+            Serial.println("General error");
+        }
+        if (result.errors.operatingLimit)
+        {
+            Serial.println("General warning");
+        }
+        if (result.errors.noData)
+        {
+            Serial.println("No data");
+        }
 
         OrbisErrorFlags_s orbisErrors = OrbisInterfaceInstance::instance().get_orbis_detailed_errors();
-        if (orbisErrors.dist_far)              { Serial.println("Readhead too far"); }
-        if (orbisErrors.dist_near)             { Serial.println("Readhead too close"); }
-        if (orbisErrors.temp_out_of_range)     { Serial.println("Temperature out of range"); }
-        if (orbisErrors.speed_high)            { Serial.println("Speed too high"); }
-        if (orbisErrors.counter_error)         { Serial.println("Multiturn counter error"); }
-        if (orbisErrors.calibration_timeout)   { Serial.println("Calibration timed out"); }
-        if (orbisErrors.calibration_parameter) { Serial.println("Calibration parameter error"); }
-
+        if (orbisErrors.dist_far)
+        {
+            Serial.println("Readhead too far");
+        }
+        if (orbisErrors.dist_near)
+        {
+            Serial.println("Readhead too close");
+        }
+        if (orbisErrors.temp_out_of_range)
+        {
+            Serial.println("Temperature out of range");
+        }
+        if (orbisErrors.speed_high)
+        {
+            Serial.println("Speed too high");
+        }
+        if (orbisErrors.counter_error)
+        {
+            Serial.println("Multiturn counter error");
+        }
+        if (orbisErrors.calibration_timeout)
+        {
+            Serial.println("Calibration timed out");
+        }
+        if (orbisErrors.calibration_parameter)
+        {
+            Serial.println("Calibration parameter error");
+        }
     }
 }

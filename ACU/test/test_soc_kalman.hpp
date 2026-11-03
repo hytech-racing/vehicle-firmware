@@ -1,12 +1,15 @@
-#include "gtest/gtest.h"
-#include <cmath>
 #include "SOCKalmanFilter.hpp"
 
-float coulomb_count(float initial_soc, float current, float dt) {
+#include "gtest/gtest.h"
+#include <cmath>
+
+float coulomb_count(float initial_soc, float current, float dt)
+{
     return initial_soc - (current * dt / soc_ekf_constants::CAPACITY_AS);
 }
 
-TEST(SOCKalmanFilterTesting, initialization_from_voltage) {
+TEST(SOCKalmanFilterTesting, initialization_from_voltage)
+{
     SOCKalmanFilter ekf;
     ekf.init(4.181f);
     float soc = ekf.get_soc();
@@ -23,14 +26,16 @@ TEST(SOCKalmanFilterTesting, initialization_from_voltage) {
     EXPECT_NEAR(soc3, 0.0f, 0.01f);
 }
 
-TEST(SOCKalmanFilterTesting, v1_starts_at_0) {
+TEST(SOCKalmanFilterTesting, v1_starts_at_0)
+{
     SOCKalmanFilter ekf;
     ekf.init(3.7f);
     EKFState_s state = ekf.get_state();
     EXPECT_NEAR(state.v1, 0.0f, 0.01f);
 }
 
-TEST(SOCKalmanFilterTesting, coulomb_counting_accuracy) {
+TEST(SOCKalmanFilterTesting, coulomb_counting_accuracy)
+{
     SOCKalmanFilter ekf;
     ekf.init(3.7f);
     float start_soc = ekf.get_soc();
@@ -39,7 +44,7 @@ TEST(SOCKalmanFilterTesting, coulomb_counting_accuracy) {
     float dt = 100.0f;
     float start_ocv = 3.7f;
 
-    float ir_drop = current * soc_ekf_constants::R0; 
+    float ir_drop = current * soc_ekf_constants::R0;
     float input_voltage = start_ocv - ir_drop;
 
     ekf.update(current, input_voltage, dt, true, 1.0f); // SoH = 1.0 -> effective capacity == CAPACITY_AS
@@ -49,10 +54,11 @@ TEST(SOCKalmanFilterTesting, coulomb_counting_accuracy) {
     EXPECT_NEAR(ekf.get_soc(), start_soc - expected_delta, 0.02f);
 }
 
-TEST(SOCKalmanFilterTesting, v1_dynamics_time_constant) {
+TEST(SOCKalmanFilterTesting, v1_dynamics_time_constant)
+{
     SOCKalmanFilter ekf;
     float start_voltage = 3.7f;
-    ekf.init(start_voltage); 
+    ekf.init(start_voltage);
 
     float current = 100.0f;
     float dt = soc_ekf_constants::TIME_CONSTANT;
@@ -62,21 +68,21 @@ TEST(SOCKalmanFilterTesting, v1_dynamics_time_constant) {
     float ir_drop = current * soc_ekf_constants::R0;
     float input_voltage = start_voltage - ir_drop - expected_v1;
 
-    
 
     EKFState_s state = ekf.update(current, input_voltage, dt, true, 1.0f);
 
     EXPECT_NEAR(state.v1, expected_v1, 0.05f);
 }
 
-TEST(SOCKalmanFilterTesting, safety_clamping_bounds) {
+TEST(SOCKalmanFilterTesting, safety_clamping_bounds)
+{
     SOCKalmanFilter ekf;
-    
+
     ekf.init(4.2f);
-    ekf.update(-100.0f, 4.5f, 3600.0f, true, 1.0f); 
+    ekf.update(-100.0f, 4.5f, 3600.0f, true, 1.0f);
     EXPECT_LE(ekf.get_soc(), 1.0f);
 
     ekf.init(3.0f);
-    ekf.update(100.0f, 2.0f, 3600.0f, true, 1.0f); 
+    ekf.update(100.0f, 2.0f, 3600.0f, true, 1.0f);
     EXPECT_GE(ekf.get_soc(), 0.0f);
 }

@@ -1,19 +1,21 @@
 #ifndef VCR_INTERFACE_TASKS_HPP
 #define VCR_INTERFACE_TASKS_HPP
 
-#include "controls.hpp"
 #include "VCR_Constants.hpp"
 #include "VCR_Globals.hpp"
 #include "VCR_Inverters.hpp"
+#include "controls.hpp"
 
 /* External Includes */
+#include "CANInterface.h"
+
 #include <Logger.h>
 #include <ht_task.hpp>
-#include "CANInterface.h"
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
+#include "ADS112Interface.hpp"
 #include "DrivebrainInterface.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
@@ -47,6 +49,13 @@ void initialize_all_interfaces();
  * defined in VCRGlobals.h.
  */
 ::HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Task will tick the maintenance panel ADC (ADS112U04) state machine
+ * @note Non-blocking: each tick advances one step, so a full 4-channel sweep takes several ticks
+ *       (~70 ms conversion wait per channel at 20 SPS)
+ */
+::HT_TASK::TaskResponse run_read_mpb_adc_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * This task will tick the AMS system and will update the software shutdown if necessary.
@@ -90,7 +99,7 @@ void initialize_all_interfaces();
 
 /**
  * Handles sending of coolant temperature data
-*/
+ */
 ::HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
 
 /**
@@ -119,8 +128,8 @@ void initialize_all_interfaces();
 namespace async_tasks
 {
     ::HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s &can_interfaces);
-}
+    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces);
+} // namespace async_tasks
 
 
 #endif /* VCR_INTERFACETASKS */

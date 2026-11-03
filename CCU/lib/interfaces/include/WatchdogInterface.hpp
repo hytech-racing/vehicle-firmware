@@ -17,8 +17,8 @@ namespace watchdog_default_parameters
 
 struct WatchdogPinout_s
 {
-    pin teensy_watchdog_pin; //teensy input to watchdog
-    pin teensy_sw_shdn_pin ;
+    pin teensy_watchdog_pin; // teensy input to watchdog
+    pin teensy_sw_shdn_pin;
 };
 
 struct WatchdogInterfaceParams_s
@@ -29,15 +29,9 @@ struct WatchdogInterfaceParams_s
 
 class WatchdogInterface
 {
-public:
-
-    WatchdogInterface(WatchdogPinout_s pinout,
-                    uint32_t watchdog_kick_interval_ms = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL_MS
-    ): _watchdog_parameters {
-            pinout,
-            watchdog_kick_interval_ms
-        }
-    {};
+  public:
+    WatchdogInterface(WatchdogPinout_s pinout, uint32_t watchdog_kick_interval_ms = watchdog_default_parameters::WATCHDOG_KICK_INTERVAL_MS)
+        : _watchdog_parameters{pinout, watchdog_kick_interval_ms} {};
 
     void init();
 
@@ -45,33 +39,31 @@ public:
      * Get/update watchdog state
      * @param curr_millis time of CCU time
      * @post IF reach interval, _watchdog_time updated and state switched
-    */
+     */
     bool updateWatchdogState(uint32_t curr_millis);
 
     /**
      * Set SW_SHDN pin low
-    */
+     */
     void setSWShutdownPinLow();
 
     /**
      * Set SW_SHDN pin high
-    */
+     */
     void setSWShutdownPinHigh();
 
-private:
-
+  private:
     const WatchdogInterfaceParams_s _watchdog_parameters = {};
 
     /**
      * @brief timestamp of the last watchdog kick
-    */
+     */
     uint32_t _watchdog_time = 0;
 
     /**
      * @brief current output level driven on the watchdog kick pin, true = HIGH
-    */
+     */
     bool _watchdog_state = false;
-
 };
 
 using WatchdogInterfaceInstance = etl::singleton<WatchdogInterface>;
