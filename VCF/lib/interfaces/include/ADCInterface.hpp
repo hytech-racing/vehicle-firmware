@@ -10,24 +10,38 @@
 
 using pin = uint8_t;
 
-namespace adc_default_parameters
+namespace vcf_adc_default_parameters
 {
     constexpr const unsigned int channels_within_mcp_adc = 8;
-}
 
-struct ADCPinout_s
-{
-    pin adc0_spi_cs_pin;
-    pin adc1_spi_cs_pin;
-};
+    constexpr const SPIParams_s adc1_params = {
+        .spiPinCS = 38,
+        .spiPinSDI   = 12,
+        .spiPinSDO   = 11,
+        .spiPinCLK = 13,
+        .spiSpeed = 2000000
+    };
 
-namespace adc1 {
-    const SPIParams_s adc1_params {
-        38,
-        12,
-        11,
-        13,
-        2000000
+    constexpr const std::array<ChannelType_e, 8> adc0_channels = {
+        ChannelType_e::NOT_USED,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE
+    };
+
+    constexpr const std::array<ChannelType_e, 8> adc1_channels = {
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE
     };
 }
 
@@ -100,48 +114,20 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinouts;
     ADCChannels_s channels;
     ADCScales_s scales;
     ADCOffsets_s offsets;
 };
-
-namespace adc_default_channels {
-    const std::array<ChannelType_e, 8> adc0_channels = {
-        ChannelType_e::NOT_USED,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE
-    };
-
-
-    const std::array<ChannelType_e, 8> adc1_channels = {
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE
-    };
-}
 
 class ADCInterface
 {
 public:
 
     
-    ADCInterface(ADCPinout_s pinouts,
-                ADCChannels_s channels,
+    ADCInterface(ADCChannels_s channels,
                 ADCScales_s scales,
                 ADCOffsets_s offsets
     ) : _adc_parameters {
-            .pinouts = pinouts,
             .channels = channels,
             .scales = scales,
             .offsets = offsets
@@ -149,13 +135,13 @@ public:
         _adc0 (_spiEventADC0,
             adc0_scales().data(),
             adc0_offsets().data(),
-            adc_default_channels::adc0_channels
+            vcf_adc_default_parameters::adc0_channels
         ),
-        _adc1 (adc1::adc1_params, 
+        _adc1 (vcf_adc_default_parameters::adc1_params, 
                 _spiEventADC1,
                 adc1_scales().data(),
                 adc1_offsets().data(),
-                adc_default_channels::adc1_channels
+                vcf_adc_default_parameters::adc1_channels
         )
     {};
 
@@ -165,9 +151,6 @@ public:
     void tickADC0();
 
     void tickADC1();
-
-    uint32_t getADC0Cycles() { return _adc0.getCycles(); }
-    uint32_t getADC1Cycles() { return _adc1.getCycles(); }
 
     /* -------------------- ADC0 -------------------- */
 
@@ -278,23 +261,23 @@ private:
 
     ADCInterfaceParams_s _adc_parameters = {};
 
-    // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
-    SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc0;
-    // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
-    SPI_ADC<3, adc_default_parameters::channels_within_mcp_adc> _adc1;
-
     EventResponder _spiEventADC0;
     EventResponder _spiEventADC1;
+
+    // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
+    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc0;
+    // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
+    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc1;
 
     float _FL_load_cell_filtered;
     float _FR_load_cell_filtered;
     float _FL_sus_pot_filtered;
     float _FR_sus_pot_filtered;
 
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_offsets();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc0_scales();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc1_scales();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc1_offsets();
 
     /**
      * @return updated filtered value based on given alpha, previous filtered value, and new measured value

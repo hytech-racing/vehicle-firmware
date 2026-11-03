@@ -50,26 +50,18 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_sample() {
             _currChannel += group;
     }
 
-    if (_currChannel >= ADC_NUM_CHANNELS) {      // sweep finished
+    if (_currChannel >= ADC_NUM_CHANNELS) {
         this->_convert();
-        _totCycles = _cycles + _isrCycles;
-        Serial.println("Total CPU Cycles: "); 
-        Serial.println(_totCycles);
-        _cycles = 0;
-        _isrCycles = 0;
         _currChannel = 0;
         return;
     }
 
-    const uint32_t start = ARM_DWT_CYCCNT;
     setCommand();
     this->transfer();
-    _cycles += (ARM_DWT_CYCCNT - start);
 };
 
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::transferComplete() {
-    const uint32_t isrStart = ARM_DWT_CYCCNT;
     SPIDMAInterface<bufferSize>::transferComplete(); 
     SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::_channels[_currChannel].lastSample = setValue();
 #ifdef DIFF_CHANNELS
@@ -79,9 +71,9 @@ void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::transferComplete() {
     }
 #endif
     _currChannel++;
-    _isrCycles += (ARM_DWT_CYCCNT - isrStart);
 }
 
+/* Default implementation for MCP ADCs */
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 uint16_t SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
     uint16_t value = (this->_rxBuf[0] & 0x01) << 11 | (this->_rxBuf[1] & 0xFF) << 3 | (this->_rxBuf[2] & 0xE0) >> 5;
@@ -89,15 +81,11 @@ uint16_t SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setValue() {
     return value;
 }
 
+/* Default implementation for MCP ADCs */
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 void SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::setCommand() {
     this->_txBuf.fill(0);
     this->_txBuf[0] = ((0x01 << 7) |                    // start bit
                    (0x01 << 6) |                        // single or differential
-                   ((_currChannel & 0x07) << 3)); 
-}
-
-template <size_t bufferSize, int ADC_NUM_CHANNELS>
-uint32_t SPI_ADC<bufferSize, ADC_NUM_CHANNELS>::getCycles() {
-    return _totCycles;
+                   ((_currChannel & 0x07) << 3));       // channel number
 }

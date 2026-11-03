@@ -19,11 +19,6 @@ void initializeAllInterfaces()
     /* ADC Interface */
 
     ADCInterfaceInstance::create(
-        ADCPinout_s
-        {
-            VCFInterfaces::ADC0_CS,
-            VCFInterfaces::ADC1_CS
-        },
         ADCChannels_s
         {
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
