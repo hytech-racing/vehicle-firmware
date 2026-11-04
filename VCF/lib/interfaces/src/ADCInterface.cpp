@@ -2,7 +2,8 @@
 
 void ADCInterface::tickADC0()
 {
-    if (_adc1.isBusy()) {
+    if (_adc1.isBusy())
+    {
         return;
     }
     _adc0.tick();
@@ -10,7 +11,8 @@ void ADCInterface::tickADC0()
 
 void ADCInterface::tickADC1()
 {
-    if (_adc0.isBusy()) {
+    if (_adc0.isBusy())
+    {
         return;
     }
     _adc1.tick();
@@ -18,7 +20,7 @@ void ADCInterface::tickADC1()
 
 std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc0_scales()
 {
-  std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> scales = {};
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> scales = {};
 
     scales[_adc_parameters.channels.pedal_ref_channel] = _adc_parameters.scales.pedal_ref_scale;
     scales[_adc_parameters.channels.steering_cw_channel] = _adc_parameters.scales.steering_cw_scale;
@@ -33,7 +35,7 @@ std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterf
 
 std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc0_offsets()
 {
-  std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> offsets = {};
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> offsets = {};
 
     offsets[_adc_parameters.channels.pedal_ref_channel] = _adc_parameters.offsets.pedal_ref_offset;
     offsets[_adc_parameters.channels.steering_cw_channel] = _adc_parameters.offsets.steering_cw_offset;
@@ -48,7 +50,7 @@ std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterf
 
 std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc1_scales()
 {
-  std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> scales = {};
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> scales = {};
 
     scales[_adc_parameters.channels.shdn_h_channel] = _adc_parameters.scales.shdn_h_scale;
     scales[_adc_parameters.channels.shdn_d_channel] = _adc_parameters.scales.shdn_d_scale;
@@ -64,7 +66,7 @@ std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterf
 
 std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc1_offsets()
 {
-  std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> offsets = {};
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> offsets = {};
 
     offsets[_adc_parameters.channels.shdn_h_channel] = _adc_parameters.offsets.shdn_h_offset;
     offsets[_adc_parameters.channels.shdn_d_channel] = _adc_parameters.offsets.shdn_d_offset;

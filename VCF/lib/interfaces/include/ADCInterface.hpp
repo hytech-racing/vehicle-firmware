@@ -14,13 +14,7 @@ namespace vcf_adc_default_parameters
 {
     constexpr const unsigned int channels_within_mcp_adc = 8;
 
-    constexpr const SPIParams_s adc1_params = {
-        .spiPinCS = 38,
-        .spiPinSDI   = 12,
-        .spiPinSDO   = 11,
-        .spiPinCLK = 13,
-        .spiSpeed = 2000000
-    };
+    constexpr const SPIParams_s adc1_params = {.spiPinCS = 38, .spiPinSDI = 12, .spiPinSDO = 11, .spiPinCLK = 13, .spiSpeed = 2000000};
 
     constexpr const std::array<ChannelType_e, 8> adc0_channels = {
         ChannelType_e::NOT_USED,
@@ -30,8 +24,7 @@ namespace vcf_adc_default_parameters
         ChannelType_e::SINGLE,
         ChannelType_e::SINGLE,
         ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE
-    };
+        ChannelType_e::SINGLE};
 
     constexpr const std::array<ChannelType_e, 8> adc1_channels = {
         ChannelType_e::SINGLE,
@@ -41,9 +34,8 @@ namespace vcf_adc_default_parameters
         ChannelType_e::SINGLE,
         ChannelType_e::SINGLE,
         ChannelType_e::SINGLE,
-        ChannelType_e::SINGLE
-    };
-}
+        ChannelType_e::SINGLE};
+} // namespace vcf_adc_default_parameters
 
 
 struct ADCChannels_s
@@ -121,29 +113,16 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-public:
-
-    
-    ADCInterface(ADCChannels_s channels,
-                ADCScales_s scales,
-                ADCOffsets_s offsets
-    ) : _adc_parameters {
-            .channels = channels,
-            .scales = scales,
-            .offsets = offsets
-        },
-        _adc0 (_spiEventADC0,
-            adc0_scales().data(),
-            adc0_offsets().data(),
-            vcf_adc_default_parameters::adc0_channels
-        ),
-        _adc1 (vcf_adc_default_parameters::adc1_params, 
-                _spiEventADC1,
-                adc1_scales().data(),
-                adc1_offsets().data(),
-                vcf_adc_default_parameters::adc1_channels
-        )
-    {};
+  public:
+    ADCInterface(ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
+        : _adc_parameters{.channels = channels, .scales = scales, .offsets = offsets},
+          _adc0(_spiEventADC0, adc0_scales().data(), adc0_offsets().data(), vcf_adc_default_parameters::adc0_channels),
+          _adc1(
+              vcf_adc_default_parameters::adc1_params,
+              _spiEventADC1,
+              adc1_scales().data(),
+              adc1_offsets().data(),
+              vcf_adc_default_parameters::adc1_channels) {};
 
     void initADC0() { _adc0.initDMA(); }
     void initADC1() { _adc1.initDMA(); }

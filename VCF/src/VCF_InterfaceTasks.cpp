@@ -16,8 +16,7 @@ void initializeAllInterfaces()
     /* ADC Interface */
 
     ADCInterfaceInstance::create(
-        ADCChannels_s
-        {
+        ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
             VCFInterfaces::STEERING_2_CHANNEL,
