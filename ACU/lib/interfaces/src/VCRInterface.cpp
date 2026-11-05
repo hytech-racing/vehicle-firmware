@@ -1,6 +1,6 @@
 #include "VCRInterface.hpp"
 
-#include "ACUCANInterfaceImpl.hpp"
+#include "CoreCANInterface.hpp"
 
 
 void VCRInterface::set_monitoring_data(bool imd_ok, bool bms_ok, bool latch_ok)
@@ -16,5 +16,5 @@ void VCRInterface::handle_enqueue_acu_ok_CAN_message()
     msg.imd_ok = _curr_data.imd_ok;
     msg.bms_ok = _curr_data.bms_ok;
     msg.latch_ok = _curr_data.latch_ok;
-    CAN_util::enqueue_msg(&msg, &Pack_ACU_OK_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
+    ACUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(ACUCANBusses_e::CCU, &msg, &Pack_ACU_OK_ht_can);
 }

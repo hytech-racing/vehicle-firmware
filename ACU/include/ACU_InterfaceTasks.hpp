@@ -4,12 +4,10 @@
 #include "ACU_Constants.hpp"
 
 /* External Includes */
-#include "CANInterface.h"
-
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
-#include "ACUCANInterfaceImpl.hpp"
+#include "CoreCANInterface.hpp"
 #include "ACUEthernetInterface.hpp"
 #include "ADCInterface.hpp"
 #include "BMSDriverGroup.hpp"

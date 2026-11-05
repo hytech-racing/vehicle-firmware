@@ -184,15 +184,12 @@ void initialize_all_interfaces()
     // double historical_ah_throughput = 963.2;
     // SoHPersistenceInterfaceInstance::instance().save(historical_ah_throughput, sys_time::hal_millis(), true);
 
-    /* CAN Interfaces Construct */
-    CANInterfacesInstance::create(CCUInterfaceInstance::instance(), EMInterfaceInstance::instance());
-
+    /* CAN Interface */
     ACUCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<ACUCANInterfaceImpl::acu_recv_switch>());
-
-
-    handle_CAN_setup(ACUCANInterfaceInstance::instance().CCU_CAN, ACUConstants::VEH_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_ccu_can_receive);
-    handle_CAN_setup(ACUCANInterfaceInstance::instance().EM_CAN, ACUConstants::EM_CAN_BAUDRATE, &ACUCANInterfaceImpl::on_em_can_receive);
+        CCUInterfaceInstance::instance(),
+        EMInterfaceInstance::instance(),
+        ACUConstants::VEH_CAN_BAUDRATE,
+        ACUConstants::EM_CAN_BAUDRATE);
 }
 
 HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
@@ -279,7 +276,7 @@ HT_TASK::TaskResponse handle_send_ACU_all_ethernet_data(const unsigned long& sys
 HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     CCUInterfaceInstance::instance().set_system_latch_state(sys_time::hal_millis(), ADCInterfaceInstance::instance().read_shdn_out());
-    ACUCANInterfaceImpl::send_all_CAN_msgs(ACUCANInterfaceInstance::instance().ccu_can_tx_buffer, &ACUCANInterfaceInstance::instance().CCU_CAN);
+    ACUCANInterfaceInstance::instance().sendAllTxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -305,7 +302,7 @@ HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMi
     EM_MEASUREMENT_t msg = {};
     msg.em_current_ro = HT_CAN_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
     msg.em_voltage_ro = HT_CAN_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
-    CAN_util::enqueue_msg(&msg, &Pack_EM_MEASUREMENT_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
+    ACUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(ACUCANBusses_e::CCU, &msg, &Pack_EM_MEASUREMENT_ht_can);
 
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -342,18 +339,7 @@ HT_TASK::TaskResponse enqueue_ACU_all_temps_CAN_data(const unsigned long& sysMic
 
 HT_TASK::TaskResponse sample_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    process_ring_buffer(
-        ACUCANInterfaceInstance::instance().ccu_can_rx_buffer,
-        CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
-        ACUCANInterfaceInstance::instance().can_recv_switch,
-        CANInterfaceType_e::CCU);
-    process_ring_buffer(
-        ACUCANInterfaceInstance::instance().em_can_rx_buffer,
-        CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
-        ACUCANInterfaceInstance::instance().can_recv_switch,
-        CANInterfaceType_e::EM);
+    ACUCANInterfaceInstance::instance().processAllRxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 
