@@ -11,6 +11,8 @@
  *    - Supports multiple devices (chip-selects) sharing one bus.
 */
 
+#if defined(ARDUINO_ARCH_STM32)
+
 #include <Arduino.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -111,5 +113,7 @@ namespace HT_SPI_Registry
     bool add(SPI_TypeDef* instance, SPIInterface* obj);
     SPIInterface* find(SPI_TypeDef* instance);
 }
+
+#endif // ARDUINO_ARCH_STM32
 
 #endif /* HT_SPI_H */

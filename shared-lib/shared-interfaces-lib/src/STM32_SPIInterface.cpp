@@ -1,4 +1,6 @@
-#include "STM32_SPIInterface.h"
+#include "STM32_SPIInterface.hpp"
+
+#if defined(ARDUINO_ARCH_STM32)
 
 /**
  * @note The main problem is that HAL callbacks are global, but our SPI objects are not.
@@ -319,3 +321,5 @@ extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef* hspi)
         spi_object->_onTxComplete();
     }
 }
+
+#endif // ARDUINO_ARCH_STM32
