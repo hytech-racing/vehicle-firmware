@@ -71,6 +71,7 @@ jobs:
             VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
             RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
             Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            PDB:       ['PDB/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
 
       # For each changed subsystem, look up its build/test environment
       # names from platformio.ini use the `custom_subsystem` key.
