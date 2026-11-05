@@ -1,6 +1,6 @@
 #include "RDC_Tasks.hpp"
 
-#include "CoreRDCCANInterface.hpp"
+#include "CoreCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
 #include "ht_task.hpp"
 
@@ -12,10 +12,11 @@ void initializeAllInterfaces()
     DrivebrainInterfaceInstance::create();
     FDCInterfaceInstance::create(sys_time::hal_millis(), RDCConstants::EBS_HEARTBEAT_TIMEOUT_MS);
     RSSInterfaceInstance::create(RDCConstants::RSS_NODE_ID);
-    CANInterfacesInstance::create(DrivebrainInterfaceInstance::instance(), FDCInterfaceInstance::instance(), RSSInterfaceInstance::instance());
 
-    CoreRDCCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<RDCCANInterfaceImpl::RDCRecvSwitch>(),
+    RDCCANInterfaceInstance::create(
+        DrivebrainInterfaceInstance::instance(),
+        FDCInterfaceInstance::instance(),
+        RSSInterfaceInstance::instance(),
         RDCConstants::DRIVERLESS_CAN_BAUDRATE);
 
     // ADC Setup
@@ -113,7 +114,7 @@ void initializeDriverless()
 
 HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
-    CoreRDCCANInterfaceInstance::instance().sendAllCanMsgs();
+    RDCCANInterfaceInstance::instance().sendAllTxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -141,7 +142,7 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, c
         break;
     }
     dv_status.driverless_state = static_cast<uint8_t>(DriverlessStateMachineInstance::instance().getState());
-    CoreRDCCANInterfaceInstance::instance().enqueueMsg(&dv_status, &Pack_DRIVERLESS_STATUS_AND_STARTUP_ht_can);
+    RDCCANInterfaceInstance::instance().packAndEnqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, &dv_status, &Pack_DRIVERLESS_STATUS_AND_STARTUP_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -153,18 +154,14 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, co
     set_operating_mode_msg.target_node = RSSInterfaceInstance::instance().getNodeID();
 
     // pack and enqueue msg
-    CoreRDCCANInterfaceInstance::instance().enqueueMsg(&set_operating_mode_msg, &Pack_SET_OPERATING_MODE_ht_can);
+    RDCCANInterfaceInstance::instance().packAndEnqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, &set_operating_mode_msg, &Pack_SET_OPERATING_MODE_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
 {
     /* Process the CAN messages we have received */
-    CoreRDCCANInterfaceInstance::instance().processCANMessages(
-        CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
-        CoreRDCCANInterfaceInstance::instance().recvSwitch,
-        CANInterfaceType_e::RAUX);
+    RDCCANInterfaceInstance::instance().processAllRxBuffers();
     /* Collect data from ADC */
     ADCInterfaceInstance::instance().tick();
     return HT_TASK::TaskResponse::YIELD;
