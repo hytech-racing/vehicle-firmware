@@ -1,7 +1,7 @@
 name: Release
 # When a release/* branch gets merged into main, this computes the next
-# version number, tags it, builds firmware for all six subsystems, and
-# publishes a single GitHub Release with all six firmware files (.hex / .bin) attached.
+# version number, tags it, builds firmware for all seven subsystems, and
+# publishes a single GitHub Release with all seven firmware files (.hex / .bin) attached.
 
 on:
   pull_request:
@@ -108,9 +108,9 @@ jobs:
       # ^ By default, if one matrix instance fails, GitHub cancels all
       #   the others still running. Setting this false means every
       #   subsystem still gets a chance to finish independently, so you
-      #   can see all six results instead of one truncated run.
+      #   can see all seven results instead of one truncated run.
       matrix:
-        subsystem: [ACU, CCU, VCF, VCR, Dashboard, PDB]
+        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard, PDB]
     steps:
       - uses: actions/checkout@v4
         with:
