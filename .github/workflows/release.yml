@@ -1,7 +1,7 @@
 name: Release
 # When a release/* branch gets merged into main, this computes the next
-# version number, tags it, builds firmware for all five subsystems, and
-# publishes a single GitHub Release with one firmware file per board.
+# version number, tags it, builds firmware for all seven subsystems, and
+# publishes a single GitHub Release with all seven firmware files (.hex / .bin) attached.
 
 on:
   pull_request:
@@ -108,9 +108,9 @@ jobs:
       # ^ By default, if one matrix instance fails, GitHub cancels all
       #   the others still running. Setting this false means every
       #   subsystem still gets a chance to finish independently, so you
-      #   can see all five results instead of one truncated run.
+      #   can see all seven results instead of one truncated run.
       matrix:
-        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard]
+        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard, PDB]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -136,6 +136,7 @@ jobs:
             VCR)       echo "name=vcr-prod"      >> "$GITHUB_OUTPUT" ;;
             RDC)       echo "name=rdc-prod"      >> "$GITHUB_OUTPUT" ;;
             Dashboard) echo "name=dash-dfu-prod" >> "$GITHUB_OUTPUT" ;;
+            PDB)       echo "name=pdb-dfu-prod"  >> "$GITHUB_OUTPUT" ;;
           esac
 
       - name: Build ${{ matrix.subsystem }}
@@ -148,10 +149,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.subsystem }}-firmware
-          # ^ Since this runs 5 times (once per matrix value), each
+          # ^ Since this runs 6 times (once per matrix value), each
           #   instance uploads under its OWN name — ACU-firmware,
           #   CCU-firmware, etc.
-          path: .pio/build/${{ steps.env.outputs.name }}/firmware.${{ matrix.subsystem == 'Dashboard' && 'bin' || 'hex' }}
+          path: .pio/build/${{ steps.env.outputs.name }}/firmware.${{ (matrix.subsystem == 'Dashboard' || matrix.subsystem == 'PDB') && 'bin' || 'hex' }}
           retention-days: 7
           # ^ Auto-deleted after a week. These are only meant to bridge
           #   the gap to the next job, not serve as permanent storage —
@@ -188,6 +189,7 @@ jobs:
           mv firmware/VCR-firmware/firmware.hex       firmware/VCR-firmware/VCR-firmware.hex
           mv firmware/RDC-firmware/firmware.hex       firmware/RDC-firmware/RDC-firmware.hex
           mv firmware/Dashboard-firmware/firmware.bin firmware/Dashboard-firmware/Dashboard-firmware.bin
+          mv firmware/PDB-firmware/firmware.bin       firmware/PDB-firmware/PDB-firmware.bin
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -200,4 +202,5 @@ jobs:
             firmware/VCR-firmware/VCR-firmware.hex
             firmware/RDC-firmware/RDC-firmware.hex
             firmware/Dashboard-firmware/Dashboard-firmware.bin
+            firmware/PDB-firmware/PDB-firmware.bin
           generate_release_notes: true
