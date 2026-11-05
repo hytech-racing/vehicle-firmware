@@ -21,7 +21,9 @@ extern "C" void SystemClock_Config(void)
     HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0); // Scale 0 = 480MHz
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
+    {
+    }
 
     /**
      * CONFIGURE OSCILLATOR SOURCES
@@ -65,7 +67,7 @@ extern "C" void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLR = 2;
     RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2; // Clock range frequency between 4 and 8 MHz
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE; // VCO output 192-836MHz range
-    RCC_OscInitStruct.PLL.PLLFRACN = 0; // no fractional divider
+    RCC_OscInitStruct.PLL.PLLFRACN = 0;                // no fractional divider
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -89,12 +91,8 @@ extern "C" void SystemClock_Config(void)
      * (The CPU is faster than flash so wait states let flash catch up.)
      *
      */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK  |
-                                RCC_CLOCKTYPE_SYSCLK  |
-                                RCC_CLOCKTYPE_PCLK1   |
-                                RCC_CLOCKTYPE_PCLK2   |
-                                RCC_CLOCKTYPE_D3PCLK1 |
-                                RCC_CLOCKTYPE_D1PCLK1;
+    RCC_ClkInitStruct.ClockType =
+        RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK; // PLL1 selection as system clock
     RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
@@ -105,28 +103,28 @@ extern "C" void SystemClock_Config(void)
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
-      Error_Handler();
+        Error_Handler();
     }
 
     /**
      * CONFIGURE PERIPHERAL CLOCKS (PLL2, PLL3, and others)
      *
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16  |
-                                            RCC_PERIPHCLK_RNG         |
-                                            RCC_PERIPHCLK_SPI123      |
-                                            RCC_PERIPHCLK_SAI2        |
-                                            RCC_PERIPHCLK_SAI1        |
-                                            RCC_PERIPHCLK_SDMMC       |
-                                            RCC_PERIPHCLK_USART234578 |
-                                            RCC_PERIPHCLK_ADC         |
-                                            RCC_PERIPHCLK_I2C123      |
-                                            RCC_PERIPHCLK_USB         |
-                                            RCC_PERIPHCLK_QSPI        |
-                                            RCC_PERIPHCLK_FMC         |
-                                            RCC_PERIPHCLK_SPI45       |
-                                            RCC_PERIPHCLK_SPI6        |
-                                            RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART16
+                                               | RCC_PERIPHCLK_RNG
+                                               | RCC_PERIPHCLK_SPI123
+                                               | RCC_PERIPHCLK_SAI2
+                                               | RCC_PERIPHCLK_SAI1
+                                               | RCC_PERIPHCLK_SDMMC
+                                               | RCC_PERIPHCLK_USART234578
+                                               | RCC_PERIPHCLK_ADC
+                                               | RCC_PERIPHCLK_I2C123
+                                               | RCC_PERIPHCLK_USB
+                                               | RCC_PERIPHCLK_QSPI
+                                               | RCC_PERIPHCLK_FMC
+                                               | RCC_PERIPHCLK_SPI45
+                                               | RCC_PERIPHCLK_SPI6
+                                               | RCC_PERIPHCLK_FDCAN;
 
 
     /**
@@ -144,8 +142,8 @@ extern "C" void SystemClock_Config(void)
     //  PeriphClkInitStruct.PLL2.PLL2N = 115; // Max Freq @ 3v3 (overclocked SDRAM)
     PeriphClkInitStruct.PLL2.PLL2N = 12;
     PeriphClkInitStruct.PLL2.PLL2P = 2;
-    PeriphClkInitStruct.PLL2.PLL2Q = 3;  // FDCAN
-    PeriphClkInitStruct.PLL2.PLL2R = 2;  // FMC
+    PeriphClkInitStruct.PLL2.PLL2Q = 3;                    // FDCAN
+    PeriphClkInitStruct.PLL2.PLL2R = 2;                    // FMC
     PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_2; // Clock range frequency between 4 and 8 MHz
     PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
@@ -195,7 +193,7 @@ extern "C" void SystemClock_Config(void)
 
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
-      Error_Handler();
+        Error_Handler();
     }
     /* Enable USB Voltage detector */
     HAL_PWREx_EnableUSBVoltageDetector();

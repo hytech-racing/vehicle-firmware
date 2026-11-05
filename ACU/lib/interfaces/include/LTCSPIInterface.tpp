@@ -1,4 +1,4 @@
-#include "LTCSPIInterface.h"
+#include "LTCSPIInterface.hpp"
 #include <EventResponder.h>
 
 

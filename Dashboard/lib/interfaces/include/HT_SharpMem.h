@@ -18,19 +18,14 @@
  */
 class HyTech_SharpMem : public Adafruit_GFX
 {
-public:
-
-    HyTech_SharpMem(uint8_t CS_PIN,
-                    uint16_t WIDTH = 320,
-                    uint16_t HEIGHT = 240,
-                    uint32_t FREQUENCY = 2000000
-    );
+  public:
+    HyTech_SharpMem(uint8_t CS_PIN, uint16_t WIDTH = 320, uint16_t HEIGHT = 240, uint32_t FREQUENCY = 2000000);
 
     bool begin();
 
     /**
      * The reason this specific method doesn't follow our naming convention is that Adafruit_GFX is an
-     * abstract base class. Meaning, that we must implement drawPixel. We cannot simply change the name. 
+     * abstract base class. Meaning, that we must implement drawPixel. We cannot simply change the name.
      */
     void drawPixel(int16_t x, int16_t y, uint16_t color);
 
@@ -42,20 +37,18 @@ public:
      *
      * @return uint8_t* Pointer to the framebuffer memory.
      */
-    uint8_t *getBuffer() { return _display_buffer; }
+    uint8_t* getBuffer() { return _display_buffer; }
 
     uint16_t getBufferSize() { return _size_of_buffer; }
 
-private:
-
-    uint8_t _display_buffer[10080]; //320*240/8 = 9600 + 480 extra for line addresses
+  private:
+    uint8_t _display_buffer[10080]; // 320*240/8 = 9600 + 480 extra for line addresses
     uint16_t _size_of_buffer = 10080;
     uint16_t _display_width = 320;
     uint16_t _display_height = 240;
     uint8_t _cs;
-    uint8_t * _stm_spi;
+    uint8_t* _stm_spi;
     uint8_t _sharpmem_vcom;
-
 };
 
 #endif

@@ -18,21 +18,23 @@ get_prod_env() {
         ccu)  echo "ccu-prod" ;;
         vcf)  echo "vcf-prod" ;;
         vcr)  echo "vcr-prod" ;;
+        rdc)  echo "rdc-prod" ;;
         dash) echo "dash-dfu-prod" ;;
     esac
 }
 
-# Maps a friendly subsystem name to its native *_unit_tests environment(s).
+# Maps a friendly subsystem name to its native *_SIL_tests environment(s).
 # Space-separated — a subsystem can have more than one (e.g. a systems
 # suite and an interfaces suite). Not every subsystem has to have both;
 # just omit whichever one doesn't exist yet. Dashboard has no entry
 # since no native test environment exists for it.
 get_test_envs() {
     case "$1" in
-        acu) echo "acu_unit_tests" ;;
-        ccu) echo "ccu_unit_tests" ;;
-        vcf) echo "vcf_systems_unit_tests" ;;   # add vcf_interfaces_unit_tests here once it exists
-        vcr) echo "vcr_unit_tests" ;;
+        acu) echo "acu_SIL_tests" ;;
+        ccu) echo "ccu_SIL_tests" ;;
+        vcf) echo "vcf_SIL_tests" ;;
+        vcr) echo "vcr_SIL_tests" ;;
+        rdc) echo "rdc_SIL_tests" ;;
     esac
 }
 
@@ -46,11 +48,12 @@ get_test_filters() {
         ccu) echo "ccu/test_systems" ;;
         vcf) echo "vcf/test_systems" ;;
         vcr) echo "vcr/test_systems" ;;
+        rdc) echo "rdc" ;;
     esac
 }
 
 # ${@:-default}: use script arguments if given, otherwise run every subsystem.
-SUBSYSTEMS=${@:-"acu ccu vcf vcr dash"}
+SUBSYSTEMS=${@:-"acu ccu vcf vcr rdc dash"}
 
 FAILED=()
 
@@ -71,25 +74,15 @@ for SUBSYSTEM in $SUBSYSTEMS; do
 
     # --- Test check ---
     # Skipped for Dashboard (no native test environment). A test failure
-    # does NOT `continue` — lint still runs afterward regardless.
+    # does NOT skip lint — lint still runs afterward.
     #
-    # We build + run the compiled test binary directly rather than using
-    # `pio test`, because pio test's discovery pass runs before
-    # scripts/set_directory.py redirects PROJECT_TEST_DIR, which makes
-    # it unreliable in this monorepo's layout. `pio run` + executing the
-    # binary directly gives the same result without that discovery step.
-    # See docs/unit-testing-structure.md for the full explanation.
+    # `pio test` builds the native SIL env. set_directory.py points
+    # PROJECT_TEST_DIR at the subsystem test folder before sources are collected.
     if [ "$SUBSYSTEM" != "dash" ]; then
         TEST_ENVS="$(get_test_envs "$SUBSYSTEM")"
         for TEST_ENV in $TEST_ENVS; do
-            echo "→ Building tests for $SUBSYSTEM ($TEST_ENV)..."
-            if ! pio run -e "$TEST_ENV"; then
-                FAILED+=("$SUBSYSTEM test build ($TEST_ENV)")
-                continue
-            fi
-
             echo "→ Running tests for $SUBSYSTEM ($TEST_ENV)..."
-            if ! "./.pio/build/$TEST_ENV/program"; then
+            if ! pio test -e "$TEST_ENV"; then
                 FAILED+=("$SUBSYSTEM test ($TEST_ENV)")
             fi
         done

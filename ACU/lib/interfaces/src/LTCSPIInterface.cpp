@@ -1,4 +1,4 @@
-#include "LTCSPIInterface.h"
+#include "LTCSPIInterface.hpp"
 
 
 namespace ltc_spi_interface
@@ -32,5 +32,4 @@ namespace ltc_spi_interface
         delayMicroseconds(delay_us);
         digitalWrite(cs, HIGH);
     }
-}
-
+} // namespace ltc_spi_interface

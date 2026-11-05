@@ -1,10 +1,9 @@
 #ifndef __SHAREDFIRMWARETYPES_H__
 #define __SHAREDFIRMWARETYPES_H__
-#include <stdint.h>
-
-#include <utility>
 #include <array>
 #include <stddef.h>
+#include <stdint.h>
+#include <utility>
 
 using speed_rpm = float;
 using torque_nm = float;
@@ -43,7 +42,7 @@ struct AnalogConversion_s
 template <int N>
 struct AnalogConversionPacket_s
 {
-    std::array <AnalogConversion_s, N> conversions;
+    std::array<AnalogConversion_s, N> conversions;
 };
 
 /**
@@ -53,13 +52,13 @@ struct AnalogConversionPacket_s
 template <typename T>
 struct veh_vec
 {
-public:
+  public:
     T FL = {};
     T FR = {};
     T RL = {};
     T RR = {};
 
-public:
+  public:
     veh_vec() {};
     veh_vec(T _FL, T _FR, T _RL, T _RR)
     {
@@ -78,11 +77,7 @@ public:
         arr_out[3] = RR;
     }
 
-    std::array<T, 4> as_array()
-    {
-        return {FL, FR, RL, RR};
-    }
-
+    std::array<T, 4> as_array() { return {FL, FR, RL, RR}; }
 };
 
 struct TimestampedData_s
@@ -130,6 +125,12 @@ struct PedalSensorData_s
     uint32_t brake_2;
 };
 
+struct BrakeFluidPressureData_s
+{
+    uint16_t brake_fluid_pressure_data_front;
+    uint16_t brake_fluid_pressure_data_rear;
+};
+
 struct FrontLoadCellData_s
 {
     uint32_t FL_loadcell_analog;
@@ -166,9 +167,9 @@ enum class SteeringEncoderStatus_e
 
 struct EncoderErrorFlags_s
 {
-    bool dataInvalid              = false;
-    bool operatingLimit           = false;
-    bool noData                   = false;
+    bool dataInvalid = false;
+    bool operatingLimit = false;
+    bool noData = false;
 };
 
 struct SteeringEncoderReading_s
@@ -198,7 +199,7 @@ struct DashInputState_s
     bool brightness_ctrl_btn_is_pressed : 1;
     bool preset_btn_is_pressed : 1;
     bool mc_reset_btn_is_pressed : 1; // Resets the motor controller errors
-    bool start_btn_is_pressed : 1; // The start button is the READY_TO_DRIVE button
+    bool start_btn_is_pressed : 1;    // The start button is the READY_TO_DRIVE button
     bool data_btn_is_pressed : 1;
     bool BUTTON_2 : 1;
     ControllerMode_e dial_state;
@@ -209,13 +210,13 @@ struct DashInputState_s
  */
 struct PedalsSystemData_s
 {
-    bool accel_is_implausible : 1; // Checks if either accel pedal is out of range OR they disagree by more than 10%
-    bool brake_is_implausible : 1; // Checks if brake sensor is out of range.
-    bool brake_is_pressed : 1; // True if brake pedal is pressed beyond the specified activationPercentage.
-    bool accel_is_pressed : 1; // True if the accel pedal is pressed beyond the specified activationPercentage.
-    bool mech_brake_is_active : 1; // True if the brake pedal is pressed beyond mechanical_activation_percentage.
+    bool accel_is_implausible : 1;                        // Checks if either accel pedal is out of range OR they disagree by more than 10%
+    bool brake_is_implausible : 1;                        // Checks if brake sensor is out of range.
+    bool brake_is_pressed : 1;                            // True if brake pedal is pressed beyond the specified activationPercentage.
+    bool accel_is_pressed : 1;                            // True if the accel pedal is pressed beyond the specified activationPercentage.
+    bool mech_brake_is_active : 1;                        // True if the brake pedal is pressed beyond mechanical_activation_percentage.
     bool brake_and_accel_pressed_implausibility_high : 1; // If accel is pressed at all while mech_brake_is_active.
-    bool implausibility_has_exceeded_max_duration : 1; // True if implausibility lasts more than 100ms
+    bool implausibility_has_exceeded_max_duration : 1;    // True if implausibility lasts more than 100ms
     float accel_percent;
     float brake_percent;
     float regen_percent; // When brake pedal is 0%, regen_percent is 0.0. When brakes are at mechanical_activation_percentage,
@@ -228,11 +229,11 @@ struct SteeringSystemData_s
     uint32_t analog_raw;
     uint32_t digital_raw;
 
-    float analog_steering_angle; //in degrees
-    float digital_steering_angle; //in degrees
-    float output_steering_angle; // represents the better output of the two sensors or some combination of the values
+    float analog_steering_angle;  // in degrees
+    float digital_steering_angle; // in degrees
+    float output_steering_angle;  // represents the better output of the two sensors or some combination of the values
 
-    float analog_steering_velocity_deg_s; //in degrees per second
+    float analog_steering_velocity_deg_s; // in degrees per second
     float digital_steering_velocity_deg_s;
 
     bool digital_oor_implausibility;
@@ -263,7 +264,7 @@ struct RearSusPotData_s
 
 /**
  * Creating Thermistor Data structure to account for storage of analog readings and actual temperature in degrees celsius
-*/
+ */
 struct ThermistorData_s
 {
     uint32_t thermistor_analog;
@@ -280,7 +281,7 @@ struct VCRThermistorData_s
 
 struct FlowmeterData_s
 {
-  float flowmeter_gallons_per_min;
+    float flowmeter_gallons_per_min;
 };
 
 /**
@@ -344,7 +345,6 @@ struct ShutdownSensingData_s
     bool vcf_is_linked : 1;
     bool ubiquiti_is_linked : 1;
     bool db_is_linked : 1;
-
 };
 
 /**
@@ -358,7 +358,7 @@ struct VCREthernetLinkData_s
     bool teensy_link : 1;
     bool debug_link : 1;
     bool ubiquiti_link : 1;
-    bool vn_link: 1;
+    bool vn_link : 1;
 };
 
 /**
@@ -424,8 +424,8 @@ enum class TorqueControllerMuxError_e
     NO_ERROR = 0,
     ERROR_SPEED_DIFF_TOO_HIGH = 1,
     ERROR_TORQUE_DIFF_TOO_HIGH = 2,
-    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS =3,
-    ERROR_CONTROLLER_NULL_POINTER =4
+    ERROR_CONTROLLER_INDEX_OUT_OF_BOUNDS = 3,
+    ERROR_CONTROLLER_NULL_POINTER = 4
 };
 
 /// @brief packages TC Mux indicators: errors, mode, torque limit, bypass
@@ -440,10 +440,9 @@ struct TorqueControllerMuxStatus_s
 };
 
 
-
-/// @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque limits for each motor. These setpoints are defined in the torque controllers cycled by the TC Muxer.
-/// The Speeds unit is rpm and are the targeted speeds for each wheel of the car.
-/// The torques unit is nm and is the max torque requested from the inverter to reach such speeds.
+/// @brief Stores setpoints for a command to the Drivetrain, containing speed setpoints and torque limits for each motor. These setpoints are defined in the
+/// torque controllers cycled by the TC Muxer. The Speeds unit is rpm and are the targeted speeds for each wheel of the car. The torques unit is nm and is the
+/// max torque requested from the inverter to reach such speeds.
 struct DrivetrainCommand_s
 {
     veh_vec<speed_rpm> desired_speeds;
@@ -455,14 +454,11 @@ struct StampedDrivetrainCommand_s
     StampedVehVec<speed_rpm> desired_speeds;
     StampedVehVec<torque_nm> torque_limits;
 
-    DrivetrainCommand_s get_command()
-    {
-        return {.desired_speeds= desired_speeds.veh_vec_data,
-                .torque_limits = torque_limits.veh_vec_data};
-    }
+    DrivetrainCommand_s get_command() { return {.desired_speeds = desired_speeds.veh_vec_data, .torque_limits = torque_limits.veh_vec_data}; }
 };
 
-struct DrivebrainMessageLatencyInfo_s {
+struct DrivebrainMessageLatencyInfo_s
+{
     bool timing_failure;
     unsigned long worst_latency_millis;
 
@@ -483,11 +479,7 @@ struct StampedDrivetrainTorqueCommand_s
     StampedVehVec<speed_rpm> torque_limits;
     StampedVehVec<torque_nm> torque_setpoints;
 
-    DrivetrainTorqueCommand_s get_command()
-    {
-        return {.torque_limits= torque_limits.veh_vec_data,
-                .torque_setpoints = torque_setpoints.veh_vec_data};
-    }
+    DrivetrainTorqueCommand_s get_command() { return {.torque_limits = torque_limits.veh_vec_data, .torque_setpoints = torque_setpoints.veh_vec_data}; }
 };
 
 struct DrivetrainDynamicReport_s
@@ -560,7 +552,7 @@ struct StampedACUCoreData_s : TimestampedData_s
 /**
  * ACUAllData contains the detailed, unprocessed data from ACU sensors.
  */
-template<size_t num_cells, size_t num_cell_temps, size_t num_chips>
+template <size_t num_cells, size_t num_cell_temps, size_t num_chips>
 struct ACUAllData_s
 {
     ACUCoreData_s core_data;
@@ -651,7 +643,8 @@ struct VCFHeartbeatData_s
     unsigned long last_heartbeat_time = 0;
 };
 
-enum class VehicleState_e {
+enum class VehicleState_e
+{
     TRACTIVE_SYSTEM_NOT_ACTIVE = 0,
     TRACTIVE_SYSTEM_ACTIVE = 1,
     WANTING_READY_TO_DRIVE = 2,
@@ -682,7 +675,8 @@ struct DrivebrainControllerStatus_s
 /**
  * Struct containing the location data for the Loss of communication of VCR with other other ECUs.
  */
-struct VCRLOCData {
+struct VCRLOCData
+{
     bool acu_loc = false;
     bool vcf_loc = false;
 };
@@ -720,6 +714,7 @@ struct VCRInterfaceData_s
     FlowmeterData_s flowmeter_data = {};
     CurrentSensorData_s current_sensor_data = {};
     StampedPedalsSystemData_s recvd_pedals_data = {};
+    StampedSteeringSystemData_s recvd_steering_data = {};
     veh_vec<InverterData_s> inverter_data = {};
     DashInputState_s dash_input_state = {};
     StampedACUCoreData_s stamped_acu_core_data = {};
@@ -733,6 +728,43 @@ struct VCRData_s
     VCRSystemData_s system_data;
     VCRInterfaceData_s interface_data;
     FWVersionInfo fw_version_info;
+};
+
+/**---------------------------------------------------
+ *              DRIVERLESS SHARED TYPES
+----------------------------------------------------*/
+
+// EBS pressure data and heartbeat information.
+struct EBSData_s
+{
+    bool pressure_heartbeat_ok;
+    unsigned long pressure_last_recv_millis;
+    bool supervisor_ok;
+    bool ebs_engaged;
+    uint32_t pressure_1;
+    uint32_t pressure_2;
+};
+
+// Driverless system states. Values match DRIVERLESS_STATUS_AND_STARTUP.
+enum class DriverlessSystemState_e
+{
+    OFF = 0,
+    STARTUP_NO_TS = 1,
+    STARTUP_TS_ACTIVE = 2,
+    READY = 3,
+    DRIVING = 4,
+    EMERGENCY = 5,
+    FINISHED = 6
+};
+
+enum class DriverlessMission_e
+{
+    OFF = 0,
+    ACCELERATION = 1,
+    SKIDPAD = 2,
+    AUTOCROSS = 3,
+    TRACKDRIVE = 4,
+    INESPECTION = 5
 };
 
 #endif // __SHAREDFIRMWARETYPES_H__

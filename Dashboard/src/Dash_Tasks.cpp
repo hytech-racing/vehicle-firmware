@@ -27,11 +27,7 @@ void initialize_all_interfaces()
     NeopixelControllerInstance::instance().init_neopixels();
 
     /* CAN Interfaces */
-    CANInterfacesInstance::create(
-        VCFInterfaceInstance::instance(),
-        ACUInterfaceInstance::instance(),
-        VCRInterfaceInstance::instance()
-    );
+    CANInterfacesInstance::create(VCFInterfaceInstance::instance(), ACUInterfaceInstance::instance(), VCRInterfaceInstance::instance());
 
     HT_SPI_Init();
     FDCAN_init();
@@ -50,16 +46,25 @@ HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_T
     {
         DisplayInterfaceInstance::instance().draw_background();
         DisplayInterfaceInstance::instance().invert_display(VCFInterfaceInstance::instance().is_mech_brake_pressed());
-        DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.brake_percent * 100, 5);
-        DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.accel_percent * 100, 34);
+        DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(
+            VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.brake_percent * 100,
+            5);
+        DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(
+            VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.accel_percent * 100,
+            34);
 
         DisplayInterfaceInstance::instance().draw_battery_bar((ACUInterfaceInstance::instance().get_curr_data().pack_voltage - 460) / 70 * 100.0 + 1);
-        DisplayInterfaceInstance::instance().draw_icons(1, VCRInterfaceInstance::instance().get_curr_car_state(), VCRInterfaceInstance::instance().get_drivebrain_in_control());
+        DisplayInterfaceInstance::instance().draw_icons(
+            1,
+            VCRInterfaceInstance::instance().get_curr_car_state(),
+            VCRInterfaceInstance::instance().get_drivebrain_in_control());
         DisplayInterfaceInstance::instance().display_mode(VCFInterfaceInstance::instance().get_control_mode());
         // DisplayInterfaceInstance::instance().set_cursor(65, 50);
         DisplayInterfaceInstance::instance().display_min_cell(ACUInterfaceInstance::instance().get_curr_data().min_cell_voltage);
-        DisplayInterfaceInstance::instance().display_max_temps(VCRInterfaceInstance::instance().get_inverter_max_temp(), VCRInterfaceInstance::instance().get_motor_max_temp());
-        //DisplayInterfaceInstance::instance().display_speeds(VCRInterfaceInstance::instance().get_curr_wheel_data().actual_speed);
+        DisplayInterfaceInstance::instance().display_max_temps(
+            VCRInterfaceInstance::instance().get_inverter_max_temp(),
+            VCRInterfaceInstance::instance().get_motor_max_temp());
+        // DisplayInterfaceInstance::instance().display_speeds(VCRInterfaceInstance::instance().get_curr_wheel_data().actual_speed);
 
         if (ACUInterfaceInstance::instance().get_curr_data().imd_ok == false || ACUInterfaceInstance::instance().get_curr_data().bms_ok == false)
         {
@@ -71,8 +76,8 @@ HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_T
     }
     // DisplayInterfaceInstance::instance().invert_display(VCFInterfaceInstance::instance().is_mech_brake_pressed());
     // DisplayInterfaceInstance::instance().clear_display_buffer();
-    // DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.brake_percent, 17);
-    // DisplayInterfaceInstance::instance().draw_battery_bar(ACUInterfaceInstance::instance().get_curr_data().pack_voltage * 100.0 / 530.0);
+    // DisplayInterfaceInstance::instance().draw_vertical_pedal_bar(VCFInterfaceInstance::instance().get_curr_data().stamped_pedals.pedals_data.brake_percent,
+    // 17); DisplayInterfaceInstance::instance().draw_battery_bar(ACUInterfaceInstance::instance().get_curr_data().pack_voltage * 100.0 / 530.0);
     // DisplayInterfaceInstance::instance().draw_icons(1/*DrivebrainInterfaceInstance::instance().get_db_state_data().vn_status*/, 1, 1, 0);
 
     // switch (DisplayInterfaceInstance::instance().current_page)
