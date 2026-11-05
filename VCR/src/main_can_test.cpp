@@ -1,8 +1,6 @@
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 
 #include <Arduino.h>
-
-FlexCAN_T4<CAN1> MAIN_CAN;
 
 const uint32_t CAN_BAUDRATE = 500000;
 
@@ -10,6 +8,9 @@ const uint32_t MSG_ID = 0x15;
 const uint8_t MSG_DATA = 0x45;
 
 const uint32_t DELAY = 10;
+
+// Pointer, not a global: CANBus starts the hardware on construction, so it is built in setup()
+CANBus<CAN1>* main_bus = nullptr;
 
 void on_recv(const CAN_message_t& msg)
 {
@@ -35,7 +36,8 @@ void on_recv(const CAN_message_t& msg)
 
 void setup()
 {
-    handle_CAN_setup(MAIN_CAN, CAN_BAUDRATE, &on_recv);
+    static CANBus<CAN1> main_can(CAN_BAUDRATE);
+    main_bus = &main_can;
 }
 
 void loop()
@@ -45,6 +47,9 @@ void loop()
     test_msg.id = MSG_ID;
     test_msg.len = 1;
     test_msg.buf[0] = MSG_DATA;
-    MAIN_CAN.write(test_msg);
+    main_bus->enqueueOnBus(test_msg);
+    main_bus->sendTxBuffer();
+
+    main_bus->processRxBuffer(CANBus<CAN1>::RecvHandler_t::create<&on_recv>());
     // Serial.println("testing");
 }

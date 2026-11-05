@@ -39,6 +39,20 @@ class CANInterfaceTemplate_t
     }
 
     /**
+     * @brief Same as above, but overrides the packed message's ID. Used when one generated struct is shared
+     * by several IDs (e.g. all four inverters pack with the INV1 functions)
+     * @param id the CAN ID to send the message with, replacing the one the pack function returns
+     */
+    template <typename can_struct>
+    void packAndEnqueueOnSwitch(CANBus_e bus, can_struct* msg, uint32_t (*pack_function)(can_struct*, uint8_t*, uint8_t*, uint8_t*), uint32_t id)
+    {
+        CAN_message_t can_msg;
+        pack_function(msg, can_msg.buf, &can_msg.len, (uint8_t*)&can_msg.flags.extended); // NOLINT
+        can_msg.id = id;
+        enqueueSwitch(bus, can_msg);
+    }
+
+    /**
      * @brief Drains every RX buffer on the board, routing each message to its interface
      */
     virtual void processAllRxBuffers() = 0;

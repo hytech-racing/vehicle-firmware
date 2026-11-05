@@ -1,7 +1,6 @@
 #ifndef RSS_INTERFACE_H
 #define RSS_INTERFACE_H
 
-#include "CANInterface.h"
 #include "FlexCAN_T4.h"
 #include "ht_can.h"
 
