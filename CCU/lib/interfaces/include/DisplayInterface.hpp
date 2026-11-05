@@ -1,10 +1,8 @@
-#ifndef DisplayInterface_H
-#define DisplayInterface_H
+#ifndef DISPLAY_INTERFACE_HPP
+#define DISPLAY_INTERFACE_HPP
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
-
-#include <Adafruit_GFX.h>
+#include <Adafruit_GFX.h> 
 #include <Adafruit_ILI9341.h>
 #include <DMAChannel.h>
 #include <SPI.h>
@@ -24,7 +22,7 @@ namespace default_display_params
     constexpr unsigned long DISPLAY_UPDATE_INTERVAL_MS = 100UL;       // ms
     constexpr unsigned long CYCLE_BUTTON_HOLD_TIME_RESET_MS = 2000UL; // ms
     constexpr unsigned long SLIDING_WINDOW_DISPLAY_INTERVAL_MS = 2500UL;
-}; // namespace default_display_params
+};
 
 enum DisplayView_e
 {
@@ -109,4 +107,4 @@ class DisplayInterface
 
 using DisplayInterfaceInstance = etl::singleton<DisplayInterface>;
 
-#endif
+#endif // DISPLAY_INTERFACE_HPP

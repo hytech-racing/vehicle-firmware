@@ -1,5 +1,5 @@
-#ifndef CHARGERINTERFACE_H
-#define CHARGERINTERFACE_H
+#ifndef CHARGER_INTERFACE_HPP
+#define CHARGER_INTERFACE_HPP
 
 /* ETL Library Includes */
 #include <etl/delegate.h>
@@ -7,18 +7,18 @@
 
 /* External Dependencies */
 #include "SharedFirmwareTypes.h"
+#include "CANInterface.hpp"
 #include "ht_can.h"
-
-#include <FlexCAN_T4.h>
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
+
 
 namespace default_charger_params
 {
     constexpr uint8_t BYTE_SHIFT = 8;
     constexpr float DATA_SCALAR = 10.0F; // charger reports values in units of 0.1
-}; // namespace default_charger_params
+};
 
 struct ChargerData_s
 {
@@ -61,4 +61,4 @@ class ChargerInterface
 
 using ChargerInterfaceInstance = etl::singleton<ChargerInterface>;
 
-#endif /* CHARGERINTERFACE_H */
+#endif // CHARGER_INTERFACE_HPP

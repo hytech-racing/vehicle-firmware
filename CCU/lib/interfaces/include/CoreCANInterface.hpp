@@ -1,5 +1,5 @@
-#ifndef CCUCANINTERFACE_H
-#define CCUCANINTERFACE_H
+#ifndef CORE_CAN_INTERFACE_HPP
+#define CORE_CAN_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -81,4 +81,4 @@ class CCUCANInterface : public CANInterfaceTemplate_t<CCUCANBusses_e>
 
 using CCUCANInterfaceInstance = etl::singleton<CCUCANInterface>;
 
-#endif // CCUCANINTERFACE_H
+#endif // CORE_CAN_INTERFACE_HPP

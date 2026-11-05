@@ -1,5 +1,5 @@
-#ifndef ACUINTERFACE_H
-#define ACUINTERFACE_H
+#ifndef ACU_INTERFACE_HPP
+#define ACU_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/delegate.h>
@@ -133,4 +133,4 @@ class ACUInterface
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;
 
-#endif /* ACUINTERFACE_H */
+#endif // ACU_INTERFACE_HPP
