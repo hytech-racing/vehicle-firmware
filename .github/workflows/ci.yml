@@ -65,12 +65,13 @@ jobs:
         id: filter
         with:
           filters: |
-            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy']
-            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
-            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
-            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
-            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
-            PDB:       ['PDB/**', 'shared-lib/shared-interfaces-lib/**', 'platformio.ini', '.clang-tidy']
+            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            PDB:       ['PDB/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
 
       # For each changed subsystem, look up its build/test environment
       # names from platformio.ini use the `custom_subsystem` key.
