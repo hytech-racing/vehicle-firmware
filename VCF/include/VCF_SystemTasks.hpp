@@ -12,7 +12,7 @@
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
-#include "VCFCANInterface.hpp"
+#include "CoreCANInterface.hpp"
 #include "VCRInterface.hpp"
 
 /* Local System Includes */

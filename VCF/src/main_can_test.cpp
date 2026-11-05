@@ -1,7 +1,8 @@
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 
-FlexCAN_T4<CAN1> TELEM_CAN;
-FlexCAN_T4<CAN2> FAUX_CAN;
+// Pointers, not globals: CANBus starts the hardware on construction, so it is built in setup()
+CANBus<CAN1>* telem_bus = nullptr;
+CANBus<CAN2>* faux_bus = nullptr;
 
 const uint32_t CAN_BAUDRATE = 1000000;
 
@@ -54,9 +55,10 @@ void on_recv_faux(const CAN_message_t& msg)
 
 void setup()
 {
-
-    handle_CAN_setup(TELEM_CAN, CAN_BAUDRATE, &on_recv_telem);
-    handle_CAN_setup(FAUX_CAN, CAN_BAUDRATE, &on_recv_faux);
+    static CANBus<CAN1> telem(CAN_BAUDRATE);
+    static CANBus<CAN2> faux(CAN_BAUDRATE);
+    telem_bus = &telem;
+    faux_bus = &faux;
 }
 
 void loop()
@@ -66,7 +68,12 @@ void loop()
     test_msg.id = MSG_ID;
     test_msg.len = 1;
     test_msg.buf[0] = MSG_DATA;
-    TELEM_CAN.write(test_msg);
-    FAUX_CAN.write(test_msg);
+    telem_bus->enqueue(test_msg);
+    faux_bus->enqueue(test_msg);
+    telem_bus->sendTxBuffer();
+    faux_bus->sendTxBuffer();
+
+    telem_bus->processRxBuffer(CANBus<CAN1>::RecvHandler_t::create<&on_recv_telem>());
+    faux_bus->processRxBuffer(CANBus<CAN2>::RecvHandler_t::create<&on_recv_faux>());
     // Serial.println("testing");
 }

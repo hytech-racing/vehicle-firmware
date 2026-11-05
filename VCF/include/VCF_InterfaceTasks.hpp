@@ -4,7 +4,7 @@
 #include "VCF_Constants.hpp"
 
 /* External Includes */
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 
 #include <ht_task.hpp>
 
@@ -16,7 +16,7 @@
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
 #include "SystemTimeInterface.h"
-#include "VCFCANInterface.hpp"
+#include "CoreCANInterface.hpp"
 #include "VCFEthernetInterface.hpp"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"

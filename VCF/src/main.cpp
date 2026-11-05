@@ -89,7 +89,7 @@ namespace async_tasks
     // these are async tasks. we want these to run as fast as possible p much
     void handle_async_CAN_receive() // NOLINT caps for CAN
     {
-        VCFCANInterfaceInstance::instance().processAllRxBuffers(sys_time::hal_millis());
+        VCFCANInterfaceInstance::instance().processAllRxBuffers();
     }
 
     void handle_async_recvs()

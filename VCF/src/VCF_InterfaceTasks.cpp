@@ -98,8 +98,9 @@ void initializeAllInterfaces()
         ACUInterfaceInstance::instance(),
         BrakeRotorTempInterfaceInstance::instance(),
         DashboardInterfaceInstance::instance(),
-        VCRInterfaceInstance::instance());
-    VCFCANInterfaceInstance::instance().init(VCFConstants::TELEM_CAN_BAUDRATE, VCFConstants::FAUX_CAN_BAUDRATE);
+        VCRInterfaceInstance::instance(),
+        VCFConstants::TELEM_CAN_BAUDRATE,
+        VCFConstants::FAUX_CAN_BAUDRATE);
 
     /* Ethernet */
     VCFEthernetInterfaceInstance::create();
@@ -181,7 +182,7 @@ HT_TASK::TaskResponse CAN_tasks::enqueueDashboardMsgTask(const unsigned long& sy
     msg_out.right_shifter_button = dash_outputs.BUTTON_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
-    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_DASH_INPUT_ht_can);
+    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &msg_out, &Pack_DASH_INPUT_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -192,7 +193,8 @@ HT_TASK::TaskResponse CAN_tasks::enqueueFrontSuspensionMsgTask(const unsigned lo
     msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
     msg_out.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
     msg_out.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
-    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_FRONT_SUSPENSION_ht_can);
+
+    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &msg_out, &Pack_FRONT_SUSPENSION_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 

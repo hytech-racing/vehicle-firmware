@@ -124,7 +124,7 @@ HT_TASK::TaskResponse CAN_tasks::enqueuePedalsMsgTask(const unsigned long& sys_m
     pedals_data.accel_pedal_ro = HT_CAN_accel_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().accel_percent);
     pedals_data.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
 
-    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can);
+    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -178,7 +178,7 @@ HT_TASK::TaskResponse CAN_tasks::enqueueSteeringMsgTask(const unsigned long& sys
     msg_out.steering_analog_raw = steering_system_data.analog_raw;
     msg_out.steering_digital_raw = steering_system_data.digital_raw;
 
-    VCFCANInterfaceInstance::instance().enqueue(VCFCANBus_e::TELEM, &msg_out, &Pack_STEERING_DATA_ht_can);
+    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &msg_out, &Pack_STEERING_DATA_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
