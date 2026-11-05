@@ -1,4 +1,4 @@
-#include "SoHPersistenceInterface.h"
+#include "SoHPersistenceInterface.hpp"
 
 
 void SoHPersistenceInterface::init()

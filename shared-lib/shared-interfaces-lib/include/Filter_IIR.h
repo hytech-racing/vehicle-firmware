@@ -10,24 +10,23 @@ template <typename dataType>
 class Filter_IIR
 {
 
-public:
+  public:
     /**
      * Constructors
      */
-    Filter_IIR(float alpha, dataType init_val=0) {
+    Filter_IIR(float alpha, dataType init_val = 0)
+    {
         set_alpha(alpha);
         prev_reading = init_val;
     }
-    Filter_IIR() {
-        Filter_IIR(DEFAULT_ALPHA);
-    }
+    Filter_IIR() { Filter_IIR(DEFAULT_ALPHA); }
 
     void set_alpha(float alpha);
-    dataType get_prev_reading() const {return prev_reading;}
+    dataType get_prev_reading() const { return prev_reading; }
 
     dataType filtered_result(dataType new_val);
-    
-private:    
+
+  private:
     float alpha;
     dataType prev_reading;
 };
@@ -37,13 +36,11 @@ private:
 template <typename dataType, int N>
 class FilterIIRMulti
 {
-protected:
+  protected:
     Filter_IIR<dataType> filter_channels_[N];
-public:
-    virtual void setAlphas(int channel, float alpha) 
-    {
-    filter_channels_[channel].set_alpha(alpha);
-    }
+
+  public:
+    virtual void setAlphas(int channel, float alpha) { filter_channels_[channel].set_alpha(alpha); }
 };
 
 #endif

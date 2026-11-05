@@ -1,16 +1,17 @@
 #include "HT_SharpMem.h"
 
-#define TOGGLE_VCOM                                                        \
-    do {                                                                   \
-        _sharpmem_vcom = _sharpmem_vcom ? 0x00 : SHARPMEM_BIT_VCOM;        \
+#define TOGGLE_VCOM                                                                                                                                            \
+    do                                                                                                                                                         \
+    {                                                                                                                                                          \
+        _sharpmem_vcom = _sharpmem_vcom ? 0x00 : SHARPMEM_BIT_VCOM;                                                                                            \
     } while (0);
 
 #ifndef _swap_int16_t
-#define _swap_int16_t(a, b)                                                \
-    {                                                                      \
-        int16_t t = a;                                                     \
-        a = b;                                                             \
-        b = t;                                                             \
+#define _swap_int16_t(a, b)                                                                                                                                    \
+    {                                                                                                                                                          \
+        int16_t t = a;                                                                                                                                         \
+        a = b;                                                                                                                                                 \
+        b = t;                                                                                                                                                 \
     }
 #endif
 
@@ -26,11 +27,8 @@
  * @param frequency The SPI clock frequency desired (unlikely to be that fast in soft
  * spi mode!)
  */
-HyTech_SharpMem::HyTech_SharpMem(uint8_t cs,
-                                uint16_t width,
-                                uint16_t height,
-                                uint32_t frequency
-) : Adafruit_GFX(width, height)
+HyTech_SharpMem::HyTech_SharpMem(uint8_t cs, uint16_t width, uint16_t height, uint32_t frequency)
+    : Adafruit_GFX(width, height)
 {
     //_stm_spi = stm_spi;
     _cs = cs;
@@ -79,14 +77,12 @@ bool HyTech_SharpMem::begin(void)
         _display_buffer[i] = ((i) / (bytes_per_line)) + 1; // line is i divided by bytes bytes per line + 1
     }
 
-  return true;
+    return true;
 }
 
 // 1<<n is a costly operation on AVR -- table usu. smaller & faster
 static const uint8_t PROGMEM set[] = {1, 2, 4, 8, 16, 32, 64, 128},
-                             clr[] = {(uint8_t)~1,  (uint8_t)~2,  (uint8_t)~4,
-                                      (uint8_t)~8,  (uint8_t)~16, (uint8_t)~32,
-                                      (uint8_t)~64, (uint8_t)~128};
+                             clr[] = {(uint8_t)~1, (uint8_t)~2, (uint8_t)~4, (uint8_t)~8, (uint8_t)~16, (uint8_t)~32, (uint8_t)~64, (uint8_t)~128};
 
 /**
  * @brief Draws a single pixel in image buffer is adjusted to be able to send one continuous message with DMA
@@ -95,7 +91,7 @@ static const uint8_t PROGMEM set[] = {1, 2, 4, 8, 16, 32, 64, 128},
  * @param color The color to set:
  *              **0**: BlacK
  *              **1**: White
-*/
+ */
 void HyTech_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 {
     if ((x < 0) || (x >= _display_width) || (y < 0) || (y >= _display_height))
@@ -105,24 +101,24 @@ void HyTech_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 
     switch (rotation)
     {
-        case 1:
-        {
-            _swap_int16_t(x, y);
-            x = _display_width - 1 - x;
-            break;
-        }
-        case 2:
-        {
-            x = _width - 1 - x;
-            y = _height - 1 - y;
-            break;
-        }
-        case 3:
-        {
-            _swap_int16_t(x, y);
-            y = _height - 1 - y;
-            break;
-        }
+    case 1:
+    {
+        _swap_int16_t(x, y);
+        x = _display_width - 1 - x;
+        break;
+    }
+    case 2:
+    {
+        x = _width - 1 - x;
+        y = _height - 1 - y;
+        break;
+    }
+    case 3:
+    {
+        _swap_int16_t(x, y);
+        y = _height - 1 - y;
+        break;
+    }
     }
 
     if (color)
@@ -145,4 +141,3 @@ void HyTech_SharpMem::clear_display_buffer()
         }
     }
 }
-

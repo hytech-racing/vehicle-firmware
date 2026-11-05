@@ -17,7 +17,7 @@ extern "C"
     void DMA1_Stream0_IRQHandler(void);
     void SPI2_IRQHandler(void);
     void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi);
-    void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi);
+    void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef* hspi);
 }
 
 #endif
