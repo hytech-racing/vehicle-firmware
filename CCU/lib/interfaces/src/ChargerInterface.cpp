@@ -1,6 +1,6 @@
 #include "ChargerInterface.hpp"
 
-#include "CCUCANInterfaceImpl.hpp" // this needs to fixed at some point
+#include "CoreCANInterface.hpp" // this needs to fixed at some point
 
 
 void ChargerInterface::receiveChargerCANMsg(
@@ -41,5 +41,5 @@ void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float 
     charger_control.max_charging_voltage_low = 0xB4;  // NOLINT (see comment)
     charger_control.max_charging_current_high = 0;    // only "low" is being used/harnessed in
     charger_control.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
-    CAN_util::enqueue_msg(&charger_control, &Pack_CHARGER_CONTROL_ht_can, CCUCANInterfaceInstance::instance().charger_can_tx_buffer);
+    CCUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(CCUCANBusses_e::CHARGER, &charger_control, &Pack_CHARGER_CONTROL_ht_can);
 }

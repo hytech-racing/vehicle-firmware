@@ -4,14 +4,12 @@
 #include "CCU_Constants.hpp"
 
 /* External Includes */
-#include "CANInterface.h"
-
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ButtonInterface.hpp"
-#include "CCUCANInterfaceImpl.hpp"
+#include "CoreCANInterface.hpp"
 #include "CCUEthernetInterface.hpp"
 #include "ChargerInterface.hpp"
 #include "DisplayInterface.hpp"

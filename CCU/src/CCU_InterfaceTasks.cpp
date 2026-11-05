@@ -68,14 +68,13 @@ void initializeAllInterfaces()
     CCUEthernetInterfaceInstance::create();
     CCUEthernetInterfaceInstance::instance().initEthernetDevice();
 
-    /* CAN Interfaces  */
-    CANInterfacesInstance::create(ACUInterfaceInstance::instance(), ChargerInterfaceInstance::instance(), EnergyMeterInterfaceInstance::instance());
-
+    /* CAN Interface */
     CCUCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::CCUReceiveIDSwitch>());
-
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().ACU_CAN, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().CHARGER_CAN, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);
+        ACUInterfaceInstance::instance(),
+        ChargerInterfaceInstance::instance(),
+        EnergyMeterInterfaceInstance::instance(),
+        CCUConstants::ACU_CAN_BAUDRATE,
+        CCUConstants::CHARGER_CAN_BAUDRATE);
 }
 
 HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
@@ -127,26 +126,14 @@ HT_TASK::TaskResponse receiveETHTask(const unsigned long& sysMicros, const HT_TA
 
 HT_TASK::TaskResponse clearAllCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().acu_can_tx_buffer, &CCUCANInterfaceInstance::instance().ACU_CAN);
-    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().charger_can_tx_buffer, &CCUCANInterfaceInstance::instance().CHARGER_CAN);
+    CCUCANInterfaceInstance::instance().sendAllTxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
 HT_TASK::TaskResponse sampleCANTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    process_ring_buffer(
-        CCUCANInterfaceInstance::instance().acu_can_rx_buffer,
-        CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
-        CCUCANInterfaceInstance::instance().can_recv_switch,
-        CANInterfaceType_e::ACU);
-    process_ring_buffer(
-        CCUCANInterfaceInstance::instance().charger_can_rx_buffer,
-        CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
-        CCUCANInterfaceInstance::instance().can_recv_switch,
-        CANInterfaceType_e::CHARGER);
+    CCUCANInterfaceInstance::instance().processAllRxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 

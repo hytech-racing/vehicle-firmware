@@ -68,8 +68,8 @@ void loop()
     test_msg.id = MSG_ID;
     test_msg.len = 1;
     test_msg.buf[0] = MSG_DATA;
-    telem_bus->enqueue(test_msg);
-    faux_bus->enqueue(test_msg);
+    telem_bus->enqueueOnBus(test_msg);
+    faux_bus->enqueueOnBus(test_msg);
     telem_bus->sendTxBuffer();
     faux_bus->sendTxBuffer();
 

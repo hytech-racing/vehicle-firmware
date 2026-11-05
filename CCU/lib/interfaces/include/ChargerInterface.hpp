@@ -6,7 +6,6 @@
 #include <etl/singleton.h>
 
 /* External Dependencies */
-#include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
 

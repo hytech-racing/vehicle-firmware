@@ -7,12 +7,9 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "CANInterface.h"
 #include "SharedFirmwareTypes.h"
+#include "CANInterface.hpp"
 #include "ht_can.h"
-
-#include <FlexCAN_T4.h>
-#include <array>
 
 
 namespace default_acu_params
