@@ -1,5 +1,5 @@
-#ifndef DASH_CONSTANTS_H
-#define DASH_CONSTANTS_H
+#ifndef DASH_CONSTANTS_HPP
+#define DASH_CONSTANTS_HPP
 
 /**
  * While for most of our boards we have interface, systems, and general constants, since Dash is so simplistic we can just
@@ -25,4 +25,4 @@ namespace DashConstants
     constexpr time_us SCREEN_REFRESH_PERIOD_US = 33333; // 33 333 us = 30 Hz
 }; // namespace DashConstants
 
-#endif /* DASH_CONSTANTS_H */
+#endif // DASH_CONSTANTS_HPP

@@ -1,5 +1,5 @@
-#ifndef ACU_INTERFACE_H
-#define ACU_INTERFACE_H
+#ifndef ACU_INTERFACE_HPP
+#define ACU_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -9,7 +9,7 @@
 #include "hytech.h"
 
 /* Local Interface Includes */
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 #include "SystemTimeInterface.h"
 
 struct ACUData_s
@@ -45,4 +45,4 @@ class ACUInterface
 
 using ACUInterfaceInstance = etl::singleton<ACUInterface>;
 
-#endif /* ACU_INTERFACE_H */
+#endif // ACU_INTERFACE_HPP

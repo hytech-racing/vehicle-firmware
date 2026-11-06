@@ -9,7 +9,7 @@
 #include "hytech.h"
 
 /* Local Interface Includes */
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 
 
 struct MotorMechanics_s
