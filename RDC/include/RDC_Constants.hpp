@@ -47,11 +47,17 @@ namespace RDCConstants
 
     /* ---------- Watchdog Constants ---------- */
     constexpr uint16_t WATCHDOG_TIMEOUT_MS = 10; // 10ms = 10 HZ
+
+    /* ----------- HW ID Window Constants ----------- */
+    // must be 10 bits before ADC switches to 12 bits
+    constexpr uint16_t HW_ID_WIN_LOW_BOUND = 403;  // 403 = counts at 10 bit for 1.3 V
+    constexpr uint16_t HW_ID_WIN_HIGH_BOUND = 465; // 465 = counts at 10 bit for 1.5 V
 } // namespace RDCConstants
 
 namespace PinAssignments
 {
     constexpr uint8_t WATCHDOG_PIN = 20;
     constexpr uint8_t DS_SENSORS_OK_PIN = 12;
+    constexpr uint8_t HW_ID_PIN = 21;
 } // namespace PinAssignments
 #endif
