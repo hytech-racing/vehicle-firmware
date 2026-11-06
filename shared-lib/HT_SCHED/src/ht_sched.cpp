@@ -45,6 +45,7 @@ namespace HT_SCHED
             HT_TASK::Task* temp = _taskQueue[i];
             _taskQueue[i] = _taskQueue[i - 1];
             _taskQueue[i - 1] = temp;
+            --i;///fixed infinite loop bug
         }
 
         task._taskInfo.id = ++_numTasks;
