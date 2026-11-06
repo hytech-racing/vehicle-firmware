@@ -1,7 +1,7 @@
-name: Release on merge to main
+name: Release
 # When a release/* branch gets merged into main, this computes the next
-# version number, tags it, builds firmware for all five subsystems, and
-# publishes a single GitHub Release with one firmware file per board.
+# version number, tags it, builds firmware for all seven subsystems, and
+# publishes a single GitHub Release with all seven firmware files (.hex / .bin) attached.
 
 on:
   pull_request:
@@ -24,6 +24,7 @@ jobs:
   # and creates/pushes the tag if not. Uses compute_version.py script.
   # ═══════════════════════════════════════════════════════════════════
   version:
+    name: Compute version & tag
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true &&
@@ -41,7 +42,7 @@ jobs:
     # `outputs:` is how this job exposes values that other jobs can read afterward.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           # ^ By default, checkout only grabs the single latest commit
@@ -95,6 +96,7 @@ jobs:
   # same pattern as the CI workflow.
   # ═══════════════════════════════════════════════════════════════════
   build:
+    name: Build (${{ matrix.subsystem }})
     needs: version
     # ^ `needs:` makes this job wait for `version` to finish successfully
     #   before starting.
@@ -106,15 +108,15 @@ jobs:
       # ^ By default, if one matrix instance fails, GitHub cancels all
       #   the others still running. Setting this false means every
       #   subsystem still gets a chance to finish independently, so you
-      #   can see all five results instead of one truncated run.
+      #   can see all seven results instead of one truncated run.
       matrix:
-        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard]
+        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard, PDB]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -134,6 +136,7 @@ jobs:
             VCR)       echo "name=vcr-prod"      >> "$GITHUB_OUTPUT" ;;
             RDC)       echo "name=rdc-prod"      >> "$GITHUB_OUTPUT" ;;
             Dashboard) echo "name=dash-dfu-prod" >> "$GITHUB_OUTPUT" ;;
+            PDB)       echo "name=pdb-dfu-prod"  >> "$GITHUB_OUTPUT" ;;
           esac
 
       - name: Build ${{ matrix.subsystem }}
@@ -143,13 +146,13 @@ jobs:
       # The release job below downloads all of these and attaches them
       # to a single Release.
       - name: Upload ${{ matrix.subsystem }} firmware
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.subsystem }}-firmware
-          # ^ Since this runs 5 times (once per matrix value), each
+          # ^ Since this runs 6 times (once per matrix value), each
           #   instance uploads under its OWN name — ACU-firmware,
           #   CCU-firmware, etc.
-          path: .pio/build/${{ steps.env.outputs.name }}/firmware.${{ matrix.subsystem == 'Dashboard' && 'bin' || 'hex' }}
+          path: .pio/build/${{ steps.env.outputs.name }}/firmware.${{ (matrix.subsystem == 'Dashboard' || matrix.subsystem == 'PDB') && 'bin' || 'hex' }}
           retention-days: 7
           # ^ Auto-deleted after a week. These are only meant to bridge
           #   the gap to the next job, not serve as permanent storage —
@@ -163,13 +166,14 @@ jobs:
   # computed in job 1.
   # ═══════════════════════════════════════════════════════════════════
   release:
+    name: Publish GitHub Release
     needs: [version, build]
     if: needs.version.outputs.exists == 'false'
     runs-on: ubuntu-latest
     steps:
       # Downloads every artifact uploaded anywhere in this workflow run.
       - name: Download all firmware artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: firmware
 
@@ -185,9 +189,10 @@ jobs:
           mv firmware/VCR-firmware/firmware.hex       firmware/VCR-firmware/VCR-firmware.hex
           mv firmware/RDC-firmware/firmware.hex       firmware/RDC-firmware/RDC-firmware.hex
           mv firmware/Dashboard-firmware/firmware.bin firmware/Dashboard-firmware/Dashboard-firmware.bin
+          mv firmware/PDB-firmware/firmware.bin       firmware/PDB-firmware/PDB-firmware.bin
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.version }}
           files: |
@@ -197,4 +202,5 @@ jobs:
             firmware/VCR-firmware/VCR-firmware.hex
             firmware/RDC-firmware/RDC-firmware.hex
             firmware/Dashboard-firmware/Dashboard-firmware.bin
+            firmware/PDB-firmware/PDB-firmware.bin
           generate_release_notes: true
