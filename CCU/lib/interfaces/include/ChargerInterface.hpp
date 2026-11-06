@@ -1,19 +1,18 @@
-#ifndef CHARGERINTERFACE_H
-#define CHARGERINTERFACE_H
+#ifndef CHARGER_INTERFACE_HPP
+#define CHARGER_INTERFACE_HPP
 
 /* ETL Library Includes */
 #include <etl/delegate.h>
 #include <etl/singleton.h>
 
 /* External Dependencies */
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
 
-#include <FlexCAN_T4.h>
-
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
+
 
 namespace default_charger_params
 {
@@ -62,4 +61,4 @@ class ChargerInterface
 
 using ChargerInterfaceInstance = etl::singleton<ChargerInterface>;
 
-#endif /* CHARGERINTERFACE_H */
+#endif // CHARGER_INTERFACE_HPP

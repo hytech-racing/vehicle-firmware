@@ -7,8 +7,6 @@
 #include "controls.hpp"
 
 /* External Includes */
-#include "CANInterface.h"
-
 #include <Logger.h>
 #include <ht_task.hpp>
 
@@ -16,11 +14,11 @@
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
 #include "ADS112Interface.hpp"
+#include "CoreCANInterface.hpp"
 #include "DrivebrainInterface.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
-#include "VCRCANInterfaceImpl.hpp"
 #include "VCREthernetInterface.hpp"
 #include "WatchdogInterface.hpp"
 
@@ -128,7 +126,7 @@ void initialize_all_interfaces();
 namespace async_tasks
 {
     ::HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces);
+    VCRInterfaceData_s gather_latest_interface_data();
 } // namespace async_tasks
 
 

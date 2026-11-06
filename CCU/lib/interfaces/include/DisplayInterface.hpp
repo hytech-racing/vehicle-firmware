@@ -1,9 +1,7 @@
-#ifndef DisplayInterface_H
-#define DisplayInterface_H
+#ifndef DISPLAY_INTERFACE_HPP
+#define DISPLAY_INTERFACE_HPP
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
-
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
 #include <DMAChannel.h>
@@ -109,4 +107,4 @@ class DisplayInterface
 
 using DisplayInterfaceInstance = etl::singleton<DisplayInterface>;
 
-#endif
+#endif // DISPLAY_INTERFACE_HPP

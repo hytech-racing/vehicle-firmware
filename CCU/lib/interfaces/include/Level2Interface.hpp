@@ -6,8 +6,6 @@
 
 /* External Includes */
 #include <Arduino.h>
-#include <cstddef>
-#include <cstdint>
 
 using pin = uint8_t;
 

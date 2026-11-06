@@ -1,12 +1,10 @@
-#ifndef BUTTONINTERFACE
-#define BUTTONINTERFACE
+#ifndef BUTTON_INTERFACE_HPP
+#define BUTTON_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
 
 /* External Dependencies */
-#include "SharedFirmwareTypes.h"
-
 #include <Arduino.h>
 
 
@@ -54,4 +52,6 @@ class ButtonInterface
     ButtonState_s _button_state;
 };
 
-#endif // BUTTONINTERFACE_H
+using ButtonInterfaceInstance = etl::singleton<ButtonInterface>;
+
+#endif // BUTTON_INTERFACE_HPP

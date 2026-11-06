@@ -105,7 +105,7 @@ void initialize_all_interfaces()
     RSSInterfaceInstance::create(VCRInterfaces::RSS_NODE_ID);
 
     /* ---------- CAN Interfaces ---------- */
-    CANInterfacesInstance::create(
+    VCRCANInterfaceInstance::create(
         ACUInterfaceInstance::instance(),
         DrivebrainInterfaceInstance::instance(),
         fl_inverter_interface,
@@ -113,14 +113,9 @@ void initialize_all_interfaces()
         rl_inverter_interface,
         rr_inverter_interface,
         VCFInterfaceInstance::instance(),
-        RSSInterfaceInstance::instance());
-
-    VCRCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::vcr_recv_switch>());
-
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_inverter_can_receive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_telem_can_receive);
-    // handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
+        RSSInterfaceInstance::instance(),
+        VCRConstants::TELEM_CAN_BAUDRATE,
+        VCRConstants::INVERTER_CAN_BAUDRATE);
 }
 
 HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
@@ -265,9 +260,7 @@ HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros,
 
 HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);
-    VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer, &VCRCANInterfaceInstance::instance().REAR_AUX_CAN);
+    VCRCANInterfaceInstance::instance().sendAllTxBuffers();
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -293,24 +286,7 @@ namespace async_tasks
 {
     void handle_async_CAN_receive()
     {
-        process_ring_buffer(
-            VCRCANInterfaceInstance::instance().inverter_can_rx_buffer,
-            CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
-            VCRCANInterfaceInstance::instance().can_recv_switch,
-            CANInterfaceType_e::INVERTER);
-        process_ring_buffer(
-            VCRCANInterfaceInstance::instance().telem_can_rx_buffer,
-            CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
-            VCRCANInterfaceInstance::instance().can_recv_switch,
-            CANInterfaceType_e::TELEM);
-        process_ring_buffer(
-            VCRCANInterfaceInstance::instance().rear_aux_can_rx_buffer,
-            CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
-            VCRCANInterfaceInstance::instance().can_recv_switch,
-            CANInterfaceType_e::RAUX);
+        VCRCANInterfaceInstance::instance().processAllRxBuffers();
     }
 
     void handle_async_recvs()
@@ -320,24 +296,24 @@ namespace async_tasks
         handle_async_CAN_receive();
     }
 
-    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces)
+    VCRInterfaceData_s gather_latest_interface_data()
     {
         VCRInterfaceData_s ret = vcr_data.interface_data;
 
-        auto vcf_data = can_interfaces.vcf_interface.get_latest_data();
-        auto acu_data = can_interfaces.acu_interface.get_latest_data(sys_time::hal_millis());
-        auto drivebrain_telem_data = can_interfaces.db_interface.get_latest_telem_drivebrain_command();
-        auto drivebrain_auxillary_data = can_interfaces.db_interface.get_latest_auxillary_drivebrain_command();
+        auto vcf_data = VCFInterfaceInstance::instance().get_latest_data();
+        auto acu_data = ACUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis());
+        auto drivebrain_telem_data = DrivebrainInterfaceInstance::instance().get_latest_telem_drivebrain_command();
+        auto drivebrain_auxillary_data = DrivebrainInterfaceInstance::instance().get_latest_auxillary_drivebrain_command();
 
-        auto fl_inv_mechanics = can_interfaces.fl_inverter_interface.get_motor_mechanics();
-        auto fr_inv_mechanics = can_interfaces.fr_inverter_interface.get_motor_mechanics();
-        auto rl_inv_mechanics = can_interfaces.rl_inverter_interface.get_motor_mechanics();
-        auto rr_inv_mechanics = can_interfaces.rr_inverter_interface.get_motor_mechanics();
+        auto fl_inv_mechanics = fl_inverter_interface.get_motor_mechanics();
+        auto fr_inv_mechanics = fr_inverter_interface.get_motor_mechanics();
+        auto rl_inv_mechanics = rl_inverter_interface.get_motor_mechanics();
+        auto rr_inv_mechanics = rr_inverter_interface.get_motor_mechanics();
 
-        auto fl_inv_status = can_interfaces.fl_inverter_interface.get_status();
-        auto fr_inv_status = can_interfaces.fr_inverter_interface.get_status();
-        auto rl_inv_status = can_interfaces.rl_inverter_interface.get_status();
-        auto rr_inv_status = can_interfaces.rr_inverter_interface.get_status();
+        auto fl_inv_status = fl_inverter_interface.get_status();
+        auto fr_inv_status = fr_inverter_interface.get_status();
+        auto rl_inv_status = rl_inverter_interface.get_status();
+        auto rr_inv_status = rr_inverter_interface.get_status();
 
         ret.inverter_data.FL.speed_rpm = fl_inv_mechanics.actual_speed;
         ret.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed;
@@ -366,7 +342,7 @@ namespace async_tasks
 
         bool torque_mode_cycle_button_was_pressed = vcr_data.interface_data.dash_input_state.BUTTON_2;
 
-        VCRInterfaceData_s new_interface_data = gather_latest_interface_data(CANInterfacesInstance::instance());
+        VCRInterfaceData_s new_interface_data = gather_latest_interface_data();
 
         vcr_data.system_data.drivetrain_data.measuredSpeeds = {
             new_interface_data.inverter_data.FL.speed_rpm,

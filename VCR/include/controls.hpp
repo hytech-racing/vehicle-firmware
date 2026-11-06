@@ -10,7 +10,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "VCRCANInterfaceImpl.hpp"
+#include "CoreCANInterface.hpp"
 
 /* Local System Includes */
 #include "DrivetrainSystem.hpp"

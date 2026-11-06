@@ -107,24 +107,30 @@ void initializeAllSystems()
     BuzzerControllerInstance::create();
 }
 
-HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse CAN_tasks::enqueuePedalsMsgTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    PEDALS_SYSTEM_DATA_t pedals_data = {};
+    PEDALS_SYSTEM_DATA_t pedals_data_msg = {};
 
-    pedals_data.accel_implausible = PedalsSystemInstance::instance().getPedalsSystemData().accel_is_implausible;
-    pedals_data.brake_implausible = PedalsSystemInstance::instance().getPedalsSystemData().brake_is_implausible;
-    pedals_data.brake_accel_implausibility = PedalsSystemInstance::instance().getPedalsSystemData().brake_and_accel_pressed_implausibility_high;
+    pedals_data_msg.accel_implausible = PedalsSystemInstance::instance().getPedalsSystemData().accel_is_implausible;
+    pedals_data_msg.brake_implausible = PedalsSystemInstance::instance().getPedalsSystemData().brake_is_implausible;
+    pedals_data_msg.brake_accel_implausibility = PedalsSystemInstance::instance().getPedalsSystemData().brake_and_accel_pressed_implausibility_high;
 
-    pedals_data.accel_pedal_active = PedalsSystemInstance::instance().getPedalsSystemData().accel_is_pressed;
-    pedals_data.brake_pedal_active = PedalsSystemInstance::instance().getPedalsSystemData().brake_is_pressed;
-    pedals_data.mechanical_brake_active = PedalsSystemInstance::instance().getPedalsSystemData().mech_brake_is_active;
-    pedals_data.implaus_exceeded_max_duration = PedalsSystemInstance::instance().getPedalsSystemData().implausibility_has_exceeded_max_duration;
+    pedals_data_msg.accel_pedal_active = PedalsSystemInstance::instance().getPedalsSystemData().accel_is_pressed;
+    pedals_data_msg.brake_pedal_active = PedalsSystemInstance::instance().getPedalsSystemData().brake_is_pressed;
+    pedals_data_msg.mechanical_brake_active = PedalsSystemInstance::instance().getPedalsSystemData().mech_brake_is_active;
+    pedals_data_msg.implaus_exceeded_max_duration = PedalsSystemInstance::instance().getPedalsSystemData().implausibility_has_exceeded_max_duration;
 
 
-    pedals_data.accel_pedal_ro = HT_CAN_accel_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().accel_percent);
-    pedals_data.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
+    pedals_data_msg.accel_pedal_ro = HT_CAN_accel_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().accel_percent);
+    pedals_data_msg.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
 
-    CAN_util::enqueue_msg(&pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t pedals_data_msg_packed;
+    pedals_data_msg_packed.id = Pack_PEDALS_SYSTEM_DATA_ht_can(
+        &pedals_data_msg,
+        pedals_data_msg_packed.buf,
+        &pedals_data_msg_packed.len,
+        (uint8_t*)&pedals_data_msg_packed.flags.extended);
+    VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, pedals_data_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -162,23 +168,29 @@ HT_TASK::TaskResponse evaluateSteeringTask(const unsigned long& sysMicros, const
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse CAN_tasks::enqueueSteeringMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    STEERING_DATA_t msg_out;
+    STEERING_DATA_t steering_data_msg;
     SteeringSystemData_s steering_system_data = SteeringSystemInstance::instance().getSteeringSystemData();
 
-    msg_out.steering_analog_oor = steering_system_data.analog_oor_implausibility;
-    msg_out.steering_both_sensors_fail = steering_system_data.both_sensors_fail;
-    msg_out.steering_digital_oor = steering_system_data.digital_oor_implausibility;
-    msg_out.steering_dtheta_exceeded_analog = steering_system_data.dtheta_exceeded_analog;
-    msg_out.steering_dtheta_exceeded_digital = steering_system_data.dtheta_exceeded_digital;
-    msg_out.steering_interface_sensor_error = steering_system_data.interface_sensor_error;
-    msg_out.steering_output_steering_angle_ro = HT_CAN_steering_output_steering_angle_ro_toS(steering_system_data.output_steering_angle);
-    msg_out.steering_sensor_disagreement = steering_system_data.sensor_disagreement_implausibility;
-    msg_out.steering_analog_raw = steering_system_data.analog_raw;
-    msg_out.steering_digital_raw = steering_system_data.digital_raw;
+    steering_data_msg.steering_analog_oor = steering_system_data.analog_oor_implausibility;
+    steering_data_msg.steering_both_sensors_fail = steering_system_data.both_sensors_fail;
+    steering_data_msg.steering_digital_oor = steering_system_data.digital_oor_implausibility;
+    steering_data_msg.steering_dtheta_exceeded_analog = steering_system_data.dtheta_exceeded_analog;
+    steering_data_msg.steering_dtheta_exceeded_digital = steering_system_data.dtheta_exceeded_digital;
+    steering_data_msg.steering_interface_sensor_error = steering_system_data.interface_sensor_error;
+    steering_data_msg.steering_output_steering_angle_ro = HT_CAN_steering_output_steering_angle_ro_toS(steering_system_data.output_steering_angle);
+    steering_data_msg.steering_sensor_disagreement = steering_system_data.sensor_disagreement_implausibility;
+    steering_data_msg.steering_analog_raw = steering_system_data.analog_raw;
+    steering_data_msg.steering_digital_raw = steering_system_data.digital_raw;
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_STEERING_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t steering_data_msg_packed;
+    steering_data_msg_packed.id = Pack_STEERING_DATA_ht_can(
+        &steering_data_msg,
+        steering_data_msg_packed.buf,
+        &steering_data_msg_packed.len,
+        (uint8_t*)&steering_data_msg_packed.flags.extended);
+    VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, steering_data_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 

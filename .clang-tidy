@@ -2,7 +2,7 @@
 # 1. Enabled Checks & File Filtering
 # ==============================================================================
 Checks: 'readability-identifier-naming'
-HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
+HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard|PDB)/.*'
 
 CheckOptions:
   # ============================================================================

@@ -1,11 +1,8 @@
-#ifndef ROTARYENCODERINTERFACE_H
-#define ROTARYENCODERINTERFACE_H
+#ifndef ROTARY_ENCODER_INTERFACE_HPP
+#define ROTARY_ENCODER_INTERFACE_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
-
-/* External Includes */
-#include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
 #include "ButtonInterface.hpp"
@@ -128,4 +125,4 @@ class RotaryEncoderInterface
 
 using RotaryEncoderInterfaceInstance = etl::singleton<RotaryEncoderInterface>;
 
-#endif
+#endif // ROTARY_ENCODER_INTERFACE_HPP

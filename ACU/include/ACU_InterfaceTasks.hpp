@@ -4,16 +4,14 @@
 #include "ACU_Constants.hpp"
 
 /* External Includes */
-#include "CANInterface.h"
-
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
-#include "ACUCANInterfaceImpl.hpp"
 #include "ACUEthernetInterface.hpp"
 #include "ADCInterface.hpp"
 #include "BMSDriverGroup.hpp"
 #include "BMSFaultDataManager.hpp"
+#include "CoreCANInterface.hpp"
 #include "DataLoggingInterface.hpp"
 #include "MAX114XInterface.hpp"
 #include "SoHPersistenceInterface.hpp"

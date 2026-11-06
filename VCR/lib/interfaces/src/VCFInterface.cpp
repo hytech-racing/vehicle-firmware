@@ -1,6 +1,6 @@
 #include "VCFInterface.hpp"
 
-#include "VCRCANInterfaceImpl.hpp"
+#include "CoreCANInterface.hpp"
 
 void VCFInterface::receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
@@ -120,7 +120,9 @@ void VCFInterface::send_buzzer_start_message()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t ctrl_packed;
+    ctrl_packed.id = Pack_DASHBOARD_BUZZER_CONTROL_ht_can(&ctrl, ctrl_packed.buf, &ctrl_packed.len, (uint8_t*)&ctrl_packed.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, ctrl_packed);
 }
 
 void VCFInterface::send_recalibrate_pedals_message()
@@ -130,7 +132,9 @@ void VCFInterface::send_recalibrate_pedals_message()
     ctrl.in_pedal_calibration_state = true;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t ctrl_packed;
+    ctrl_packed.id = Pack_DASHBOARD_BUZZER_CONTROL_ht_can(&ctrl, ctrl_packed.buf, &ctrl_packed.len, (uint8_t*)&ctrl_packed.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, ctrl_packed);
 }
 
 void VCFInterface::send_recalibrate_steering_message()
@@ -140,7 +144,9 @@ void VCFInterface::send_recalibrate_steering_message()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = true;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t ctrl_packed;
+    ctrl_packed.id = Pack_DASHBOARD_BUZZER_CONTROL_ht_can(&ctrl, ctrl_packed.buf, &ctrl_packed.len, (uint8_t*)&ctrl_packed.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, ctrl_packed);
 }
 
 void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
@@ -150,7 +156,9 @@ void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = (uint8_t)torque_limit;
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t ctrl_packed;
+    ctrl_packed.id = Pack_DASHBOARD_BUZZER_CONTROL_ht_can(&ctrl, ctrl_packed.buf, &ctrl_packed.len, (uint8_t*)&ctrl_packed.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, ctrl_packed);
 }
 
 void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl)
@@ -159,5 +167,7 @@ void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, D
     state.vehicle_state = static_cast<uint8_t>(vehicle_state);
     state.drivetrain_state = static_cast<uint8_t>(drivetrain_state);
     state.drivebrain_in_control = db_is_in_ctrl;
-    CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_message_t state_packed;
+    state_packed.id = Pack_CAR_STATES_ht_can(&state, state_packed.buf, &state_packed.len, (uint8_t*)&state_packed.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, state_packed);
 }

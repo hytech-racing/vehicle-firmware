@@ -6,7 +6,7 @@
  * referenced from two otherwise-independent files that shouldn't depend
  * on each other:
  *
- *   - VCR_InterfaceTasks needs them to build CANInterfacesInstance
+ *   - VCR_InterfaceTasks needs them to build VCRCANInterfaceInstance
  *     and drive other low-level tasks.
  *   - VCR_SystemTasks needs them for the drivetrain funct lambdas
  *     (set_speed/set_idle/get_status/get_motor_mechanics)

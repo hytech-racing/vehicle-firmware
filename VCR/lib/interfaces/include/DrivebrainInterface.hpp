@@ -5,7 +5,6 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "CANInterface.h"
 #include "ProtobufMsgInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "ht_can.h"
