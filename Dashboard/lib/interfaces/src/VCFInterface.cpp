@@ -1,6 +1,5 @@
-#include "VCFInterface.h"
-
-#include "DashCANInterfaceImpl.h"
+#include "VCFInterface.hpp"
+#include "DashCANInterfaceImpl.hpp"
 
 
 void VCFInterface::receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis)

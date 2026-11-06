@@ -1,5 +1,5 @@
-#ifndef DASHCANINTERFACEIMPL_H
-#define DASHCANINTERFACEIMPL_H
+#ifndef DASH_CAN_INTERFACE_IMPL_HPP
+#define DASH_CAN_INTERFACE_IMPL_HPP
 
 /* ETL Library */
 #include <etl/delegate.h>
@@ -9,10 +9,10 @@
 #include "hytech.h"
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "CANInterface.h"
-#include "VCFInterface.h"
-#include "VCRInterface.h"
+#include "ACUInterface.hpp"
+#include "CANInterface.hpp"
+#include "VCFInterface.hpp"
+#include "VCRInterface.hpp"
 
 
 struct CANInterfaces_s
@@ -33,4 +33,5 @@ namespace DashCAN
 
     void write_CAN();
 } // namespace DashCAN
-#endif
+
+#endif // DASH_CAN_INTERFACE_IMPL_HPP

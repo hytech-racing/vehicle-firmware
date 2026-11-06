@@ -8,10 +8,10 @@
 #include <stm32h7xx_hal.h>
 
 /* Local Interface Includes */
-#include "ACUInterface.h"
-#include "DashCANInterfaceImpl.h"
-#include "VCFInterface.h"
-#include "VCRInterface.h"
+#include "ACUInterface.hpp"
+#include "DashCANInterfaceImpl.hpp"
+#include "VCFInterface.hpp"
+#include "VCRInterface.hpp"
 
 
 /**
