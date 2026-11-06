@@ -42,7 +42,7 @@ jobs:
     # `outputs:` is how this job exposes values that other jobs can read afterward.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           # ^ By default, checkout only grabs the single latest commit
@@ -112,11 +112,11 @@ jobs:
       matrix:
         subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard, PDB]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -146,7 +146,7 @@ jobs:
       # The release job below downloads all of these and attaches them
       # to a single Release.
       - name: Upload ${{ matrix.subsystem }} firmware
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.subsystem }}-firmware
           # ^ Since this runs 6 times (once per matrix value), each
@@ -173,7 +173,7 @@ jobs:
     steps:
       # Downloads every artifact uploaded anywhere in this workflow run.
       - name: Download all firmware artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: firmware
 
@@ -192,7 +192,7 @@ jobs:
           mv firmware/PDB-firmware/firmware.bin       firmware/PDB-firmware/PDB-firmware.bin
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.version }}
           files: |
