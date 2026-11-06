@@ -14,9 +14,8 @@
 
 class VCRInterface
 {
-public:
-
-    void receiveVehicleStateCANMsg(const CAN_message_t &can_msg);
+  public:
+    void receiveVehicleStateCANMsg(const CAN_message_t& can_msg);
 
     VehicleState_e getCurrentVehicleState() const;
 
@@ -24,12 +23,10 @@ public:
 
     bool isDrivebrainInControl() const;
 
-private:
-
+  private:
     bool _is_drivebrain_in_control = false;
     VehicleState_e _current_vehicle_state;
     DrivetrainState_e _current_drivetrain_state;
-
 };
 
 using VCRInterfaceInstance = etl::singleton<VCRInterface>;
