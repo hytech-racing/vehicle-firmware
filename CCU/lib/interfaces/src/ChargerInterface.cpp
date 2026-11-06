@@ -36,10 +36,13 @@ void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float 
     // We want the high/low bytes of the 16-bit int to be 5300 (decimal), which is 0x14B4 (hex)
 
     // NOTE: The "high" and "low" values are not max and min-- rather, they are the "high" and "low" bytes of a 16-bit integer.
-    CHARGER_CONTROL_t charger_control = {};
-    charger_control.max_charging_voltage_high = 0x14; // NOLINT (see comment) - need to change this in PCAN library
-    charger_control.max_charging_voltage_low = 0xB4;  // NOLINT (see comment)
-    charger_control.max_charging_current_high = 0;    // only "low" is being used/harnessed in
-    charger_control.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
-    CCUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(CCUCANBusses_e::CHARGER, &charger_control, &Pack_CHARGER_CONTROL_ht_can);
+    CHARGER_CONTROL_t charger_control_msg = {};
+    charger_control_msg.max_charging_voltage_high = 0x14; // NOLINT (see comment) - need to change this in PCAN library
+    charger_control_msg.max_charging_voltage_low = 0xB4;  // NOLINT (see comment)
+    charger_control_msg.max_charging_current_high = 0;    // only "low" is being used/harnessed in
+    charger_control_msg.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
+
+    CAN_message_t charger_control_msg_packed;
+    charger_control_msg_packed.id = Pack_CHARGER_CONTROL_ht_can(&charger_control_msg, charger_control_msg_packed.buf, &charger_control_msg_packed.len, (uint8_t*)&charger_control_msg_packed.flags.extended);
+    CCUCANInterfaceInstance::instance().enqueueOnSwitch(CCUCANBusses_e::CHARGER, charger_control_msg_packed);
 }

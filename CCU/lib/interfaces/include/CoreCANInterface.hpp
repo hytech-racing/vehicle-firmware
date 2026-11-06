@@ -29,19 +29,13 @@ enum class CCUCANBusses_e
  * calling enqueueSwitch() / packAndEnqueueOnSwitch(), and received messages are routed to the
  * interfaces passed in on construction.
  */
-class CCUCANInterface : public CANInterfaceTemplate_t<CCUCANBusses_e>
+class CCUCANInterface : public CANInterface<CCUCANBusses_e>
 {
   public:
     CCUCANInterface(
-        ACUInterface& acu_interface,
-        ChargerInterface& charger_interface,
-        EnergyMeterInterface& em_interface,
         uint32_t acu_baudrate,
         uint32_t charger_baudrate)
-        : _acu_interface(acu_interface),
-          _charger_interface(charger_interface),
-          _em_interface(em_interface),
-          _acu_bus(acu_baudrate),
+        : _acu_bus(acu_baudrate),
           _charger_bus(charger_baudrate)
     {
     }
@@ -49,7 +43,7 @@ class CCUCANInterface : public CANInterfaceTemplate_t<CCUCANBusses_e>
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    void enqueueSwitch(CCUCANBusses_e bus, const CAN_message_t& msg) override;
+    void enqueueOnSwitch(CCUCANBusses_e bus, const CAN_message_t& msg) override;
 
     /**
      * @brief Drains both RX buffers, routing each message to its interface
@@ -62,10 +56,6 @@ class CCUCANInterface : public CANInterfaceTemplate_t<CCUCANBusses_e>
     void sendAllTxBuffers() override;
 
   private:
-    ACUInterface& _acu_interface;
-    ChargerInterface& _charger_interface;
-    EnergyMeterInterface& _em_interface;
-
     // TODO: never set anywhere, so these stay at 0.0. Carried over as-is from the old CANInterfaces_s
     float _max_pack_voltage = 0.0f;
     float _cell_cutoff_voltage = 0.0f;

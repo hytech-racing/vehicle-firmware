@@ -101,7 +101,10 @@ void ACUInterface::receiveStateOfChargeCANMSG(const CAN_message_t& msg, unsigned
 
 void ACUInterface::enqueueCCUStatusCANMsg()
 {
-    CCU_STATUS_t ccu_status = {};
-    ccu_status.charger_enabled = _curr_data.is_charging_enabled;
-    CCUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(CCUCANBusses_e::ACU, &ccu_status, &Pack_CCU_STATUS_ht_can);
+    CCU_STATUS_t ccu_status_msg = {};
+    ccu_status_msg.charger_enabled = _curr_data.is_charging_enabled;
+
+    CAN_message_t ccu_status_msg_packed;
+    ccu_status_msg_packed.id = Pack_CCU_STATUS_ht_can(&ccu_status_msg, ccu_status_msg_packed.buf, &ccu_status_msg_packed.len, (uint8_t*)&ccu_status_msg_packed.flags.extended);
+    CCUCANInterfaceInstance::instance().enqueueOnSwitch(CCUCANBusses_e::ACU, ccu_status_msg_packed);
 }

@@ -70,9 +70,6 @@ void initializeAllInterfaces()
 
     /* CAN Interface */
     CCUCANInterfaceInstance::create(
-        ACUInterfaceInstance::instance(),
-        ChargerInterfaceInstance::instance(),
-        EnergyMeterInterfaceInstance::instance(),
         CCUConstants::ACU_CAN_BAUDRATE,
         CCUConstants::CHARGER_CAN_BAUDRATE);
 }
