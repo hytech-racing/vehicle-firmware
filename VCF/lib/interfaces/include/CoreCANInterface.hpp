@@ -28,29 +28,15 @@ enum class VCFCANBusses_e
  * @brief Owns VCF's CAN buses. This is the only code with access to them: everything else sends by
  * calling enqueue(), and received messages are routed to the interfaces passed in on construction.
  */
-class VCFCANInterface : public CANInterfaceTemplate_t<VCFCANBusses_e>
+class VCFCANInterface : public CANInterface<VCFCANBusses_e>
 {
   public:
-    VCFCANInterface(
-        ACUInterface& acu_interface,
-        BrakeRotorTempInterface& brake_rotor_temp_interface,
-        DashboardInterface& dash_interface,
-        VCRInterface& vcr_interface,
-        uint32_t telem_baudrate,
-        uint32_t front_aux_baudrate)
-        : _acu_interface(acu_interface),
-          _brake_rotor_temp_interface(brake_rotor_temp_interface),
-          _dash_interface(dash_interface),
-          _vcr_interface(vcr_interface),
-          _telem_bus(telem_baudrate),
-          _front_aux_bus(front_aux_baudrate)
-    {
-    }
+    VCFCANInterface() = default;
 
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    void enqueueSwitch(VCFCANBusses_e bus, const CAN_message_t& msg) override;
+    void enqueueOnSwitch(VCFCANBusses_e bus, const CAN_message_t& msg) override;
 
     /**
      * @brief Drains both RX buffers, routing each message to its interface
@@ -63,11 +49,6 @@ class VCFCANInterface : public CANInterfaceTemplate_t<VCFCANBusses_e>
     void sendAllTxBuffers() override;
 
   private:
-    ACUInterface& _acu_interface;
-    BrakeRotorTempInterface& _brake_rotor_temp_interface;
-    DashboardInterface& _dash_interface;
-    VCRInterface& _vcr_interface;
-
     CANBus<CAN1> _telem_bus;
     CANBus<CAN2> _front_aux_bus;
 

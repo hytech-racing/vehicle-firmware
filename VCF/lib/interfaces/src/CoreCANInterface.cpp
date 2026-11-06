@@ -1,7 +1,7 @@
 #include "CoreCANInterface.hpp"
 
 
-void VCFCANInterface::enqueueSwitch(VCFCANBusses_e bus, const CAN_message_t& msg)
+void VCFCANInterface::enqueueOnSwitch(VCFCANBusses_e bus, const CAN_message_t& msg)
 {
     switch (bus)
     {
@@ -37,42 +37,42 @@ void VCFCANInterface::_recvSwitch(const CAN_message_t& msg)
     {
     case DASHBOARD_BUZZER_CONTROL_CANID:
     {
-        _vcr_interface.receiveDashboardControlData(msg);
+        VCRInterfaceInstance::instance().receiveDashboardControlData(msg);
         break;
     }
     case BMS_VOLTAGES_CANID:
     {
-        _acu_interface.receiveACUVoltages(msg);
+        ACUInterfaceInstance::instance().receiveACUVoltages(msg);
         break;
     }
     case ACU_OK_CANID:
     {
-        _dash_interface.receiveACUOKCANMsg(msg);
+        DashboardInterfaceInstance::instance().receiveACUOKCANMsg(msg);
         break;
     }
     case CAR_STATES_CANID:
     {
-        _vcr_interface.recieveCarStatesCANMsg(msg);
+        VCRInterfaceInstance::instance().recieveCarStatesCANMsg(msg);
         break;
     }
     case INV1_STATUS_CANID:
     {
-        _vcr_interface.receiveINV1StatusCANMsg(msg);
+        VCRInterfaceInstance::instance().receiveINV1StatusCANMsg(msg);
         break;
     }
     case INV2_STATUS_CANID:
     {
-        _vcr_interface.receiveINV2StatusCANMsg(msg);
+        VCRInterfaceInstance::instance().receiveINV2StatusCANMsg(msg);
         break;
     }
     case INV3_STATUS_CANID:
     {
-        _vcr_interface.receiveINV3StatusCANMsg(msg);
+        VCRInterfaceInstance::instance().receiveINV3StatusCANMsg(msg);
         break;
     }
     case INV4_STATUS_CANID:
     {
-        _vcr_interface.receiveINV4StatusCANMsg(msg);
+        VCRInterfaceInstance::instance().receiveINV4StatusCANMsg(msg);
         break;
     }
     case FL_BRAKE_ROTOR_SENSOR_TEMP_CANID:
@@ -86,7 +86,7 @@ void VCFCANInterface::_recvSwitch(const CAN_message_t& msg)
     case FR_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
     case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
     {
-        _brake_rotor_temp_interface.receiveBrakeRotorTempCANMsgs(msg);
+        BrakeRotorTempInterfaceInstance::instance().receiveBrakeRotorTempCANMsgs(msg);
         break;
     }
     default:
