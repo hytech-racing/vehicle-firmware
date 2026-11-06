@@ -1,5 +1,5 @@
-#include "VCF_Constants.hpp"
 #include "CANTestHarness.h"
+#include "VCF_Constants.hpp"
 
 /**
  * VCF buses:
