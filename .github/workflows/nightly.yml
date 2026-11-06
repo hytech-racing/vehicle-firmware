@@ -47,15 +47,22 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
 
+      # Prebuilt clang-format wheel from pip: a few seconds, vs ~5 min for apt-get update + install.
+      # Pinned to the exact version developers use locally (pip install clang-format==20.1.8),
+      # since different versions can format the same code slightly differently.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install clang-format
+        run: pip install clang-format==20.1.8
+
       - name: Check formatting
         run: |
           if [ ! -f .clang-format ]; then
             echo "::notice::No .clang-format file found — skipping format check"
             exit 0
           fi
-
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang-format-20
 
           mapfile -d '' files < <(
             git ls-files -z -- ACU CCU VCF VCR RDC Dashboard PDB \
@@ -68,7 +75,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format-20 --dry-run --Werror "${files[@]}"
+          clang-format --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 2 — build
