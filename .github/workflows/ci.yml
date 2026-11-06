@@ -145,19 +145,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Prebuilt clang-format wheel from pip: a few seconds, vs ~5 min for apt-get update + install.
+      # Pinned to the exact version developers use locally (pip install clang-format==20.1.8),
+      # since different versions can format the same code slightly differently.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install clang-format
+        run: pip install clang-format==20.1.8
+
       - name: Check formatting
         run: |
           if [ ! -f .clang-format ]; then
             echo "::notice::No .clang-format file found — skipping format check"
             exit 0
           fi
-
-          # Pin the clang-format version: different versions can format
-          # the same code slightly differently. Developers should use the
-          # same major version locally (pip install "clang-format>=20,<21").
-          # .clang-format uses options that need clang-format 20 or newer.
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang-format-20
 
           # Only check tracked files inside the subsystem folders, so
           # build output and downloaded libraries are never checked.
@@ -172,7 +175,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format-20 --dry-run --Werror "${files[@]}"
+          clang-format --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 3 — build
