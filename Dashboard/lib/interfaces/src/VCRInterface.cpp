@@ -1,4 +1,4 @@
-#include "VCRInterface.h"
+#include "VCRInterface.hpp"
 
 
 void VCRInterface::receive_inv_dynamics(const CAN_message_t& can_msg, unsigned long curr_millis)

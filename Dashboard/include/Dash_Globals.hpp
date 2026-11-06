@@ -1,5 +1,5 @@
-#ifndef DASH_GLOBALS_H
-#define DASH_GLOBALS_H
+#ifndef DASH_GLOBALS_HPP
+#define DASH_GLOBALS_HPP
 
 /* ETL Library */
 #include <etl/singleton.h>
@@ -11,4 +11,4 @@
 using VCFData_sInstance = etl::singleton<VCFData_s>;
 using VCRData_sInstance = etl::singleton<VCRData_s>;
 
-#endif
+#endif // DASH_GLOBALS_HPP

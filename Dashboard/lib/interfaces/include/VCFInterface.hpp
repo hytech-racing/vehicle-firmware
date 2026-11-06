@@ -8,7 +8,7 @@
 #include "SharedFirmwareTypes.h"
 
 /* Local Interface Includes */
-#include "CANInterface.h"
+#include "CANInterface.hpp"
 
 
 struct VCFCANInterfaceData_s

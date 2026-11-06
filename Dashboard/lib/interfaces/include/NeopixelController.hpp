@@ -16,10 +16,11 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "DashCANInterfaceImpl.h"
+#include "DashCANInterfaceImpl.hpp"
 #include "SharedFirmwareTypes.h"
 
 #include <Adafruit_NeoPixel.h>
+
 
 enum LED_ID_e
 {

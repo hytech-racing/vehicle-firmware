@@ -5,11 +5,11 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "HT_SPI.h"
-#include "HT_SharpMem.h"
+#include "HT_SPI.hpp"
+#include "HT_SharpMem.hpp"
 #include "SharedFirmwareTypes.h"
-#include "alysa_frames.h"
-#include "bitmaps.h"
+#include "alysa_frames.hpp"
+#include "bitmaps.hpp"
 
 #include <Adafruit_GFX.h>
 
