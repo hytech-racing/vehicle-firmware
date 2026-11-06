@@ -14,6 +14,7 @@ ENVS=(
     vcr-prod
     rdc-prod
     dash-dfu-prod
+    pdb-dfu-prod
 )
 
 FAILED=()
