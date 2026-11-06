@@ -1,17 +1,32 @@
 #pragma once
 #include <Arduino.h>
 #include <imxrt.h>
-#include <vector>
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 #if !defined(__IMXRT1062__)
 #error "This benchmark currently supports Teensy 4.0 and 4.1 only"
 #endif
 
-namespace bench {
-///prevent compiler from optimizing away a result
+namespace bench
+{
+
+/**
+ * @brief Config parameters for the benchmark.
+ */
+struct BenchmarkConfig
+{
+    std::size_t warmup_iterations = 2000;
+    std::size_t measurements = 3000;
+    std::size_t batch_size = 100;
+};
+
+/**
+ * @brief Prevents the compiler from optimizing away a variable.
+ * @tparam T Type of the value.
+ * @param value Value that must remain observable to the compiler.
+ */
 template <typename T>
 inline void do_not_optimize(const T& value) noexcept
 {
@@ -22,94 +37,134 @@ inline void do_not_optimize(const T& value) noexcept
 #endif
 }
 
+/**
+ * @brief Stats from benchmark measurements.
+ */
 struct Statistics
 {
     double min_ns{};
     double avg_ns{};
-    double p50_ns{};
-    double p90_ns{};
-    double p99_ns{};
-    double p99_9_ns{};
+    double percentile50_ns{};
+    double percentile90_ns{};
+    double percentile99_ns{};
+    double percentile99_9_ns{};
     double max_ns{};
 };
 
+/**
+ * @brief Provides cycle-wise time measurements.
+ * 
+ */
 class Benchmark
 {
 public:
-    struct Config
-    {
-        std::size_t warmup_iterations = 2000;
-        std::size_t measurements = 3000;
-        std::size_t batch_size = 100;
-    };
-    Benchmark();
 
-    explicit Benchmark(Config config);
+    Benchmark();
+    explicit Benchmark(BenchmarkConfig config);
+
+    /**
+     * @brief Initializes and enables the ARM DWT cycle counter.
+     */
     void begin();
 
-    ///warmup
+    /**
+     * @brief Executes a function repeatedly to warm up the cache, etc. before measurements.
+     * 
+     * @tparam Function callable type.
+     * @param function Function to benchmark.
+     */
     template <typename Function>
     void warmup(Function&& function);
 
-    ///measure
+    /**
+     * @brief Measures the execution time of a function.
+     *
+     * @tparam Function callable type.
+     * @param function Function to benchmark.
+     */
     template <typename Function>
     void measure(Function&& function);
 
-    ///stats
-    [[nodiscard]]
-    Statistics statistics() const;
+    /**
+     * @brief Calculates stats.
+     */
+    [[nodiscard]] Statistics statistics() const;
 
-    ///samples
-    [[nodiscard]]
-    const std::vector<double>& samples() const noexcept;
+    /**
+     * @brief Returns the individual benchmark samples.
+     */
+    [[nodiscard]] const std::vector<double>& samples() const noexcept;
 
-    ///reset measurements
+    /**
+     * @brief Clears all previously collected measurements.
+     */
     void reset();
+
+
     void print_results(Stream& output) const;
 
 private:
-    Config config_;
-    std::vector<double> samples_;
-    bool initialized_ = false;
-    static uint32_t read_cycle_count() noexcept;
-    static double cycle_to_ns(uint32_t cycles) noexcept;
+
+    BenchmarkConfig _config;
+    std::vector<double> _samples;
+    bool _initialized = false;
+
+    /**
+     * @brief Reads the current cycle counter.
+     */
+    static uint32_t _read_cycle_count() noexcept;
+
+    /**
+     * @brief Converts cycles into ns.
+     *
+     * @param cycles # of cycles.
+     * @return effective execution time in ns.
+     */
+    static double _cycle_to_ns(uint32_t cycles) noexcept;
 };
 
-///warmup
+/**
+ * @brief Executes the configured # of warmup iterations.
+ *
+ * @tparam Function callable type.
+ * @param function Function to benchmark.
+ */
 template <typename Function>
 void Benchmark::warmup(Function&& function)
 {
-    for (std::size_t i = 0; i < config_.warmup_iterations; ++i)
+    for (std::size_t i = 0; i < _config.warmup_iterations; ++i)
     {
         function();
     }
 }
 
-///measurement
+/**
+ * @brief Measures the average execution time per operation.
+ *
+ * @tparam Function callable type.
+ * @param function Function to benchmark.
+ */
 template <typename Function>
 void Benchmark::measure(Function&& function)
 {
-    if (!initialized_)
-    {
-        return;
-    }
-    samples_.clear();
-    samples_.reserve(config_.measurements);
+    if (!_initialized) {return;}
 
-    for (std::size_t i = 0; i < config_.measurements; ++i)
+    _samples.clear();
+    _samples.reserve(_config.measurements);
+
+    for (std::size_t i = 0; i < _config.measurements; ++i)
     {
-        const uint32_t start = read_cycle_count();
-        for (std::size_t j = 0; j < config_.batch_size; ++j)
+        const uint32_t start = _read_cycle_count();
+        for (std::size_t j = 0; j < _config.batch_size; ++j)
         {
             function();
         }
-
-        const uint32_t end = read_cycle_count();
+        const uint32_t end = _read_cycle_count();
         const uint32_t elapsed_cycles = end - start;
-        const double elapsed_ns = cycle_to_ns(elapsed_cycles);
-        const double per_operation_ns = elapsed_ns / static_cast<double>(config_.batch_size);
-        samples_.push_back(per_operation_ns);
+        const double elapsed_ns = _cycle_to_ns(elapsed_cycles);
+        const double per_operation_ns = elapsed_ns / static_cast<double>(_config.batch_size);
+        _samples.push_back(per_operation_ns);
     }
 }
 
-}///namespace bench
+}/// namespace bench
