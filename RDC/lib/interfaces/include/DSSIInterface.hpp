@@ -8,11 +8,18 @@
 class DSSIInterface
 {
   public:
+    DSSIInterface();
+    
     void initDSSI(unsigned long curr_millis, uint8_t yellow_dssi_pin, uint8_t blue_dssi_pin);
 
     void setDSSI(unsigned long curr_millis, DriverlessSystemState_e dv_state);
 
   private:
+    uint8_t _yellow_dssi_pin;
+    uint8_t _blue_dssi_pin;
+    unsigned long lastBlinkTime;
+    unsigned int _yellowState;
+    unsigned int _blueState;
 };
 
 using DSSIInterfaceInstance = etl::singleton<DSSIInterface>;
