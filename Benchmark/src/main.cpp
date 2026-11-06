@@ -1,94 +1,107 @@
 #include <Arduino.h>
 #include "benchmark.h"
+#include "ht_sched.hpp"
+#include "ht_task.hpp"
 
-///benchmark config with default valuues
-bench::Benchmark::Config config = {
-    2000,//warmup iterations
-    3000,//measurements
-    100 //batch size
+constexpr std::size_t MAX_TASKS = HT_SCHED_MAX_TASKS;///currently 32
+constexpr std::size_t TASK_COUNTS[] = {1, 4, 8, 16, 28, 32};
+
+///Benchmark config
+const bench::BenchmarkConfig benchmarkConfig = {
+    2000, /// warmup iterations
+    3000, /// # of measurements
+    1     /// 1 scheduler run per measurement
 };
 
-bench::Benchmark benchmark(config);
-///this prevents optimizations that would optimize away code
-volatile int resultInt = 0;
-volatile float resultFloat = 0.0f;
+bench::Benchmark benchmark(benchmarkConfig);
+
+HT_TASK::Task tasks[MAX_TASKS];
+
+HT_TASK::TaskResponse noOpTask(const uint32_t& timeMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    (void)timeMicros;
+    (void)taskInfo;
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+void addTasks(HT_SCHED::Scheduler& scheduler, std::size_t& currentTaskCount, std::size_t targetTaskCount)
+{
+    while (currentTaskCount < targetTaskCount)
+    {
+        tasks[currentTaskCount] = HT_TASK::Task(noOpTask, noOpTask, 0);
+
+        if (!scheduler.schedule(tasks[currentTaskCount]))
+        {
+            Serial.println("Scheduler task queue is full");
+            return;
+        }
+        ++currentTaskCount;
+    }
+}
+
+///Runs and prints stats
+void benchmarkScheduler(HT_SCHED::Scheduler& scheduler, std::size_t taskCount)
+{
+    Serial.println();
+    Serial.printf("Benchmarking scheduler with %u tasks\n", static_cast<unsigned>(taskCount));
+
+    ///Initialize
+    scheduler.run();
+
+    ///Warmup scheduler
+    benchmark.warmup([&scheduler]()
+    {
+        scheduler.run();
+    });
+    ///Measure
+    benchmark.measure([&scheduler]()
+    {
+        scheduler.run();
+    });
+
+    benchmark.print_results(Serial);
+    benchmark.reset();
+}
 
 void setup()
 {
     Serial.begin(115200);
-    delay(2000);
-    ///initialize DWT
-    benchmark.begin();
+    delay(1234);
     Serial.println();
-    Serial.println("================================");
-    Serial.println("     HyTech Racing Test Benchmark");
-    Serial.println("================================");
+    Serial.println("========================================");
+    Serial.println("     HyTech Racing Scheduler Benchmark");
+    Serial.println("========================================");
+    Serial.printf("CPU frequency: %lu MHz\n", static_cast<unsigned long>(F_CPU_ACTUAL / 1000000));
 
-    Serial.printf(
-        "CPU frequency: %lu MHz\n",
-        static_cast<unsigned long>(F_CPU_ACTUAL / 1000000)
-    );
-
-    ///TEST 1: Integer addition
-    Serial.println("\nTEST 1: Integer addition");
-
-    benchmark.warmup([]() {
-        resultInt = 100 + 200;
-        bench::do_not_optimize(resultInt);
+    ///Initialize the scheduler
+    HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
+    scheduler.setTimingFunction([]()
+    {
+        return static_cast<uint32_t>(micros());
     });
 
-    benchmark.measure([]() {
-        resultInt = 100 + 200;
-        bench::do_not_optimize(resultInt);
-    });
+    benchmark.begin();
+    std::size_t currentTaskCount = 0;
 
-    benchmark.print_results(Serial);
-    benchmark.reset();
+    for (const std::size_t taskCount : TASK_COUNTS)
+    {
+        addTasks(scheduler, currentTaskCount, taskCount);
 
-    ///TEST 2: Floating-point multiplication
-    Serial.println("\nTEST 2: Floating-point multiplication");
-
-    benchmark.warmup([]() {
-        resultFloat = 12.5f * 3.14f;
-        bench::do_not_optimize(resultFloat);
-    });
-
-    benchmark.measure([]() {
-        resultFloat = 12.5f * 3.14f;
-        bench::do_not_optimize(resultFloat);
-    });
-
-    benchmark.print_results(Serial);
-    benchmark.reset();
-
-    ///TEST 3: Mathematical loop
-    Serial.println("\nTEST 3: Mathematical loop");
-
-    benchmark.warmup([]() {
-        float x = 1.0f;
-        for (int i = 0; i < 100; ++i)
+        if (currentTaskCount != taskCount)
         {
-            x = x * 1.001f + 0.01f;
+            Serial.println("Scheduling failed");
+            break;
         }
-        resultFloat = x;
-        bench::do_not_optimize(resultFloat);
-    });
+        benchmarkScheduler(scheduler, taskCount);
+    }
 
-    benchmark.measure([]() {
-        float x = 1.0f;
-        for (int i = 0; i < 100; ++i)
-        {
-            x = x * 1.001f + 0.01f;
-        }
-        resultFloat = x;
-        bench::do_not_optimize(resultFloat);
-    });
-
-    benchmark.print_results(Serial);
-    Serial.println("\nAll benchmarks completed.");
+    Serial.println();
+    Serial.println("All scheduler benchmarks completed");
     Serial.flush();
 }
 
 void loop()
 {
 }
+
+
