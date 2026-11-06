@@ -95,10 +95,6 @@ void initializeAllInterfaces()
 
     /* CAN Interface */
     VCFCANInterfaceInstance::create(
-        ACUInterfaceInstance::instance(),
-        BrakeRotorTempInterfaceInstance::instance(),
-        DashboardInterfaceInstance::instance(),
-        VCRInterfaceInstance::instance(),
         VCFConstants::TELEM_CAN_BAUDRATE,
         VCFConstants::FAUX_CAN_BAUDRATE);
 
@@ -171,30 +167,35 @@ HT_TASK::TaskResponse CAN_tasks::enqueueDashboardMsgTask(const unsigned long& sy
 {
     DashInputState_s dash_outputs = DashboardInterfaceInstance::instance().getDashboardOutputs();
 
-    DASH_INPUT_t msg_out;
-    msg_out.dim_button = dash_outputs.btn_dim_read_is_pressed;
-    msg_out.preset_button = dash_outputs.preset_btn_is_pressed;
-    msg_out.mode_button = 0; // dont exist but i dont wanna bother changing can msgs
-    msg_out.motor_controller_cycle_button = dash_outputs.mc_reset_btn_is_pressed;
-    msg_out.start_button = dash_outputs.start_btn_is_pressed;
-    msg_out.data_button_is_pressed = dash_outputs.data_btn_is_pressed;
-    msg_out.left_shifter_button = 0;
-    msg_out.right_shifter_button = dash_outputs.BUTTON_2;
-    msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
-    msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
-    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &msg_out, &Pack_DASH_INPUT_ht_can);
+    DASH_INPUT_t dash_input_msg;
+    dash_input_msg.dim_button = dash_outputs.btn_dim_read_is_pressed;
+    dash_input_msg.preset_button = dash_outputs.preset_btn_is_pressed;
+    dash_input_msg.mode_button = 0; // dont exist but i dont wanna bother changing can msgs
+    dash_input_msg.motor_controller_cycle_button = dash_outputs.mc_reset_btn_is_pressed;
+    dash_input_msg.start_button = dash_outputs.start_btn_is_pressed;
+    dash_input_msg.data_button_is_pressed = dash_outputs.data_btn_is_pressed;
+    dash_input_msg.left_shifter_button = 0;
+    dash_input_msg.right_shifter_button = dash_outputs.BUTTON_2;
+    dash_input_msg.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
+    dash_input_msg.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
+
+    CAN_message_t dash_input_msg_packed;
+    dash_input_msg_packed.id = Pack_DASH_INPUT_ht_can(&dash_input_msg, dash_input_msg_packed.buf, &dash_input_msg_packed.len, (uint8_t*)&dash_input_msg_packed.flags.extended);
+    VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, dash_input_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse CAN_tasks::enqueueFrontSuspensionMsgTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    FRONT_SUSPENSION_t msg_out;
-    msg_out.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
-    msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
-    msg_out.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
-    msg_out.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
+    FRONT_SUSPENSION_t front_suspension_msg;
+    front_suspension_msg.fr_load_cell = ADCInterfaceInstance::instance().getFilteredFRLoadcell();
+    front_suspension_msg.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
+    front_suspension_msg.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
+    front_suspension_msg.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
 
-    VCFCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCFCANBusses_e::TELEM, &msg_out, &Pack_FRONT_SUSPENSION_ht_can);
+    CAN_message_t front_suspension_msg_packed;
+    front_suspension_msg_packed.id = Pack_FRONT_SUSPENSION_ht_can(&front_suspension_msg, front_suspension_msg_packed.buf, &front_suspension_msg_packed.len, (uint8_t*)&front_suspension_msg_packed.flags.extended);
+    VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, front_suspension_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 

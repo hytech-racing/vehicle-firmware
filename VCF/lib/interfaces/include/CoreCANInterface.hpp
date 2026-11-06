@@ -31,7 +31,13 @@ enum class VCFCANBusses_e
 class VCFCANInterface : public CANInterface<VCFCANBusses_e>
 {
   public:
-    VCFCANInterface() = default;
+    VCFCANInterface(
+        uint32_t telem_baudrate,
+        uint32_t front_aux_baudrate)
+        : _telem_bus(telem_baudrate),
+          _front_aux_bus(front_aux_baudrate)
+    {
+    }
 
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
