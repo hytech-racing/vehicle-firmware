@@ -1,5 +1,5 @@
-#include "VCR_Constants.hpp"
 #include "CANTestHarness.h"
+#include "VCR_Constants.hpp"
 
 /**
  * VCR buses:

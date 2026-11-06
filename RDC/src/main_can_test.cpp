@@ -1,5 +1,5 @@
-#include "RDC_Constants.hpp"
 #include "CANTestHarness.h"
+#include "RDC_Constants.hpp"
 
 /**
  * RDC buses:

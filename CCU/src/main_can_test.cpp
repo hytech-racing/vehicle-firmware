@@ -1,5 +1,5 @@
-#include "CCU_Constants.hpp"
 #include "CANTestHarness.h"
+#include "CCU_Constants.hpp"
 
 /**
  * CCU buses:
