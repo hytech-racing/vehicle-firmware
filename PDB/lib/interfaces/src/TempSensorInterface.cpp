@@ -1,4 +1,5 @@
 #include "TempSensorInterface.hpp"
+
 #include <math.h>
 
 
@@ -22,7 +23,7 @@ HAL_StatusTypeDef TempSensorInterface::initSensor(uint8_t index)
     {
         return HAL_ERROR;
     }
-    TempSensor_s &sensor = _all_temp_sensors[index];
+    TempSensor_s& sensor = _all_temp_sensors[index];
     sensor.status.is_initialized = false;
 
     // The A2:A0 address is latched after the device has seen its address twice (datasheet p. 16)
@@ -64,7 +65,7 @@ HAL_StatusTypeDef TempSensorInterface::readTempSensor(uint8_t index)
     {
         return HAL_ERROR;
     }
-    TempSensor_s &sensor = _all_temp_sensors[index];
+    TempSensor_s& sensor = _all_temp_sensors[index];
 
     // Every read/write restarts the conversion, and reading before it finishes aborts it and returns the previous result
     if ((HAL_GetTick() - sensor.last_bus_tick) < temp_sensor_default_params::MIN_READ_INTERVAL_MS)
@@ -88,19 +89,19 @@ HAL_StatusTypeDef TempSensorInterface::readTempSensor(uint8_t index)
     sensor.data.temp_degC = decodeTemp(buffer[0], buffer[1]);
     sensor.data.last_update_tick = HAL_GetTick();
 
-    sensor.status.is_out_of_range = (sensor.data.temp_degC < temp_sensor_default_params::TEMP_MIN) ||
-                                    (sensor.data.temp_degC > temp_sensor_default_params::TEMP_MAX);
+    sensor.status.is_out_of_range =
+        (sensor.data.temp_degC < temp_sensor_default_params::TEMP_MIN) || (sensor.data.temp_degC > temp_sensor_default_params::TEMP_MAX);
 
     _updateOvertemp(sensor);
     return HAL_OK;
 }
 
-const TempSensorData_s *TempSensorInterface::getData(uint8_t index) const
+const TempSensorData_s* TempSensorInterface::getData(uint8_t index) const
 {
     return _isValidIndex(index) ? &_all_temp_sensors[index].data : nullptr;
 }
 
-const TempSensorStatus_s *TempSensorInterface::getStatus(uint8_t index) const
+const TempSensorStatus_s* TempSensorInterface::getStatus(uint8_t index) const
 {
     return _isValidIndex(index) ? &_all_temp_sensors[index].status : nullptr;
 }
@@ -182,42 +183,27 @@ bool TempSensorInterface::_isValidIndex(uint8_t index) const
     return index < temp_sensor_default_params::NUM_SENSORS;
 }
 
-HAL_StatusTypeDef TempSensorInterface::_setAddressPointerRegister(TempSensor_s &sensor, uint8_t desired_register)
+HAL_StatusTypeDef TempSensorInterface::_setAddressPointerRegister(TempSensor_s& sensor, uint8_t desired_register)
 {
     if (sensor.address_pointer == desired_register)
     {
         return HAL_OK; // If desired address pointer == current address pointer register, then move on
     }
 
-    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(_hi2c,
-                                                    sensor.hal_address,
-                                                    &desired_register,
-                                                    1,
-                                                    temp_sensor_default_params::I2C_TIMEOUT_MS
-    );
+    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(_hi2c, sensor.hal_address, &desired_register, 1, temp_sensor_default_params::I2C_TIMEOUT_MS);
     sensor.address_pointer = (status == HAL_OK) ? desired_register : temp_sensor_default_params::POINTER_UNKNOWN;
     return _updateSensorStatus(sensor, status);
 }
 
 
-
-HAL_StatusTypeDef TempSensorInterface::_readRegister(TempSensor_s &sensor,
-                                                    uint8_t desired_register,
-                                                    uint8_t *buffer,
-                                                    uint16_t length
-)
+HAL_StatusTypeDef TempSensorInterface::_readRegister(TempSensor_s& sensor, uint8_t desired_register, uint8_t* buffer, uint16_t length)
 {
     if (_setAddressPointerRegister(sensor, desired_register) != HAL_OK)
     {
         return HAL_ERROR;
     }
 
-    HAL_StatusTypeDef status = HAL_I2C_Master_Receive(_hi2c,
-                                                    sensor.hal_address,
-                                                    buffer,
-                                                    length,
-                                                    temp_sensor_default_params::I2C_TIMEOUT_MS
-    );
+    HAL_StatusTypeDef status = HAL_I2C_Master_Receive(_hi2c, sensor.hal_address, buffer, length, temp_sensor_default_params::I2C_TIMEOUT_MS);
     if (status != HAL_OK)
     {
         sensor.address_pointer = temp_sensor_default_params::POINTER_UNKNOWN; // re-send it next time
@@ -225,26 +211,16 @@ HAL_StatusTypeDef TempSensorInterface::_readRegister(TempSensor_s &sensor,
     return _updateSensorStatus(sensor, status);
 }
 
-HAL_StatusTypeDef TempSensorInterface::_writeRegister(TempSensor_s &sensor,
-                                                    uint8_t desired_register,
-                                                    uint8_t *buffer,
-                                                    uint16_t length
-)
+HAL_StatusTypeDef TempSensorInterface::_writeRegister(TempSensor_s& sensor, uint8_t desired_register, uint8_t* buffer, uint16_t length)
 {
     // Pointer byte followed by data in one transaction (datasheet Fig. 15)
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Write(_hi2c,
-                                                sensor.hal_address,
-                                                desired_register,
-                                                I2C_MEMADD_SIZE_8BIT,
-                                                buffer,
-                                                length,
-                                                temp_sensor_default_params::I2C_TIMEOUT_MS
-    );
+    HAL_StatusTypeDef status =
+        HAL_I2C_Mem_Write(_hi2c, sensor.hal_address, desired_register, I2C_MEMADD_SIZE_8BIT, buffer, length, temp_sensor_default_params::I2C_TIMEOUT_MS);
     sensor.address_pointer = (status == HAL_OK) ? desired_register : temp_sensor_default_params::POINTER_UNKNOWN;
     return _updateSensorStatus(sensor, status);
 }
 
-HAL_StatusTypeDef TempSensorInterface::_updateSensorStatus(TempSensor_s &sensor, HAL_StatusTypeDef status)
+HAL_StatusTypeDef TempSensorInterface::_updateSensorStatus(TempSensor_s& sensor, HAL_StatusTypeDef status)
 {
     sensor.last_bus_tick = HAL_GetTick();
 
@@ -268,7 +244,7 @@ HAL_StatusTypeDef TempSensorInterface::_updateSensorStatus(TempSensor_s &sensor,
     return status;
 }
 
-void TempSensorInterface::_updateOvertemp(TempSensor_s &sensor)
+void TempSensorInterface::_updateOvertemp(TempSensor_s& sensor)
 {
     // Software comparator with hysteresis: set at/above t_os_sp, clear below t_hyst_sp, otherwise hold
     if (sensor.data.temp_degC >= temp_sensor_default_params::OVERTEMP_SHUTDOWN_SETPOINT)
