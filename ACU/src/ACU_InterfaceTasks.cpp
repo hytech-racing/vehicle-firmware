@@ -302,7 +302,9 @@ HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMi
     EM_MEASUREMENT_t msg = {};
     msg.em_current_ro = HT_CAN_em_current_ro_toS(ADCInterfaceInstance::instance().read_shunt_current());
     msg.em_voltage_ro = HT_CAN_em_voltage_ro_toS(ADCInterfaceInstance::instance().read_pack_voltage_sense());
-    ACUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(ACUCANBusses_e::CCU, &msg, &Pack_EM_MEASUREMENT_ht_can);
+    CAN_message_t msg_packed;
+    msg_packed.id = Pack_EM_MEASUREMENT_ht_can(&msg, msg_packed.buf, &msg_packed.len, (uint8_t*)&msg_packed.flags.extended);
+    ACUCANInterfaceInstance::instance().enqueueOnSwitch(ACUCANBusses_e::CCU, msg_packed);
 
     return HT_TASK::TaskResponse::YIELD;
 }

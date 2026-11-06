@@ -25,10 +25,10 @@ enum class ACUCANBusses_e
 
 /**
  * @brief Owns ACU's CAN buses. This is the only code with access to them: everything else sends by
- * calling enqueueSwitch() / packAndEnqueueOnSwitch(), and received messages are routed to the
+ * calling enqueueOnSwitch() / enqueueCustomIDOnSwitch() with an already-packed message, and received messages are routed to the
  * interfaces passed in on construction.
  */
-class ACUCANInterface : public CANInterfaceTemplate_t<ACUCANBusses_e>
+class ACUCANInterface : public CANInterface<ACUCANBusses_e>
 {
   public:
     ACUCANInterface(CCUInterface& ccu_interface, EMInterface& em_interface, uint32_t ccu_baudrate, uint32_t em_baudrate)
@@ -39,7 +39,7 @@ class ACUCANInterface : public CANInterfaceTemplate_t<ACUCANBusses_e>
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    void enqueueSwitch(ACUCANBusses_e bus, const CAN_message_t& msg) override;
+    void enqueueOnSwitch(ACUCANBusses_e bus, const CAN_message_t& msg) override;
 
     /**
      * @brief Drains both RX buffers, routing each message to its interface

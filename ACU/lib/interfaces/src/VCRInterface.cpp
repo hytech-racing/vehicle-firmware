@@ -16,5 +16,7 @@ void VCRInterface::handle_enqueue_acu_ok_CAN_message()
     msg.imd_ok = _curr_data.imd_ok;
     msg.bms_ok = _curr_data.bms_ok;
     msg.latch_ok = _curr_data.latch_ok;
-    ACUCANInterfaceInstance::instance().packAndEnqueueOnSwitch(ACUCANBusses_e::CCU, &msg, &Pack_ACU_OK_ht_can);
+    CAN_message_t msg_packed;
+    msg_packed.id = Pack_ACU_OK_ht_can(&msg, msg_packed.buf, &msg_packed.len, (uint8_t*)&msg_packed.flags.extended);
+    ACUCANInterfaceInstance::instance().enqueueOnSwitch(ACUCANBusses_e::CCU, msg_packed);
 }

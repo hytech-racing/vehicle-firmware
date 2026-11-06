@@ -3,7 +3,7 @@
 #include "SystemTimeInterface.h"
 
 
-void ACUCANInterface::enqueueSwitch(ACUCANBusses_e bus, const CAN_message_t& msg)
+void ACUCANInterface::enqueueOnSwitch(ACUCANBusses_e bus, const CAN_message_t& msg)
 {
     switch (bus)
     {
