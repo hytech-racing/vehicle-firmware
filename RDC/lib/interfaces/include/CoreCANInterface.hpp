@@ -25,10 +25,10 @@ enum class RDCCANBusses_e
 
 /**
  * @brief Owns RDC's CAN bus. This is the only code with access to it: everything else sends by
- * calling enqueueSwitch() / packAndEnqueueOnSwitch(), and received messages are routed to the
+ * calling enqueueOnSwitch() / enqueueCustomIDOnSwitch() with an already-packed message, and received messages are routed to the
  * interfaces passed in on construction.
  */
-class RDCCANInterface : public CANInterfaceTemplate_t<RDCCANBusses_e>
+class RDCCANInterface : public CANInterface<RDCCANBusses_e>
 {
   public:
     RDCCANInterface(DrivebrainInterface& db_interface, FDCInterface& fdc_interface, RSSInterface& rss_interface, uint32_t driverless_baudrate)
@@ -39,7 +39,7 @@ class RDCCANInterface : public CANInterfaceTemplate_t<RDCCANBusses_e>
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    void enqueueSwitch(RDCCANBusses_e bus, const CAN_message_t& msg) override;
+    void enqueueOnSwitch(RDCCANBusses_e bus, const CAN_message_t& msg) override;
 
     /**
      * @brief Drains the RX buffer, routing each message to its interface

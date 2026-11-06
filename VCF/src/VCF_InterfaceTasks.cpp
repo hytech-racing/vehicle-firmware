@@ -94,9 +94,7 @@ void initializeAllInterfaces()
     VCRInterfaceInstance::create();
 
     /* CAN Interface */
-    VCFCANInterfaceInstance::create(
-        VCFConstants::TELEM_CAN_BAUDRATE,
-        VCFConstants::FAUX_CAN_BAUDRATE);
+    VCFCANInterfaceInstance::create(VCFConstants::TELEM_CAN_BAUDRATE, VCFConstants::FAUX_CAN_BAUDRATE);
 
     /* Ethernet */
     VCFEthernetInterfaceInstance::create();
@@ -180,7 +178,8 @@ HT_TASK::TaskResponse CAN_tasks::enqueueDashboardMsgTask(const unsigned long& sy
     dash_input_msg.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
 
     CAN_message_t dash_input_msg_packed;
-    dash_input_msg_packed.id = Pack_DASH_INPUT_ht_can(&dash_input_msg, dash_input_msg_packed.buf, &dash_input_msg_packed.len, (uint8_t*)&dash_input_msg_packed.flags.extended);
+    dash_input_msg_packed.id =
+        Pack_DASH_INPUT_ht_can(&dash_input_msg, dash_input_msg_packed.buf, &dash_input_msg_packed.len, (uint8_t*)&dash_input_msg_packed.flags.extended);
     VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, dash_input_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -194,7 +193,11 @@ HT_TASK::TaskResponse CAN_tasks::enqueueFrontSuspensionMsgTask(const unsigned lo
     front_suspension_msg.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
 
     CAN_message_t front_suspension_msg_packed;
-    front_suspension_msg_packed.id = Pack_FRONT_SUSPENSION_ht_can(&front_suspension_msg, front_suspension_msg_packed.buf, &front_suspension_msg_packed.len, (uint8_t*)&front_suspension_msg_packed.flags.extended);
+    front_suspension_msg_packed.id = Pack_FRONT_SUSPENSION_ht_can(
+        &front_suspension_msg,
+        front_suspension_msg_packed.buf,
+        &front_suspension_msg_packed.len,
+        (uint8_t*)&front_suspension_msg_packed.flags.extended);
     VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, front_suspension_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }

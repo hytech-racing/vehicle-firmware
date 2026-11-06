@@ -125,7 +125,11 @@ HT_TASK::TaskResponse CAN_tasks::enqueuePedalsMsgTask(const unsigned long& sys_m
     pedals_data_msg.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
 
     CAN_message_t pedals_data_msg_packed;
-    pedals_data_msg_packed.id = Pack_PEDALS_SYSTEM_DATA_ht_can(&pedals_data_msg, pedals_data_msg_packed.buf, &pedals_data_msg_packed.len, (uint8_t*)&pedals_data_msg_packed.flags.extended);
+    pedals_data_msg_packed.id = Pack_PEDALS_SYSTEM_DATA_ht_can(
+        &pedals_data_msg,
+        pedals_data_msg_packed.buf,
+        &pedals_data_msg_packed.len,
+        (uint8_t*)&pedals_data_msg_packed.flags.extended);
     VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, pedals_data_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
@@ -181,7 +185,11 @@ HT_TASK::TaskResponse CAN_tasks::enqueueSteeringMsgTask(const unsigned long& sys
     steering_data_msg.steering_digital_raw = steering_system_data.digital_raw;
 
     CAN_message_t steering_data_msg_packed;
-    steering_data_msg_packed.id = Pack_STEERING_DATA_ht_can(&steering_data_msg, steering_data_msg_packed.buf, &steering_data_msg_packed.len, (uint8_t*)&steering_data_msg_packed.flags.extended);
+    steering_data_msg_packed.id = Pack_STEERING_DATA_ht_can(
+        &steering_data_msg,
+        steering_data_msg_packed.buf,
+        &steering_data_msg_packed.len,
+        (uint8_t*)&steering_data_msg_packed.flags.extended);
     VCFCANInterfaceInstance::instance().enqueueOnSwitch(VCFCANBusses_e::TELEM, steering_data_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }

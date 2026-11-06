@@ -14,11 +14,11 @@
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
 #include "ADS112Interface.hpp"
+#include "CoreCANInterface.hpp"
 #include "DrivebrainInterface.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
-#include "CoreCANInterface.hpp"
 #include "VCREthernetInterface.hpp"
 #include "WatchdogInterface.hpp"
 

@@ -26,17 +26,14 @@ enum class CCUCANBusses_e
 
 /**
  * @brief Owns CCU's CAN buses. This is the only code with access to them: everything else sends by
- * calling enqueueSwitch() / packAndEnqueueOnSwitch(), and received messages are routed to the
+ * calling enqueueOnSwitch() / enqueueCustomIDOnSwitch() with an already-packed message, and received messages are routed to the
  * interfaces passed in on construction.
  */
 class CCUCANInterface : public CANInterface<CCUCANBusses_e>
 {
   public:
-    CCUCANInterface(
-        uint32_t acu_baudrate,
-        uint32_t charger_baudrate)
-        : _acu_bus(acu_baudrate),
-          _charger_bus(charger_baudrate)
+    CCUCANInterface(uint32_t acu_baudrate, uint32_t charger_baudrate)
+        : _acu_bus(acu_baudrate), _charger_bus(charger_baudrate)
     {
     }
 

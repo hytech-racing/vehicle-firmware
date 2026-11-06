@@ -64,7 +64,11 @@ void VCRControls::send_controls_can_messages()
     status_msg.db_telem_timing_fault = telem_latency_info.timing_failure;
 
     CAN_message_t status_msg_packed;
-    status_msg_packed.id = Pack_DRIVEBRAIN_LATENCY_STATUSES_ht_can(&status_msg, status_msg_packed.buf, &status_msg_packed.len, (uint8_t*)&status_msg_packed.flags.extended); // NOLINT
+    status_msg_packed.id = Pack_DRIVEBRAIN_LATENCY_STATUSES_ht_can(
+        &status_msg,
+        status_msg_packed.buf,
+        &status_msg_packed.len,
+        (uint8_t*)&status_msg_packed.flags.extended); // NOLINT
     VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, status_msg_packed);
 
     // Enqueue latency periods
@@ -74,6 +78,10 @@ void VCRControls::send_controls_can_messages()
     latency_msg.telem_latency_millis = static_cast<int>(telem_latency_info.worst_period_millis);
 
     CAN_message_t latency_msg_packed;
-    latency_msg_packed.id = Pack_DRIVEBRAIN_LATENCY_TIMES_ht_can(&latency_msg, latency_msg_packed.buf, &latency_msg_packed.len, (uint8_t*)&latency_msg_packed.flags.extended); // NOLINT
+    latency_msg_packed.id = Pack_DRIVEBRAIN_LATENCY_TIMES_ht_can(
+        &latency_msg,
+        latency_msg_packed.buf,
+        &latency_msg_packed.len,
+        (uint8_t*)&latency_msg_packed.flags.extended); // NOLINT
     VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, latency_msg_packed);
 }

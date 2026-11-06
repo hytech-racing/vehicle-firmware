@@ -2,10 +2,10 @@
 #define CAN_INTERFACE
 
 #include <FlexCAN_T4.h>
-#include <etl/delegate.h>
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <etl/delegate.h>
 
 
 /**
@@ -82,7 +82,9 @@ class CANBus
         {
             // Programming error: a second CANBus on this peripheral would steal the first's RX callback
             Serial.println("FATAL: CANBus constructed twice for the same CAN_DEV");
-            while (true) {}
+            while (true)
+            {
+            }
         }
         _instance = this;
         _bus.begin();
@@ -141,7 +143,7 @@ class CANBus
     static constexpr size_t _CAN_MSG_SIZE = sizeof(CAN_message_t);
     static constexpr uint16_t _RX_BUF_SIZE = 256; // messages; must be a power of 2
     static constexpr uint16_t _TX_BUF_SIZE = 128; // messages; must be a power of 2
-    static inline CANBus* _instance = nullptr; // one per CAN_DEV
+    static inline CANBus* _instance = nullptr;    // one per CAN_DEV
 
     /**
      * @brief FlexCAN receive callback. Static because FlexCAN only accepts plain function pointers

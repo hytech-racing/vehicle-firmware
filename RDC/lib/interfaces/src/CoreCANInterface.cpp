@@ -3,7 +3,7 @@
 #include "SystemTimeInterface.h"
 
 
-void RDCCANInterface::enqueueSwitch(RDCCANBusses_e bus, const CAN_message_t& msg)
+void RDCCANInterface::enqueueOnSwitch(RDCCANBusses_e bus, const CAN_message_t& msg)
 {
     switch (bus)
     {

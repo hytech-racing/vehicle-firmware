@@ -91,7 +91,8 @@ void DrivebrainInterface::handle_enqueue_suspension_CAN_data(const ADCInterface&
     rear_sus_msg.rr_shock_pot_ro = HT_CAN_rr_shock_pot_ro_toS(adc_instance.get_filtered_RR_sus_pot());
 
     CAN_message_t rear_sus_msg_packed;
-    rear_sus_msg_packed.id = Pack_REAR_SUSPENSION_ht_can(&rear_sus_msg, rear_sus_msg_packed.buf, &rear_sus_msg_packed.len, (uint8_t*)&rear_sus_msg_packed.flags.extended); // NOLINT
+    rear_sus_msg_packed.id =
+        Pack_REAR_SUSPENSION_ht_can(&rear_sus_msg, rear_sus_msg_packed.buf, &rear_sus_msg_packed.len, (uint8_t*)&rear_sus_msg_packed.flags.extended); // NOLINT
     VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, rear_sus_msg_packed);
 }
 
@@ -102,7 +103,11 @@ void DrivebrainInterface::handle_enqueue_coolant_temp_CAN_data(const ADCInterfac
     thermistor_msg.thermistor_1_deg_C_ro = HT_CAN_thermistor_1_deg_C_ro_toS(adc_instance.get_thermistor_n_degrees_C(1));
     thermistor_msg.thermistor_2_deg_C_ro = HT_CAN_thermistor_2_deg_C_ro_toS(adc_instance.get_thermistor_n_degrees_C(2));
     CAN_message_t thermistor_msg_packed;
-    thermistor_msg_packed.id = Pack_REAR_THERMISTORS_DATA_ht_can(&thermistor_msg, thermistor_msg_packed.buf, &thermistor_msg_packed.len, (uint8_t*)&thermistor_msg_packed.flags.extended); // NOLINT
+    thermistor_msg_packed.id = Pack_REAR_THERMISTORS_DATA_ht_can(
+        &thermistor_msg,
+        thermistor_msg_packed.buf,
+        &thermistor_msg_packed.len,
+        (uint8_t*)&thermistor_msg_packed.flags.extended); // NOLINT
     VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, thermistor_msg_packed);
 }
 
@@ -111,7 +116,11 @@ void DrivebrainInterface::handle_enqueue_flowmeter_CAN_data(FlowmeterInterface& 
     FLOWMETER_DATA_t flowmeter_msg;
     flowmeter_msg.flow_rate = static_cast<int>(flowmeter_instance.get_flow_gpm(curr_millis));
     CAN_message_t flowmeter_msg_packed;
-    flowmeter_msg_packed.id = Pack_FLOWMETER_DATA_ht_can(&flowmeter_msg, flowmeter_msg_packed.buf, &flowmeter_msg_packed.len, (uint8_t*)&flowmeter_msg_packed.flags.extended); // NOLINT
+    flowmeter_msg_packed.id = Pack_FLOWMETER_DATA_ht_can(
+        &flowmeter_msg,
+        flowmeter_msg_packed.buf,
+        &flowmeter_msg_packed.len,
+        (uint8_t*)&flowmeter_msg_packed.flags.extended); // NOLINT
     VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, flowmeter_msg_packed);
 }
 

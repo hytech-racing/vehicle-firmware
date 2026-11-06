@@ -31,11 +31,8 @@ enum class VCFCANBusses_e
 class VCFCANInterface : public CANInterface<VCFCANBusses_e>
 {
   public:
-    VCFCANInterface(
-        uint32_t telem_baudrate,
-        uint32_t front_aux_baudrate)
-        : _telem_bus(telem_baudrate),
-          _front_aux_bus(front_aux_baudrate)
+    VCFCANInterface(uint32_t telem_baudrate, uint32_t front_aux_baudrate)
+        : _telem_bus(telem_baudrate), _front_aux_bus(front_aux_baudrate)
     {
     }
 

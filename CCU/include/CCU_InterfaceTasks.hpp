@@ -9,9 +9,9 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ButtonInterface.hpp"
-#include "CoreCANInterface.hpp"
 #include "CCUEthernetInterface.hpp"
 #include "ChargerInterface.hpp"
+#include "CoreCANInterface.hpp"
 #include "DisplayInterface.hpp"
 #include "Level2Interface.hpp"
 #include "RotaryEncoderInterface.hpp"

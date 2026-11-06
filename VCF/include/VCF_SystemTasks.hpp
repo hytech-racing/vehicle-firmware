@@ -9,10 +9,10 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
+#include "CoreCANInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
-#include "CoreCANInterface.hpp"
 #include "VCRInterface.hpp"
 
 /* Local System Includes */

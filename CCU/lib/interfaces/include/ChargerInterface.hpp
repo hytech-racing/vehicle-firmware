@@ -6,8 +6,8 @@
 #include <etl/singleton.h>
 
 /* External Dependencies */
-#include "SharedFirmwareTypes.h"
 #include "CANInterface.hpp"
+#include "SharedFirmwareTypes.h"
 #include "ht_can.h"
 
 /* Local Interface Includes */
@@ -18,7 +18,7 @@ namespace default_charger_params
 {
     constexpr uint8_t BYTE_SHIFT = 8;
     constexpr float DATA_SCALAR = 10.0F; // charger reports values in units of 0.1
-};
+}; // namespace default_charger_params
 
 struct ChargerData_s
 {

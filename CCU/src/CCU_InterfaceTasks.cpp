@@ -69,9 +69,7 @@ void initializeAllInterfaces()
     CCUEthernetInterfaceInstance::instance().initEthernetDevice();
 
     /* CAN Interface */
-    CCUCANInterfaceInstance::create(
-        CCUConstants::ACU_CAN_BAUDRATE,
-        CCUConstants::CHARGER_CAN_BAUDRATE);
+    CCUCANInterfaceInstance::create(CCUConstants::ACU_CAN_BAUDRATE, CCUConstants::CHARGER_CAN_BAUDRATE);
 }
 
 HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)

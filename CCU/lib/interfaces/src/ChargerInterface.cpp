@@ -43,6 +43,10 @@ void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float 
     charger_control_msg.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
 
     CAN_message_t charger_control_msg_packed;
-    charger_control_msg_packed.id = Pack_CHARGER_CONTROL_ht_can(&charger_control_msg, charger_control_msg_packed.buf, &charger_control_msg_packed.len, (uint8_t*)&charger_control_msg_packed.flags.extended);
+    charger_control_msg_packed.id = Pack_CHARGER_CONTROL_ht_can(
+        &charger_control_msg,
+        charger_control_msg_packed.buf,
+        &charger_control_msg_packed.len,
+        (uint8_t*)&charger_control_msg_packed.flags.extended);
     CCUCANInterfaceInstance::instance().enqueueOnSwitch(CCUCANBusses_e::CHARGER, charger_control_msg_packed);
 }

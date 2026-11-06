@@ -7,8 +7,8 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "SharedFirmwareTypes.h"
 #include "CANInterface.hpp"
+#include "SharedFirmwareTypes.h"
 #include "ht_can.h"
 
 

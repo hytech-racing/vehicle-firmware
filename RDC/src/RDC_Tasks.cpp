@@ -142,7 +142,10 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, c
         break;
     }
     dv_status.driverless_state = static_cast<uint8_t>(DriverlessStateMachineInstance::instance().getState());
-    RDCCANInterfaceInstance::instance().packAndEnqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, &dv_status, &Pack_DRIVERLESS_STATUS_AND_STARTUP_ht_can);
+    CAN_message_t dv_status_packed;
+    dv_status_packed.id =
+        Pack_DRIVERLESS_STATUS_AND_STARTUP_ht_can(&dv_status, dv_status_packed.buf, &dv_status_packed.len, (uint8_t*)&dv_status_packed.flags.extended);
+    RDCCANInterfaceInstance::instance().enqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, dv_status_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -154,7 +157,13 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, co
     set_operating_mode_msg.target_node = RSSInterfaceInstance::instance().getNodeID();
 
     // pack and enqueue msg
-    RDCCANInterfaceInstance::instance().packAndEnqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, &set_operating_mode_msg, &Pack_SET_OPERATING_MODE_ht_can);
+    CAN_message_t set_operating_mode_msg_packed;
+    set_operating_mode_msg_packed.id = Pack_SET_OPERATING_MODE_ht_can(
+        &set_operating_mode_msg,
+        set_operating_mode_msg_packed.buf,
+        &set_operating_mode_msg_packed.len,
+        (uint8_t*)&set_operating_mode_msg_packed.flags.extended);
+    RDCCANInterfaceInstance::instance().enqueueOnSwitch(RDCCANBusses_e::DRIVERLESS, set_operating_mode_msg_packed);
     return HT_TASK::TaskResponse::YIELD;
 }
 
