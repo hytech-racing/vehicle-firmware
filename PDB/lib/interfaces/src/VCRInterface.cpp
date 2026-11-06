@@ -1,7 +1,7 @@
 #include "VCRInterface.hpp"
 
 
-void VCRInterface::receiveVehicleStateCANMsg(const CAN_message_t &can_msg)
+void VCRInterface::receiveVehicleStateCANMsg(const CAN_message_t& can_msg)
 {
     CAR_STATES_t unpacked_msg;
     Unpack_CAR_STATES_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT

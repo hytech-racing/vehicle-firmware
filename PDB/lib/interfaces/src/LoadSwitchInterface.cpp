@@ -1,11 +1,11 @@
 #include "LoadSwitchInterface.hpp"
 
 
-LoadSwitchInterface::LoadSwitchInterface(const std::array<LoadSwitchParams_s, NUM_LOAD_SWITCHES> &params)
+LoadSwitchInterface::LoadSwitchInterface(const std::array<LoadSwitchParams_s, NUM_LOAD_SWITCHES>& params)
 {
     bool is_filled[NUM_LOAD_SWITCHES] = {};
 
-    for (const LoadSwitchParams_s &switch_params : params)
+    for (const LoadSwitchParams_s& switch_params : params)
     {
         // Place by id so the list order doesn't matter; a bad or repeated id invalidates the whole config
         if (!_isValidIndex(switch_params.id) || is_filled[switch_params.id])
@@ -15,13 +15,12 @@ LoadSwitchInterface::LoadSwitchInterface(const std::array<LoadSwitchParams_s, NU
         }
         is_filled[switch_params.id] = true;
 
-        LoadSwitch_s &load_switch = _all_load_switches[switch_params.id];
+        LoadSwitch_s& load_switch = _all_load_switches[switch_params.id];
         load_switch.params = switch_params;
         load_switch.imon_mA_per_count = _computeMilliampsPerCount(switch_params.imon_resistor_ohms);
         // I_OL[A] = 18 / R_ILIM[kOhm]  ->  I_OL[mA] = 18 * 10^6 / R_ILIM[Ohm]
-        load_switch.current_limit_mA = switch_params.ilim_resistor_ohms
-            ? (loadswitch_default_params::OVERLOAD_CURRENT_NUMERATOR * 1'000'000UL) / switch_params.ilim_resistor_ohms
-            : 0;
+        load_switch.current_limit_mA =
+            switch_params.ilim_resistor_ohms ? (loadswitch_default_params::OVERLOAD_CURRENT_NUMERATOR * 1'000'000UL) / switch_params.ilim_resistor_ohms : 0;
     }
 }
 
@@ -32,7 +31,7 @@ bool LoadSwitchInterface::init()
         return false;
     }
 
-    for (LoadSwitch_s &load_switch : _all_load_switches)
+    for (LoadSwitch_s& load_switch : _all_load_switches)
     {
         // Write the output latch LOW *before* making the pin an output so SHDN never
         // glitches high at boot.
@@ -56,7 +55,7 @@ void LoadSwitchInterface::enable(uint8_t index)
     {
         return;
     }
-    LoadSwitch_s &load_switch = _all_load_switches[index];
+    LoadSwitch_s& load_switch = _all_load_switches[index];
 
     // Only restart the ignore fault timer on an off -> on transition
     if (!load_switch.data.is_loadswitch_enabled)
@@ -75,7 +74,7 @@ void LoadSwitchInterface::disable(uint8_t index)
     {
         return;
     }
-    LoadSwitch_s &load_switch = _all_load_switches[index];
+    LoadSwitch_s& load_switch = _all_load_switches[index];
 
     // SHDN < V(SHUTF) = 0.8 V turns the FET off within tSD(dly) = 1 us typ (6.6).
     digitalWrite(load_switch.params.enable_pin, LOW);
@@ -113,7 +112,7 @@ void LoadSwitchInterface::reset_latched_fault(uint8_t index)
     {
         return;
     }
-    LoadSwitch_s &load_switch = _all_load_switches[index];
+    LoadSwitch_s& load_switch = _all_load_switches[index];
 
     digitalWrite(load_switch.params.enable_pin, LOW);
     delayMicroseconds(loadswitch_default_params::LATCH_RESET_LOW_US);
@@ -141,10 +140,9 @@ void LoadSwitchInterface::sampleFault(uint8_t index)
     {
         return;
     }
-    LoadSwitch_s &load_switch = _all_load_switches[index];
+    LoadSwitch_s& load_switch = _all_load_switches[index];
 
-    if (!load_switch.data.is_loadswitch_enabled ||
-        (millis() - load_switch.enable_time_ms) < load_switch.params.startup_ignore_fault_ms)
+    if (!load_switch.data.is_loadswitch_enabled || (millis() - load_switch.enable_time_ms) < load_switch.params.startup_ignore_fault_ms)
     {
         load_switch.data.is_loadswitch_faulted = false;
         return;
@@ -167,7 +165,7 @@ void LoadSwitchInterface::sampleIMON(uint8_t index)
     {
         return;
     }
-    LoadSwitch_s &load_switch = _all_load_switches[index];
+    LoadSwitch_s& load_switch = _all_load_switches[index];
 
     const auto counts = static_cast<uint16_t>(analogRead(load_switch.params.imon_pin));
     load_switch.data.imon_current_mA = _convertCountsTomA(counts, load_switch.imon_mA_per_count);
@@ -182,7 +180,7 @@ void LoadSwitchInterface::sampleAll()
     }
 }
 
-const LoadSwitchData_s *LoadSwitchInterface::getData(uint8_t index) const
+const LoadSwitchData_s* LoadSwitchInterface::getData(uint8_t index) const
 {
     return _isValidIndex(index) ? &_all_load_switches[index].data : nullptr;
 }
@@ -209,7 +207,7 @@ uint32_t LoadSwitchInterface::current_limit_mA(uint8_t index) const
 
 bool LoadSwitchInterface::anyFault() const
 {
-    for (const LoadSwitch_s &load_switch : _all_load_switches)
+    for (const LoadSwitch_s& load_switch : _all_load_switches)
     {
         if (load_switch.data.is_loadswitch_faulted)
         {
@@ -240,12 +238,9 @@ float LoadSwitchInterface::imon_full_scale_mA(uint8_t index) const
 
     // Compare in volts: IMON_MAX_VOLTAGE_UV is in microvolts
     const float imon_max_v = static_cast<float>(loadswitch_default_params::IMON_MAX_VOLTAGE_UV) / 1'000'000.0f;
-    const float v_max = (loadswitch_default_params::ADC_VREF_V < imon_max_v)
-                            ? loadswitch_default_params::ADC_VREF_V
-                            : imon_max_v;
+    const float v_max = (loadswitch_default_params::ADC_VREF_V < imon_max_v) ? loadswitch_default_params::ADC_VREF_V : imon_max_v;
 
-    const float max_counts = (v_max / loadswitch_default_params::ADC_VREF_V)
-                             * static_cast<float>((1UL << loadswitch_default_params::ADC1_RESOLUTION) - 1UL);
+    const float max_counts = (v_max / loadswitch_default_params::ADC_VREF_V) * static_cast<float>((1UL << loadswitch_default_params::ADC1_RESOLUTION) - 1UL);
 
     return _convertCountsTomA(static_cast<uint16_t>(max_counts), _all_load_switches[index].imon_mA_per_count);
 }
@@ -266,16 +261,13 @@ float LoadSwitchInterface::_computeMilliampsPerCount(uint32_t imon_resistor_ohms
      *
      * Constant part, converted to mA:
      *   mA_per_count = (V_REF / 2^N) / (R_IMON * GAIN_IMON) * 1000
-    */
+     */
     if (imon_resistor_ohms == 0)
     {
         return 0.0f;
     }
 
-    const float volts_per_count = loadswitch_default_params::ADC_VREF_V
-                                / static_cast<float>(1UL << loadswitch_default_params::ADC1_RESOLUTION);
+    const float volts_per_count = loadswitch_default_params::ADC_VREF_V / static_cast<float>(1UL << loadswitch_default_params::ADC1_RESOLUTION);
 
-    return volts_per_count
-           / (static_cast<float>(imon_resistor_ohms) * loadswitch_default_params::IMON_GAIN)
-           * 1000.0f;
+    return volts_per_count / (static_cast<float>(imon_resistor_ohms) * loadswitch_default_params::IMON_GAIN) * 1000.0f;
 }

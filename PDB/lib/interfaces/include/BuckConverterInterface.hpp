@@ -1,10 +1,11 @@
 #ifndef BUCK_CONVERTER_INTERFACE_HPP
 #define BUCK_CONVERTER_INTERFACE_HPP
 
-#include <cstdint>
-#include <array>
-#include <Arduino.h>
 #include "SharedFirmwareTypes.h"
+
+#include <Arduino.h>
+#include <array>
+#include <cstdint>
 #include <etl/singleton.h>
 
 /**
@@ -65,48 +66,48 @@
  *
  *  All parts restart on their own after every fault above; none latch off. All also turn back on
  *  automatically when their input recovers above UVLO.
-*/
+ */
 
 namespace tps62085_params
 {
-    constexpr uint32_t PG_DEBOUNCE_MS = 5;          // PG must hold a new level this long before we accept it
-    constexpr uint32_t STARTUP_TIMEOUT_MS = 5;      // 0.8 ms typical soft start
-    constexpr uint32_t RESTART_OFF_MS = 35;         // tau = 260 * 22.1uF = 5.75ms -> 5 tau (28.6) is 0.022 V
-}
+    constexpr uint32_t PG_DEBOUNCE_MS = 5;     // PG must hold a new level this long before we accept it
+    constexpr uint32_t STARTUP_TIMEOUT_MS = 5; // 0.8 ms typical soft start
+    constexpr uint32_t RESTART_OFF_MS = 35;    // tau = 260 * 22.1uF = 5.75ms -> 5 tau (28.6) is 0.022 V
+} // namespace tps62085_params
 
 namespace lm61495_params
 {
-    constexpr uint32_t PG_DEBOUNCE_MS = 2;          // On-chip 26 µs deglitch already; this only filters board noise
-    constexpr uint32_t STARTUP_TIMEOUT_MS = 5;      // t_EN (1.2 ms max) + t_SS (2.7 ms max), padded incase
-    constexpr uint32_t RESTART_OFF_MS = 100;        /// No output discharge: Vout decays through the load
+    constexpr uint32_t PG_DEBOUNCE_MS = 2;     // On-chip 26 µs deglitch already; this only filters board noise
+    constexpr uint32_t STARTUP_TIMEOUT_MS = 5; // t_EN (1.2 ms max) + t_SS (2.7 ms max), padded incase
+    constexpr uint32_t RESTART_OFF_MS = 100;   /// No output discharge: Vout decays through the load
     /// TODO: size for the rail
-}
+} // namespace lm61495_params
 
 namespace ltc3115_params
 {
-    constexpr uint32_t STARTUP_TIMEOUT_MS = 15;     // 9 ms nominal soft start (no min/max given), padded
-    constexpr uint32_t RESTART_OFF_MS = 100;        // Output disconnect in shutdown: Vout decays through the load
+    constexpr uint32_t STARTUP_TIMEOUT_MS = 15; // 9 ms nominal soft start (no min/max given), padded
+    constexpr uint32_t RESTART_OFF_MS = 100;    // Output disconnect in shutdown: Vout decays through the load
     /// TODO: size for the rail
-}
+} // namespace ltc3115_params
 
 namespace maxm17536_params
 {
-    constexpr uint32_t PG_DEBOUNCE_MS = 1;          // On-chip 2.3ms deglitch already; this only filters board noise
-    constexpr uint32_t RESTART_OFF_MS = 100;        // No output discharge: Vout decays through the load
+    constexpr uint32_t PG_DEBOUNCE_MS = 1;   // On-chip 2.3ms deglitch already; this only filters board noise
+    constexpr uint32_t RESTART_OFF_MS = 100; // No output discharge: Vout decays through the load
     /// TODO: size for the rail
 
     // Board values
-    constexpr float SS_CAP_NF = 22.0f;              // C_SS capacitor
-    constexpr float SWITCHING_FREQ_KHZ = 450.0f;    // RT open = 450 kHz default
+    constexpr float SS_CAP_NF = 22.0f;           // C_SS capacitor
+    constexpr float SWITCHING_FREQ_KHZ = 450.0f; // RT open = 450 kHz default
 
     /**
      * @brief Startup timeout from the board's soft-start cap and switching frequency, with 2x margin.
-    */
+     */
     constexpr uint32_t computeStartupTimeoutMs()
     {
         return static_cast<uint32_t>(2.0f * (SS_CAP_NF / 5.55f + 1024.0f / SWITCHING_FREQ_KHZ)) + 1;
     }
-}
+} // namespace maxm17536_params
 
 namespace buck_converter_interface_default_params
 {
@@ -116,15 +117,15 @@ namespace buck_converter_interface_default_params
 /**
  * @enum BuckConverterIDs_e
  * @brief Index of each converter
-*/
+ */
 enum BuckConverterIDs_e : uint8_t
 {
     BUCK_LIDAR_24V = 0,
-    BUCK_ORIN_18V  = 1,
-    BUCK_DTI_12V   = 2,
-    BUCK_MAIN_12V  = 3,
-    BUCK_MAIN_5V   = 4,
-    BUCK_MAIN_3V3  = 5,
+    BUCK_ORIN_18V = 1,
+    BUCK_DTI_12V = 2,
+    BUCK_MAIN_12V = 3,
+    BUCK_MAIN_5V = 4,
+    BUCK_MAIN_3V3 = 5,
     NUM_BUCK_IDS
 };
 static_assert(NUM_BUCK_IDS == buck_converter_interface_default_params::NUM_BUCKS, "BuckConverterIDs_e must list every buck");
@@ -132,7 +133,7 @@ static_assert(NUM_BUCK_IDS == buck_converter_interface_default_params::NUM_BUCKS
 /**
  * @enum BuckConverterPart_e
  * @brief Converter part number. Completely informational
-*/
+ */
 enum class BuckConverterPart_e : uint8_t
 {
     TPS62085,
@@ -151,7 +152,7 @@ enum class BuckConverterPart_e : uint8_t
  * @param FAULT EN high, PG low; the part may recover by itself (thermal / hiccup). Never entered without a PG pin.
  * @param RESTARTING EN held low so the output discharges, then re-enabled automatically
  * @note Rails without an EN pin are always on: they start in STARTING at init() and never reach DISABLED / RESTARTING.
-*/
+ */
 enum class BuckConverterState_e : uint8_t
 {
     DISABLED,
@@ -170,7 +171,7 @@ enum class BuckConverterState_e : uint8_t
  * @param STARTUP_TIMEOUT PG never rose after enable
  * @param POWER_LOST PG was high, then dropped: overload (hiccup), thermal shutdown, VIN brownout below UVLO,
  *                   or (LM61495 only) output overvoltage
-*/
+ */
 enum class BuckConverterFaultType_e : uint8_t
 {
     NONE,
@@ -187,7 +188,7 @@ enum class BuckConverterFaultType_e : uint8_t
  * @param pg_debounce_duration_ms How long PG must hold a new level before the debounced value follows it. Unused without PG.
  * @param restart_wait_duration_ms Default EN-low time for restart(); size it so the output discharges
  *                                 below the downstream reset threshold.
-*/
+ */
 struct BuckConverterTiming_s
 {
     uint32_t startup_timeout_duration_ms;
@@ -198,31 +199,28 @@ struct BuckConverterTiming_s
 /**
  * @brief Datasheet timing defaults per part. A rail can use these directly or override fields
  *        (e.g. restart_wait_duration_ms sized for its output caps).
-*/
+ */
 namespace buck_converter_default_timings
 {
     constexpr BuckConverterTiming_s TPS62085 = {
         .startup_timeout_duration_ms = tps62085_params::STARTUP_TIMEOUT_MS,
         .pg_debounce_duration_ms = tps62085_params::PG_DEBOUNCE_MS,
-        .restart_wait_duration_ms = tps62085_params::RESTART_OFF_MS
-    };
+        .restart_wait_duration_ms = tps62085_params::RESTART_OFF_MS};
 
     constexpr BuckConverterTiming_s LM61495 = {
         .startup_timeout_duration_ms = lm61495_params::STARTUP_TIMEOUT_MS,
         .pg_debounce_duration_ms = lm61495_params::PG_DEBOUNCE_MS,
-        .restart_wait_duration_ms = lm61495_params::RESTART_OFF_MS
-    };
+        .restart_wait_duration_ms = lm61495_params::RESTART_OFF_MS};
 
     constexpr BuckConverterTiming_s LTC3115 = {
         .startup_timeout_duration_ms = ltc3115_params::STARTUP_TIMEOUT_MS,
         .pg_debounce_duration_ms = 0,
-        .restart_wait_duration_ms = ltc3115_params::RESTART_OFF_MS
-    };
-}
+        .restart_wait_duration_ms = ltc3115_params::RESTART_OFF_MS};
+} // namespace buck_converter_default_timings
 
 namespace buck_converter_interface_default_params
 {
-    constexpr uint32_t NOT_CONNECTED = NC;      // EN or PG not wired to the MCU (Arduino "no pin")
+    constexpr uint32_t NOT_CONNECTED = NC; // EN or PG not wired to the MCU (Arduino "no pin")
 }
 
 /**
@@ -233,7 +231,7 @@ namespace buck_converter_interface_default_params
  * @param en EN / RUN pin (MCU output, Arduino pin from Pins.h). NOT_CONNECTED if the rail is always on
  * @param pg PG / RESET pin (MCU input, Arduino pin from Pins.h). NOT_CONNECTED if the part has none
  * @param timing_params Timing parameters, usually from buck_converter_default_timings
-*/
+ */
 struct BuckConverterDefinition_s
 {
     BuckConverterIDs_e id;
@@ -255,7 +253,7 @@ struct BuckConverterDefinition_s
  * @param is_pg_high Debounced PG level. Always false without a PG pin
  * @param fault_count Number of faults since boot
  * @param recovery_count Number of times the part went from FAULT back to ACTIVE on its own
-*/
+ */
 struct BuckConverterStatus_s
 {
     BuckConverterPart_e part;
@@ -279,7 +277,7 @@ struct BuckConverterStatus_s
  * @param enabled_at_ms Set when EN goes high (or at init() if always on); startup timeout and duration count from here
  * @param restart_began_at_ms Set in restart() when EN is pulled low; re-enable happens timing_params.restart_wait_duration_ms later
  * @param status State, health and counters, see BuckConverterStatus_s
-*/
+ */
 struct BuckConverter_s
 {
     uint32_t en_pin;
@@ -301,128 +299,126 @@ struct BuckConverter_s
  */
 class BuckConverterInterface
 {
-public:
-
+  public:
     /**
      * @brief Registers all converters. Does not touch the GPIOs, so it is safe to construct
      *        before HAL / GPIO init.
      * @param definitions One entry per converter, in any order; each is placed by its id.
      *        A duplicate or out-of-range id makes the config invalid and init() refuses to run.
-    */
-    explicit BuckConverterInterface(const std::array<BuckConverterDefinition_s, buck_converter_interface_default_params::NUM_BUCKS> &definitions);
+     */
+    explicit BuckConverterInterface(const std::array<BuckConverterDefinition_s, buck_converter_interface_default_params::NUM_BUCKS>& definitions);
 
-    BuckConverterInterface(const BuckConverterInterface &) = delete;
-    BuckConverterInterface &operator=(const BuckConverterInterface &) = delete;
+    BuckConverterInterface(const BuckConverterInterface&) = delete;
+    BuckConverterInterface& operator=(const BuckConverterInterface&) = delete;
 
     /**
      * @brief Puts every converter in its starting state.
      * @note Rails with an EN pin are driven low (DISABLED) until enable() is called.
      *       Always-on rails go to STARTING, so their startup timeout counts from now.
      * @return HAL_OK, or HAL_ERROR if the definitions passed to the constructor were invalid
-    */
+     */
     HAL_StatusTypeDef init();
 
     /**
      * @brief Enables one converter. Drives EN high, starts the startup timer and sets state to STARTING.
      * @note No-op if already enabled or a restart() is in progress.
      * @return HAL_OK if enabled (or already on), HAL_ERROR if the index is invalid or the rail has no EN pin
-    */
+     */
     HAL_StatusTypeDef enable(uint8_t index);
 
     /**
      * @brief Disables one converter. Drives EN low and sets state to DISABLED.
      * @return HAL_OK, or HAL_ERROR if the index is invalid or the rail has no EN pin
-    */
+     */
     HAL_StatusTypeDef disable(uint8_t index);
 
     /**
      * @brief Disable, wait for the output to discharge, then enable again. updateBuckConverter() re-enables
      *        once the rail's timing_params.restart_wait_duration_ms has passed.
      * @return HAL_OK, or HAL_ERROR if the index is invalid or the rail has no EN pin
-    */
+     */
     HAL_StatusTypeDef restart(uint8_t index);
 
     /**
      * @brief Samples PG, debounces it, and updates the state and counters of one converter.
-    */
+     */
     void updateBuckConverter(uint8_t index);
 
     /**
      * @brief updateBuckConverter() for every converter. Call every ~1 ms.
-    */
+     */
     void updateAllBuckConverters();
 
     /**
      * @return Status of the buck if the index is valid, nullptr otherwise
-    */
-    const BuckConverterStatus_s *getStatus(uint8_t index) const;
+     */
+    const BuckConverterStatus_s* getStatus(uint8_t index) const;
 
     /**
      * @return State of the buck if the index is valid, set to DISABLED otherwise
-    */
+     */
     BuckConverterState_e getState(uint8_t index) const;
 
     /**
      * @note Return value is based on the state, thus PG is debounced here
      * @return True only when ACTIVE.
-    */
+     */
     bool isPowerGood(uint8_t index) const;
 
     /**
      * @note Instant pin read, no debounce.
      * @return True if the index is valid and the pin is set; False without a PG pin
-    */
+     */
     bool isPowerGoodPinHigh(uint8_t index) const;
 
     /**
      * @note Only check if the ENABLED bucks are is ACTIVE (PG is good)
-    */
+     */
     bool allEnabledPowerGood() const;
 
     /**
      * @note Checks all buck regardless if they have PG pin or not
-    */
+     */
     bool anyFault() const;
 
     /**
      * @return False if the constructor saw a duplicate or out-of-range id
-    */
+     */
     bool isConfigValid() const { return _is_config_valid; }
 
-private:
-
+  private:
     BuckConverter_s _all_bucks[buck_converter_interface_default_params::NUM_BUCKS];
     bool _is_config_valid = true;
 
     /**
      * @brief Does what it says.
-    */
+     */
     bool _isValidIndex(uint8_t index) const;
 
     /**
      * @brief Writes the EN pin. Does nothing for rails without an EN pin.
      * @param level is the desired state for EN, True = SET/HIGH, False = RESET/LOW
-    */
-    static void _setEnablePin(const BuckConverter_s &buck, bool level);
+     */
+    static void _setEnablePin(const BuckConverter_s& buck, bool level);
 
     /**
      * @brief Raw PG pin read.
      * @return True if the pin is set/HIGH, false for parts without a PG pin or if not set.
      * @note Instant read, no debounce; _updatePowerGood() does the debouncing.
-    */
-    static bool _isPowerGoodPinSet(const BuckConverter_s &buck);
+     */
+    static bool _isPowerGoodPinSet(const BuckConverter_s& buck);
 
     /**
      * @brief Turns a converter on: drives EN high, marks it enabled, and moves it to STARTING.
      * @note No checks. enable() validates and applies its guards before calling this; updateBuckConverter() calls it
      *       directly to end a restart, so enable()'s RESTARTING guard doesn't block it.
-    */
-    static void _turnOn(BuckConverter_s &buck, time_ms curr_millis);
+     */
+    static void _turnOn(BuckConverter_s& buck, time_ms curr_millis);
 
     /**
      * @brief Moves a converter to STARTING and restarts its startup and debounce timers.
-    */
-    static void _beginStartup(BuckConverter_s &buck, time_ms curr_millis);
+     */
+    static void _beginStartup(BuckConverter_s& buck, time_ms curr_millis);
 
     /**
      * @brief Debounces PG and updates status.is_pg_high.
@@ -430,15 +426,14 @@ private:
      *       for pg_debounce_duration_ms before status.is_pg_high follows it.
      * @warning Every real change is reported about 2–3 ms late due to the debounce period. The critical
      *          one is a fault: it may be reported after the hardware is already off.
-    */
-    static void _updatePowerGood(BuckConverter_s &buck, time_ms curr_millis);
+     */
+    static void _updatePowerGood(BuckConverter_s& buck, time_ms curr_millis);
 
     /**
      * @brief Records a fault, moves state to FAULT, and increments fault counter.
      *        EN stays high so the part can recover on its own.
-    */
-    static void _enterFault(BuckConverter_s &buck, BuckConverterFaultType_e fault);
-
+     */
+    static void _enterFault(BuckConverter_s& buck, BuckConverterFaultType_e fault);
 };
 using BuckConverterInterfaceInstance = etl::singleton<BuckConverterInterface>;
 
