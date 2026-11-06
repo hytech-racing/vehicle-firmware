@@ -32,10 +32,10 @@ enum class VCRCANBusses_e
 
 /**
  * @brief Owns VCR's CAN buses. This is the only code with access to them: everything else sends by
- * calling enqueueSwitch() / packAndEnqueueOnSwitch(), and received messages are routed to the
+ * calling enqueueOnSwitch() / enqueueCustomIDOnSwitch() with an already-packed message, and received messages are routed to the
  * interfaces passed in on construction.
  */
-class VCRCANInterface : public CANInterfaceTemplate_t<VCRCANBusses_e>
+class VCRCANInterface : public CANInterface<VCRCANBusses_e>
 {
   public:
     VCRCANInterface(
@@ -65,7 +65,7 @@ class VCRCANInterface : public CANInterfaceTemplate_t<VCRCANBusses_e>
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    void enqueueSwitch(VCRCANBusses_e bus, const CAN_message_t& msg) override;
+    void enqueueOnSwitch(VCRCANBusses_e bus, const CAN_message_t& msg) override;
 
     /**
      * @brief Drains every RX buffer, routing each message to its interface

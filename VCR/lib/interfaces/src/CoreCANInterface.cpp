@@ -3,7 +3,7 @@
 #include "SystemTimeInterface.h"
 
 
-void VCRCANInterface::enqueueSwitch(VCRCANBusses_e bus, const CAN_message_t& msg)
+void VCRCANInterface::enqueueOnSwitch(VCRCANBusses_e bus, const CAN_message_t& msg)
 {
     switch (bus)
     {

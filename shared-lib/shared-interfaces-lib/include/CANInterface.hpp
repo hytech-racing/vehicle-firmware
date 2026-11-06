@@ -15,41 +15,24 @@
  * messages are routed, either with one handler per bus or a single shared one.
  */
 template <typename CANBus_e>
-class CANInterfaceTemplate_t
+class CANInterface
 {
   public:
-    virtual ~CANInterfaceTemplate_t() = default;
+    virtual ~CANInterface() = default;
 
     /**
      * @brief Enqueues an already-packed CAN message onto the given bus' TX buffer
      */
-    virtual void enqueueSwitch(CANBus_e bus, const CAN_message_t& msg) = 0;
+    virtual void enqueueOnSwitch(CANBus_e bus, const CAN_message_t& msg) = 0;
 
     /**
-     * @brief Packs a CAN struct and enqueues it onto the given bus' TX buffer via enqueueSwitch()
-     * @param msg the unpacked CAN struct (e.g. PEDALS_SYSTEM_DATA_t)
-     * @param pack_function the generated pack function (e.g. Pack_PEDALS_SYSTEM_DATA_ht_can)
+     * @brief Same as above, but sends the message with the given ID instead of its own. Used when one
+     * generated struct is shared by several IDs (e.g. all four inverters pack with the INV1 functions)
      */
-    template <typename can_struct>
-    void packAndEnqueueOnSwitch(CANBus_e bus, can_struct* msg, uint32_t (*pack_function)(can_struct*, uint8_t*, uint8_t*, uint8_t*))
+    void enqueueCustomIDOnSwitch(CANBus_e bus, CAN_message_t msg, uint32_t id)
     {
-        CAN_message_t can_msg;
-        can_msg.id = pack_function(msg, can_msg.buf, &can_msg.len, (uint8_t*)&can_msg.flags.extended); // NOLINT
-        enqueueSwitch(bus, can_msg);
-    }
-
-    /**
-     * @brief Same as above, but overrides the packed message's ID. Used when one generated struct is shared
-     * by several IDs (e.g. all four inverters pack with the INV1 functions)
-     * @param id the CAN ID to send the message with, replacing the one the pack function returns
-     */
-    template <typename can_struct>
-    void packAndEnqueueOnSwitch(CANBus_e bus, can_struct* msg, uint32_t (*pack_function)(can_struct*, uint8_t*, uint8_t*, uint8_t*), uint32_t id)
-    {
-        CAN_message_t can_msg;
-        pack_function(msg, can_msg.buf, &can_msg.len, (uint8_t*)&can_msg.flags.extended); // NOLINT
-        can_msg.id = id;
-        enqueueSwitch(bus, can_msg);
+        msg.id = id;
+        enqueueOnSwitch(bus, msg);
     }
 
     /**

@@ -55,7 +55,7 @@ void InverterInterface::receive_INV_STATUS(const CAN_message_t& can_msg, unsigne
     // Unpack the message
     INV1_STATUS_t unpacked_msg;
     Unpack_INV1_STATUS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &unpacked_msg, &Pack_INV1_STATUS_ht_can, can_msg.id);
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, can_msg); // forward the received frame as-is
 
     // Update inverter interface with new data
     _feedback_data.status.connected = true; // Will set to true once first CAN message has been received
@@ -80,7 +80,7 @@ void InverterInterface::receive_INV_TEMPS(const CAN_message_t& can_msg, unsigned
     // Unpack the message
     INV1_TEMPS_t unpacked_msg;
     Unpack_INV1_TEMPS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &unpacked_msg, &Pack_INV1_TEMPS_ht_can, can_msg.id);
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, can_msg); // forward the received frame as-is
 
     // Update inverter interface with new data
     _feedback_data.temps.igbt_temp = HT_CAN_igbt_temp_ro_fromS(unpacked_msg.igbt_temp_ro);
@@ -96,7 +96,7 @@ void InverterInterface::receive_INV_DYNAMICS(const CAN_message_t& can_msg, unsig
     // Unpack the message
     INV1_DYNAMICS_t unpacked_msg;
     Unpack_INV1_DYNAMICS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &unpacked_msg, &Pack_INV1_DYNAMICS_ht_can, can_msg.id);
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, can_msg); // forward the received frame as-is
 
     // Update inverter interface with new data
     _feedback_data.motor_mechanics.actual_power = unpacked_msg.actual_power_w; // NOLINT (watts)
@@ -111,7 +111,7 @@ void InverterInterface::receive_INV_POWER(const CAN_message_t& can_msg, unsigned
     // Unpack the message
     INV1_POWER_t unpacked_msg;
     Unpack_INV1_POWER_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &unpacked_msg, &Pack_INV1_POWER_ht_can, can_msg.id);
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, can_msg); // forward the received frame as-is
 
     // Update inverter interface with new data
     _feedback_data.power.active_power = unpacked_msg.active_power_w;       // NOLINT (watts)
@@ -126,7 +126,7 @@ void InverterInterface::receive_INV_FEEDBACK(const CAN_message_t& can_msg, unsig
     // Unpack the message
     INV1_FEEDBACK_t unpacked_msg;
     Unpack_INV1_FEEDBACK_ht_can(&unpacked_msg, can_msg.buf, can_msg.len);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &unpacked_msg, &Pack_INV1_FEEDBACK_ht_can, can_msg.id);
+    VCRCANInterfaceInstance::instance().enqueueOnSwitch(VCRCANBusses_e::TELEM, can_msg); // forward the received frame as-is
 
     // Update inverter interface with new data
     _feedback_data.control_feedback.speed_control_kp = unpacked_msg.speed_control_kp;
@@ -148,8 +148,10 @@ void InverterInterface::send_INV_SETPOINT_COMMAND()
     msg_out.positive_torque_limit_ro = HT_CAN_positive_torque_limit_ro_toS(_inverter_control_inputs.positive_torque_limit);
     msg_out.negative_torque_limit_ro = HT_CAN_negative_torque_limit_ro_toS(_inverter_control_inputs.negative_torque_limit);
 
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::INVERTER, &msg_out, &Pack_INV1_CONTROL_INPUT_ht_can, inverter_ids.inv_control_input_id);
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::TELEM, &msg_out, &Pack_INV1_CONTROL_INPUT_ht_can, inverter_ids.inv_control_input_id);
+    CAN_message_t packed_msg;
+    Pack_INV1_CONTROL_INPUT_ht_can(&msg_out, packed_msg.buf, &packed_msg.len, (uint8_t*)&packed_msg.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueCustomIDOnSwitch(VCRCANBusses_e::INVERTER, packed_msg, inverter_ids.inv_control_input_id);
+    VCRCANInterfaceInstance::instance().enqueueCustomIDOnSwitch(VCRCANBusses_e::TELEM, packed_msg, inverter_ids.inv_control_input_id);
 }
 
 void InverterInterface::send_INV_CONTROL_WORD()
@@ -161,7 +163,9 @@ void InverterInterface::send_INV_CONTROL_WORD()
     msg_out.inverter_enable = _inverter_control_word.inverter_enable;
     msg_out.remove_error = _inverter_control_word.remove_error;
 
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::INVERTER, &msg_out, &Pack_INV1_CONTROL_WORD_ht_can, inverter_ids.inv_control_word_id);
+    CAN_message_t packed_msg;
+    Pack_INV1_CONTROL_WORD_ht_can(&msg_out, packed_msg.buf, &packed_msg.len, (uint8_t*)&packed_msg.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueCustomIDOnSwitch(VCRCANBusses_e::INVERTER, packed_msg, inverter_ids.inv_control_word_id);
 }
 
 void InverterInterface::send_INV_CONTROL_PARAMS()
@@ -172,7 +176,9 @@ void InverterInterface::send_INV_CONTROL_PARAMS()
     msg_out.speed_control_ki = _inverter_control_params.speed_control_ki;
     msg_out.speed_control_kd = _inverter_control_params.speed_control_kd;
 
-    VCRCANInterfaceInstance::instance().packAndEnqueueOnSwitch(VCRCANBusses_e::INVERTER, &msg_out, &Pack_INV1_CONTROL_PARAMETER_ht_can, inverter_ids.inv_control_parameter_id);
+    CAN_message_t packed_msg;
+    Pack_INV1_CONTROL_PARAMETER_ht_can(&msg_out, packed_msg.buf, &packed_msg.len, (uint8_t*)&packed_msg.flags.extended); // NOLINT
+    VCRCANInterfaceInstance::instance().enqueueCustomIDOnSwitch(VCRCANBusses_e::INVERTER, packed_msg, inverter_ids.inv_control_parameter_id);
 }
 
 /**
