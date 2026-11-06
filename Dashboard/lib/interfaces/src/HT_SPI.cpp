@@ -1,4 +1,4 @@
-#include "HT_SPI.h"
+#include "HT_SPI.hpp"
 
 extern bool spi_tx_complete;
 SPI_HandleTypeDef hspi2;
