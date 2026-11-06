@@ -154,7 +154,7 @@ jobs:
 
           # Pin the clang-format version: different versions can format
           # the same code slightly differently. Developers should use the
-          # same version locally (pip install clang-format==23.1.1).
+          # same major version locally (pip install "clang-format>=20,<21").
           # .clang-format uses options that need clang-format 20 or newer.
           sudo apt-get update -qq
           sudo apt-get install -y -qq clang-format-20
@@ -162,7 +162,7 @@ jobs:
           # Only check tracked files inside the subsystem folders, so
           # build output and downloaded libraries are never checked.
           mapfile -d '' files < <(
-            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard \
+            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard PDB \
               | grep -zE '\.(c|cc|cpp|h|hpp|ino)$' || true
           )
 
