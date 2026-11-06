@@ -1,6 +1,6 @@
-#include "Dash_Constants.h"
-#include "Dash_Globals.h"
-#include "Dash_Tasks.h"
+#include "Dash_Constants.hpp"
+#include "Dash_Globals.hpp"
+#include "Dash_Tasks.hpp"
 #include "SysClock_Config.h"
 
 /* Schedular Dependencies */

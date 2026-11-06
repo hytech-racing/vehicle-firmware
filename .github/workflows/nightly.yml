@@ -43,9 +43,19 @@ jobs:
         branch: [develop, main]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ matrix.branch }}
+
+      # Prebuilt clang-format wheel from pip: a few seconds, vs ~5 min for apt-get update + install.
+      # Pinned to the exact version developers use locally (pip install clang-format==20.1.8),
+      # since different versions can format the same code slightly differently.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install clang-format
+        run: pip install clang-format==20.1.8
 
       - name: Check formatting
         run: |
@@ -54,11 +64,8 @@ jobs:
             exit 0
           fi
 
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang-format-20
-
           mapfile -d '' files < <(
-            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard \
+            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard PDB \
               | grep -zE '\.(c|cc|cpp|h|hpp|ino)$' || true
           )
 
@@ -68,7 +75,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format-20 --dry-run --Werror "${files[@]}"
+          clang-format --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 2 — build
@@ -86,10 +93,10 @@ jobs:
       fail-fast: false
       matrix:
         branch: [develop, main]
-        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard]
+        subsystem: [ACU, CCU, VCF, VCR, RDC, Dashboard, PDB]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ matrix.branch }}
 
@@ -138,7 +145,7 @@ jobs:
             f.write(f"test_envs={' '.join(test_envs)}\n")
           EOF
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         if: steps.map.outputs.build_env != ''
         with:
           path: ~/.platformio
@@ -146,7 +153,7 @@ jobs:
           restore-keys: |
             pio-${{ runner.os }}-
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: steps.map.outputs.build_env != ''
         with:
           python-version: '3.11'

@@ -43,7 +43,7 @@ namespace RDCConstants
     constexpr uint16_t SINGLE_SOLENOID_VALIDATION_DELAY_MS = 3000; // 3000ms = 3 seconds
 
     /* --------- RSS Constants ---------- */
-    constexpr uint8_t RSS_NODE_ID = 2;
+    constexpr uint8_t RSS_NODE_ID = 0x11;
 
     /* ---------- Watchdog Constants ---------- */
     constexpr uint16_t WATCHDOG_TIMEOUT_MS = 10; // 10ms = 10 HZ
