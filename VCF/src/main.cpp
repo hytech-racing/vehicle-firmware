@@ -49,7 +49,6 @@ void setup()
     initializeAllInterfaces();
     initializeAllSystems();
 
-
     // Setup scheduler
     HT_SCHED::Scheduler::getInstance().setTimingFunction(micros);
 
