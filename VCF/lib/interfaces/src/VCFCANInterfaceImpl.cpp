@@ -74,6 +74,17 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
         interfaces.brake_rotor_temp_interface.receiveBrakeRotorTempCANMsgs(msg);
         break;
     }
+    // FDC sends EBS data on FRONT_AUX. Forward it unchanged onto TELEM so it's logged.
+    case EBS_DATA_CANID:
+    {
+        if (interface_type == CANInterfaceType_e::FAUX)
+        {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCFCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
+        break;
+    }
     default:
     {
         break;

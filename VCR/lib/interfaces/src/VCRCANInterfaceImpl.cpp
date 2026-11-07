@@ -199,6 +199,19 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         }
         }
 
+    // FDC data, forwarded onto TELEM by VCF. Forward it unchanged onto REAR_AUX for RDC.
+    case EBS_DATA_CANID:
+    case BRAKE_PRESSURE_CANID:
+    {
+        if (interface_type == CANInterfaceType_e::TELEM)
+        {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
+        break;
+    }
+
     case RSS_STATUS_CANID:
     {
         interfaces.rss_interface.receiveRSSStatusCANMsg(msg, millis);
