@@ -5,7 +5,6 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <MCP_ADC.h>
 #include <SPI_ADC.h>
 
 using pin = uint8_t;
