@@ -1,5 +1,5 @@
-#ifndef ETHERNET_TEST_HARNESS_H
-#define ETHERNET_TEST_HARNESS_H
+#ifndef ETHERNET_TEST_HARNESS_HPP
+#define ETHERNET_TEST_HARNESS_HPP
 
 /**
  * @brief Barebones Ethernet bring-up test, shared by every Teensy 4.1 board's main_ethernet_test.cpp.
@@ -10,7 +10,7 @@
  * Each board only picks its own IP (from EthernetAddressDefs.h).
  */
 
-#include "EthernetAddressDefs.h"
+#include "EthernetAddressDefs.hpp"
 #include <Arduino.h>
 #include <QNEthernet.h>
 #include <array>
@@ -69,4 +69,4 @@ class EthernetTestHarness
     }
 };
 
-#endif // ETHERNET_TEST_HARNESS_H
+#endif // ETHERNET_TEST_HARNESS_HPP
