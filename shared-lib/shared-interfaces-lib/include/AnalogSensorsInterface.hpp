@@ -59,12 +59,12 @@ class AnalogChannel
  * _sample() and tick(). To use a sensor, call tick() to update its readings, then call get()
  * to retrieve the converted data.
  */
-template <int N>
+template <int NUM_CHANNELS>
 class AnalogMultiSensor
 {
   public:
     // DATA
-    AnalogConversionPacket_s<N> data;
+    AnalogConversionPacket_s<NUM_CHANNELS> data;
 
     // DESTRUCTOR
     virtual ~AnalogMultiSensor() = default;
@@ -79,14 +79,14 @@ class AnalogMultiSensor
     /**
      * @brief Used by systems to retrieve the data field.
      */
-    const AnalogConversionPacket_s<N>& get() const { return data; }
+    const AnalogConversionPacket_s<NUM_CHANNELS& get() const { return data; }
 
     /**
      * @brief Sets the scale of the internal conversion channel.
      */
     void setChannelScale(int channel, float scale)
     {
-        if (channel >= 0 && channel < N)
+        if (channel >= 0 && channel < NUM_CHANNELS)
             _channels[channel].scale = scale;
     }
 
@@ -95,7 +95,7 @@ class AnalogMultiSensor
      */
     void setChannelOffset(int channel, float offset)
     {
-        if (channel >= 0 && channel < N)
+        if (channel >= 0 && channel < NUM_CHANNELS)
             _channels[channel].offset = offset;
     }
 
@@ -108,7 +108,7 @@ class AnalogMultiSensor
      */
     void setChannelClamp(int channel, float clampLow, float clampHigh)
     {
-        if (channel >= 0 && channel < N)
+        if (channel >= 0 && channel < NUM_CHANNELS)
         {
             _channels[channel].clampLow = clampLow;
             _channels[channel].clampHigh = clampHigh;
@@ -127,7 +127,7 @@ class AnalogMultiSensor
 
   protected:
     // DATA
-    AnalogChannel _channels[N];
+    AnalogChannel _channels[NUM_CHANNELS];
 
     // FUNCTIONS
     /**
@@ -136,7 +136,7 @@ class AnalogMultiSensor
      */
     void _convert()
     {
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < NUM_CHANNELS; i++)
         {
             data.conversions[i] = _channels[i].convert();
         }
