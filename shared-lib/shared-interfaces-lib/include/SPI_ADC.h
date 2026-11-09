@@ -2,7 +2,7 @@
 #define SPIADC_H_
 
 #include "SPI_DMA.h"
-#include "AnalogSensorsInterface.h"
+#include "AnalogSensorsInterface.hpp"
 #include <EventResponder.h>
 
 enum class ChannelType_e
@@ -33,8 +33,8 @@ namespace mcp_adc_defaults
 template <size_t bufferSize, int ADC_NUM_CHANNELS>
 class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC_NUM_CHANNELS> {
     public:
-    SPI_ADC(EventResponder& eventRef, 
-                    const float scales[ADC_NUM_CHANNELS], 
+    SPI_ADC(EventResponder& eventRef,
+                    const float scales[ADC_NUM_CHANNELS],
                     const float offsets[ADC_NUM_CHANNELS],
                     const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
                     SPIParams_s spiParams = {
@@ -44,10 +44,10 @@ class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC
                         .spiPinCLK = mcp_adc_defaults::MCP_ADC_DEFAULT_SPI_CLK,
                     });
 
-    SPI_ADC(SPIParams_s spiParams, EventResponder& eventRef, 
-                    const float scales[ADC_NUM_CHANNELS], 
+    SPI_ADC(SPIParams_s spiParams, EventResponder& eventRef,
+                    const float scales[ADC_NUM_CHANNELS],
                     const float offsets[ADC_NUM_CHANNELS],
-                    const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes, 
+                    const ChannelTypeArray<ADC_NUM_CHANNELS>& channelTypes,
                     bool SSTRBpresent = false, uint8_t SSTRBpin = 0);
 
     void _sample() override;
@@ -55,7 +55,7 @@ class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC
     void transferComplete() override;
     virtual uint16_t setValue();
     virtual void setCommand();
- 
+
     int getCurrChannel() { return _currChannel; }
     uint32_t getCycles();
 
@@ -66,7 +66,7 @@ class SPI_ADC : public SPIDMAInterface<bufferSize>, public AnalogMultiSensor<ADC
     volatile int _currChannel;
 };
 
-#include "SPI_ADC.tpp" 
+#include "SPI_ADC.tpp"
 
 
 #endif // SPIADC_H_

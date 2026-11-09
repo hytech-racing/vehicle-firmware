@@ -1,6 +1,6 @@
 #ifndef __TEENSY_ADC_H__
 #define __TEENSY_ADC_H__
-#include "AnalogSensorsInterface.h"
+#include "AnalogSensorsInterface.hpp"
 #include "Filter_IIR.h"
 const int TEENSY_ADC_DEFAULT_RESOLUTION = 12;
 

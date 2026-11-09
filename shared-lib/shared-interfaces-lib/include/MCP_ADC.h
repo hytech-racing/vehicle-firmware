@@ -1,7 +1,7 @@
 #ifndef __MCP_ADC_H__
 #define __MCP_ADC_H__
 
-#include "AnalogSensorsInterface.h"
+#include "AnalogSensorsInterface.hpp"
 #include "SPI.h"
 
 // Definitions
