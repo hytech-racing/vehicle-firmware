@@ -9,6 +9,8 @@ on:
     branches: [main, develop]
   push:
     branches: [develop]
+  # Manual run from the Actions tab ("Run workflow") on any branch, no PR needed
+  workflow_dispatch:
 
 # ─────────────────────────────────────────────────────────────────────
 #                             Permissions
@@ -45,6 +47,7 @@ jobs:
   # build what actually changed.
   # ═══════════════════════════════════════════════════════════════════
   changes:
+    name: Detect changed subsystems
     runs-on: ubuntu-latest
     outputs:
       # Raw list of changed subsystem names, e.g. ["ACU","CCU"].
@@ -53,21 +56,22 @@ jobs:
       # alongside the subsystem label.
       matrix: ${{ steps.map.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Detects which subsystem folders changed in this push/PR.
-      # platformio.ini and .clang-tidy are shared config, so a change to
-      # either counts as a change to every subsystem (full rebuild).
-      - uses: dorny/paths-filter@v3
+      # platformio.ini, .clang-tidy and shared-lib/ are used by every
+      # subsystem, so a change to any of them rebuilds everything.
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
-            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy']
-            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy']
-            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy']
-            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy']
-            RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy']
-            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy']
+            ACU:       ['ACU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            CCU:       ['CCU/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCF:       ['VCF/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            VCR:       ['VCR/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            RDC:       ['RDC/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            Dashboard: ['Dashboard/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
+            PDB:       ['PDB/**', 'platformio.ini', '.clang-tidy', 'shared-lib/**']
 
       # For each changed subsystem, look up its build/test environment
       # names from platformio.ini use the `custom_subsystem` key.
@@ -136,9 +140,20 @@ jobs:
   # Runs on every PR.
   # ═══════════════════════════════════════════════════════════════════
   format:
+    name: Format check
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      # Prebuilt clang-format wheel from pip: a few seconds, vs ~5 min for apt-get update + install.
+      # Pinned to the exact version developers use locally (pip install clang-format==20.1.8),
+      # since different versions can format the same code slightly differently.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install clang-format
+        run: pip install clang-format==20.1.8
 
       - name: Check formatting
         run: |
@@ -147,17 +162,10 @@ jobs:
             exit 0
           fi
 
-          # Pin the clang-format version: different versions can format
-          # the same code slightly differently. Developers should use the
-          # same version locally (pip install clang-format==23.1.1).
-          # .clang-format uses options that need clang-format 20 or newer.
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang-format-20
-
           # Only check tracked files inside the subsystem folders, so
           # build output and downloaded libraries are never checked.
           mapfile -d '' files < <(
-            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard \
+            git ls-files -z -- ACU CCU VCF VCR RDC Dashboard PDB \
               | grep -zE '\.(c|cc|cpp|h|hpp|ino)$' || true
           )
 
@@ -167,7 +175,7 @@ jobs:
           fi
 
           echo "Checking ${#files[@]} files…"
-          clang-format-20 --dry-run --Werror "${files[@]}"
+          clang-format --dry-run --Werror "${files[@]}"
 
   # ═══════════════════════════════════════════════════════════════════
   #                         JOB 3 — build
@@ -176,7 +184,7 @@ jobs:
   # CCU, VCF etc. all build at the same time.
   # ═══════════════════════════════════════════════════════════════════
   build:
-    name: build (${{ matrix.subsystem }})
+    name: Build & test (${{ matrix.subsystem }})
     needs: changes
     # Only run if at least one subsystem changed.
     if: needs.changes.outputs.subsystems != '[]'
@@ -192,13 +200,13 @@ jobs:
         include: ${{ fromJson(needs.changes.outputs.matrix) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Caches ~/.platformio between runs so the ARM toolchain,
       # Teensy platform, and library downloads are reused.
       # The cache key includes a hash of platformio.ini — if the ini
       # changes the cache is invalidated and everything re-downloads fresh.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/.platformio
           key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
@@ -207,7 +215,7 @@ jobs:
 
       # PlatformIO is a Python based tool/application. We pin Python to 3.11 for
       # reproducibility.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -302,7 +310,7 @@ jobs:
           failed=0
           for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
             echo "→ Running $TEST_ENV"
-            pio test -e "$TEST_ENV" || failed=1
+            PLATFORMIO_FORCE_ANSI=true pio test -e "$TEST_ENV" | awk -F'\t' 'NF==2 && $2 ~ /^\[/ { printf "%-90s %s\n", $1, $2; next } { print }' || failed=1
           done
           exit $failed
 
@@ -322,7 +330,7 @@ jobs:
       # Artifacts are auto-deleted after 30 days to avoid filling up storage.
       - name: Upload ${{ matrix.subsystem }} firmware artifact
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.subsystem }}-firmware-${{ github.sha }}
           path: .pio/build/${{ matrix.build_env }}/firmware.hex
@@ -379,7 +387,7 @@ jobs:
           always() &&
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const subsystem = '${{ matrix.subsystem }}';

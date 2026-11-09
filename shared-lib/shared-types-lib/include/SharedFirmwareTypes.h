@@ -8,6 +8,7 @@
 using speed_rpm = float;
 using torque_nm = float;
 using volt = float;
+using ohm = float;
 using celsius = float;
 using time_ms = uint32_t;
 
