@@ -16,6 +16,13 @@ void VCFCANInterfaceImpl::on_front_aux_can_recv(const CAN_message_t& msg)
     VCFCANInterfaceInstance::instance().front_aux_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
+void VCFCANInterfaceImpl::forwardCAN(const CAN_message_t& msg, CANTXBuffer_t& tx_buffer)
+{
+    uint8_t buf[CAN_MSG_SIZE];
+    memmove(buf, &msg, CAN_MSG_SIZE);
+    tx_buffer.push_back(buf, CAN_MSG_SIZE);
+}
+
 void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
@@ -38,6 +45,7 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
     case CAR_STATES_CANID:
     {
         interfaces.vcr_interface.recieveCarStatesCANMsg(msg);
+        forwardCAN(msg, VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer);
         break;
     }
     case INV1_STATUS_CANID:

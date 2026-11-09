@@ -25,6 +25,7 @@ void VCRInterface::recieveCarStatesCANMsg(const CAN_message_t& can_msg)
     CAR_STATES_t unpacked_msg;
     Unpack_CAR_STATES_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
     _vehicle_state_value = static_cast<VehicleState_e>(unpacked_msg.vehicle_state);
+
     _drivetrain_state_value = static_cast<DrivetrainState_e>(unpacked_msg.drivetrain_state);
     _is_db_in_ctrl = unpacked_msg.drivebrain_in_control;
 }
