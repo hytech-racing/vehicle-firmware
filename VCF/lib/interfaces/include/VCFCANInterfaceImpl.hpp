@@ -75,8 +75,6 @@ namespace VCFCANInterfaceImpl
     void vcf_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type);
 
     void send_all_CAN_msgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
-
-    void forwardCAN(const CAN_message_t& msg, CANTXBuffer_t& tx_buffer);
 } // namespace VCFCANInterfaceImpl
 
 #endif // VCFCANINTERFACEIMPL_H

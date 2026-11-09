@@ -199,7 +199,7 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         }
         }
 
-    // FDC data, forwarded onto TELEM by VCF. Forward it unchanged onto REAR_AUX for RDC.
+    // EBS data (from FDC, forwarded by VCF) and brake pressure (from VCF) arrive on TELEM. Forward them unchanged onto REAR_AUX for RDC.
     case EBS_DATA_CANID:
     case BRAKE_PRESSURE_CANID:
     {
