@@ -20,6 +20,7 @@
 
 void initializeAllInterfaces();
 void initializeDriverless();
+void hwCheck();
 
 /* CAN Tasks */
 HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
