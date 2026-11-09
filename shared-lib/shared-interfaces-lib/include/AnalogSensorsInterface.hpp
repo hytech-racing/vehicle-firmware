@@ -24,8 +24,7 @@ class AnalogChannel
 
     // CONSTRUCTORS
     AnalogChannel(float scale, float offset, bool isChannelClamped, float clampLow, float clampHigh)
-        : scale(scale), offset(offset), isChannelClamped(isChannelClamped), clampLow(clampLow), clampHigh(clampHigh),
-          lastSample(0)
+        : scale(scale), offset(offset), isChannelClamped(isChannelClamped), clampLow(clampLow), clampHigh(clampHigh), lastSample(0)
     {
     }
     AnalogChannel(float scale, float offset)
@@ -79,7 +78,7 @@ class AnalogMultiSensor
     /**
      * @brief Used by systems to retrieve the data field.
      */
-    const AnalogConversionPacket_s<NUM_CHANNELS& get() const { return data; }
+    const AnalogConversionPacket_s<NUM_CHANNELS>& get() const { return data; }
 
     /**
      * @brief Sets the scale of the internal conversion channel.
