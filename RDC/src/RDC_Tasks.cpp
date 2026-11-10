@@ -18,6 +18,9 @@ void initializeAllInterfaces()
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<RDCCANInterfaceImpl::RDCRecvSwitch>(),
         RDCConstants::DRIVERLESS_CAN_BAUDRATE);
 
+    // DSSI
+    DSSIInterfaceInstance::create();
+    DSSIInterfaceInstance::initDSSI(PinAssignments::DSSI_PIN_YELLOW, PinAssignments::DSSI_PIN_BLUE);
     // ADC Setup
     ADCInterfaceParams_s adc_params = {
         .pinouts =
@@ -175,6 +178,12 @@ HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const
     DriverlessStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
     return HT_TASK::TaskResponse::YIELD;
 };
+
+HT_TASK::TaskResponse setDSSI(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+{
+    DSSIInterface::instance().setDSSI(sys_time::hal_millis(), DriverlessStateMachineInstance::instance().getState());
+    return HT_TASK::TaskResponse::YIELD;
+}
 
 HT_TASK::TaskResponse initWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
