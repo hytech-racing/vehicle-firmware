@@ -1,6 +1,7 @@
 #ifndef UART_COMMAND_DECODER_HPP
 #define UART_COMMAND_DECODER_HPP
 
+#include "UARTFrameCodec.hpp"
 #include "hytech_msgs.pb.h"
 
 #include <array>
@@ -38,15 +39,13 @@ class UARTCommandDecoder
     // for a complete validated command; output is unchanged for every rejection.
     // now_millis is the MCU's local processing time, not a timestamp from the Pi.
     bool feed(uint8_t byte, uint32_t now_millis, Command& output);
+    static bool is_valid(const hytech_msgs_MCUCommandData& message);
     void reset();                                 // Discard partial input; retain cumulative counters.
     const Stats& stats() const { return _stats; } // Same-thread access only.
 
   private:
     bool _decode(uint32_t now_millis, Command& output);
-    std::array<uint8_t, MAX_ENCODED_BYTES> _encoded = {};
-    std::array<uint8_t, MAX_PAYLOAD_BYTES + 2> _decoded = {};
-    std::size_t _encoded_size = 0;
-    bool _discarding = false;
+    UARTFrameCodec<MAX_PAYLOAD_BYTES> _framer;
     Stats _stats;
 };
 
