@@ -1,0 +1,5 @@
+{
+    "name": "vcr-uart-command",
+    "version": "0.1.0",
+    "description": "Bounded Drivebrain UART command decoder and HardwareSerial adapter"
+}
