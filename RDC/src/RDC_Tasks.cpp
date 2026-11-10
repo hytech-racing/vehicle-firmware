@@ -19,8 +19,7 @@ void initializeAllInterfaces()
         RDCConstants::DRIVERLESS_CAN_BAUDRATE);
 
     // DSSI
-    DSSIInterfaceInstance::create();
-    DSSIInterfaceInstance::initDSSI(PinAssignments::DSSI_PIN_YELLOW, PinAssignments::DSSI_PIN_BLUE);
+    DSSIInterfaceInstance::create(PinAssignments::DSSI_PIN_YELLOW, PinAssignments::DSSI_PIN_BLUE);
     // ADC Setup
     ADCInterfaceParams_s adc_params = {
         .pinouts =
@@ -181,7 +180,7 @@ HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const
 
 HT_TASK::TaskResponse setDSSI(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    DSSIInterface::instance().setDSSI(sys_time::hal_millis(), DriverlessStateMachineInstance::instance().getState());
+    DSSIInterfaceInstance::instance().setDSSI(sys_time::hal_millis(), DriverlessStateMachineInstance::instance().getState());
     return HT_TASK::TaskResponse::YIELD;
 }
 

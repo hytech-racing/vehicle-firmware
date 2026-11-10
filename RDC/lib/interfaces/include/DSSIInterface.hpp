@@ -8,6 +8,7 @@
 class DSSIInterface
 {
   public:
+    DSSIInterface() = delete;
     DSSIInterface(uint8_t yellow_dssi_pin, uint8_t blue_dssi_pin);
 
     void setDSSI(unsigned long curr_millis, DriverlessSystemState_e dv_state);

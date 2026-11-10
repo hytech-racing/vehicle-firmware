@@ -11,19 +11,19 @@ DSSIInterface::DSSIInterface(uint8_t yellow_dssi_pin, uint8_t blue_dssi_pin) {
 
 void DSSIInterface::setDSSI(unsigned long curr_millis, DriverlessSystemState_e dv_state) {
     switch (dv_state) {
-        case (OFF):
-        case (STARTUP_NO_TS):
-        case (STARTUP_TS_ACTIVE): {
+        case (DriverlessSystemState_e::OFF):
+        case (DriverlessSystemState_e::STARTUP_NO_TS):
+        case (DriverlessSystemState_e::STARTUP_TS_ACTIVE): {
             digitalWrite(_yellow_dssi_pin, LOW);
             digitalWrite(_blue_dssi_pin, LOW);
             break;
         }
-        case (READY): {
+        case (DriverlessSystemState_e::READY): {
             digitalWrite(_blue_dssi_pin, LOW);
             digitalWrite(_yellow_dssi_pin, HIGH);
             break;
         }
-        case (DRIVING): {
+        case (DriverlessSystemState_e::DRIVING): {
             digitalWrite(_blue_dssi_pin, LOW);
             if (curr_millis - lastBlinkTime >= 500) {
                 _yellowState = !(_yellowState);
@@ -32,7 +32,7 @@ void DSSIInterface::setDSSI(unsigned long curr_millis, DriverlessSystemState_e d
             }
             break;
         }
-        case (EMERGENCY): {
+        case (DriverlessSystemState_e::EMERGENCY): {
             digitalWrite(_yellow_dssi_pin, LOW);
             if (curr_millis - lastBlinkTime >= 500) {
                 _blueState = !(_blueState);
@@ -41,7 +41,7 @@ void DSSIInterface::setDSSI(unsigned long curr_millis, DriverlessSystemState_e d
             }
             break;
         }
-        case (FINISHED): {
+        case (DriverlessSystemState_e::FINISHED): {
             digitalWrite(_yellow_dssi_pin, LOW);
             digitalWrite(_blue_dssi_pin, HIGH);
             break;

@@ -10,6 +10,7 @@
 #include "ADCInterface.hpp"
 #include "CoreRDCCANInterface.hpp"
 #include "RSSInterface.hpp"
+#include "DSSIInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "ht_task.hpp"
 
