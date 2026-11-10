@@ -16,10 +16,10 @@ set(nanopb_BUILD_GENERATOR OFF CACHE BOOL "" FORCE)
 set(nanopb_BUILD_RUNTIME ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(nanopb vcr_proto)
 add_library(command_decoder
-    ../../lib/uart/src/UARTCommandDecoder.cpp
+    ../../lib/interfaces/src/UARTCommandDecoder.cpp
     ${vcr_proto_SOURCE_DIR}/base_msgs.pb.c
     ${vcr_proto_SOURCE_DIR}/hytech_msgs.pb.c)
-target_include_directories(command_decoder PUBLIC ../../lib/uart/include ${vcr_proto_SOURCE_DIR})
+target_include_directories(command_decoder PUBLIC ../../lib/interfaces/include ${vcr_proto_SOURCE_DIR})
 target_link_libraries(command_decoder PUBLIC protobuf-nanopb-static)
 target_compile_options(command_decoder PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(uart_decoder_test uart_decoder_test.cpp)

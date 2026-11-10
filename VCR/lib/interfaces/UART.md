@@ -1,6 +1,6 @@
 # Drivebrain UART command decoder
 
-This library decodes the existing `hytech_msgs.MCUCommandData` directly from the
+The UART interfaces in this directory decode the existing `hytech_msgs.MCUCommandData` directly from the
 wire format implemented by Drivebrain's `abdur/uart-driver` branch:
 
 ```text
@@ -80,7 +80,11 @@ Build only (does not flash):
 pio run -e vcr_uart_test
 ```
 
-The new main is excluded from vcr-prod and vcr_adcs_test. The production decoder
+The new main is excluded from vcr-prod and vcr_adcs_test. The bare-Teensy
+build ignores the full interfaces library and explicitly compiles only
+`UARTCommandDecoder.cpp` using `scripts/build_uart_decoder_test.py`, so moving
+these files alongside the other interfaces does not pull in CAN/Ethernet hardware
+or the vehicle application. The production decoder
 is not scheduled or selected by existing vehicle firmware.
 
 ## Software checks

@@ -221,3 +221,10 @@ VCR inputs (sent by drivebrain and VCF):
 
 
 
+
+
+## Drivebrain UART Interface
+
+The UART command decoder and Teensy serial adapter live in the interfaces library.
+See [the UART interface documentation](interfaces/UART.md) for the wire contract,
+bare-Teensy wiring, build commands, and software checks.
