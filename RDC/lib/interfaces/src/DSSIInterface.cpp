@@ -7,6 +7,7 @@ DSSIInterface::DSSIInterface(uint8_t yellow_dssi_pin, uint8_t blue_dssi_pin) {
     _blue_dssi_pin = blue_dssi_pin;
     pinMode(yellow_dssi_pin, OUTPUT);
     pinMode(blue_dssi_pin, OUTPUT);
+    lastBlinkTime = millis();
 }
 
 void DSSIInterface::setDSSI(unsigned long curr_millis, DriverlessSystemState_e dv_state) {

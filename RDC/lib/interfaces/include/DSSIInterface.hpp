@@ -16,7 +16,7 @@ class DSSIInterface
   private:
     uint8_t _yellow_dssi_pin;
     uint8_t _blue_dssi_pin;
-    unsigned long lastBlinkTime = 0;
+    unsigned long lastBlinkTime;
     unsigned int _yellowState;
     unsigned int _blueState;
 };
