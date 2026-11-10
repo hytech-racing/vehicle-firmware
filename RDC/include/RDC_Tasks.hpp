@@ -36,5 +36,9 @@ HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_
 HT_TASK::TaskResponse initWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
+/* DSSI */
+HT_TASK::TaskResponse setDSSI(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
+
+/* Debug Print */
 HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 #endif
