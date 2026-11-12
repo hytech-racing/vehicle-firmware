@@ -20,7 +20,7 @@
 
 #include "CANInterface.h"
 #include "VCRCANInterfaceImpl.hpp"
-#include "TTPMSInterface.h"
+#include "TTPMSInterface.hpp"
 
 namespace
 {

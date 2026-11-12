@@ -16,7 +16,7 @@
 #include "DrivebrainInterface.hpp"
 #include "InverterInterface.hpp"
 #include "RSSInterface.hpp"
-#include "TTPMSInterface.h"
+#include "TTPMSInterface.hpp"
 #include "VCFInterface.hpp"
 
 /* Globally accessible types */
