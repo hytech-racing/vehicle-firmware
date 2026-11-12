@@ -9,7 +9,7 @@ void initializeAllSystems()
     etl::delegate<void(uint8_t)> setBrightness =
         etl::delegate<void(uint8_t)>::create<NeopixelInterface, &NeopixelInterface::setBrightness>(NeopixelInterfaceInstance::instance());
     etl::delegate<void()> show = etl::delegate<void()>::create<NeopixelInterface, &NeopixelInterface::show>(NeopixelInterfaceInstance::instance());
-    NeopixelControllerInputs_s controller_inputs = {
+    /**NeopixelControllerInputs_s controller_inputs = {
         .are_pedals_calibrating = VCRInterfaceInstance::instance().arePedalsCalibrating(),
         .is_steering_calibrating = VCRInterfaceInstance::instance().isSteeringCalibrating(),
         .torque_limit_mode = VCRInterfaceInstance::instance().getTorqueLimitMode(),
@@ -20,8 +20,10 @@ void initializeAllSystems()
         .is_imd_ok = DashboardInterfaceInstance::instance().isIMDOk(),
         .is_bms_ok = DashboardInterfaceInstance::instance().isBMSOk(),
         .min_cell_voltage = ACUInterfaceInstance::instance().getMinCellVoltage()};
+        **/
+    
 
-    NeopixelControllerInstance::create(setPixelColor, setBrightness, show, controller_inputs, VCFSystems::NEOPIXEL_COUNT);
+    NeopixelControllerInstance::create(setPixelColor, setBrightness, show, VCFSystems::NEOPIXEL_COUNT);
     NeopixelControllerInstance::instance().init();
 
     /* Pedals System */
@@ -214,7 +216,19 @@ HT_TASK::TaskResponse updateSteeringCalibrationTask(const unsigned long& sysMicr
 
 HT_TASK::TaskResponse updateNeopixelsTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    NeopixelControllerInstance::instance().refreshNeopixels(PedalsSystemInstance::instance().getPedalsSystemData());
+    const NeopixelControllerInputs_s controller_inputs = {
+        .are_pedals_calibrating = VCRInterfaceInstance::instance().arePedalsCalibrating(),
+        .is_steering_calibrating = VCRInterfaceInstance::instance().isSteeringCalibrating(),
+        .torque_limit_mode = VCRInterfaceInstance::instance().getTorqueLimitMode(),
+        .vehicle_state = VCRInterfaceInstance::instance().getVehicleState(),
+        .is_drivebrain_in_control = VCRInterfaceInstance::instance().isDrivebrainInControl(),
+        .bus_voltages = VCRInterfaceInstance::instance().getDCBusVoltages().voltage,
+        .is_inverter_errored = VCRInterfaceInstance::instance().isInverterErrored(),
+        .is_imd_ok = DashboardInterfaceInstance::instance().isIMDOk(),
+        .is_bms_ok = DashboardInterfaceInstance::instance().isBMSOk(),
+        .min_cell_voltage = ACUInterfaceInstance::instance().getMinCellVoltage()};
+
+    NeopixelControllerInstance::instance().refreshNeopixels(PedalsSystemInstance::instance().getPedalsSystemData(), controller_inputs);
     return HT_TASK::TaskResponse::YIELD;
 }
 

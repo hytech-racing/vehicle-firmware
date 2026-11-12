@@ -27,7 +27,7 @@ class NeopixelControllerTest : public ::testing::Test
         etl::delegate<void(uint16_t, uint32_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setPixelColor>(_strip),
         etl::delegate<void(uint8_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setBrightness>(_strip),
         etl::delegate<void()>::create<FakeNeopixelStrip, &FakeNeopixelStrip::show>(_strip),
-        NeopixelControllerInputs_s{}, // all false / zero; not used by the tests below
+        //NeopixelControllerInputs_s{}, // all false / zero; not used by the tests below
         FakeNeopixelStrip::NEOPIXEL_COUNT};
 
     uint32_t pixelColor(LED_ID_e led) const { return _strip.pixel_colors.at(led); }
@@ -115,4 +115,31 @@ TEST_F(NeopixelControllerTest, dim_cycles_through_levels_and_wraps_after_min)
         EXPECT_EQ(_strip.brightness, expected);
     }
     // NOTE: fails with the current dimNeopixels(): after 3 it underflows to 196 instead of wrapping to 255.
+}
+
+
+TEST_F(NeopixelControllerTest, refresh_uses_latest_torque_mode)
+{
+    PedalsSystemData_s pedals{};
+    NeopixelControllerInputs_s inputs{};
+
+    inputs.torque_limit_mode = TorqueLimit_e::TCMUX_LOW_TORQUE;
+
+    _controller.refreshNeopixels(pedals, inputs);
+
+    EXPECT_EQ(
+        pixelColor(LED_ID_e::TORQUE_MODE),
+        to_raw(LED_color_e::RED)
+    );
+
+    inputs.torque_limit_mode = TorqueLimit_e::TCMUX_FULL_TORQUE;
+
+    _controller.refreshNeopixels(pedals, inputs);
+
+    EXPECT_EQ(
+        pixelColor(LED_ID_e::TORQUE_MODE),
+        to_raw(LED_color_e::GREEN)
+    );
+
+    EXPECT_EQ(_strip.show_count, 2);
 }
