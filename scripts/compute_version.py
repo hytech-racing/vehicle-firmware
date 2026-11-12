@@ -16,7 +16,7 @@ import sys
 #   when there's nothing to do, rather than letting it fall through.
 
 
-BRANCH_PATTERN = re.compile(r"(feature|fix)/[\w./-]+")
+BRANCH_PATTERN = re.compile(r"(feature|feat|fix)/[\w./-]+")
 # ^ A compiled regex, defined once at module level so it's not re-compiled every time we check a commit message.
 #      - A regex is a mini-language for describing patterns in text. You can search for, match, or extract things
 #        without writing out every possible exact string by hand.
@@ -24,10 +24,10 @@ BRANCH_PATTERN = re.compile(r"(feature|fix)/[\w./-]+")
 #        that sits outside of any specific function.
 #
 #   Breaking down the pattern itself:
-#     (feature|fix)   — captures either literal word, as a group we can
+#     (feature|feat|fix) — captures one of the literal words, as a group we can
 #                        retrieve later with match.group(1)
 #     /               — a literal slash, matching the branch naming
-#                        convention feature/... or fix/...
+#                        convention feature/..., feat/... or fix/...
 #     [\w./-]+        — one or more "branch name" characters: letters,
 #                        digits, underscore (\w), dots, slashes, hyphens.
 
@@ -76,10 +76,10 @@ def bump_type(merge_subjects):
         if match:
             branch_kinds_found.add(match.group(1))
             # match.group(1) retrieves whatever the first parenthesized group in the regex captured.
-            # This should be either the literal string "feature" or "fix"
+            # This should be either the literal string "feature", "feat" or "fix"
             # Ex: Say, "feature/oversample-adc" was found, then only "feature" is added to the set.
 
-    if "feature" in branch_kinds_found:
+    if "feature" in branch_kinds_found or "feat" in branch_kinds_found:
         return "minor"
     if "fix" in branch_kinds_found:
         return "patch"

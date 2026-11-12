@@ -1,12 +1,11 @@
-#include "PedalsSystem.h"
 #include "ADCInterface.h"
 #include "EEPROMUtilities.h"
+#include "PedalsSystem.h"
 #include "VCF_Constants.h"
 
 // accel params and brake params
 
-const PedalsParams accel_params =
-{
+const PedalsParams accel_params = {
     .min_pedal_1 = 1790,
     .min_pedal_2 = 1690,
     .max_pedal_1 = 2830,
@@ -18,13 +17,11 @@ const PedalsParams accel_params =
     .max_sensor_pedal_2 = 4000,
     .deadzone_margin = .03,
     .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-    .mechanical_activation_percentage = 0.05
-};
+    .mechanical_activation_percentage = 0.05};
 
-const PedalsParams brake_params =
-{
+const PedalsParams brake_params = {
     .min_pedal_1 = 1100,
-    .min_pedal_2 = 2500, //needs to be calibrated again i think
+    .min_pedal_2 = 2500, // needs to be calibrated again i think
     .max_pedal_1 = 2500,
     .max_pedal_2 = 1100,
     .activation_percentage = 0.05,
@@ -34,23 +31,17 @@ const PedalsParams brake_params =
     .max_sensor_pedal_2 = 4000,
     .deadzone_margin = .03,
     .implausibility_margin = IMPLAUSIBILITY_PERCENT,
-    .mechanical_activation_percentage = 0.65
-};
+    .mechanical_activation_percentage = 0.65};
 
 int count = 0;
 
 void setup()
 {
-    PedalsSystemInstance::create(accel_params, brake_params); //pass in the two different params
+    PedalsSystemInstance::create(accel_params, brake_params); // pass in the two different params
 
     ADCInterfaceInstance::create(
-        ADCPinout_s
-        {
-            VCFInterfaces::ADC0_CS,
-            VCFInterfaces::ADC1_CS
-        },
-        ADCChannels_s
-        {
+        ADCPinout_s{VCFInterfaces::ADC0_CS, VCFInterfaces::ADC1_CS},
+        ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
             VCFInterfaces::STEERING_2_CHANNEL,
@@ -66,10 +57,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_CHANNEL,
             VCFInterfaces::FL_SUS_POT_CHANNEL,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_CHANNEL,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL
-        },
-        ADCScales_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_CHANNEL},
+        ADCScales_s{
             VCFInterfaces::PEDAL_REF_2V5_SCALE,
             VCFInterfaces::STEERING_1_SCALE,
             VCFInterfaces::STEERING_2_SCALE,
@@ -85,10 +74,8 @@ void setup()
             VCFInterfaces::FR_SUS_POT_SCALE,
             VCFInterfaces::FL_SUS_POT_SCALE,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_SCALE,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE
-        },
-        ADCOffsets_s
-        {
+            VCFInterfaces::BRAKE_PRESSURE_REAR_SCALE},
+        ADCOffsets_s{
             VCFInterfaces::PEDAL_REF_2V5_OFFSET,
             VCFInterfaces::STEERING_1_OFFSET,
             VCFInterfaces::STEERING_2_OFFSET,
@@ -104,23 +91,21 @@ void setup()
             VCFInterfaces::FR_SUS_POT_OFFSET,
             VCFInterfaces::FL_SUS_POT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
-            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET
-        }
-    );
+            VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 
     const int begin_time = 115200;
     Serial.begin(begin_time);
     SPI.begin();
     // init_adc_task();
-    //observed values from 3/14 to init eeprom
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_1_MIN_ADDR, 2007); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_1_MAX_ADDR, 2569); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_2_MIN_ADDR, 1744); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_2_MAX_ADDR, 1170); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_2_MIN_ADDR, 2844); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_2_MAX_ADDR, 1379); //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_1_MIN_ADDR, 899);  //NOLINT manual pedals cal
-    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_1_MAX_ADDR, 2358); //NOLINT manual pedals cal
+    // observed values from 3/14 to init eeprom
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_1_MIN_ADDR, 2007); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_1_MAX_ADDR, 2569); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_2_MIN_ADDR, 1744); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::ACCEL_2_MAX_ADDR, 1170); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_2_MIN_ADDR, 2844); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_2_MAX_ADDR, 1379); // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_1_MIN_ADDR, 899);  // NOLINT manual pedals cal
+    EEPROMUtilities::write_eeprom_32bit(VCFSystems::BRAKE_1_MAX_ADDR, 2358); // NOLINT manual pedals cal
 }
 
 void loop()

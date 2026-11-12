@@ -1,8 +1,9 @@
 #ifndef THERMISTOR
 #define THERMISTOR
 #include "stdint.h"
+
 #include <math.h>
-//so in case we ever have new thermistor types, I will have a thermistor class and a thermistor wrapper
+// so in case we ever have new thermistor types, I will have a thermistor class and a thermistor wrapper
 
 
 const float DEFAULT_THERM_BETA = 3606.05;
@@ -12,7 +13,8 @@ const float DEFAULT_T0_CELCIUS = 25;
 const float DEFAULT_R_NOM = 10000;
 const float DEFAULT_R0 = 8350;
 
-typedef struct thermistor_params {
+typedef struct thermistor_params
+{
     float _beta;
     uint16_t _adc_saturation;
     float _zero_kelvin;
@@ -21,7 +23,8 @@ typedef struct thermistor_params {
     float _r0;
 } thermistor_params;
 
-class Thermistor {
+class Thermistor
+{
     float _beta;
     uint16_t _adc_saturation;
     float _zero_kelvin;
@@ -31,8 +34,8 @@ class Thermistor {
 
     uint16_t _raw;
     float _temp_celcius;
-public:
 
+  public:
     Thermistor(const float beta, const uint16_t adc_saturation, const float zero_kelvin, const float t0_celcius, const float r_nom, const float r0)
     {
         _beta = beta;
@@ -45,13 +48,16 @@ public:
         _temp_celcius = 0;
     }
     Thermistor()
-        : Thermistor(DEFAULT_THERM_BETA, DEFAULT_ADC_SATUR, DEFAULT_ZERO_KELVIN, DEFAULT_T0_CELCIUS, DEFAULT_R_NOM, DEFAULT_R0) {
+        : Thermistor(DEFAULT_THERM_BETA, DEFAULT_ADC_SATUR, DEFAULT_ZERO_KELVIN, DEFAULT_T0_CELCIUS, DEFAULT_R_NOM, DEFAULT_R0)
+    {
     }
-    Thermistor(thermistor_params& params) : Thermistor(params._beta, params._adc_saturation, params._zero_kelvin, params._t0_celcius, params._r_nom, params._r0){
+    Thermistor(thermistor_params& params)
+        : Thermistor(params._beta, params._adc_saturation, params._zero_kelvin, params._t0_celcius, params._r_nom, params._r0)
+    {
+    }
 
-    }
-    
-    void setParams(thermistor_params& params) {
+    void setParams(thermistor_params& params)
+    {
         _beta = params._beta;
         _adc_saturation = params._adc_saturation;
         _zero_kelvin = params._zero_kelvin;
@@ -60,7 +66,7 @@ public:
         _r0 = params._r0;
     }
 
-    virtual float convert(const uint16_t raw) //can be overriden in the case its a diff thermistor type.
+    virtual float convert(const uint16_t raw) // can be overriden in the case its a diff thermistor type.
     {
         float _t0_kelvin = _t0_celcius + _zero_kelvin;
         float resistance;
@@ -69,42 +75,34 @@ public:
 
         _raw = raw;
         resistance = _r0 * raw / (_adc_saturation - raw);
-        temp_kelvin = 1/ (1/_t0_kelvin + log(resistance/_r_nom)/_beta);
+        temp_kelvin = 1 / (1 / _t0_kelvin + log(resistance / _r_nom) / _beta);
         temp_celcius = temp_kelvin - _zero_kelvin;
         _temp_celcius = temp_celcius;
         return _temp_celcius;
     }
 
-    float getTemp() {
-        return _temp_celcius;
-    }
+    float getTemp() { return _temp_celcius; }
 };
 
 template <int NUM_THERMISTORS>
 class Thermistors
 {
-    protected:
+  protected:
     Thermistor thermistors_[NUM_THERMISTORS];
-    public:
 
-    Thermistors()
+  public:
+    Thermistors() { thermistors_init(); }
+
+    void thermistors_init()
     {
-        thermistors_init();
-    }
-
-    void thermistors_init() {
         for (int i = 0; i < NUM_THERMISTORS; i++)
         {
             thermistors_[i] = Thermistor();
         }
     }
-    const Thermistor& get(int channel) 
-    {
-        return thermistors_[channel];
-    }
-    
-    void tick(unsigned long curr_millis);
+    const Thermistor& get(int channel) { return thermistors_[channel]; }
 
+    void tick(unsigned long curr_millis);
 };
 
 #endif
