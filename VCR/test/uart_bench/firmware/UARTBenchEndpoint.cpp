@@ -50,14 +50,20 @@ bool UARTBenchEndpoint::configure(unsigned port, uint32_t baud, bool raw, uint64
     _raw = raw;
     _serial = serial;
     _frames = Frames{};
-    _raw_decoder = UARTCommandDecoder{};
+    _raw_uart.reset();
     _commands = _patterns = _protobuf_errors = _invalid_requests = _invalid_commands = _tx_frames = _tx_busy = _processing_max_us = 0;
     if (!memory_added[port - 1])
     {
         _serial->addMemoryForRead(rx_memory[port - 1].data(), rx_memory[port - 1].size());
         memory_added[port - 1] = true;
     }
-    _serial->begin(baud);
+    if (_raw)
+    {
+        _raw_uart.emplace(*_serial);
+        _raw_uart->begin(baud);
+    }
+    else
+        _serial->begin(baud);
     _serial->clear();
     return true;
 }
@@ -164,21 +170,33 @@ void UARTBenchEndpoint::tick()
     if (!_serial)
         return;
     transmit();
+    if (_raw)
+    {
+        std::size_t remaining = 2048;
+        while (remaining && _serial->available())
+        {
+            UARTCommandDecoder::Command command;
+            const uint32_t before = _raw_uart->stats().rx_bytes;
+            const bool valid = _raw_uart->poll(millis(), command, remaining);
+            const uint32_t consumed = _raw_uart->stats().rx_bytes - before;
+            remaining -= consumed;
+            if (valid)
+            {
+                ++_commands;
+                queue(hytech_msgs_MCUCommandData_fields, &command.message);
+                transmit();
+            }
+            if (!valid || !consumed)
+                break;
+        }
+        return;
+    }
     for (unsigned i = 0; i < 2048 && _serial->available(); ++i)
     {
         const int byte = _serial->read();
         if (byte < 0)
             break;
-        if (_raw)
-        {
-            UARTCommandDecoder::Command command;
-            if (_raw_decoder.feed(static_cast<uint8_t>(byte), millis(), command))
-            {
-                ++_commands;
-                queue(hytech_msgs_MCUCommandData_fields, &command.message);
-            }
-        }
-        else if (_frames.feed(static_cast<uint8_t>(byte)))
+        if (_frames.feed(static_cast<uint8_t>(byte)))
             process();
         transmit();
     }
@@ -187,7 +205,8 @@ void UARTBenchEndpoint::tick()
 void UARTBenchEndpoint::status(char* output, std::size_t capacity, const char* event) const
 {
     const auto& f = _frames.stats();
-    const auto& r = _raw_decoder.stats();
+    const UARTCommandDecoder::Stats empty{};
+    const auto& r = _raw_uart ? _raw_uart->stats() : empty;
     // Teensy's smallest-code printf does not support %llu. Format the session
     // identifier explicitly so subsequent varargs are not misinterpreted.
     char run_text[21];

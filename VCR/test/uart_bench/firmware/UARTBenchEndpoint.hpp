@@ -1,9 +1,10 @@
 #pragma once
-#include "UARTCommandDecoder.hpp"
+#include "UARTCommandSerial.hpp"
 #include "UARTFrameCodec.hpp"
 #include "uart_bench.pb.h"
 
 #include <Arduino.h>
+#include <optional>
 
 class UARTBenchEndpoint
 {
@@ -25,7 +26,7 @@ class UARTBenchEndpoint
     void queue(const pb_msgdesc_t* descriptor, const void* message);
     HardwareSerialIMXRT* _serial = nullptr;
     Frames _frames;
-    UARTCommandDecoder _raw_decoder;
+    std::optional<UARTCommandSerial> _raw_uart;
     std::array<Tx, 8> _tx;
     std::array<uint8_t, 1536> _payload;
     std::size_t _head = 0, _tail = 0, _queued = 0;
