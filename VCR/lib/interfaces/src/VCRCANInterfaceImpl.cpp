@@ -199,6 +199,15 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s &interfaces, const CAN
         }
         default:
         {
+            // TTPMS IDs are runtime-configurable (base ID .. base ID + 23), so they cannot be case labels
+            if (interface_type == CANInterfaceType_e::RAUX && interfaces.ttpms_interface.receiveTTPMSData(msg, millis))
+            {
+                // Forward the raw frame to telemetry unchanged
+                std::array<uint8_t, CAN_MSG_SIZE> buf;
+                memmove(buf.data(), &msg, sizeof(msg));
+                VCRCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), sizeof(CAN_message_t));
+                break;
+            }
             Serial.print("Unhandled CAN ID: 0x");
             Serial.print(msg.id, HEX);
             Serial.print("  interface: ");
