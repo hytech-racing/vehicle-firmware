@@ -11,7 +11,7 @@
 
 /* External Includes */
 #include <FlexCAN_T4.h>
-#include "hytech.h"
+#include "ht_can.h"
 
 /**
  * Izze-Racing HS-TTPMS-V2 sensors / W-REC-V2 receiver (datasheet Rev.D).
