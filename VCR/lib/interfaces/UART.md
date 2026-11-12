@@ -55,13 +55,15 @@ often enough for the chosen rate. It does not maintain or overwrite a hidden
 latest-command slot. Any HardwareSerial instance can be injected, with supported
 pin configuration performed by the caller before begin.
 
-## Bare Teensy receive example
+## Bare Teensy UART bench
 
-`main_uart_decode_test.cpp` uses Serial1 at 921600, 8N1 and prints aggregate
-decoder counts once per second over USB Serial when USB has room. It does not
-wait for USB, start VCR systems, or actuate motors. This initial example only
-receives; UART replies, dynamic USB configuration, the Pi sender, and the laptop
-coordinator/stress suite are deferred for code review.
+`vcr_uart_test` builds the endpoint in `VCR/test/uart_bench/firmware`. The laptop
+coordinator configures its UART port, baud rate, and mode over USB. In raw mode,
+the endpoint decodes and echoes valid `MCUCommandData` commands; in bench mode,
+it handles the test request and reply envelopes. It reports counters over USB
+and does not start VCR systems or actuate motors. The default suite uses Serial1
+at 921600 baud. See the sibling Drivebrain repository's
+`tests/hil/uart/README.md` for setup, wiring, and running the suite.
 
 Wiring (devices separately powered by USB):
 
@@ -74,18 +76,25 @@ Wiring (devices separately powered by USB):
 Use 3.3 V logic and short leads. Do not join 3.3 V/5 V power outputs. Configure
 the Pi's UART hardware and disable its serial console before traffic.
 
-Build only (does not flash):
+The build requires generated nanopb messages and a schema identity in
+`.pio/uart_bench_generated`. The coordinator's `setup` command generates these
+files and builds the firmware; `--no-flash` also checks an already installed
+endpoint and requires the Pi and Teensy to be connected. To generate the files
+and build locally without connecting or flashing hardware, run the following
+from the firmware repository root, with sibling `drivebrain` and `HT_proto`
+checkouts and `protoc` available:
 
 ```sh
+uv run --with nanopb==0.4.9.1 --with 'protobuf>=5.29,<8' \
+  ../drivebrain/tests/hil/uart/generate_messages.py \
+  --ht-proto ../HT_proto/proto --out .pio/uart_bench_generated --nanopb
 pio run -e vcr_uart_test
 ```
 
-The new main is excluded from vcr-prod and vcr_adcs_test. The bare-Teensy
-build ignores the full interfaces library and explicitly compiles only
-`UARTCommandDecoder.cpp` using `scripts/build_uart_decoder_test.py`, so moving
-these files alongside the other interfaces does not pull in CAN/Ethernet hardware
-or the vehicle application. The production decoder
-is not scheduled or selected by existing vehicle firmware.
+The bare-Teensy build ignores the full interfaces library and uses
+`scripts/build_uart_decoder_test.py` to compile the decoder, generated messages,
+and bench firmware without the vehicle application. The production decoder is
+not scheduled or selected by existing vehicle firmware.
 
 ## Software checks
 
