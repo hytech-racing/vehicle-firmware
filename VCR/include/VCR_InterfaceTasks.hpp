@@ -20,6 +20,7 @@
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
+#include "TTPMSInterface.hpp"
 #include "VCRCANInterfaceImpl.hpp"
 #include "VCREthernetInterface.hpp"
 #include "WatchdogInterface.hpp"

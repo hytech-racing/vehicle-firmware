@@ -16,6 +16,7 @@
 #include "DrivebrainInterface.hpp"
 #include "InverterInterface.hpp"
 #include "RSSInterface.hpp"
+#include "TTPMSInterface.hpp"
 #include "VCFInterface.hpp"
 
 /* Globally accessible types */
@@ -40,7 +41,8 @@ struct CANInterfaces_s
         InverterInterface& rl_inv_int,
         InverterInterface& rr_inv_int,
         VCFInterface& vcf_int,
-        RSSInterface& rss_int)
+        RSSInterface& rss_int,
+        TTPMSInterface& ttpms_int)
         : acu_interface(acu_int),
           db_interface(db_int),
           fl_inverter_interface(fl_inv_int),
@@ -48,7 +50,8 @@ struct CANInterfaces_s
           rl_inverter_interface(rl_inv_int),
           rr_inverter_interface(rr_inv_int),
           vcf_interface(vcf_int),
-          rss_interface(rss_int) {};
+          rss_interface(rss_int),
+          ttpms_interface(ttpms_int) {};
 
     ACUInterface& acu_interface;
     DrivebrainInterface& db_interface;
@@ -58,6 +61,7 @@ struct CANInterfaces_s
     InverterInterface& rr_inverter_interface;
     VCFInterface& vcf_interface;
     RSSInterface& rss_interface;
+    TTPMSInterface& ttpms_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 

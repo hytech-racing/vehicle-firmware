@@ -56,7 +56,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         interfaces.acu_interface.receive_em_measurement(msg, millis);
         break;
     }
-
     case DRIVEBRAIN_TORQUE_LIM_INPUT_CANID:
     {
         if (interface_type == CANInterfaceType_e::RAUX)
@@ -225,6 +224,19 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
 
     default:
     {
+        // TTPMS IDs are runtime-configurable (base ID .. base ID + 23), so they cannot be case labels
+        if (interface_type == CANInterfaceType_e::RAUX && interfaces.ttpms_interface.receiveTTPMSData(msg, millis))
+        {
+            // Forward the raw frame to telemetry unchanged
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCRCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+            break;
+        }
+        Serial.print("Unhandled CAN ID: 0x");
+        Serial.print(msg.id, HEX);
+        Serial.print("  interface: ");
+        Serial.println(static_cast<int>(interface_type));
         break;
     }
     }
