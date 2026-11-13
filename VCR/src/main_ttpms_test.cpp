@@ -33,7 +33,7 @@ namespace
     CAN_message_t config_msg;
     unsigned long start_millis = 0;
     unsigned long last_send_millis = 0;
-    bool done = false;
+    bool isConfigChangeDone = false;
 }
 
 void setup()
@@ -69,7 +69,7 @@ void setup()
 
 void loop()
 {
-    if (done)
+    if (isConfigChangeDone)
     {
         return;
     }
@@ -78,7 +78,7 @@ void loop()
     if ((now - start_millis) > SEND_DURATION_MS)
     {
         // Datasheet: do NOT keep sending to the receiver
-        done = true;
+        isConfigChangeDone = true;
         Serial.println("DONE. Unplug the receiver's power for 5+ s, then plug it back in.");
         return;
     }
