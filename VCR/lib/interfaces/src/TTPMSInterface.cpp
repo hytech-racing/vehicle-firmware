@@ -57,8 +57,8 @@ bool TTPMSInterface::receiveTTPMSData(const CAN_message_t &can_msg, unsigned lon
         {
             sensor.serial_number = read_be_u16(buf, 0);
             sensor.battery_voltage_mv = read_be_u16(buf, 2);
-            sensor.pressure = _hsPressureFromRaw(read_be_u16(buf, 4));
-            sensor.gauge_pressure = static_cast<float>(read_be_u16(buf, 6)); // 1 mBar per bit
+            sensor.pressure_psi = _hsPressureFromRaw(read_be_u16(buf, 4)) * ttpms_default_params::MBAR_TO_PSI;
+            sensor.gauge_pressure_psi = static_cast<float>(read_be_u16(buf, 6)) * ttpms_default_params::MBAR_TO_PSI; // 1 mBar per bit
             sensor.last_pressure_recv_millis = curr_millis;
             break;
         }

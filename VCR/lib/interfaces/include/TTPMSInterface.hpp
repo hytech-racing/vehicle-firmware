@@ -28,7 +28,7 @@
  * base ID, in the order FL, FR, RL, RR:
  *   FL = base, FR = base + 6, RL = base + 12, RR = base + 18   (24 IDs total)
  * The default base (0x424) matches the receiver factory defaults and the HT_CAN DBC
- * (LF/RF/LR/RR_TTPMS_1..6 = 0x424 - 0x43B).
+ * (FL/FR/RL/RR_TTPMS_1..6 = 0x424 - 0x43B).
  */
 
 namespace ttpms_default_params
@@ -38,7 +38,7 @@ namespace ttpms_default_params
     constexpr size_t NUM_SENSORS = 4;
     constexpr uint16_t NUM_TTPMS_IDS = MSGS_PER_SENSOR * NUM_SENSORS; // 24
 
-    constexpr uint16_t DEFAULT_BASE_CAN_ID = LF_TTPMS_1_CANID; // 0x424
+    constexpr uint16_t DEFAULT_BASE_CAN_ID = FL_TTPMS_1_CANID; // 0x424
 
     /* Health thresholds (datasheet "Additional Information") */
     constexpr uint16_t LOW_BATTERY_THRESHOLD_MV = 2800; // Replace battery below ~2800 mV
@@ -49,6 +49,7 @@ namespace ttpms_default_params
     constexpr float HS_PRESSURE_OFFSET_MBAR = 3000.0f;  // +3000 mBar offset
     constexpr float TEMP_SCALE_DEGC = 0.1f;             // unsigned, 0.1 degC per bit
     constexpr float TEMP_OFFSET_DEGC = -100.0f;         // -100 degC offset
+    constexpr float MBAR_TO_PSI = 0.0145037738f;        // pressures are stored in psi
 
     /* Receiver command IDs, called "Programming Constant" in the datasheet (Appendix A.1 - A.3) */
     constexpr uint16_t BASE_CONFIG_COMMAND_ID = 0x7530;   // A.1: CAN Base ID, Sensor Assignment, Bit Rate, Emissivity mode
@@ -154,8 +155,8 @@ struct TTPMSSingleSensorData_s
     /* Message 1 (base + 0) */
     uint16_t serial_number;
     uint16_t battery_voltage_mv;    // mV
-    float pressure;                 // High-speed pressure, mBar
-    float gauge_pressure;           // mBar
+    float pressure_psi;             // High-speed (absolute) pressure, psi
+    float gauge_pressure_psi;       // psi
     /* Messages 2-5 (base + 1 .. base + 4) */
     std::array<float, ttpms_default_params::TEMP_CHANNELS> temp_data; // Infrared temps CH1 (inside) - CH16 (outside), degC
     /* Message 6 (base + 5) */

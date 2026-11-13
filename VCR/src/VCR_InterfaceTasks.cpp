@@ -563,6 +563,93 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.print(" Thermistor 7 degrees C: ");
     // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_degrees_C);
 
+    /* TTPMS Data */
+    const TTPMSAllSensorData_s all_ttpms_data = TTPMSInterfaceInstance::instance().getTTPMSData();
+    const char *names[ttpms_default_params::NUM_SENSORS] = {"FL", "FR", "RL", "RR"};
+    const TTPMSSingleSensorData_s *sensors[ttpms_default_params::NUM_SENSORS] = {&all_ttpms_data.fl_ttpms, &all_ttpms_data.fr_ttpms, &all_ttpms_data.rl_ttpms, &all_ttpms_data.rr_ttpms};
+    const unsigned long now = millis();
+
+    Serial.print("\n=========================== TTPMS @ ");
+    Serial.print(now / 1000.0f, 1);
+    Serial.println(" s ===========================");
+    Serial.println("Corner\tBase ID\tStatus\tAge\tSN\tNode\tBatt\tGauge\tHS_P\tRSSI\tSensT\tFlags");
+
+    for (size_t i = 0; i < ttpms_default_params::NUM_SENSORS; i++)
+    {
+        const TTPMSSingleSensorData_s &sensor = *sensors[i];
+        const unsigned long last_recv = max(sensor.last_pressure_recv_millis, max(sensor.last_temp_recv_millis, sensor.last_status_recv_millis));
+        const char *status = (last_recv == 0)       ? "NONE"
+                           : (sensor.serial_number == 0) ? "RX ONLY"
+                                                    : "LIVE";
+        Serial.print(names[i]);
+        Serial.print("\t0x");
+        Serial.print(TTPMSInterfaceInstance::instance().getSensorBaseCANID(static_cast<TTPMSCorner_e>(i)), HEX);
+        Serial.print("\t");
+        Serial.print(status);
+        if (last_recv == 0)
+        {
+            Serial.println();
+            continue;
+        }
+        Serial.print("\t");
+        Serial.print((now - last_recv) / 1000.0f, 1);
+        Serial.print("\t");
+        Serial.print(sensor.serial_number);
+        Serial.print("\t");
+        Serial.print(sensor.node_id);
+        Serial.print("\t");
+        Serial.print(sensor.battery_voltage_mv);
+        Serial.print("\t");
+        Serial.print(sensor.gauge_pressure_psi, 2);
+        Serial.print("\t");
+        Serial.print(sensor.pressure_psi, 3);
+        Serial.print("\t");
+        Serial.print(sensor.rssi_dbm);
+        Serial.print("\t");
+        Serial.print(sensor.sensor_temp, 1);
+        Serial.print("\t");
+        if (sensor.is_battery_low)
+        {
+            Serial.print("LOW_BATT ");
+        }
+        if (sensor.is_rssi_weak)
+        {
+            Serial.print("WEAK_RSSI");
+        }
+        Serial.println();
+    }
+
+    bool any_temps = false;
+    for (size_t i = 0; i < ttpms_default_params::NUM_SENSORS; i++)
+    {
+        const TTPMSSingleSensorData_s &sensor = *sensors[i];
+        if (sensor.last_temp_recv_millis == 0)
+        {
+            continue;
+        }
+        if (!any_temps)
+        {
+            Serial.println("IR temps (C), CH1 inside -> CH16 outside:");
+            Serial.print("Corner");
+            for (size_t channel = 0; channel < ttpms_default_params::TEMP_CHANNELS; channel++)
+            {
+                Serial.print("\tCH");
+                Serial.print(channel + 1);
+            }
+            Serial.println();
+            any_temps = true;
+        }
+        Serial.print(names[i]);
+        for (size_t channel = 0; channel < ttpms_default_params::TEMP_CHANNELS; channel++)
+        {
+            Serial.print("\t");
+            Serial.print(sensor.temp_data[channel], 1);
+        }
+        Serial.println();
+    }
+    Serial.println("Units: Age s | Batt mV | Gauge, HS_P psi | RSSI dBm | SensT C");
+    Serial.println("NONE = receiver not heard | RX ONLY = receiver on bus, no sensor data | LIVE = sensor reporting");
+
     Serial.println();
 
     return HT_TASK::TaskResponse::YIELD;
