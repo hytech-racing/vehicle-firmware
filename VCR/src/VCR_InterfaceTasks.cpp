@@ -564,8 +564,9 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     /* TTPMS Data */
     const TTPMSAllSensorData_s all_ttpms_data = TTPMSInterfaceInstance::instance().getTTPMSData();
-    const char *names[ttpms_default_params::NUM_SENSORS] = {"FL", "FR", "RL", "RR"};
-    const TTPMSSingleSensorData_s *sensors[ttpms_default_params::NUM_SENSORS] = {&all_ttpms_data.fl_ttpms, &all_ttpms_data.fr_ttpms, &all_ttpms_data.rl_ttpms, &all_ttpms_data.rr_ttpms};
+    const char* names[ttpms_default_params::NUM_SENSORS] = {"FL", "FR", "RL", "RR"};
+    const TTPMSSingleSensorData_s* sensors[ttpms_default_params::NUM_SENSORS] =
+        {&all_ttpms_data.fl_ttpms, &all_ttpms_data.fr_ttpms, &all_ttpms_data.rl_ttpms, &all_ttpms_data.rr_ttpms};
     const unsigned long now = millis();
 
     Serial.print("\n=========================== TTPMS @ ");
@@ -575,11 +576,9 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     for (size_t i = 0; i < ttpms_default_params::NUM_SENSORS; i++)
     {
-        const TTPMSSingleSensorData_s &sensor = *sensors[i];
+        const TTPMSSingleSensorData_s& sensor = *sensors[i];
         const unsigned long last_recv = max(sensor.last_pressure_recv_millis, max(sensor.last_temp_recv_millis, sensor.last_status_recv_millis));
-        const char *status = (last_recv == 0)       ? "NONE"
-                           : (sensor.serial_number == 0) ? "RX ONLY"
-                                                    : "LIVE";
+        const char* status = (last_recv == 0) ? "NONE" : (sensor.serial_number == 0) ? "RX ONLY" : "LIVE";
         Serial.print(names[i]);
         Serial.print("\t0x");
         Serial.print(TTPMSInterfaceInstance::instance().getSensorBaseCANID(static_cast<TTPMSCorner_e>(i)), HEX);
@@ -621,7 +620,7 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     bool any_temps = false;
     for (size_t i = 0; i < ttpms_default_params::NUM_SENSORS; i++)
     {
-        const TTPMSSingleSensorData_s &sensor = *sensors[i];
+        const TTPMSSingleSensorData_s& sensor = *sensors[i];
         if (sensor.last_temp_recv_millis == 0)
         {
             continue;
