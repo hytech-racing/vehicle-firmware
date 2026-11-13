@@ -269,7 +269,6 @@ HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros,
 
 HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    TTPMSInterfaceInstance::instance().updateConfigSequence(sys_time::hal_millis()); // No-op unless a TTPMS receiver config sequence was started
     VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().inverter_can_tx_buffer, &VCRCANInterfaceInstance::instance().INVERTER_CAN);
     VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().telem_can_tx_buffer, &VCRCANInterfaceInstance::instance().TELEM_CAN);
     VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer, &VCRCANInterfaceInstance::instance().REAR_AUX_CAN);

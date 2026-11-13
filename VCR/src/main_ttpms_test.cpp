@@ -31,6 +31,14 @@ namespace
     constexpr size_t LINE_BUF_LEN = 96;
     constexpr size_t MAX_SEEN_IDS = 64;
 
+    /* Receiver programming (datasheet Appendix A.1). Send at 1 Hz for at least 10 s, then power cycle the receiver for 5 s */
+    constexpr uint16_t BASE_CONFIG_COMMAND_ID = 0x7530;  // "Programming Constant": CAN base ID, sensor assignment, bit rate, emissivity mode
+    constexpr uint8_t SENSOR_ASSIGNMENT_DEFAULT = 1;     // only documented value
+    constexpr uint8_t MAX_EMISSIVITY_MODE = 2;           // 0 = standard, 1 = default cal, 2 = custom
+    constexpr uint16_t MAX_RECEIVER_BASE_CAN_ID = 0x7FF - (ttpms_default_params::MSGS_PER_SENSOR - 1); // one sensor block must fit in 11 bits
+    constexpr unsigned long CONFIG_SEND_PERIOD_MS = 1000;
+    constexpr unsigned long CONFIG_SEND_DURATION_MS = 11000; // 1 s margin over the 10 s minimum
+
     struct SeenID_s
     {
         uint32_t id;
@@ -53,8 +61,13 @@ namespace
     bool print_table = true;
     unsigned long last_print_millis = 0;
 
+    /* Programming sequence state */
+    CAN_message_t config_msg;
+    bool config_active = false;
+    unsigned long config_start_millis = 0;
+    unsigned long last_config_send_millis = 0;
+
     /* Applied once a programming sequence finishes */
-    bool was_config_active = false;
     uint16_t pending_base_id = 0;
     uint32_t pending_baudrate = 0;
 
@@ -86,6 +99,33 @@ namespace
         char *end = nullptr;
         out = strtoul(tok, &end, 0); // base 0: accepts 0x424 (hex) or 1060 (decimal)
         return end != tok && *end == '\0';
+    }
+
+    /**
+     * Builds the receiver base config message (datasheet A.1).
+     * target_can_id is the ID the receiver listens on for programming (its current base ID).
+     * @return false if any argument is out of range
+     */
+    bool build_base_config_msg(uint32_t target_can_id, uint32_t new_base_id, uint32_t rate_code, uint32_t emissivity_mode, CAN_message_t &msg)
+    {
+        if (target_can_id > 0x7FF || new_base_id < ttpms_default_params::MIN_BASE_CAN_ID || new_base_id > MAX_RECEIVER_BASE_CAN_ID ||
+            baudrate_from_code(static_cast<uint8_t>(rate_code)) == 0 || rate_code > 0xFF || emissivity_mode > MAX_EMISSIVITY_MODE)
+        {
+            return false;
+        }
+
+        msg = CAN_message_t();
+        msg.id = target_can_id;
+        msg.len = 8;
+        msg.buf[0] = static_cast<uint8_t>(BASE_CONFIG_COMMAND_ID >> 8); // big-endian
+        msg.buf[1] = static_cast<uint8_t>(BASE_CONFIG_COMMAND_ID & 0xFF);
+        msg.buf[2] = static_cast<uint8_t>(new_base_id >> 8);
+        msg.buf[3] = static_cast<uint8_t>(new_base_id & 0xFF);
+        msg.buf[4] = SENSOR_ASSIGNMENT_DEFAULT;
+        msg.buf[5] = static_cast<uint8_t>(rate_code);
+        msg.buf[6] = static_cast<uint8_t>(emissivity_mode);
+        msg.buf[7] = 0;
+        return true;
     }
 
     TTPMSSingleSensorData_s sensor_at(const TTPMSAllSensorData_s &data, size_t i)
@@ -171,7 +211,7 @@ namespace
                       ttpms.getSensorBaseCANID(TTPMSCorner_e::RL),
                       ttpms.getSensorBaseCANID(TTPMSCorner_e::RR),
                       print_raw ? "on" : "off",
-                      ttpms.isConfigSequenceActive() ? "ACTIVE" : "idle");
+                      config_active ? "ACTIVE" : "idle");
     }
 
     void print_seen_ids()
@@ -206,7 +246,7 @@ namespace
         unsigned long now = millis();
 
         Serial.printf("\n--- TTPMS @ %lu ms | %lu bps | base 0x%03X ---\n", now, static_cast<unsigned long>(can_baudrate), ttpms.getBaseCANID());
-        Serial.println("     IDs          age_ms   SN     node  batt_mV  HS_P_mBar  gauge_mBar  RSSI  T_sens  flags");
+        Serial.println("     IDs          age_ms   SN     node  batt_mV  HS_P_psi   gauge_psi   RSSI  T_sens  flags");
         for (size_t i = 0; i < ttpms_default_params::NUM_SENSORS; i++)
         {
             const TTPMSSingleSensorData_s s = sensor_at(data, i);
@@ -228,8 +268,8 @@ namespace
             {
                 Serial.print("-        ");
             }
-            Serial.printf("%-5u  %-4u  %-7u  %-9.1f  %-10.0f  %-4d  %-6.1f  %s%s%s\n",
-                          s.serial_number, s.node_id, s.battery_voltage_mv, s.pressure, s.gauge_pressure,
+            Serial.printf("%-5u  %-4u  %-7u  %-9.3f  %-10.2f  %-4d  %-6.1f  %s%s%s\n",
+                          s.serial_number, s.node_id, s.battery_voltage_mv, s.pressure_psi, s.gauge_pressure_psi,
                           s.rssi_dbm, s.sensor_temp,
                           s.is_battery_low ? "LOW_BATT " : "",
                           s.is_rssi_weak ? "WEAK_RSSI " : "",
@@ -252,7 +292,7 @@ namespace
         uint32_t target = 0;
         uint32_t new_base = 0;
         uint32_t rate_code = 0;
-        uint32_t emissivity = static_cast<uint32_t>(TTPMSEmissivityMode_e::DEFAULT_CAL);
+        uint32_t emissivity = 1; // default cal
 
         char *t_target = strtok(args, " ");
         char *t_base = strtok(nullptr, " ");
@@ -266,12 +306,14 @@ namespace
             return;
         }
 
-        auto &ttpms = TTPMSInterfaceInstance::instance();
+        if (config_active)
+        {
+            Serial.println("prog: a config sequence is already running");
+            return;
+        }
+
         CAN_message_t msg;
-        if (rate_code > 0xFF || emissivity > 0xFF ||
-            !ttpms.buildBaseConfigMsg(static_cast<uint16_t>(target), static_cast<uint16_t>(new_base),
-                                      static_cast<TTPMSBitRate_e>(rate_code),
-                                      static_cast<TTPMSEmissivityMode_e>(emissivity), msg))
+        if (!build_base_config_msg(target, new_base, rate_code, emissivity, msg))
         {
             Serial.println("prog: argument out of range");
             return;
@@ -282,11 +324,10 @@ namespace
             Serial.println("prog: warning - new base + 23 exceeds 0x7FF, cannot decode all 4 sensors there");
         }
 
-        if (!ttpms.startConfigSequence(&msg, 1, millis()))
-        {
-            Serial.println("prog: a config sequence is already running");
-            return;
-        }
+        config_msg = msg;
+        config_active = true;
+        config_start_millis = millis();
+        last_config_send_millis = config_start_millis - CONFIG_SEND_PERIOD_MS; // send on the first poll
 
         pending_base_id = static_cast<uint16_t>(new_base);
         pending_baudrate = baudrate_from_code(static_cast<uint8_t>(rate_code));
@@ -413,16 +454,18 @@ namespace
 
     void poll_config_sequence()
     {
-        auto &ttpms = TTPMSInterfaceInstance::instance();
-        ttpms.updateConfigSequence(millis());
-        VCRCANInterfaceImpl::send_all_CAN_msgs(VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer,
-                                               &VCRCANInterfaceInstance::instance().REAR_AUX_CAN);
-
-        const bool active = ttpms.isConfigSequenceActive();
-        if (was_config_active && !active)
+        if (!config_active)
         {
+            return;
+        }
+
+        const unsigned long now = millis();
+        if ((now - config_start_millis) > CONFIG_SEND_DURATION_MS)
+        {
+            // Datasheet: do NOT keep sending to the receiver. Power cycle it to apply the change.
+            config_active = false;
             Serial.println("\nprog: DONE. Unplug receiver power for 5 s, then plug it back in.");
-            if (ttpms.setBaseCANID(pending_base_id))
+            if (TTPMSInterfaceInstance::instance().setBaseCANID(pending_base_id))
             {
                 Serial.printf("prog: decode base -> 0x%03X\n", pending_base_id);
             }
@@ -431,8 +474,14 @@ namespace
                 set_can_baudrate(pending_baudrate);
             }
             print_status();
+            return;
         }
-        was_config_active = active;
+
+        if ((now - last_config_send_millis) >= CONFIG_SEND_PERIOD_MS)
+        {
+            VCRCANInterfaceInstance::instance().REAR_AUX_CAN.write(config_msg);
+            last_config_send_millis = now;
+        }
     }
 }
 
