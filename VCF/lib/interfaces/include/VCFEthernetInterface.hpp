@@ -13,7 +13,7 @@
 
 /* Local Interface Includes */
 #include "ADCInterface.hpp"
-#include "BrakeRotorTempInterface.hpp"
+#include "VCFIRTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "PedalsSystem.hpp"
 #include "SteeringSystem.hpp"
@@ -39,7 +39,7 @@ class VCFEthernetInterface
         DashboardInterface& dash_int,
         PedalsSystem& pedals_sys,
         SteeringSystem& steering_sys,
-        BrakeRotorTempInterface& brake_rotor_temp_int);
+        VCFIRTempInterface& ir_temp_int);
 
     /**
      * Function to take a populated protoc struct from VCR and update the VCF state. This is ONLY critical

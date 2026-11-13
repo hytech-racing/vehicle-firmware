@@ -67,25 +67,31 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
         interfaces.vcr_interface.receiveINV4StatusCANMsg(msg);
         break;
     }
-    case FL_BRAKE_ROTOR_SENSOR_TEMP_CANID:
-    case FL_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
-    case FL_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:
-    case FL_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
-    case FL_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
-    case FR_BRAKE_ROTOR_SENSOR_TEMP_CANID:
-    case FR_BRAKE_ROTOR_TEMP_CH1_CH4_CANID:
-    case FR_BRAKE_ROTOR_TEMP_CH5_CH8_CANID:
-    case FR_BRAKE_ROTOR_TEMP_CH9_CH12_CANID:
-    case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
-    {
-        interfaces.brake_rotor_temp_interface.receiveBrakeRotorTempCANMsgs(msg);
-        break;
-    }
     // FDC sends EBS data on FRONT_AUX. Forward it unchanged onto TELEM so it's logged.
     case EBS_DATA_CANID:
     {
         if (interface_type == CANInterfaceType_e::FAUX)
         {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCFCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
+        break;
+    }
+    // Front IR temp sensors are on FRONT_AUX. Forward them unchanged onto TELEM so they're logged.
+    case FL_IR_TEMP_CH1_CH4_CANID:
+    case FL_IR_TEMP_CH5_CH8_CANID:
+    case FL_IR_TEMP_CH9_CH12_CANID:
+    case FL_IR_TEMP_CH13_CH16_CANID:
+    case FR_IR_TEMP_CH1_CH4_CANID:
+    case FR_IR_TEMP_CH5_CH8_CANID:
+    case FR_IR_TEMP_CH9_CH12_CANID:
+    case FR_IR_TEMP_CH13_CH16_CANID:
+    {
+        if (interface_type == CANInterfaceType_e::FAUX)
+        {
+            interfaces.ir_temp_interface.receiveIRTempData(msg, millis);
+
             std::array<uint8_t, CAN_MSG_SIZE> buf;
             memmove(buf.data(), &msg, CAN_MSG_SIZE);
             VCFCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);

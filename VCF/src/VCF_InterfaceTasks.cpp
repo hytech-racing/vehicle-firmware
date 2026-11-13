@@ -69,8 +69,8 @@ void initializeAllInterfaces()
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 
-    /* Brake Rotor Temp Interface */
-    BrakeRotorTempInterfaceInstance::create();
+    /* IR Temp Interface */
+    VCFIRTempInterfaceInstance::create();
 
     /* Dashboard Interface */
     DashboardGPIOs_s dashboard_gpios = {
@@ -96,7 +96,7 @@ void initializeAllInterfaces()
     /* CAN Interfaces */
     CANInterfacesInstance::create(
         ACUInterfaceInstance::instance(),
-        BrakeRotorTempInterfaceInstance::instance(),
+        VCFIRTempInterfaceInstance::instance(),
         DashboardInterfaceInstance::instance(),
         VCRInterfaceInstance::instance());
 
@@ -233,7 +233,7 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
         DashboardInterfaceInstance::instance(),
         PedalsSystemInstance::instance(),
         SteeringSystemInstance::instance(),
-        BrakeRotorTempInterfaceInstance::instance());
+        VCFIRTempInterfaceInstance::instance());
     VCFEthernetInterfaceInstance::instance().handleSendVCFETHData(msg);
     return HT_TASK::TaskResponse::YIELD;
 }

@@ -11,7 +11,7 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
-#include "BrakeRotorTempInterface.hpp"
+#include "VCFIRTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"

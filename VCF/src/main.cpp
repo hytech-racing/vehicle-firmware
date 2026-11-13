@@ -296,24 +296,24 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
 
     // Sensor 1
     // Serial.print("FL\t");
-    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.max_temp); Serial.print("\t");
-    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.avg_temp); Serial.print("\t");
+    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.max_temp); Serial.print("\t");
+    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.avg_temp); Serial.print("\t");
 
-    // for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
+    // for (size_t i = 0; i < ir_temp_default_params::TEMP_CHANNELS; ++i)
     // {
-    //     Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fl_sensor.channel_data[i]);
+    //     Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.temp_data[i]);
     //     Serial.print("\t");
     // }
     // Serial.println();
 
     // Sensor 2
     // Serial.print("FR\t");
-    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.max_temp); Serial.print("\t");
-    // Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.avg_temp); Serial.print("\t");
+    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.max_temp); Serial.print("\t");
+    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.avg_temp); Serial.print("\t");
 
-    // for (size_t i = 0; i < brake_rotor_temp_default_params::channels_within_brake_temp_sensor; ++i)
+    // for (size_t i = 0; i < ir_temp_default_params::TEMP_CHANNELS; ++i)
     // {
-    //     Serial.print(BrakeRotorTempInterfaceInstance::instance().getBrakeRotorTempData().fr_sensor.channel_data[i]);
+    //     Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.temp_data[i]);
     //     Serial.print("\t");
     // }
     // Serial.println();

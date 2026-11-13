@@ -107,6 +107,9 @@ void initialize_all_interfaces()
     /* ---------- TTPMS Interface ---------- */
     TTPMSInterfaceInstance::create();
 
+    /* ---------- IR Temp Interface (rear brake rotors) ---------- */
+    VCRIRTempInterfaceInstance::create();
+
     /* ---------- CAN Interfaces ---------- */
     CANInterfacesInstance::create(
         ACUInterfaceInstance::instance(),
@@ -117,7 +120,8 @@ void initialize_all_interfaces()
         rr_inverter_interface,
         VCFInterfaceInstance::instance(),
         RSSInterfaceInstance::instance(),
-        TTPMSInterfaceInstance::instance());
+        TTPMSInterfaceInstance::instance(),
+        VCRIRTempInterfaceInstance::instance());
 
     VCRCANInterfaceInstance::create(
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::vcr_recv_switch>());
