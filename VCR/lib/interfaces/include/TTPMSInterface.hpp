@@ -26,8 +26,8 @@
  *   base + 4 : IR temp CH13 - CH16
  *   base + 5 : transmission count, RSSI, sensor temperature, sensor node ID
  *
- * The four sensors are laid out back to back starting at a single runtime-configurable
- * base ID, in the order FL, FR, RL, RR
+ * The four sensors are laid out back to back from base ID 0x424 (receiver factory default,
+ * same as the HT_CAN DBC), in the order FL, FR, RL, RR
  *   FL = base, FR = base + 6, RL = base + 12, RR = base + 18   (24 IDs total)
  */
 
@@ -38,7 +38,7 @@ namespace ttpms_default_params
     constexpr size_t NUM_SENSORS = 4;
     constexpr uint16_t NUM_TTPMS_IDS = MSGS_PER_SENSOR * NUM_SENSORS; // 24
 
-    constexpr uint16_t DEFAULT_BASE_CAN_ID = FL_TTPMS_1_CANID; // 0x424
+    constexpr uint16_t BASE_CAN_ID = FL_TTPMS_1_CANID; // 0x424
 
     /* Health thresholds (datasheet "Additional Information") */
     constexpr uint16_t LOW_BATTERY_THRESHOLD_MV = 2800; // Replace battery below ~2800 mV
@@ -50,14 +50,11 @@ namespace ttpms_default_params
     constexpr float TEMP_SCALE_DEGC = 0.1f;            // unsigned, 0.1 degC per bit
     constexpr float TEMP_OFFSET_DEGC = -100.0f;        // -100 degC offset
     constexpr float MBAR_TO_PSI = 0.0145037738f;       // pressures are stored in psi
-
-    constexpr uint16_t MIN_BASE_CAN_ID = 0x001;
-    constexpr uint16_t MAX_DECODE_BASE_CAN_ID = 0x7FF - (NUM_TTPMS_IDS - 1); // all four sensor blocks must fit in 11 bits
 } // namespace ttpms_default_params
 
 /**
  * Sensor position. The value is the sensor's index in the consecutive CAN ID layout
- * (sensor base ID = decode base ID + index * MSGS_PER_SENSOR).
+ * (sensor base ID = BASE_CAN_ID + index * MSGS_PER_SENSOR).
  */
 enum class TTPMSCorner_e : uint8_t
 {
@@ -78,10 +75,6 @@ struct TTPMSParams_s
     float hs_pressure_offset_mbar;
     float temp_scale_degc;
     float temp_offset_degc;
-
-    /* Decode base ID limits */
-    uint16_t min_base_can_id;
-    uint16_t max_decode_base_can_id;
 };
 
 struct TTPMSSingleSensorData_s
@@ -120,7 +113,7 @@ struct TTPMSAllSensorData_s
 class TTPMSInterface
 {
   public:
-    explicit TTPMSInterface(uint16_t base_can_id = ttpms_default_params::DEFAULT_BASE_CAN_ID)
+    TTPMSInterface()
         : _ttpms_data{},
           _params{
               .low_battery_threshold_mv = ttpms_default_params::LOW_BATTERY_THRESHOLD_MV,
@@ -128,15 +121,7 @@ class TTPMSInterface
               .hs_pressure_scale_mbar = ttpms_default_params::HS_PRESSURE_SCALE_MBAR,
               .hs_pressure_offset_mbar = ttpms_default_params::HS_PRESSURE_OFFSET_MBAR,
               .temp_scale_degc = ttpms_default_params::TEMP_SCALE_DEGC,
-              .temp_offset_degc = ttpms_default_params::TEMP_OFFSET_DEGC,
-              .min_base_can_id = ttpms_default_params::MIN_BASE_CAN_ID,
-              .max_decode_base_can_id = ttpms_default_params::MAX_DECODE_BASE_CAN_ID}
-    {
-        if (!setBaseCANID(base_can_id))
-        {
-            _base_can_id = ttpms_default_params::DEFAULT_BASE_CAN_ID;
-        }
-    };
+              .temp_offset_degc = ttpms_default_params::TEMP_OFFSET_DEGC} {};
 
     /**
      * @brief Retrieves the latest data that has been sent from the sensors
@@ -144,21 +129,12 @@ class TTPMSInterface
     TTPMSAllSensorData_s getTTPMSData() const;
 
     /**
-     * @brief Sets the base CAN ID used for decoding. FL = base, FR = base + 6, RL = base + 12, RR = base + 18.
-     *        Clears all stored sensor data since it belonged to the old ID layout.
-     * @return false if the 24-ID block would not fit in an 11-bit ID
-     */
-    bool setBaseCANID(uint16_t base_can_id);
-
-    uint16_t getBaseCANID() const { return _base_can_id; }
-
-    /**
-     * @return the first CAN ID of a given sensor under the current decode base
+     * @return the first CAN ID of a given sensor
      */
     uint16_t getSensorBaseCANID(TTPMSCorner_e corner) const;
 
     /**
-     * @return true if the CAN ID falls in the current 24-ID TTPMS block
+     * @return true if the CAN ID falls in the 24-ID TTPMS block
      */
     bool isTTPMSMessage(uint32_t can_id) const;
 
@@ -177,7 +153,6 @@ class TTPMSInterface
   private:
     TTPMSAllSensorData_s _ttpms_data;
     const TTPMSParams_s _params = {};
-    uint16_t _base_can_id = ttpms_default_params::DEFAULT_BASE_CAN_ID;
 
     TTPMSSingleSensorData_s& _sensorAt(size_t index);
 

@@ -5,25 +5,14 @@ TTPMSAllSensorData_s TTPMSInterface::getTTPMSData() const
     return _ttpms_data;
 }
 
-bool TTPMSInterface::setBaseCANID(uint16_t base_can_id)
-{
-    if (base_can_id < _params.min_base_can_id || base_can_id > _params.max_decode_base_can_id)
-    {
-        return false;
-    }
-    _base_can_id = base_can_id;
-    _ttpms_data = {}; // old data belongs to the old ID layout
-    return true;
-}
-
 uint16_t TTPMSInterface::getSensorBaseCANID(TTPMSCorner_e corner) const
 {
-    return static_cast<uint16_t>(_base_can_id + (static_cast<uint16_t>(corner) * ttpms_default_params::MSGS_PER_SENSOR));
+    return static_cast<uint16_t>(ttpms_default_params::BASE_CAN_ID + (static_cast<uint16_t>(corner) * ttpms_default_params::MSGS_PER_SENSOR));
 }
 
 bool TTPMSInterface::isTTPMSMessage(uint32_t can_id) const
 {
-    return (can_id >= _base_can_id) && (can_id < (static_cast<uint32_t>(_base_can_id) + ttpms_default_params::NUM_TTPMS_IDS));
+    return (can_id >= ttpms_default_params::BASE_CAN_ID) && (can_id < (ttpms_default_params::BASE_CAN_ID + ttpms_default_params::NUM_TTPMS_IDS));
 }
 
 bool TTPMSInterface::receiveTTPMSData(const CAN_message_t& can_msg, unsigned long curr_millis)
@@ -33,7 +22,7 @@ bool TTPMSInterface::receiveTTPMSData(const CAN_message_t& can_msg, unsigned lon
         return false;
     }
 
-    const uint32_t offset = can_msg.id - _base_can_id;
+    const uint32_t offset = can_msg.id - ttpms_default_params::BASE_CAN_ID;
     const size_t sensor_index = offset / ttpms_default_params::MSGS_PER_SENSOR;
     const size_t msg_index = offset % ttpms_default_params::MSGS_PER_SENSOR;
     TTPMSSingleSensorData_s& sensor = _sensorAt(sensor_index);
