@@ -39,10 +39,10 @@ struct AnalogConversion_s
  * each channel's output packet (an AnalogConversion_s). This is templated to account
  * for multi-sensors with different numbers of channels (2, 4, 8-channel ADCs).
  */
-template <int N>
+template <int NUM_CHANNELS>
 struct AnalogConversionPacket_s
 {
-    std::array<AnalogConversion_s, N> conversions;
+    std::array<AnalogConversion_s, NUM_CHANNELS> conversions;
 };
 
 /**

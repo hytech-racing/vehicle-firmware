@@ -5,21 +5,37 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <MCP_ADC.h>
+#include <SPI_ADC.h>
 
 using pin = uint8_t;
 
-
-namespace adc_default_parameters
+namespace vcf_adc_default_parameters
 {
     constexpr const unsigned int channels_within_mcp_adc = 8;
-}
 
-struct ADCPinout_s
-{
-    pin adc0_spi_cs_pin;
-    pin adc1_spi_cs_pin;
-};
+    constexpr const SPIParams_s adc1_params = {.spiPinCS = 38, .spiPinSDI = 12, .spiPinSDO = 11, .spiPinCLK = 13, .spiSpeed = 2000000};
+
+    constexpr const std::array<ChannelType_e, 8> adc0_channels = {
+        ChannelType_e::NOT_USED,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE};
+
+    constexpr const std::array<ChannelType_e, 8> adc1_channels = {
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE,
+        ChannelType_e::SINGLE};
+} // namespace vcf_adc_default_parameters
+
 
 struct ADCChannels_s
 {
@@ -89,7 +105,6 @@ struct ADCOffsets_s
 
 struct ADCInterfaceParams_s
 {
-    ADCPinout_s pinouts;
     ADCChannels_s channels;
     ADCScales_s scales;
     ADCOffsets_s offsets;
@@ -98,29 +113,22 @@ struct ADCInterfaceParams_s
 class ADCInterface
 {
   public:
-    ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
-        : _adc_parameters{.pinouts = pinouts, .channels = channels, .scales = scales, .offsets = offsets},
-          _adc0(
-              _adc_parameters.pinouts.adc0_spi_cs_pin,
-              MCP_ADC_DEFAULT_SPI_SDI,
-              MCP_ADC_DEFAULT_SPI_SDO,
-              MCP_ADC_DEFAULT_SPI_CLK,
-              MCP_ADC_DEFAULT_SPI_SPEED,
-              adc0_scales().data(),
-              adc0_offsets().data()),
+    ADCInterface(ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
+        : _adc_parameters{.channels = channels, .scales = scales, .offsets = offsets},
+          _adc0(_spiEventADC0, adc0_scales().data(), adc0_offsets().data(), vcf_adc_default_parameters::adc0_channels),
           _adc1(
-              _adc_parameters.pinouts.adc1_spi_cs_pin,
-              MCP_ADC_DEFAULT_SPI_SDI,
-              MCP_ADC_DEFAULT_SPI_SDO,
-              MCP_ADC_DEFAULT_SPI_CLK,
-              MCP_ADC_DEFAULT_SPI_SPEED,
+              vcf_adc_default_parameters::adc1_params,
+              _spiEventADC1,
               adc1_scales().data(),
-              adc1_offsets().data()) {};
+              adc1_offsets().data(),
+              vcf_adc_default_parameters::adc1_channels) {};
+
+    void initADC0() { _adc0.initDMA(); }
+    void initADC1() { _adc1.initDMA(); }
 
     void tickADC0();
 
     void tickADC1();
-
 
     /* -------------------- ADC0 -------------------- */
 
@@ -230,20 +238,23 @@ class ADCInterface
   private:
     ADCInterfaceParams_s _adc_parameters = {};
 
+    EventResponder _spiEventADC0;
+    EventResponder _spiEventADC1;
+
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc0;
+    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc0;
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc1;
+    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc1;
 
     float _FL_load_cell_filtered;
     float _FR_load_cell_filtered;
     float _FL_sus_pot_filtered;
     float _FR_sus_pot_filtered;
 
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_offsets();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc0_scales();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc1_scales();
+    std::array<float, vcf_adc_default_parameters::channels_within_mcp_adc> adc1_offsets();
 
     /**
      * @return updated filtered value based on given alpha, previous filtered value, and new measured value

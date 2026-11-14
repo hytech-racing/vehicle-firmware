@@ -1,6 +1,5 @@
 #include "VCF_InterfaceTasks.hpp"
 
-
 void initializeAllInterfaces()
 {
     SPI.begin();
@@ -15,8 +14,8 @@ void initializeAllInterfaces()
     ACUInterfaceInstance::create();
 
     /* ADC Interface */
+
     ADCInterfaceInstance::create(
-        ADCPinout_s{VCFInterfaces::ADC0_CS, VCFInterfaces::ADC1_CS},
         ADCChannels_s{
             VCFInterfaces::PEDAL_REF_2V5_CHANNEL,
             VCFInterfaces::STEERING_1_CHANNEL,
@@ -68,6 +67,9 @@ void initializeAllInterfaces()
             VCFInterfaces::FL_SUS_POT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
+
+    ADCInterfaceInstance::instance().initADC0();
+    ADCInterfaceInstance::instance().initADC1();
 
     /* Brake Rotor Temp Interface */
     BrakeRotorTempInterfaceInstance::create();

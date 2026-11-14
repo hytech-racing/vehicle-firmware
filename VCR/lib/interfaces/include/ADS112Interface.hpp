@@ -1,7 +1,7 @@
 #ifndef ADS112_INTERFACE
 #define ADS112_INTERFACE
 
-#include "AnalogSensorsInterface.h"
+#include "AnalogSensorsInterface.hpp"
 #include "etl/singleton.h"
 
 #include <Arduino.h>

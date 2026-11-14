@@ -2,7 +2,7 @@
 #define MAX114XINTERFACE_H
 
 /* External Includes */
-#include "AnalogSensorsInterface.h"
+#include "AnalogSensorsInterface.hpp"
 
 #include <Arduino.h>
 #include <SPI.h>

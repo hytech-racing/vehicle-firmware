@@ -5,7 +5,7 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "MCP_ADC.h"
+#include "MCP_ADC.hpp"
 
 #include <array>
 #include <optional>
@@ -103,22 +103,8 @@ class ADCInterface
   public:
     ADCInterface(ADCPinout_s pinouts, ADCChannels_s channels, ADCScales_s scales, ADCOffsets_s offsets)
         : _adc_parameters{pinouts, channels, scales, offsets},
-          _adc0(
-              _adc_parameters.pinouts.adc0_spi_cs_pin,
-              MCP_ADC_DEFAULT_SPI_SDI,
-              MCP_ADC_DEFAULT_SPI_SDO,
-              MCP_ADC_DEFAULT_SPI_CLK,
-              MCP_ADC_DEFAULT_SPI_SPEED,
-              adc0_scales().data(),
-              adc0_offsets().data()),
-          _adc1(
-              _adc_parameters.pinouts.adc1_spi_cs_pin,
-              MCP_ADC_DEFAULT_SPI_SDI,
-              MCP_ADC_DEFAULT_SPI_SDO,
-              MCP_ADC_DEFAULT_SPI_CLK,
-              MCP_ADC_DEFAULT_SPI_SPEED,
-              adc1_scales().data(),
-              adc1_offsets().data()) {};
+          _adc0(_adc_parameters.pinouts.adc0_spi_cs_pin, MCP_ADC_DEFAULT_SPI_SPEED, adc0_scales().data(), adc0_offsets().data()),
+          _adc1(_adc_parameters.pinouts.adc1_spi_cs_pin, MCP_ADC_DEFAULT_SPI_SPEED, adc1_scales().data(), adc1_offsets().data()) {};
 
     /**
      * Init function for pin modes
