@@ -290,33 +290,46 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
     Serial.print("\t");
     Serial.println(BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()));
 
-    /* Brake Rotor Temp Info */
-    // Serial.println("\nBrake Rotor Temps:");
-    // Serial.println("Sensor\tMax\tAvg\tCH0\tCH1\tCH2\tCH3\tCH4\tCH5\tCH6\tCH7\tCH8\tCH9\tCH10\tCH11\tCH12\tCH13\tCH14\tCH15");
+    /* IR Temp Data (front brake rotors) */
+    const IRTempAllSensorData_s ir_temp_data = VCFIRTempInterfaceInstance::instance().getIRTempData();
+    const char* ir_names[ir_temp_default_params::NUM_SENSORS] = {"FL", "FR"};
+    const IRTempSingleSensorData_s* ir_sensors[ir_temp_default_params::NUM_SENSORS] = {&ir_temp_data.left_sensor, &ir_temp_data.right_sensor};
+    const unsigned long now = sys_time::hal_millis();
 
-    // Sensor 1
-    // Serial.print("FL\t");
-    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.max_temp); Serial.print("\t");
-    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.avg_temp); Serial.print("\t");
+    Serial.println("\nIR Temps (C):");
+    Serial.print("Corner\tBase ID\tAge\tMax\tAvg");
+    for (size_t channel = 0; channel < ir_temp_default_params::TEMP_CHANNELS; channel++)
+    {
+        Serial.print("\tCH");
+        Serial.print(channel + 1);
+    }
+    Serial.println();
 
-    // for (size_t i = 0; i < ir_temp_default_params::TEMP_CHANNELS; ++i)
-    // {
-    //     Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().left_sensor.temp_data[i]);
-    //     Serial.print("\t");
-    // }
-    // Serial.println();
-
-    // Sensor 2
-    // Serial.print("FR\t");
-    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.max_temp); Serial.print("\t");
-    // Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.avg_temp); Serial.print("\t");
-
-    // for (size_t i = 0; i < ir_temp_default_params::TEMP_CHANNELS; ++i)
-    // {
-    //     Serial.print(VCFIRTempInterfaceInstance::instance().getIRTempData().right_sensor.temp_data[i]);
-    //     Serial.print("\t");
-    // }
-    // Serial.println();
+    for (size_t i = 0; i < ir_temp_default_params::NUM_SENSORS; i++)
+    {
+        const IRTempSingleSensorData_s& sensor = *ir_sensors[i];
+        Serial.print(ir_names[i]);
+        Serial.print("\t0x");
+        Serial.print(VCFIRTempInterfaceInstance::instance().getSensorBaseCANID(static_cast<IRTempSensor_e>(i)), HEX);
+        if (sensor.last_recv_millis == 0)
+        {
+            Serial.println("\tNONE");
+            continue;
+        }
+        Serial.print("\t");
+        Serial.print((now - sensor.last_recv_millis) / 1000.0f, 1);
+        Serial.print("\t");
+        Serial.print(sensor.max_temp, 1);
+        Serial.print("\t");
+        Serial.print(sensor.avg_temp, 1);
+        for (size_t channel = 0; channel < ir_temp_default_params::TEMP_CHANNELS; channel++)
+        {
+            Serial.print("\t");
+            Serial.print(sensor.temp_data[channel], 1);
+        }
+        Serial.println();
+    }
+    Serial.println("Age s | NONE = sensor not heard");
 
     return HT_TASK::TaskResponse::YIELD;
 }

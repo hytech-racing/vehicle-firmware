@@ -652,6 +652,46 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     Serial.println("Units: Age s | Batt mV | Gauge, HS_P psi | RSSI dBm | SensT C");
     Serial.println("NONE = receiver not heard | RX ONLY = receiver on bus, no sensor data | LIVE = sensor reporting");
 
+    /* IR Temp Data (rear brake rotors) */
+    const IRTempAllSensorData_s ir_temp_data = VCRIRTempInterfaceInstance::instance().getIRTempData();
+    const char* ir_names[ir_temp_default_params::NUM_SENSORS] = {"RL", "RR"};
+    const IRTempSingleSensorData_s* ir_sensors[ir_temp_default_params::NUM_SENSORS] = {&ir_temp_data.left_sensor, &ir_temp_data.right_sensor};
+
+    Serial.println("\nIR Temps (C):");
+    Serial.print("Corner\tBase ID\tAge\tMax\tAvg");
+    for (size_t channel = 0; channel < ir_temp_default_params::TEMP_CHANNELS; channel++)
+    {
+        Serial.print("\tCH");
+        Serial.print(channel + 1);
+    }
+    Serial.println();
+
+    for (size_t i = 0; i < ir_temp_default_params::NUM_SENSORS; i++)
+    {
+        const IRTempSingleSensorData_s& sensor = *ir_sensors[i];
+        Serial.print(ir_names[i]);
+        Serial.print("\t0x");
+        Serial.print(VCRIRTempInterfaceInstance::instance().getSensorBaseCANID(static_cast<IRTempSensor_e>(i)), HEX);
+        if (sensor.last_recv_millis == 0)
+        {
+            Serial.println("\tNONE");
+            continue;
+        }
+        Serial.print("\t");
+        Serial.print((now - sensor.last_recv_millis) / 1000.0f, 1);
+        Serial.print("\t");
+        Serial.print(sensor.max_temp, 1);
+        Serial.print("\t");
+        Serial.print(sensor.avg_temp, 1);
+        for (size_t channel = 0; channel < ir_temp_default_params::TEMP_CHANNELS; channel++)
+        {
+            Serial.print("\t");
+            Serial.print(sensor.temp_data[channel], 1);
+        }
+        Serial.println();
+    }
+    Serial.println("Age s | NONE = sensor not heard");
+
     Serial.println();
 
     return HT_TASK::TaskResponse::YIELD;

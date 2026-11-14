@@ -19,7 +19,7 @@
 namespace
 {
     /* ---- What the sensor is set to right now ---- */
-    constexpr uint32_t CURRENT_BITRATE = 1000000;   // factory default 1 Mbit/s
+    constexpr uint32_t CURRENT_BITRATE = 1'000'000;   // factory default 1 Mbit/s
     constexpr uint16_t CURRENT_BASE_CAN_ID = 0x4B0; // the sensor listens for programming on its current base ID. Factory: LF 0x4B0, RF 0x4B4
 
     /* ---- What to program it to ---- */
