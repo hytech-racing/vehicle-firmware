@@ -78,6 +78,17 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
         }
         break;
     }
+    // Front strain gauges are on FRONT_AUX. Forward them unchanged onto TELEM so they're logged.
+    case STRAIN_GAUGES_FRONT_CANID:
+    {
+        if (interface_type == CANInterfaceType_e::FAUX)
+        {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCFCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
+        break;
+    }
     // Front IR temp sensors are on FRONT_AUX. Forward them unchanged onto TELEM so they're logged.
     case FL_IR_TEMP_CH1_CH4_CANID:
     case FL_IR_TEMP_CH5_CH8_CANID:
