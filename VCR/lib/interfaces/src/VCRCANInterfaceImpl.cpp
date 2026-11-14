@@ -56,7 +56,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         interfaces.acu_interface.receive_em_measurement(msg, millis);
         break;
     }
-
     case DRIVEBRAIN_TORQUE_LIM_INPUT_CANID:
     {
         if (interface_type == CANInterfaceType_e::RAUX)
@@ -223,6 +222,52 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         break;
     }
 
+    case RL_IR_TEMP_CH1_CH4_CANID:
+    case RL_IR_TEMP_CH5_CH8_CANID:
+    case RL_IR_TEMP_CH9_CH12_CANID:
+    case RL_IR_TEMP_CH13_CH16_CANID:
+    case RR_IR_TEMP_CH1_CH4_CANID:
+    case RR_IR_TEMP_CH5_CH8_CANID:
+    case RR_IR_TEMP_CH9_CH12_CANID:
+    case RR_IR_TEMP_CH13_CH16_CANID:
+    {
+        interfaces.ir_temp_interface.receiveIRTempData(msg, millis);
+        break;
+    }
+    // RR is the brake sensor version, which also sends its package temperature on base + 4
+    case RR_IR_TEMP_SENSOR_TEMP_CANID:
+    {
+        interfaces.ir_temp_interface.receiveBrakeSensorTempData(msg, IRTempSensor_e::RIGHT, millis);
+        break;
+    }
+    case FL_TTPMS_1_CANID:
+    case FL_TTPMS_2_CANID:
+    case FL_TTPMS_3_CANID:
+    case FL_TTPMS_4_CANID:
+    case FL_TTPMS_5_CANID:
+    case FL_TTPMS_6_CANID:
+    case FR_TTPMS_1_CANID:
+    case FR_TTPMS_2_CANID:
+    case FR_TTPMS_3_CANID:
+    case FR_TTPMS_4_CANID:
+    case FR_TTPMS_5_CANID:
+    case FR_TTPMS_6_CANID:
+    case RL_TTPMS_1_CANID:
+    case RL_TTPMS_2_CANID:
+    case RL_TTPMS_3_CANID:
+    case RL_TTPMS_4_CANID:
+    case RL_TTPMS_5_CANID:
+    case RL_TTPMS_6_CANID:
+    case RR_TTPMS_1_CANID:
+    case RR_TTPMS_2_CANID:
+    case RR_TTPMS_3_CANID:
+    case RR_TTPMS_4_CANID:
+    case RR_TTPMS_5_CANID:
+    case RR_TTPMS_6_CANID:
+    {
+        interfaces.ttpms_interface.receiveTTPMSData(msg, millis);
+        break;
+    }
     default:
     {
         break;

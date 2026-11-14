@@ -56,7 +56,7 @@ void setup()
     scheduler.schedule(run_tick_state_machine_task);
     scheduler.schedule(collect_async_data_task);
 
-    scheduler.schedule(debug_print_task);
+    // scheduler.schedule(debug_print_task);
 }
 
 void loop()

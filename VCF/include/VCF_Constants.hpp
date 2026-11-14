@@ -220,7 +220,7 @@ namespace VCFConstants
 
     /* CAN Constants */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000; // 1 000 000 = 1 Mbit/s
-    constexpr uint32_t FAUX_CAN_BAUDRATE = 1'000'000;   // 500 000 = 500 Kbit/s
+    constexpr uint32_t FAUX_CAN_BAUDRATE = 1000000;  // 1 000 000 = 1 Mbit/s
 } // namespace VCFConstants
 
 #endif /* VCF_CONSTANTS */

@@ -11,13 +11,13 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
-#include "BrakeRotorTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "VCFCANInterfaceImpl.hpp"
 #include "VCFEthernetInterface.hpp"
+#include "VCFIRTempInterface.hpp"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"
 
