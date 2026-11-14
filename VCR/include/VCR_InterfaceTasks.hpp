@@ -23,6 +23,7 @@
 #include "TTPMSInterface.hpp"
 #include "VCRCANInterfaceImpl.hpp"
 #include "VCREthernetInterface.hpp"
+#include "VCRIRTempInterface.hpp"
 #include "WatchdogInterface.hpp"
 
 /* Local System Includes */

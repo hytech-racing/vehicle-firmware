@@ -18,6 +18,7 @@
 #include "RSSInterface.hpp"
 #include "TTPMSInterface.hpp"
 #include "VCFInterface.hpp"
+#include "VCRIRTempInterface.hpp"
 
 /* Globally accessible types */
 constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
@@ -42,7 +43,8 @@ struct CANInterfaces_s
         InverterInterface& rr_inv_int,
         VCFInterface& vcf_int,
         RSSInterface& rss_int,
-        TTPMSInterface& ttpms_int)
+        TTPMSInterface& ttpms_int,
+        VCRIRTempInterface& ir_temp_int)
         : acu_interface(acu_int),
           db_interface(db_int),
           fl_inverter_interface(fl_inv_int),
@@ -51,7 +53,8 @@ struct CANInterfaces_s
           rr_inverter_interface(rr_inv_int),
           vcf_interface(vcf_int),
           rss_interface(rss_int),
-          ttpms_interface(ttpms_int) {};
+          ttpms_interface(ttpms_int),
+          ir_temp_interface(ir_temp_int) {};
 
     ACUInterface& acu_interface;
     DrivebrainInterface& db_interface;
@@ -62,6 +65,7 @@ struct CANInterfaces_s
     VCFInterface& vcf_interface;
     RSSInterface& rss_interface;
     TTPMSInterface& ttpms_interface;
+    VCRIRTempInterface& ir_temp_interface;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 

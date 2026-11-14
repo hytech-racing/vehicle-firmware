@@ -22,7 +22,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
     DashboardInterface& dash_int,
     PedalsSystem& pedals_sys,
     SteeringSystem& steering_sys,
-    BrakeRotorTempInterface& brake_rotor_temp_int)
+    VCFIRTempInterface& ir_temp_int)
 {
     auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};
@@ -55,11 +55,12 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
     out.brake_pressure_data.front_brake_pressure = adc_int.getBrakePressureFront().conversion;
     out.brake_pressure_data.rear_brake_pressure = adc_int.getBrakePressureRear().conversion;
 
-    // Brake rotor temps
-    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.max_temp;
-    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.avg_temp;
-    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.max_temp;
-    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.avg_temp;
+    // Brake rotor temps (left = FL, right = FR)
+    const IRTempAllSensorData_s ir_temp_data = ir_temp_int.getIRTempData();
+    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = ir_temp_data.left_sensor.max_temp;
+    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = ir_temp_data.left_sensor.avg_temp;
+    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = ir_temp_data.right_sensor.max_temp;
+    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = ir_temp_data.right_sensor.avg_temp;
 
     // Dash
     out.dash_input_state.dim_btn_is_pressed = dash_int.getDashboardOutputs().brightness_ctrl_btn_is_pressed;

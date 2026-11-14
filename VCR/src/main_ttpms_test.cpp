@@ -15,7 +15,7 @@
 namespace
 {
     /* ---- What the receiver is set to right now ---- */
-    constexpr uint32_t CURRENT_BITRATE = 1000000;   // bus rate the receiver is running at
+    constexpr uint32_t CURRENT_BITRATE = 1'000'000; // bus rate the receiver is running at
     constexpr uint16_t CURRENT_BASE_CAN_ID = 0x424; // the receiver listens for programming on its current base ID
 
     /* ---- What to program it to ---- */
