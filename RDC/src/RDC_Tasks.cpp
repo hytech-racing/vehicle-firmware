@@ -213,6 +213,39 @@ HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK:
     // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
     char line[160];
     Serial.println();
+    const auto state = DriverlessStateMachineInstance::instance().getState();
+    const char *state_name = "UNKNOWN";
+    switch (state)
+    {
+    case DriverlessSystemState_e::OFF: state_name = "OFF"; break;
+    case DriverlessSystemState_e::STARTUP_NO_TS: state_name = "STARTUP_NO_TS"; break;
+    case DriverlessSystemState_e::STARTUP_TS_ACTIVE: state_name = "STARTUP_TS_ACTIVE"; break;
+    case DriverlessSystemState_e::READY: state_name = "READY"; break;
+    case DriverlessSystemState_e::DRIVING: state_name = "DRIVING"; break;
+    case DriverlessSystemState_e::FINISHED: state_name = "FINISHED"; break;
+    case DriverlessSystemState_e::EMERGENCY: state_name = "EMERGENCY"; break;
+    default: break;
+    }
+    const auto &fdc = FDCInterfaceInstance::instance();
+    const auto ebs = fdc.getEbsData();
+    const auto brakes = fdc.getBrakeData();
+    const auto control = fdc.getFDCControl();
+    const unsigned long now = sys_time::hal_millis();
+    std::snprintf(line, sizeof(line), "t_ms=%lu dv=%s vehicle=%u mission=%u dsms=%d", now, state_name,
+                  static_cast<unsigned>(DrivebrainInterfaceInstance::instance().getVehicleState()),
+                  static_cast<unsigned>(fdc.getDriverlessMision()), adc.getDsmsActiveExt());
+    Serial.println(line);
+    std::snprintf(line, sizeof(line), "air_psi=[%lu,%lu] supervisor_ok=%d ebs_rx_age_ms=%lu air_pressure_ok=%d",
+                  static_cast<unsigned long>(ebs.pressure_1), static_cast<unsigned long>(ebs.pressure_2),
+                  ebs.supervisor_ok, now - ebs.pressure_last_recv_millis, fdc.getEbsPressureOk());
+    Serial.println(line);
+    std::snprintf(line, sizeof(line), "brake_psi front=%u rear=%u | FDC_CMD toggle_supervisor=%d solenoid_id=%u",
+                  static_cast<unsigned>(brakes.brake_fluid_pressure_data_front),
+                  static_cast<unsigned>(brakes.brake_fluid_pressure_data_rear),
+                  control.toggle_watchdog, static_cast<unsigned>(control.activate_ebs_solenoid_id));
+    Serial.println(line);
+
+
     std::snprintf(
         line,
         sizeof(line),

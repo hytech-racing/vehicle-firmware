@@ -1,7 +1,6 @@
 #include "DriverlessStateMachine.hpp"
 #include "DriverlessSystem.hpp"
 #include "RDC_Constants.hpp"
-
 #include <gtest/gtest.h>
 #include <stddef.h>
 #include <vector>
@@ -41,12 +40,12 @@ void record_fdc_command(bool toggle, uint8_t solenoid)
     fdc_commands.push_back(FdcCommand{toggle, solenoid});
 }
 
-#define ASSERT_FDC(index, expected_toggle, expected_solenoid)                                                                                                  \
-    do                                                                                                                                                         \
-    {                                                                                                                                                          \
-        ASSERT_LT(static_cast<size_t>(index), fdc_commands.size());                                                                                            \
-        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].toggle, (expected_toggle));                                                                         \
-        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].solenoid, static_cast<uint8_t>(expected_solenoid));                                                 \
+#define ASSERT_FDC(index, expected_toggle, expected_solenoid)                                                                                                                                          \
+    do                                                                                                                                                                                                 \
+    {                                                                                                                                                                                                  \
+        ASSERT_LT(static_cast<size_t>(index), fdc_commands.size());                                                                                                                                    \
+        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].toggle, (expected_toggle));                                                                                                                 \
+        ASSERT_EQ(fdc_commands[static_cast<size_t>(index)].solenoid, static_cast<uint8_t>(expected_solenoid));                                                                                         \
     } while (0)
 
 etl::delegate<void(bool, uint8_t)> mock_command_fdc = etl::delegate<void(bool, uint8_t)>::create<record_fdc_command>();
@@ -59,16 +58,14 @@ etl::delegate<bool()> mock_supervisor_ok = etl::delegate<bool()>::create([]() ->
 
 etl::delegate<unsigned long()> mock_millis = etl::delegate<unsigned long()>::create([]() -> unsigned long { return current_millis; });
 
-etl::delegate<BrakeFluidPressureData_s()> mock_brake_data =
-    etl::delegate<BrakeFluidPressureData_s()>::create([]() -> BrakeFluidPressureData_s { return brake_data; });
+etl::delegate<BrakeFluidPressureData_s()> mock_brake_data = etl::delegate<BrakeFluidPressureData_s()>::create([]() -> BrakeFluidPressureData_s { return brake_data; });
 
 etl::delegate<bool()> mock_eval_dsms_on = etl::delegate<bool()>::create([]() -> bool { return eval_dsms_on; });
 
 etl::delegate<VehicleState_e()> mock_eval_vehicle_state = etl::delegate<VehicleState_e()>::create([]() -> VehicleState_e { return eval_vehicle_state; });
 
-etl::delegate<bool()> mock_eval_ebs_pressure_ok = etl::delegate<bool()>::create(
-    []() -> bool
-    { return ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; });
+etl::delegate<bool()> mock_eval_ebs_pressure_ok =
+    etl::delegate<bool()>::create([]() -> bool { return ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; });
 
 DriverlessSystem make_driverless_system()
 {
@@ -228,9 +225,22 @@ TEST(DriverlessSystem, StartupTsActiveChecksEachSolenoidInItsOwnWindow)
     ASSERT_FALSE(system.startupCheckTSActive());
     ASSERT_FDC(2, true, 1);
 
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(3, true, 1);
+
     current_millis += 10;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(4, true, 2);
+
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS - 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(5, true, 2);
+    current_millis += 1;
     ASSERT_TRUE(system.startupCheckTSActive());
-    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(6, true, 2);
+    ASSERT_FDC(7, true, 0);
+    ASSERT_EQ(fdc_commands.size(), 8u);
 
     fdc_commands.clear();
     ASSERT_TRUE(system.startupCheckTSActive());
@@ -263,21 +273,32 @@ TEST(DriverlessSystem, StartupTsActiveWindowsExpireUntilReset)
     current_millis = 80000;
     ASSERT_FALSE(system.startupCheckTSActive());
     ASSERT_FDC(0, true, 1);
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_TRUE(system.startupCheckTSActive());
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(4, true, 0);
 
-    // Solenoid 2 has its own window measured from the call that passed solenoid 1.
+    // Solenoid 2 has its own window starting when its command is first requested.
     DriverlessSystem second_solenoid = make_driverless_system();
     fdc_commands.clear();
     current_millis = 90000;
     set_brake_pressure(above, above);
     ASSERT_FALSE(second_solenoid.startupCheckTSActive());
     ASSERT_FDC(0, true, 1);
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(second_solenoid.startupCheckTSActive());
+    ASSERT_FDC(1, true, 1);
 
     set_brake_pressure(0, 0);
     current_millis += RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS;
     ASSERT_FALSE(second_solenoid.startupCheckTSActive());
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(2, true, 2);
+
+    current_millis += RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS;
+    ASSERT_FALSE(second_solenoid.startupCheckTSActive());
 
     current_millis += 1;
     fdc_commands.clear();
@@ -295,6 +316,12 @@ TEST(DriverlessSystem, BrakePressureWellAboveTheExpectedLevelStillPasses)
     set_brake_pressure(2500, 4000);
     current_millis = 1000;
     ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS - 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_TRUE(system.startupCheckTSActive());
 }
 
@@ -341,8 +368,18 @@ TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
     ASSERT_FDC(0, true, 1);
 
     current_millis += 100;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_TS_ACTIVE);
+    ASSERT_FDC(1, true, 1);
+
+    current_millis += 5;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_TS_ACTIVE);
+    ASSERT_FDC(2, true, 2);
+
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::READY);
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(4, true, 0);
+    ASSERT_EQ(fdc_commands.size(), 5u);
 
     eval_vehicle_state = VehicleState_e::READY_TO_DRIVE;
     ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::DRIVING);

@@ -44,6 +44,7 @@ namespace RDCConstants
     constexpr uint8_t BRAKE_FLUID_PRESSURE_THRESHOLD_PSI = 100;
 
     constexpr uint16_t SINGLE_SOLENOID_VALIDATION_DELAY_MS = 3000; // 3000ms = 3 seconds
+    constexpr uint16_t SOLENOID_MIN_WAIT_MS = 50;
 
     /* --------- RSS Constants ---------- */
     constexpr uint8_t RSS_NODE_ID = 0x11;

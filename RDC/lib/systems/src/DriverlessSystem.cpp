@@ -1,5 +1,4 @@
 #include "DriverlessSystem.hpp"
-
 #include "RDC_Constants.hpp"
 #include "SharedFirmwareTypes.h"
 
@@ -52,8 +51,8 @@ bool DriverlessSystem::startupCheckTSActive()
 
     const unsigned long now = _getCurrentMillisDelegate();
     const BrakeFluidPressureData_s brake_data = _getCurrentBrakeDataDelegate();
-    const bool brakes_pressurized = brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI
-                                    && brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
+    const bool brakes_pressurized =
+        brake_data.brake_fluid_pressure_data_front > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI && brake_data.brake_fluid_pressure_data_rear > RDCConstants::BRAKE_FLUID_PRESSURE_THRESHOLD_PSI;
 
     if (!_ebs_line_2_ok)
     {
@@ -66,21 +65,28 @@ bool DriverlessSystem::startupCheckTSActive()
         if ((now - _solenoid_1_start_time) <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS)
         {
             _commandFDCDelegate(true, 1);
-            if (brakes_pressurized)
+            if ((now - _solenoid_1_start_time) >= RDCConstants::SOLENOID_MIN_WAIT_MS && brakes_pressurized)
             {
                 _ebs_line_2_ok = true;
-                _solenoid_2_start_time = now;
             }
         }
         return false;
     }
 
+    if (!_solenoid_2_timing)
+    {
+        _solenoid_2_start_time = now;
+        _solenoid_2_timing = true;
+    }
+
     if ((now - _solenoid_2_start_time) <= RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS)
     {
         _commandFDCDelegate(true, 2);
-        if (brakes_pressurized)
+        if ((now - _solenoid_2_start_time) >= RDCConstants::SOLENOID_MIN_WAIT_MS && brakes_pressurized)
         {
             _ebs_line_1_ok = true;
+            // Startup is complete: remove the solenoid override and keep the supervisor toggling.
+            _commandFDCDelegate(true, 0);
             return true;
         }
     }
@@ -100,6 +106,7 @@ void DriverlessSystem::resetTSActiveValues()
     _solenoid_1_start_time = 0;
     _solenoid_2_start_time = 0;
     _solenoid_1_timing = false;
+    _solenoid_2_timing = false;
     _ebs_line_1_ok = false;
     _ebs_line_2_ok = false;
 }

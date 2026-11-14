@@ -16,6 +16,7 @@ class DSSIInterface
     uint8_t _yellow_dssi_pin;
     uint8_t _blue_dssi_pin;
     unsigned long lastBlinkTime;
+    DriverlessSystemState_e _previousState = DriverlessSystemState_e::OFF;
     unsigned int _yellowState = 0;
     unsigned int _blueState = 0;
 };
