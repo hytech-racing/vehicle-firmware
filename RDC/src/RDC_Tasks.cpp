@@ -160,7 +160,7 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, c
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const int& task_info)
+HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     STRAIN_GAUGES_REAR_t msg;
     msg.F_LowerForeAA_R_ro = HT_CAN_F_LowerForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge1().conversion);
