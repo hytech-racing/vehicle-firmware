@@ -222,7 +222,6 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
         break;
     }
 
-    // Rear IR temp sensors are on REAR_AUX. Forward them unchanged onto TELEM so they're logged.
     case RL_IR_TEMP_CH1_CH4_CANID:
     case RL_IR_TEMP_CH5_CH8_CANID:
     case RL_IR_TEMP_CH9_CH12_CANID:
@@ -233,6 +232,12 @@ void VCRCANInterfaceImpl::vcr_recv_switch(CANInterfaces_s& interfaces, const CAN
     case RR_IR_TEMP_CH13_CH16_CANID:
     {
         interfaces.ir_temp_interface.receiveIRTempData(msg, millis);
+        break;
+    }
+    // RR is the brake sensor version, which also sends its package temperature on base + 4
+    case RR_IR_TEMP_SENSOR_TEMP_CANID:
+    {
+        interfaces.ir_temp_interface.receiveBrakeSensorTempData(msg, IRTempSensor_e::RIGHT, millis);
         break;
     }
     case FL_TTPMS_1_CANID:

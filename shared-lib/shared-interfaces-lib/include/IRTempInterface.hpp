@@ -14,9 +14,9 @@
 #include <FlexCAN_T4.h>
 
 /**
- * Izze-Racing IRTS-V3 infrared temperature sensors (datasheet Rev.F), used on the brake rotors.
+ * Izze-Racing IRTS-V3 infrared temperature sensors (datasheet Rev.F).
  * Read-only: decodes sensor data. Sensor programming (CAN base ID, bit rate, ...) lives in the
- * vcf_ir_temp_program / vcr_ir_temp_program envs (main_ir_temp_program.cpp).
+ * vcf_ir_temp_test / vcr_ir_temp_test envs (main_ir_temp_test.cpp).
  *
  * Each sensor occupies a block of 4 consecutive CAN IDs starting at its base ID
  *   base + 0 : IR temp CH1  - CH4
@@ -26,6 +26,10 @@
  * Each channel is 16-bit big-endian, unsigned, 0.1 degC per bit, -100 degC offset.
  *
  * The four sensors are laid out back to back (0x4C4 - 0x4D3), in the order FL, FR, RL, RR.
+ *
+ * The RR sensor is the brake version (IRTS-60-V3 brake, datasheet Rev.D). It also sends
+ *   base + 4 : sensor (package) temperature, bytes 0-1, same conversion. Keep below 85 degC.
+ * Its base + 4 (0x4D4) lands past the end of the block, so it doesn't collide with another sensor.
  */
 
 namespace ir_temp_default_params
@@ -63,6 +67,8 @@ struct IRTempSingleSensorData_s
     float max_temp;                                                     // degC
     float avg_temp;                                                     // degC
     unsigned long last_recv_millis;                                     // 0 = never received
+    float brake_internal_sensor_temp;                                   // degC, package temperature (brake sensor only)
+    unsigned long brake_internal_sensor_temp_last_recv_millis;          // 0 = never received
 };
 
 struct IRTempAllSensorData_s
@@ -122,6 +128,22 @@ class IRTempInterface
         sensor.avg_temp = std::accumulate(sensor.temp_data.begin(), sensor.temp_data.end(), 0.0f) / static_cast<float>(ir_temp_default_params::TEMP_CHANNELS);
         sensor.last_recv_millis = curr_millis;
         return true;
+    }
+
+    /**
+     * @brief CAN receive function for a brake sensor's package temperature message (base + 4)
+     */
+    void receiveBrakeSensorTempData(const CAN_message_t& can_msg, IRTempSensor_e sensor_position, unsigned long curr_millis)
+    {
+        if (can_msg.flags.extended || can_msg.len < 2)
+        {
+            return;
+        }
+
+        IRTempSingleSensorData_s& sensor = (sensor_position == IRTempSensor_e::LEFT) ? _ir_temp_data.left_sensor : _ir_temp_data.right_sensor;
+        const uint8_t* buf = can_msg.buf; // NOLINT array decay to pointer. 16-bit big-endian (high byte first)
+        sensor.brake_internal_sensor_temp = _tempFromRaw((buf[0] << 8) | buf[1]);
+        sensor.brake_internal_sensor_temp_last_recv_millis = curr_millis;
     }
 
     /**

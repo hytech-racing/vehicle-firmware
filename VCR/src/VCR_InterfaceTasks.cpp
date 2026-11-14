@@ -690,6 +690,18 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
         }
         Serial.println();
     }
+    for (size_t i = 0; i < ir_temp_default_params::NUM_SENSORS; i++)
+    {
+        const IRTempSingleSensorData_s& sensor = *ir_sensors[i];
+        if (sensor.brake_internal_sensor_temp_last_recv_millis != 0)
+        {
+            Serial.print(ir_names[i]);
+            Serial.print(" sensor package temp (C, keep < 85): ");
+            Serial.print(sensor.brake_internal_sensor_temp, 1);
+            Serial.print("\tage s: ");
+            Serial.println((now - sensor.brake_internal_sensor_temp_last_recv_millis) / 1000.0f, 1);
+        }
+    }
     Serial.println("Age s | NONE = sensor not heard");
 
     Serial.println();
