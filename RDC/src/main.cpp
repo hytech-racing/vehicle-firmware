@@ -22,6 +22,12 @@ HT_TASK::Task enqueue_rss_operating_mode_task(
     RDCConstants::ENQUEUE_RSS_OPERATING_MODE_PRIORITY,
     RDCConstants::ENQUEUE_RSS_OPERATING_MODE_PERIOD_US);
 
+HT_TASK::Task enqueue_strain_gauge_data_task(
+    HT_TASK::DUMMY_FUNCTION,
+    &enqueueStrainGaugeData,
+    RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY,
+    RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US);
+
 HT_TASK::Task run_tick_state_machine_task(
     HT_TASK::DUMMY_FUNCTION,
     &runTickStateMachine,
@@ -44,6 +50,7 @@ void setup()
     scheduler.schedule(send_can_task);
     scheduler.schedule(enqueue_fdc_control_task);
     scheduler.schedule(enqueue_rss_operating_mode_task);
+    scheduler.schedule(enqueue_strain_gauge_data_task);
 
     scheduler.schedule(kick_watchdog_task);
     scheduler.schedule(run_tick_state_machine_task);

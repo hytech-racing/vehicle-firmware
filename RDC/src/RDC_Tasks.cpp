@@ -1,7 +1,10 @@
 #include "RDC_Tasks.hpp"
 
+#include "ADCInterface.hpp"
 #include "CoreRDCCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
+#include "RDC_Constants.hpp"
+#include "ht_can.h"
 #include "ht_task.hpp"
 
 #include <cstdio>
@@ -65,11 +68,11 @@ void initializeAllInterfaces()
              .shdn_ds_ok_scale = 1.0f,
              .shdn_m_scale = 1.0f,
 
-             .strain_gauge_1_scale = 1.0f,
-             .strain_gauge_2_scale = 1.0f,
-             .strain_gauge_3_scale = 1.0f,
-             .strain_gauge_4_scale = 1.0f,
-             .strain_gauge_5_scale = 1.0f},
+             .strain_gauge_1_scale = RDCConstants::STRAIN_GAUGE_1_SCALE,
+             .strain_gauge_2_scale = RDCConstants::STRAIN_GAUGE_2_SCALE,
+             .strain_gauge_3_scale = RDCConstants::STRAIN_GAUGE_3_SCALE,
+             .strain_gauge_4_scale = RDCConstants::STRAIN_GAUGE_4_SCALE,
+             .strain_gauge_5_scale = RDCConstants::STRAIN_GAUGE_5_SCALE},
 
         .offsets = {
             .ebs_ctrl_ext_offset = 0.0f,
@@ -82,11 +85,11 @@ void initializeAllInterfaces()
             .shdn_ds_ok_offset = 0.0f,
             .shdn_m_offset = 0.0f,
 
-            .strain_gauge_1_offset = 0.0f,
-            .strain_gauge_2_offset = 0.0f,
-            .strain_gauge_3_offset = 0.0f,
-            .strain_gauge_4_offset = 0.0f,
-            .strain_gauge_5_offset = 0.0f}};
+            .strain_gauge_1_offset = RDCConstants::STRAIN_GAUGE_1_OFFSET,
+            .strain_gauge_2_offset = RDCConstants::STRAIN_GAUGE_2_OFFSET,
+            .strain_gauge_3_offset = RDCConstants::STRAIN_GAUGE_3_OFFSET,
+            .strain_gauge_4_offset = RDCConstants::STRAIN_GAUGE_4_OFFSET,
+            .strain_gauge_5_offset = RDCConstants::STRAIN_GAUGE_5_OFFSET}};
     ADCInterfaceInstance::create(adc_params);
 }
 
@@ -111,13 +114,13 @@ void initializeDriverless()
         etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetTSActiveValues>(DriverlessSystemInstance::instance()));
 }
 
-HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     CoreRDCCANInterfaceInstance::instance().sendAllCanMsgs();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     DRIVERLESS_STATUS_AND_STARTUP_t dv_status;
     dv_status.continue_toggle_supervisor = FDCInterfaceInstance::instance().getFDCControl().toggle_watchdog;
@@ -145,7 +148,7 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, c
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     // create blank msg
     SET_OPERATING_MODE_t set_operating_mode_msg;
@@ -157,7 +160,21 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, co
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const int& task_info)
+{
+    STRAIN_GAUGES_REAR_t msg;
+    msg.F_LowerForeAA_R_ro = HT_CAN_F_LowerForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge1().conversion);
+    msg.F_LowerAftAA_R_ro = HT_CAN_F_LowerAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge2().conversion);
+    msg.F_UpperForeAA_R_ro = HT_CAN_F_UpperForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge3().conversion);
+    msg.F_UpperAftAA_R_ro = HT_CAN_F_UpperAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge4().conversion);
+    msg.F_ToeRod_R_ro = HT_CAN_F_ToeRod_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge5().conversion);
+
+    CoreRDCCANInterfaceInstance::instance().enqueueMsg(&msg, &Pack_STRAIN_GAUGES_REAR_ht_can);
+
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     /* Process the CAN messages we have received */
     CoreRDCCANInterfaceInstance::instance().processCANMessages(
