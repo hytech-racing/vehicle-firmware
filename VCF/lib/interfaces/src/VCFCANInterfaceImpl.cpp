@@ -93,7 +93,7 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
         break;
     }
 
-    case STRAIN_GAUGE_FRONT_CANID:
+    case STRAIN_GAUGES_FRONT_CANID:
     {
         if (interface_type == CANInterfaceType_e::FAUX)
         {
