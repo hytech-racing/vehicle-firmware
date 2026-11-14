@@ -68,11 +68,11 @@ void initializeAllInterfaces()
              .shdn_ds_ok_scale = 1.0f,
              .shdn_m_scale = 1.0f,
 
-             .strain_gauge_1_scale = RDCConstants::STRAIN_GAUGE_1_SCALE,
-             .strain_gauge_2_scale = RDCConstants::STRAIN_GAUGE_2_SCALE,
-             .strain_gauge_3_scale = RDCConstants::STRAIN_GAUGE_3_SCALE,
-             .strain_gauge_4_scale = RDCConstants::STRAIN_GAUGE_4_SCALE,
-             .strain_gauge_5_scale = RDCConstants::STRAIN_GAUGE_5_SCALE},
+             .strain_gauge_1_scale = 1.0f,
+             .strain_gauge_2_scale = 1.0f,
+             .strain_gauge_3_scale = 1.0f,
+             .strain_gauge_4_scale = 1.0f,
+             .strain_gauge_5_scale = 1.0f},
 
         .offsets = {
             .ebs_ctrl_ext_offset = 0.0f,
@@ -85,11 +85,11 @@ void initializeAllInterfaces()
             .shdn_ds_ok_offset = 0.0f,
             .shdn_m_offset = 0.0f,
 
-            .strain_gauge_1_offset = RDCConstants::STRAIN_GAUGE_1_OFFSET,
-            .strain_gauge_2_offset = RDCConstants::STRAIN_GAUGE_2_OFFSET,
-            .strain_gauge_3_offset = RDCConstants::STRAIN_GAUGE_3_OFFSET,
-            .strain_gauge_4_offset = RDCConstants::STRAIN_GAUGE_4_OFFSET,
-            .strain_gauge_5_offset = RDCConstants::STRAIN_GAUGE_5_OFFSET}};
+            .strain_gauge_1_offset = 0.0,
+            .strain_gauge_2_offset = 0.0,
+            .strain_gauge_3_offset = 0.0,
+            .strain_gauge_4_offset = 0.0,
+            .strain_gauge_5_offset = 0.0}};
     ADCInterfaceInstance::create(adc_params);
 }
 
@@ -163,11 +163,17 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, c
 HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     STRAIN_GAUGES_REAR_t msg;
-    msg.F_LowerForeAA_R_ro = HT_CAN_F_LowerForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge1().conversion);
-    msg.F_LowerAftAA_R_ro = HT_CAN_F_LowerAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge2().conversion);
-    msg.F_UpperForeAA_R_ro = HT_CAN_F_UpperForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge3().conversion);
-    msg.F_UpperAftAA_R_ro = HT_CAN_F_UpperAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge4().conversion);
-    msg.F_ToeRod_R_ro = HT_CAN_F_ToeRod_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge5().conversion);
+    // msg.F_LowerForeAA_R_ro = HT_CAN_F_LowerForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge1().conversion);
+    // msg.F_LowerAftAA_R_ro = HT_CAN_F_LowerAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge2().conversion);
+    // msg.F_UpperForeAA_R_ro = HT_CAN_F_UpperForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge3().conversion);
+    // msg.F_UpperAftAA_R_ro = HT_CAN_F_UpperAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge4().conversion);
+    // msg.F_ToeRod_R_ro = HT_CAN_F_ToeRod_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge5().conversion);
+
+    msg.F_LowerForeAA_R = ADCInterfaceInstance::instance().getStrainGauge1().raw;
+    msg.F_LowerAftAA_R = ADCInterfaceInstance::instance().getStrainGauge2().raw;
+    msg.F_UpperForeAA_R = ADCInterfaceInstance::instance().getStrainGauge3().raw;
+    msg.F_UpperAftAA_R = ADCInterfaceInstance::instance().getStrainGauge4().raw;
+    msg.F_ToeRod_R = ADCInterfaceInstance::instance().getStrainGauge5().raw;
 
     CoreRDCCANInterfaceInstance::instance().enqueueMsg(&msg, &Pack_STRAIN_GAUGES_REAR_ht_can);
 
@@ -212,51 +218,63 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_
 
 HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto& adc = ADCInterfaceInstance::instance();
-    const auto& sg1 = adc.getStrainGauge1();
-    const auto& sg2 = adc.getStrainGauge2();
-    const auto& sg3 = adc.getStrainGauge3();
-    const auto& sg4 = adc.getStrainGauge4();
-    const auto& sg5 = adc.getStrainGauge5();
+    // auto& adc = ADCInterfaceInstance::instance();
+    // const auto& sg1 = adc.getStrainGauge1();
+    // const auto& sg2 = adc.getStrainGauge2();
+    // const auto& sg3 = adc.getStrainGauge3();
+    // const auto& sg4 = adc.getStrainGauge4();
+    // const auto& sg5 = adc.getStrainGauge5();
+    //
+    // // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
+    // char line[160];
+    // Serial.println();
+    // std::snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s",
+    //     "ebs_ctrl",
+    //     "ebs_rss",
+    //     "ebs_out",
+    //     "shdn_l",
+    //     "shdn_n",
+    //     "ds_shdn_m",
+    //     "dsms",
+    //     "shdn_ds_ok",
+    //     "shdn_m");
+    // Serial.println(line);
+    // std::snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
+    //     adc.getEBSCtrlExt(),
+    //     adc.getEBSSupplyRssExt(),
+    //     adc.getEBSSupplyOut(),
+    //     adc.getShdnL(),
+    //     adc.getShdnN(),
+    //     adc.getDsShdnM(),
+    //     adc.getDsmsActiveExt(),
+    //     adc.getShdnDsOk(),
+    //     adc.getShdnM());
+    // Serial.println(line);
+    //
+    // std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");
+    // Serial.println(line);
+    // std::snprintf(line, sizeof(line), "%-8d %-8d %-8d %-8d %-8d", sg1.raw, sg2.raw, sg3.raw, sg4.raw, sg5.raw);
+    // Serial.println(line);
+    // std::snprintf(line, sizeof(line), "%-8.2f %-8.2f %-8.2f %-8.2f %-8.2f", sg1.conversion, sg2.conversion, sg3.conversion, sg4.conversion, sg5.conversion);
+    // Serial.println(line);
 
-    // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
-    char line[160];
-    Serial.println();
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s",
-        "ebs_ctrl",
-        "ebs_rss",
-        "ebs_out",
-        "shdn_l",
-        "shdn_n",
-        "ds_shdn_m",
-        "dsms",
-        "shdn_ds_ok",
-        "shdn_m");
-    Serial.println(line);
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
-        adc.getEBSCtrlExt(),
-        adc.getEBSSupplyRssExt(),
-        adc.getEBSSupplyOut(),
-        adc.getShdnL(),
-        adc.getShdnN(),
-        adc.getDsShdnM(),
-        adc.getDsmsActiveExt(),
-        adc.getShdnDsOk(),
-        adc.getShdnM());
-    Serial.println(line);
-
-    std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8d %-8d %-8d %-8d %-8d", sg1.raw, sg2.raw, sg3.raw, sg4.raw, sg5.raw);
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8.2f %-8.2f %-8.2f %-8.2f %-8.2f", sg1.conversion, sg2.conversion, sg3.conversion, sg4.conversion, sg5.conversion);
-    Serial.println(line);
+    // Serial.println();
+    // Serial.print("Lower Fore AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge1().raw);
+    // Serial.print("Lower Aft AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge2().raw);
+    // Serial.print("Upper Fore AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge3().raw);
+    // Serial.print("Upper Aft AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge4().raw);
+    // Serial.print("Toe Rod: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge5().raw);
 
     return HT_TASK::TaskResponse::YIELD;
 }
