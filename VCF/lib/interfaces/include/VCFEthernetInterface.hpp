@@ -13,10 +13,10 @@
 
 /* Local Interface Includes */
 #include "ADCInterface.hpp"
-#include "VCFIRTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "PedalsSystem.hpp"
 #include "SteeringSystem.hpp"
+#include "VCFIRTempInterface.hpp"
 
 using namespace qindesign::network;
 

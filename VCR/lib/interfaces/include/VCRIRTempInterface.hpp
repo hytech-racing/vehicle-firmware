@@ -14,7 +14,9 @@ class VCRIRTempInterface : public IRTempInterface
 {
   public:
     VCRIRTempInterface()
-        : IRTempInterface(ir_temp_default_params::RL_BASE_CAN_ID) {}
+        : IRTempInterface(ir_temp_default_params::RL_BASE_CAN_ID)
+    {
+    }
 };
 
 using VCRIRTempInterfaceInstance = etl::singleton<VCRIRTempInterface>;
