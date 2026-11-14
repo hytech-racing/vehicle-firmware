@@ -9,8 +9,8 @@
 /* Local Interface Includes */
 #include "ADCInterface.hpp"
 #include "CoreRDCCANInterface.hpp"
-#include "RSSInterface.hpp"
 #include "DSSIInterface.hpp"
+#include "RSSInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "ht_task.hpp"
 

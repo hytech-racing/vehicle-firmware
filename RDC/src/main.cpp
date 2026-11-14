@@ -28,11 +28,7 @@ HT_TASK::Task run_tick_state_machine_task(
     RDCConstants::TICK_STATE_MACHINE_PRIORITY,
     RDCConstants::TICK_STATE_MACHINE_PERIOD_US);
 
-HT_TASK::Task set_dssi_task(
-    HT_TASK::DUMMY_FUNCTION,
-    &setDSSI,
-    RDCConstants::SET_DSSI_PRIORITY,
-    RDCConstants::SET_DSSI_PERIOD_US);
+HT_TASK::Task set_dssi_task(HT_TASK::DUMMY_FUNCTION, &setDSSI, RDCConstants::SET_DSSI_PRIORITY, RDCConstants::SET_DSSI_PERIOD_US);
 
 HT_TASK::Task
     collect_async_data_task(HT_TASK::DUMMY_FUNCTION, &handleAsyncMain, RDCConstants::COLLECT_ASYNC_DATA_PRIORITY, RDCConstants::COLLECT_ASYNC_DATA_PERIOD_US);
