@@ -25,6 +25,9 @@ namespace RDCConstants
     constexpr uint8_t TICK_STATE_MACHINE_PRIORITY = 1;
     constexpr time_us TICK_STATE_MACHINE_PERIOD_US = 5000; // 5000 us = 200 HZ
 
+    constexpr uint8_t SET_DSSI_PRIORITY = 20;
+    constexpr time_us SET_DSSI_PERIOD_US = 100000; // 100000 us = 10 HZ
+
     constexpr uint8_t COLLECT_ASYNC_DATA_PRIORITY = 4;
     constexpr time_us COLLECT_ASYNC_DATA_PERIOD_US = 5000; // 5000 us = 200 HZ
 
@@ -41,6 +44,7 @@ namespace RDCConstants
     constexpr uint8_t BRAKE_FLUID_PRESSURE_THRESHOLD_PSI = 100;
 
     constexpr uint16_t SINGLE_SOLENOID_VALIDATION_DELAY_MS = 3000; // 3000ms = 3 seconds
+    constexpr uint16_t SOLENOID_MIN_WAIT_MS = 50;
 
     /* --------- RSS Constants ---------- */
     constexpr uint8_t RSS_NODE_ID = 0x11;
@@ -53,5 +57,7 @@ namespace PinAssignments
 {
     constexpr uint8_t WATCHDOG_PIN = 20;
     constexpr uint8_t DS_SENSORS_OK_PIN = 12;
+    constexpr uint8_t DSSI_PIN_YELLOW = 9;
+    constexpr uint8_t DSSI_PIN_BLUE = 8;
 } // namespace PinAssignments
 #endif

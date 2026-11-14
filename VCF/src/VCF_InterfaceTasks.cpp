@@ -202,6 +202,16 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sys
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse enqueueBrakePressureCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    BRAKE_PRESSURE_t msg_out;
+    msg_out.brake_pressure_1 = ADCInterfaceInstance::instance().getBrakePressureFront().conversion; // front
+    msg_out.brake_pressure_2 = ADCInterfaceInstance::instance().getBrakePressureRear().conversion;  // rear
+
+    CAN_util::enqueue_msg(&msg_out, &Pack_BRAKE_PRESSURE_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);

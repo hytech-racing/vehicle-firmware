@@ -82,7 +82,8 @@ for SUBSYSTEM in $SUBSYSTEMS; do
         TEST_ENVS="$(get_test_envs "$SUBSYSTEM")"
         for TEST_ENV in $TEST_ENVS; do
             echo "→ Running tests for $SUBSYSTEM ($TEST_ENV)..."
-            if ! pio test -e "$TEST_ENV"; then
+            PLATFORMIO_FORCE_ANSI=true pio test -e "$TEST_ENV" | awk -F'\t' 'NF==2 && $2 ~ /^\[/ { printf "%-90s %s\n", $1, $2; next } { print }'
+            if [ "${PIPESTATUS[0]}" -ne 0 ]; then
                 FAILED+=("$SUBSYSTEM test ($TEST_ENV)")
             fi
         done

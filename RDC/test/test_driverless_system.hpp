@@ -228,9 +228,22 @@ TEST(DriverlessSystem, StartupTsActiveChecksEachSolenoidInItsOwnWindow)
     ASSERT_FALSE(system.startupCheckTSActive());
     ASSERT_FDC(2, true, 1);
 
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(3, true, 1);
+
     current_millis += 10;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(4, true, 2);
+
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS - 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FDC(5, true, 2);
+    current_millis += 1;
     ASSERT_TRUE(system.startupCheckTSActive());
-    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(6, true, 2);
+    ASSERT_FDC(7, true, 0);
+    ASSERT_EQ(fdc_commands.size(), 8u);
 
     fdc_commands.clear();
     ASSERT_TRUE(system.startupCheckTSActive());
@@ -263,21 +276,32 @@ TEST(DriverlessSystem, StartupTsActiveWindowsExpireUntilReset)
     current_millis = 80000;
     ASSERT_FALSE(system.startupCheckTSActive());
     ASSERT_FDC(0, true, 1);
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_TRUE(system.startupCheckTSActive());
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(4, true, 0);
 
-    // Solenoid 2 has its own window measured from the call that passed solenoid 1.
+    // Solenoid 2 has its own window starting when its command is first requested.
     DriverlessSystem second_solenoid = make_driverless_system();
     fdc_commands.clear();
     current_millis = 90000;
     set_brake_pressure(above, above);
     ASSERT_FALSE(second_solenoid.startupCheckTSActive());
     ASSERT_FDC(0, true, 1);
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
+    ASSERT_FALSE(second_solenoid.startupCheckTSActive());
+    ASSERT_FDC(1, true, 1);
 
     set_brake_pressure(0, 0);
     current_millis += RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS;
     ASSERT_FALSE(second_solenoid.startupCheckTSActive());
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(2, true, 2);
+
+    current_millis += RDCConstants::SINGLE_SOLENOID_VALIDATION_DELAY_MS;
+    ASSERT_FALSE(second_solenoid.startupCheckTSActive());
 
     current_millis += 1;
     fdc_commands.clear();
@@ -295,6 +319,12 @@ TEST(DriverlessSystem, BrakePressureWellAboveTheExpectedLevelStillPasses)
     set_brake_pressure(2500, 4000);
     current_millis = 1000;
     ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS - 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += 1;
+    ASSERT_FALSE(system.startupCheckTSActive());
+    ASSERT_FALSE(system.startupCheckTSActive());
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_TRUE(system.startupCheckTSActive());
 }
 
@@ -341,8 +371,18 @@ TEST(DriverlessEvaluation, StartupSequenceReachesDriving)
     ASSERT_FDC(0, true, 1);
 
     current_millis += 100;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_TS_ACTIVE);
+    ASSERT_FDC(1, true, 1);
+
+    current_millis += 5;
+    ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::STARTUP_TS_ACTIVE);
+    ASSERT_FDC(2, true, 2);
+
+    current_millis += RDCConstants::SOLENOID_MIN_WAIT_MS;
     ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::READY);
-    ASSERT_FDC(1, true, 2);
+    ASSERT_FDC(3, true, 2);
+    ASSERT_FDC(4, true, 0);
+    ASSERT_EQ(fdc_commands.size(), 5u);
 
     eval_vehicle_state = VehicleState_e::READY_TO_DRIVE;
     ASSERT_EQ(state_machine.tickStateMachine(current_millis), DriverlessSystemState_e::DRIVING);

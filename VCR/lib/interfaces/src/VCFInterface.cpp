@@ -160,4 +160,5 @@ void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, D
     state.drivetrain_state = static_cast<uint8_t>(drivetrain_state);
     state.drivebrain_in_control = db_is_in_ctrl;
     CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer); // RDC is on REAR_AUX
 }
