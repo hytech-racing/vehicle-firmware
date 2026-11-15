@@ -126,19 +126,13 @@ TEST_F(NeopixelControllerTest, refresh_uses_latest_torque_mode)
 
     _controller.refreshNeopixels(pedals, inputs);
 
-    EXPECT_EQ(
-        pixelColor(LED_ID_e::TORQUE_MODE),
-        to_raw(LED_color_e::RED)
-    );
+    EXPECT_EQ(pixelColor(LED_ID_e::TORQUE_MODE), to_raw(LED_color_e::RED));
 
     inputs.torque_limit_mode = TorqueLimit_e::TCMUX_FULL_TORQUE;
 
     _controller.refreshNeopixels(pedals, inputs);
 
-    EXPECT_EQ(
-        pixelColor(LED_ID_e::TORQUE_MODE),
-        to_raw(LED_color_e::GREEN)
-    );
+    EXPECT_EQ(pixelColor(LED_ID_e::TORQUE_MODE), to_raw(LED_color_e::GREEN));
 
     EXPECT_EQ(_strip.show_count, 2);
 }
