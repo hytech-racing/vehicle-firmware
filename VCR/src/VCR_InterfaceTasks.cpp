@@ -360,6 +360,10 @@ namespace async_tasks
         ret.recvd_pedals_data = vcf_data.stamped_pedals;
         ret.recvd_steering_data = vcf_data.stamped_steering;
         ret.front_loadcell_data = vcf_data.front_loadcell_data;
+        ret.rear_loadcell_data.RL_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().get_filtered_RL_load_cell());
+        ret.rear_loadcell_data.RR_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().get_filtered_RR_load_cell());
+        ret.rear_loadcell_data.valid_RL_sample = true;
+        ret.rear_loadcell_data.valid_RR_sample = true;
         ret.front_suspot_data = vcf_data.front_suspot_data;
         ret.dash_input_state = vcf_data.dash_input_state;
         ret.latest_drivebrain_telem_command = drivebrain_telem_data;
