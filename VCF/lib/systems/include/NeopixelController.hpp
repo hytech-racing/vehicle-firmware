@@ -81,12 +81,10 @@ class NeopixelController
         etl::delegate<void(uint16_t, uint32_t)> setPixelColor,
         etl::delegate<void(uint8_t)> setBrightness,
         etl::delegate<void()> show,
-    //    NeopixelControllerInputs_s controller_inputs,
         uint32_t neopixel_count)
         : _setPixelColor(setPixelColor),
           _setBrightness(setBrightness),
           _show(show),
-    //      _controller_inputs(controller_inputs),
           _current_brightness(64),
           _neopixel_count(neopixel_count) {};
 
@@ -96,7 +94,6 @@ class NeopixelController
 
     void setNeopixel(uint16_t id, uint32_t c);
 
-    //void refreshNeopixels(const PedalsSystemData_s& pedals_data);
     void refreshNeopixels(
         const PedalsSystemData_s& pedals_data,
         const NeopixelControllerInputs_s& controller_inputs

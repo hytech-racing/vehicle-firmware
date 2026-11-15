@@ -27,7 +27,6 @@ class NeopixelControllerTest : public ::testing::Test
         etl::delegate<void(uint16_t, uint32_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setPixelColor>(_strip),
         etl::delegate<void(uint8_t)>::create<FakeNeopixelStrip, &FakeNeopixelStrip::setBrightness>(_strip),
         etl::delegate<void()>::create<FakeNeopixelStrip, &FakeNeopixelStrip::show>(_strip),
-        //NeopixelControllerInputs_s{}, // all false / zero; not used by the tests below
         FakeNeopixelStrip::NEOPIXEL_COUNT};
 
     uint32_t pixelColor(LED_ID_e led) const { return _strip.pixel_colors.at(led); }
