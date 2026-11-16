@@ -2,6 +2,7 @@
 #include "test_neopixel_controller.hpp"
 #include "test_pedals_system.hpp"
 #include "test_steering_system.hpp"
+#include "test_sensor_range_check.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
