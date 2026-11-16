@@ -2,6 +2,7 @@
 #include "test_drivetrain.hpp"
 #include "test_tcmux.hpp"
 #include "test_vehicle_state_machine.hpp"
+#include "test_startup_sensor_checks.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

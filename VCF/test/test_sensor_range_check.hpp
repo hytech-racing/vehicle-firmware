@@ -2,16 +2,18 @@
 #define TEST_SENSOR_RANGE_CHECK_HPP
 
 #include <gtest/gtest.h>
+#include "StartupSensorChecks.hpp"
 
-#include "SensorRangeCheck.hpp"
-
-TEST(SensorRangeCheck, ChecksInclusiveLimits)
+TEST(StartupSensorChecks, ChecksAcceleratorChannelOne)
 {
-    EXPECT_FALSE(sensor_range_check(9, 10, 20));
-    EXPECT_TRUE(sensor_range_check(10, 10, 20));
-    EXPECT_TRUE(sensor_range_check(15, 10, 20));
-    EXPECT_TRUE(sensor_range_check(20, 10, 20));
-    EXPECT_FALSE(sensor_range_check(21, 10, 20));
+    using namespace VCFStartupSensorChecks;
+
+    // Accelerator channel one.
+    EXPECT_FALSE(check_accelerator_channel_one(9u, 10u, 20u));
+    EXPECT_TRUE(check_accelerator_channel_one(10u, 10u, 20u));
+    EXPECT_TRUE(check_accelerator_channel_one(15u, 10u, 20u));
+    EXPECT_TRUE(check_accelerator_channel_one(20u, 10u, 20u));
+    EXPECT_FALSE(check_accelerator_channel_one(21u, 10u, 20u));
 }
 
 #endif
