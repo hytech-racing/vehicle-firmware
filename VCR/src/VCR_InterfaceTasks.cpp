@@ -122,7 +122,7 @@ void initialize_all_interfaces()
     handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_telem_can_receive);
     // handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
 
-    /* ---------- VCR Sensor Range Check ---------- */
+    /* VCR Sensor Range Check */
     const auto& adc = ADCInterfaceInstance::instance();
 
     // Get the latest sensor readings

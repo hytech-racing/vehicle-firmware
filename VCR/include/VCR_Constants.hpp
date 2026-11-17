@@ -228,9 +228,6 @@ namespace VCRStartupSensorChecks
 {
     // Placeholder values only (replace with actual startup limits)
 
-    constexpr float REAR_BRAKE_PRESSURE_MIN = 10.0f;
-    constexpr float REAR_BRAKE_PRESSURE_MAX = 20.0f;
-
     constexpr float REAR_LEFT_LOAD_CELL_MIN = 10.0f;
     constexpr float REAR_LEFT_LOAD_CELL_MAX = 20.0f;
 

@@ -220,4 +220,26 @@ namespace VCFConstants
     constexpr uint32_t FAUX_CAN_BAUDRATE = 500000;   // 500 000 = 500 Kbit/s
 } // namespace VCFConstants
 
+namespace VCFStartupSensorChecks
+{
+    // Placeholder values only (replace with actual startup limits)
+
+    constexpr float FRONT_LEFT_LOAD_CELL_MIN = 10.0f;
+    constexpr float FRONT_LEFT_LOAD_CELL_MAX = 20.0f;
+
+    constexpr float FRONT_RIGHT_LOAD_CELL_MIN = 10.0f;
+    constexpr float FRONT_RIGHT_LOAD_CELL_MAX = 20.0f;
+
+    constexpr float FRONT_LEFT_SUSPENSION_POT_MIN = 10.0f;
+    constexpr float FRONT_LEFT_SUSPENSION_POT_MAX = 20.0f;
+
+    constexpr float FRONT_RIGHT_SUSPENSION_POT_MIN = 10.0f;
+    constexpr float FRONT_RIGHT_SUSPENSION_POT_MAX = 20.0f;
+
+    constexpr float FRONT_BRAKE_PRESSURE_MIN = 10.0f;
+    constexpr float FRONT_BRAKE_PRESSURE_MAX = 20.0f;
+
+    constexpr float REAR_BRAKE_PRESSURE_MIN = 10.0f;
+    constexpr float REAR_BRAKE_PRESSURE_MAX = 20.0f;
+} // namespace VCFStartupSensorChecks
 #endif /* VCF_CONSTANTS */
