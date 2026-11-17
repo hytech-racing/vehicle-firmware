@@ -6,6 +6,7 @@
 /* External Includes */
 #include "CANInterface.h"
 
+#include <SensorRangeCheck.hpp>
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
