@@ -10,6 +10,7 @@
 #include "CANInterface.h"
 
 #include <Logger.h>
+#include <SensorRangeCheck.hpp>
 #include <ht_task.hpp>
 
 /* Local Interface Includes */
