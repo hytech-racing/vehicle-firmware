@@ -26,6 +26,7 @@ HT_TASK::Task refresh_screen_task(
 
 void setup()
 {
+    initialize_all_interfaces(); // creates the interface singletons the tasks below use
 
     scheduler.setTimingFunction(micros);
     scheduler.schedule(can_task);

@@ -37,10 +37,10 @@ void NeopixelController::setNeopixel(uint16_t id, uint32_t c)
     _setPixelColor(id, c);
 }
 
-void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data)
+void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data, const NeopixelControllerInputs_s& controller_inputs)
 {
 
-    if (_controller_inputs.are_pedals_calibrating || _controller_inputs.is_steering_calibrating)
+    if (controller_inputs.are_pedals_calibrating || controller_inputs.is_steering_calibrating)
     {
         setNeopixelColor(LED_ID_e::BRAKE, LED_color_e::RED);
         setNeopixelColor(LED_ID_e::TORQUE_MODE, LED_color_e::RED);
@@ -69,33 +69,33 @@ void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data)
     }
 
     LED_color_e pack_color = LED_color_e::OFF;
-    if (_controller_inputs.min_cell_voltage > _min_cell_thresholds.max_level)
+    if (controller_inputs.min_cell_voltage > _min_cell_thresholds.max_level)
     {
         pack_color = LED_color_e::PURPLE;
     }
-    else if (_controller_inputs.min_cell_voltage > _min_cell_thresholds.second_level)
+    else if (controller_inputs.min_cell_voltage > _min_cell_thresholds.second_level)
     {
         pack_color = LED_color_e::BLUE;
     }
-    else if (_controller_inputs.min_cell_voltage > _min_cell_thresholds.third_level)
+    else if (controller_inputs.min_cell_voltage > _min_cell_thresholds.third_level)
     {
         pack_color = LED_color_e::GREEN;
     }
-    else if (_controller_inputs.min_cell_voltage > _min_cell_thresholds.fourth_level)
+    else if (controller_inputs.min_cell_voltage > _min_cell_thresholds.fourth_level)
     {
         pack_color = LED_color_e::YELLOW;
     }
-    else if (_controller_inputs.min_cell_voltage > _min_cell_thresholds.fifth_level)
+    else if (controller_inputs.min_cell_voltage > _min_cell_thresholds.fifth_level)
     {
         pack_color = LED_color_e::ORANGE;
     }
-    else if (_controller_inputs.min_cell_voltage < _min_cell_thresholds.critical_charge_level)
+    else if (controller_inputs.min_cell_voltage < _min_cell_thresholds.critical_charge_level)
     {
         pack_color = LED_color_e::RED;
     }
 
     LED_color_e torque_mode_color = LED_color_e::OFF;
-    switch (_controller_inputs.torque_limit_mode)
+    switch (controller_inputs.torque_limit_mode)
     {
     case TorqueLimit_e::TCMUX_LOW_TORQUE:
     {
@@ -120,11 +120,11 @@ void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data)
     }
 
     LED_color_e ready_drive_color = LED_color_e::OFF;
-    switch (_controller_inputs.vehicle_state)
+    switch (controller_inputs.vehicle_state)
     {
     case VehicleState_e::READY_TO_DRIVE:
     {
-        _controller_inputs.is_drivebrain_in_control ? ready_drive_color = LED_color_e::BLUE : ready_drive_color = LED_color_e::GREEN;
+        controller_inputs.is_drivebrain_in_control ? ready_drive_color = LED_color_e::BLUE : ready_drive_color = LED_color_e::GREEN;
         break;
     }
     case VehicleState_e::WANTING_READY_TO_DRIVE:
@@ -139,28 +139,28 @@ void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data)
     }
     }
 
-    bool hv_present = _controller_inputs.bus_voltages.FL > _hv_threshold_voltage
-                      || _controller_inputs.bus_voltages.FR > _hv_threshold_voltage
-                      || _controller_inputs.bus_voltages.RL > _hv_threshold_voltage
-                      || _controller_inputs.bus_voltages.RR > _hv_threshold_voltage;
+    bool hv_present = controller_inputs.bus_voltages.FL > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.FR > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.RL > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.RR > _hv_threshold_voltage;
 
     /* SHUTDOWN LEDS */
     setNeopixelColor(LED_ID_e::LATCH, hv_present ? LED_color_e::PURPLE : LED_color_e::GREEN);
-    setNeopixelColor(LED_ID_e::IMD, _controller_inputs.is_imd_ok ? LED_color_e::GREEN : LED_color_e::RED);
-    setNeopixelColor(LED_ID_e::BMS, _controller_inputs.is_bms_ok ? LED_color_e::GREEN : LED_color_e::RED);
+    setNeopixelColor(LED_ID_e::IMD, controller_inputs.is_imd_ok ? LED_color_e::GREEN : LED_color_e::RED);
+    setNeopixelColor(LED_ID_e::BMS, controller_inputs.is_bms_ok ? LED_color_e::GREEN : LED_color_e::RED);
     setNeopixelColor(LED_ID_e::SHUTDOWN, LED_color_e::OFF);
-    setNeopixelColor(LED_ID_e::IMD_WING, _controller_inputs.is_imd_ok ? LED_color_e::GREEN : LED_color_e::RED);
-    setNeopixelColor(LED_ID_e::BMS_WING, _controller_inputs.is_bms_ok ? LED_color_e::GREEN : LED_color_e::RED);
+    setNeopixelColor(LED_ID_e::IMD_WING, controller_inputs.is_imd_ok ? LED_color_e::GREEN : LED_color_e::RED);
+    setNeopixelColor(LED_ID_e::BMS_WING, controller_inputs.is_bms_ok ? LED_color_e::GREEN : LED_color_e::RED);
 
     /* DRIVETRAIN LEDS */
     setNeopixelColor(LED_ID_e::BRAKE, brake_light_color);
-    setNeopixelColor(LED_ID_e::INVERTER_ERR, _controller_inputs.is_inverter_errored ? LED_color_e::RED : LED_color_e::GREEN);
+    setNeopixelColor(LED_ID_e::INVERTER_ERR, controller_inputs.is_inverter_errored ? LED_color_e::RED : LED_color_e::GREEN);
     setNeopixelColor(LED_ID_e::RDY_DRIVE, ready_drive_color);
     setNeopixelColor(LED_ID_e::TORQUE_MODE, torque_mode_color);
     setNeopixelColor(LED_ID_e::IMPLAUSE, pedals_data.brake_and_accel_pressed_implausibility_high ? LED_color_e::RED : LED_color_e::GREEN);
 
     setNeopixelColor(LED_ID_e::LATCH_WING, hv_present ? LED_color_e::PURPLE : LED_color_e::GREEN);
-    setNeopixelColor(LED_ID_e::INVERTER_ERR_WING, _controller_inputs.is_inverter_errored ? LED_color_e::RED : LED_color_e::GREEN);
+    setNeopixelColor(LED_ID_e::INVERTER_ERR_WING, controller_inputs.is_inverter_errored ? LED_color_e::RED : LED_color_e::GREEN);
 
     /* VOLTAGE MONITOR */
     setNeopixelColor(LED_ID_e::PACK, pack_color);

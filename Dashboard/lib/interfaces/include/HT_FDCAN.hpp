@@ -2,7 +2,7 @@
 #define HT_FDCAN_WRAPPER
 
 /* External Includes */
-#include "hytech.h"
+#include "ht_can.h"
 
 #include <stm32h750xx.h>
 #include <stm32h7xx_hal.h>
