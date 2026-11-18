@@ -21,7 +21,7 @@
 #include "bitmaps.hpp"
 
 
-void initalize_all_interfaces();
+void initialize_all_interfaces();
 
 ::HT_TASK::TaskResponse run_update_neopixels_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 ::HT_TASK::TaskResponse screen_refresh(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
