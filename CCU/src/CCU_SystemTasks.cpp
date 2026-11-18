@@ -29,6 +29,8 @@ void initializeAllSystems()
 
     etl::delegate<bool()> isShutdownDHigh = etl::delegate<bool()>::create([]() -> bool { return (ADCInterfaceInstance::instance().isShutdownDHigh()); });
 
+    etl::delegate<bool()> isChargerNominal = etl::delegate<bool()>::create([]() -> bool { return (ChargerInterfaceInstance::instance().isChargerNominal()); });
+    
     etl::delegate<bool()> is240ConditionsOK =
         etl::delegate<bool()>::create([]() -> bool { return Level2SystemInstance::instance().check_240_conditions(ADCInterfaceInstance::instance()); });
 
@@ -59,6 +61,7 @@ void initializeAllSystems()
         is120Switched,
         is240Switched,
         isShutdownDHigh,
+        isChargerNominal,
         is240ConditionsOK,
         isStateB2Ready,
         isStateC2Ready,

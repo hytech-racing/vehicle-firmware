@@ -21,6 +21,14 @@ namespace default_charger_params
     constexpr float DATA_SCALAR = 10.0F; // charger reports values in units of 0.1
 }; // namespace default_charger_params
 
+typedef struct {
+    bool hardware_fault = false;
+    bool overtemp_fault = false;
+    bool input_voltage_fault = false;
+    bool start_fault = false;
+    bool recv_fault = false;
+} ChargerFault_s;
+
 struct ChargerData_s
 {
     uint8_t output_dc_voltage_high;
@@ -30,6 +38,8 @@ struct ChargerData_s
     uint8_t flags;
     uint8_t input_ac_voltage_high;
     uint8_t input_ac_voltage_low;
+    bool charger_fault;
+    ChargerFault_s faults;
 };
 
 class ChargerInterface
@@ -43,7 +53,11 @@ class ChargerInterface
 
     void enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current);
 
-    ChargerData_s get_latest_charger_data() { return _charger_data; };
+    void setChargerFaultState(uint8_t flags);
+
+    ChargerData_s& get_latest_charger_data() { return _charger_data; };
+    bool isChargerNominal() { return _charger_data.charger_fault; };
+    ChargerFault_s& getChargerFaults() {return _charger_data.faults; };
 
     /* Charger values are sent as high/low bytes of a 16-bit int in units of 0.1 */
     float getOutputCurrentA() const { return combineBytes(_charger_data.output_current_high, _charger_data.output_current_low); };

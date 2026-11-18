@@ -61,7 +61,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         auto dc_output_V = charger.getDCOutputVoltageV();
         auto ac_input_V = charger.getACInputVoltageV();
         auto current_output_A = charger.getOutputCurrentA();
-        _display.setTextSize(2);
+        auto charger_faults = charger.getChargerFaults();
 
         _display.print("Charger Output Current (A): ");
         _display.println(current_output_A, 2);
@@ -71,6 +71,25 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         _display.println(ac_input_V, 2);
         _display.print("EM current (A): ");
         _display.println(EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps, 3);
+        if (charger.isChargerNominal()) {
+            _display.println("Charger State: Nominal");
+        } else {
+            if (charger_faults.hardware_fault) {
+                _display.println("Charger Fault: Hardware Fault");
+            }
+            if (charger_faults.overtemp_fault) {
+                _display.println("Charger Fault: Overtemp Fault");
+            }
+            if (charger_faults.input_voltage_fault) {
+                _display.println("Charger Fault: Input Voltage Fault");
+            }
+            if (charger_faults.start_fault) {
+                _display.println("Charger Fault: Start State Fault");
+            }
+            if (charger_faults.recv_fault) {
+                _display.println("Charger Fault: Communication Recv Fault");
+            }
+        }
 
         break;
     }

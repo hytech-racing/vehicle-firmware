@@ -17,6 +17,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
             _setState(ChargerState_e::ERROR, current_millis);
             break;
         }
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
+            break;
+        }
         else
         {
             _setState(ChargerState_e::CHECK_SWITCH, current_millis);
@@ -44,6 +49,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
         if (!_is120ConditionsOK())
         {
             _setState(ChargerState_e::ERROR, current_millis);
+            break;
+        } 
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
             break;
         }
 
@@ -84,6 +94,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
             _setState(ChargerState_e::ERROR, current_millis);
             break;
         }
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
+            break;
+        }
 
         if (_isShutdownDHigh())
         {
@@ -106,6 +121,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
         if (!_is120ConditionsOK() || !_is120Switched())
         {
             _setState(ChargerState_e::ERROR, current_millis);
+            break;
+        }
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
             break;
         }
 
@@ -154,6 +174,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
             _setState(ChargerState_e::ERROR, current_millis);
             break;
         }
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
+            break;
+        }
 
 
         if (_isStateC2Ready())
@@ -187,6 +212,11 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
             _setState(ChargerState_e::ERROR, current_millis);
             break;
         }
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
+            break;
+        }
 
         if (_isShutdownDHigh())
         {
@@ -213,6 +243,24 @@ ChargerState_e ChargerStateMachine::tickStateMachine(unsigned long current_milli
         if (!_isStateC2Ready() || !_is240ConditionsOK())
         {
             _setState(ChargerState_e::ERROR, current_millis);
+            break;
+        } 
+        else if (!_isChargerNominal()) 
+        {
+            _setState(ChargerState_e::CHARGER_ERROR, current_millis);
+            break;
+        }
+
+        break;
+    }
+    case ChargerState_e::CHARGER_ERROR: 
+    {
+        if (current_millis - _last_state_changed_time < state_transition_delay_ms)
+        {
+            break;
+        }
+        if (_isChargerNominal()) {
+            _setState(ChargerState_e::STARTUP, current_millis);
             break;
         }
 
@@ -274,6 +322,8 @@ void ChargerStateMachine::_handleExitLogic(ChargerState_e prev_state, unsigned l
         break;
     case ChargerState_e::CHARGING_240:
         break; // only exit would be to error, probably implement as enter logic
+    case ChargerState_e::CHARGER_ERROR:
+        break;
     case ChargerState_e::ERROR:
         break;
     default:
@@ -305,6 +355,7 @@ void ChargerStateMachine::_handleEntryLogic(ChargerState_e new_state, unsigned l
         _resetStartupTimeMs();
         break;
     }
+    case ChargerState_e::CHARGER_ERROR:
     case ChargerState_e::ERROR:
     {
         _setSWShutdownLow();
@@ -339,6 +390,9 @@ const char* ChargerStateMachine::getStateName()
     case ChargerState_e::CHARGING_240:
     {
         return "CHARGING 240";
+    }
+    case ChargerState_e::CHARGER_ERROR: {
+        return "CHARGER ERROR";
     }
     case ChargerState_e::ERROR:
     {

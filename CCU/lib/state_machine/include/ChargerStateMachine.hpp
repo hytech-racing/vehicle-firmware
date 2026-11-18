@@ -19,6 +19,7 @@ enum class ChargerState_e
     CHECK_240_C2_OK,      // Correlates to EVSE State C/C2.
     CHARGE_240_UNLATCHED, // All 240V charging conditions are ready, just waiting for user to engage charging by setting CCU_OK high
     CHARGING_240,         // 240 V charging with no balancing
+    CHARGER_ERROR,
     ERROR,
     NUM_CHARGER_STATES
 };
@@ -31,6 +32,7 @@ class ChargerStateMachine
         etl::delegate<bool()> is120Switched,
         etl::delegate<bool()> is240Switched,
         etl::delegate<bool()> isShutdownDHigh,
+        etl::delegate<bool()> isChargerNominal,
         etl::delegate<bool()> is240ConditionsOK,
         etl::delegate<bool()> isStateB2Ready,
         etl::delegate<bool()> isStateC2Ready,
@@ -47,6 +49,7 @@ class ChargerStateMachine
           _is120Switched(is120Switched),
           _is240Switched(is240Switched),
           _isShutdownDHigh(isShutdownDHigh),
+          _isChargerNominal(isChargerNominal),
           _is240ConditionsOK(is240ConditionsOK),
           _isStateB2Ready(isStateB2Ready),
           _isStateC2Ready(isStateC2Ready),
@@ -94,6 +97,7 @@ class ChargerStateMachine
     etl::delegate<bool()> _is120Switched;
     etl::delegate<bool()> _is240Switched;
     etl::delegate<bool()> _isShutdownDHigh;
+    etl::delegate<bool()> _isChargerNominal;
     etl::delegate<bool()> _is240ConditionsOK;
     etl::delegate<bool()> _isStateB2Ready;
     etl::delegate<bool()> _isStateC2Ready;

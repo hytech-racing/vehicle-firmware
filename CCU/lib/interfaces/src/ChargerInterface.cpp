@@ -18,9 +18,14 @@ void ChargerInterface::receiveChargerCANMsg(
     _charger_data.output_current_high = charger_data_msg.output_current_high;
     _charger_data.output_current_low = charger_data_msg.output_current_low;
     _charger_data.flags = charger_data_msg.flags;
+    setChargerFaultState(_charger_data.flags);
     _charger_data.input_ac_voltage_high = charger_data_msg.input_ac_voltage_high;
     _charger_data.input_ac_voltage_low = charger_data_msg.input_ac_voltage_low;
-    acu_interface.setIsChargingEnabled(true); // if a charger message is received, we are ready to start charging
+
+    // if charger is in nominal state, enable charging
+    if (!_charger_data.charger_fault) {
+        acu_interface.setIsChargingEnabled(true); 
+    }
 
     /* Redundancy to avoid flipping between true and false for balancing (charging) enabled */
     if (acu_interface.getLatestData().pack_voltage >= max_pack_voltage || ACUInterfaceInstance::instance().getLatestData().high_voltage >= cell_cutoff_voltage)
@@ -42,4 +47,28 @@ void ChargerInterface::enqueueChargingCANMsg(ACUInterface& acu_interface, float 
     charger_control.max_charging_current_high = 0;    // only "low" is being used/harnessed in
     charger_control.max_charging_current_low = static_cast<uint8_t>(calculated_charge_current * 10); // NOLINT (this works)
     CAN_util::enqueue_msg(&charger_control, &Pack_CHARGER_CONTROL_ht_can, CCUCANInterfaceInstance::instance().charger_can_tx_buffer);
+}
+
+void ChargerInterface::setChargerFaultState(uint8_t flags) {
+    // i want a better way to do this but idk
+    if (flags & 0x00) {
+        _charger_data.charger_fault = false;
+        return;
+    } else if (flags & 0x01) {
+        _charger_data.charger_fault = true;
+        _charger_data.faults.hardware_fault = true;
+    } else if (flags & 0x02) {
+        _charger_data.charger_fault = true;
+        _charger_data.faults.overtemp_fault = true;
+    } else if (flags & 0x04) {
+        _charger_data.charger_fault = true;
+        _charger_data.faults.input_voltage_fault = true;
+    } else if (flags & 0x08) {
+        _charger_data.charger_fault = true;
+        _charger_data.faults.start_fault = true;
+    } else if (flags & 0x10) {
+        _charger_data.charger_fault = true;
+        _charger_data.faults.recv_fault = true;
+    }
+    return;
 }
