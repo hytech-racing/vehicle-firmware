@@ -62,6 +62,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         auto ac_input_V = charger.getACInputVoltageV();
         auto current_output_A = charger.getOutputCurrentA();
         auto charger_faults = charger.getChargerFaults();
+        _display.setTextSize(2);
 
         _display.print("Charger Output Current (A): ");
         _display.println(current_output_A, 2);
