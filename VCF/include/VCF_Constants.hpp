@@ -222,24 +222,25 @@ namespace VCFConstants
 
 namespace VCFStartupSensorChecks
 {
-    // Placeholder values only (replace with actual startup limits)
+    /* Load cells */
+    constexpr float FRONT_LEFT_LOAD_CELL_MIN = 1220.0f; // 1320 + 100
+    constexpr float FRONT_LEFT_LOAD_CELL_MAX = 1420.0f; // 1320 - 100
 
-    constexpr float FRONT_LEFT_LOAD_CELL_MIN = 10.0f;
-    constexpr float FRONT_LEFT_LOAD_CELL_MAX = 20.0f;
+    constexpr float FRONT_RIGHT_LOAD_CELL_MIN = 958.0f; // 1058 - 100
+    constexpr float FRONT_RIGHT_LOAD_CELL_MAX = 1158.0f; // 1058 + 100
 
-    constexpr float FRONT_RIGHT_LOAD_CELL_MIN = 10.0f;
-    constexpr float FRONT_RIGHT_LOAD_CELL_MAX = 20.0f;
+    /* Suspension potentiometers */
+    constexpr float FRONT_LEFT_SUSPENSION_POT_MIN = 170.38f; // 180.38 - 10
+    constexpr float FRONT_LEFT_SUSPENSION_POT_MAX = 190.38f; // 180.38 + 10
 
-    constexpr float FRONT_LEFT_SUSPENSION_POT_MIN = 10.0f;
-    constexpr float FRONT_LEFT_SUSPENSION_POT_MAX = 20.0f;
+    constexpr float FRONT_RIGHT_SUSPENSION_POT_MIN = 169.73f; // 179.73 - 10
+    constexpr float FRONT_RIGHT_SUSPENSION_POT_MAX = 189.73f; // 179.73 + 10
 
-    constexpr float FRONT_RIGHT_SUSPENSION_POT_MIN = 10.0f;
-    constexpr float FRONT_RIGHT_SUSPENSION_POT_MAX = 20.0f;
+    /* Brake pressure */
+    constexpr float FRONT_BRAKE_PRESSURE_MIN = 10.0f; // Placeholder value, replace with actual startup limit
+    constexpr float FRONT_BRAKE_PRESSURE_MAX = 20.0f; // Placeholder value, replace with actual startup limit
 
-    constexpr float FRONT_BRAKE_PRESSURE_MIN = 10.0f;
-    constexpr float FRONT_BRAKE_PRESSURE_MAX = 20.0f;
-
-    constexpr float REAR_BRAKE_PRESSURE_MIN = 10.0f;
-    constexpr float REAR_BRAKE_PRESSURE_MAX = 20.0f;
+    constexpr float REAR_BRAKE_PRESSURE_MIN = 10.0f; // Placeholder value, replace with actual startup limit
+    constexpr float REAR_BRAKE_PRESSURE_MAX = 20.0f; // Placeholder value, replace with actual startup limit
 } // namespace VCFStartupSensorChecks
 #endif /* VCF_CONSTANTS */
