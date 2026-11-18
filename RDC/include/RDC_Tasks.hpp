@@ -25,6 +25,7 @@ void initializeDriverless();
 HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
+HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /* State Machine Tasks */
 HT_TASK::TaskResponse initTickStateMachine(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);

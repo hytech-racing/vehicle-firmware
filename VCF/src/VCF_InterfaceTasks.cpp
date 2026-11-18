@@ -69,8 +69,8 @@ void initializeAllInterfaces()
             VCFInterfaces::BRAKE_PRESSURE_FRONT_OFFSET,
             VCFInterfaces::BRAKE_PRESSURE_REAR_OFFSET});
 
-    /* Brake Rotor Temp Interface */
-    BrakeRotorTempInterfaceInstance::create();
+    /* IR Temp Interface */
+    VCFIRTempInterfaceInstance::create();
 
     /* Dashboard Interface */
     DashboardGPIOs_s dashboard_gpios = {
@@ -96,7 +96,7 @@ void initializeAllInterfaces()
     /* CAN Interfaces */
     CANInterfacesInstance::create(
         ACUInterfaceInstance::instance(),
-        BrakeRotorTempInterfaceInstance::instance(),
+        VCFIRTempInterfaceInstance::instance(),
         DashboardInterfaceInstance::instance(),
         VCRInterfaceInstance::instance());
 
@@ -202,6 +202,16 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sys
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse enqueueBrakePressureCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    BRAKE_PRESSURE_t msg_out;
+    msg_out.brake_pressure_1 = ADCInterfaceInstance::instance().getBrakePressureFront().conversion; // front
+    msg_out.brake_pressure_2 = ADCInterfaceInstance::instance().getBrakePressureRear().conversion;  // rear
+
+    CAN_util::enqueue_msg(&msg_out, &Pack_BRAKE_PRESSURE_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse clearCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCFCANInterfaceImpl::send_all_CAN_msgs(VCFCANInterfaceInstance::instance().telem_can_tx_buffer, &VCFCANInterfaceInstance::instance().TELEM_CAN);
@@ -223,7 +233,7 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
         DashboardInterfaceInstance::instance(),
         PedalsSystemInstance::instance(),
         SteeringSystemInstance::instance(),
-        BrakeRotorTempInterfaceInstance::instance());
+        VCFIRTempInterfaceInstance::instance());
     VCFEthernetInterfaceInstance::instance().handleSendVCFETHData(msg);
     return HT_TASK::TaskResponse::YIELD;
 }

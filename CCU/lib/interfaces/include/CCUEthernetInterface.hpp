@@ -2,7 +2,7 @@
 #define CCUETHERNETINTERFACE_H_
 
 /* External Includes */
-#include "EthernetAddressDefs.h"
+#include "EthernetAddressDefs.hpp"
 #include "ProtobufMsgInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "hytech_msgs.pb.h"

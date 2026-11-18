@@ -1,7 +1,10 @@
 #include "RDC_Tasks.hpp"
 
+#include "ADCInterface.hpp"
 #include "CoreRDCCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
+#include "RDC_Constants.hpp"
+#include "ht_can.h"
 #include "ht_task.hpp"
 
 #include <cstdio>
@@ -82,11 +85,11 @@ void initializeAllInterfaces()
             .shdn_ds_ok_offset = 0.0f,
             .shdn_m_offset = 0.0f,
 
-            .strain_gauge_1_offset = 0.0f,
-            .strain_gauge_2_offset = 0.0f,
-            .strain_gauge_3_offset = 0.0f,
-            .strain_gauge_4_offset = 0.0f,
-            .strain_gauge_5_offset = 0.0f}};
+            .strain_gauge_1_offset = 0.0,
+            .strain_gauge_2_offset = 0.0,
+            .strain_gauge_3_offset = 0.0,
+            .strain_gauge_4_offset = 0.0,
+            .strain_gauge_5_offset = 0.0}};
     ADCInterfaceInstance::create(adc_params);
 }
 
@@ -111,13 +114,13 @@ void initializeDriverless()
         etl::delegate<void()>::create<DriverlessSystem, &DriverlessSystem::resetTSActiveValues>(DriverlessSystemInstance::instance()));
 }
 
-HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse handleSendAllCanData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     CoreRDCCANInterfaceInstance::instance().sendAllCanMsgs();
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     DRIVERLESS_STATUS_AND_STARTUP_t dv_status;
     dv_status.continue_toggle_supervisor = FDCInterfaceInstance::instance().getFDCControl().toggle_watchdog;
@@ -145,7 +148,7 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sysMicros, c
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     // create blank msg
     SET_OPERATING_MODE_t set_operating_mode_msg;
@@ -157,7 +160,27 @@ HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sysMicros, co
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sysMicros, const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+{
+    STRAIN_GAUGES_REAR_t msg;
+    // msg.F_LowerForeAA_R_ro = HT_CAN_F_LowerForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge1().conversion);
+    // msg.F_LowerAftAA_R_ro = HT_CAN_F_LowerAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge2().conversion);
+    // msg.F_UpperForeAA_R_ro = HT_CAN_F_UpperForeAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge3().conversion);
+    // msg.F_UpperAftAA_R_ro = HT_CAN_F_UpperAftAA_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge4().conversion);
+    // msg.F_ToeRod_R_ro = HT_CAN_F_ToeRod_R_ro_toS(ADCInterfaceInstance::instance().getStrainGauge5().conversion);
+
+    msg.F_LowerForeAA_R = ADCInterfaceInstance::instance().getStrainGauge1().raw;
+    msg.F_LowerAftAA_R = ADCInterfaceInstance::instance().getStrainGauge2().raw;
+    msg.F_UpperForeAA_R = ADCInterfaceInstance::instance().getStrainGauge3().raw;
+    msg.F_UpperAftAA_R = ADCInterfaceInstance::instance().getStrainGauge4().raw;
+    msg.F_ToeRod_R = ADCInterfaceInstance::instance().getStrainGauge5().raw;
+
+    CoreRDCCANInterfaceInstance::instance().enqueueMsg(&msg, &Pack_STRAIN_GAUGES_REAR_ht_can);
+
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     /* Process the CAN messages we have received */
     CoreRDCCANInterfaceInstance::instance().processCANMessages(
@@ -195,51 +218,63 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_
 
 HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto& adc = ADCInterfaceInstance::instance();
-    const auto& sg1 = adc.getStrainGauge1();
-    const auto& sg2 = adc.getStrainGauge2();
-    const auto& sg3 = adc.getStrainGauge3();
-    const auto& sg4 = adc.getStrainGauge4();
-    const auto& sg5 = adc.getStrainGauge5();
+    // auto& adc = ADCInterfaceInstance::instance();
+    // const auto& sg1 = adc.getStrainGauge1();
+    // const auto& sg2 = adc.getStrainGauge2();
+    // const auto& sg3 = adc.getStrainGauge3();
+    // const auto& sg4 = adc.getStrainGauge4();
+    // const auto& sg5 = adc.getStrainGauge5();
+    //
+    // // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
+    // char line[160];
+    // Serial.println();
+    // std::snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s",
+    //     "ebs_ctrl",
+    //     "ebs_rss",
+    //     "ebs_out",
+    //     "shdn_l",
+    //     "shdn_n",
+    //     "ds_shdn_m",
+    //     "dsms",
+    //     "shdn_ds_ok",
+    //     "shdn_m");
+    // Serial.println(line);
+    // std::snprintf(
+    //     line,
+    //     sizeof(line),
+    //     "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
+    //     adc.getEBSCtrlExt(),
+    //     adc.getEBSSupplyRssExt(),
+    //     adc.getEBSSupplyOut(),
+    //     adc.getShdnL(),
+    //     adc.getShdnN(),
+    //     adc.getDsShdnM(),
+    //     adc.getDsmsActiveExt(),
+    //     adc.getShdnDsOk(),
+    //     adc.getShdnM());
+    // Serial.println(line);
+    //
+    // std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");
+    // Serial.println(line);
+    // std::snprintf(line, sizeof(line), "%-8d %-8d %-8d %-8d %-8d", sg1.raw, sg2.raw, sg3.raw, sg4.raw, sg5.raw);
+    // Serial.println(line);
+    // std::snprintf(line, sizeof(line), "%-8.2f %-8.2f %-8.2f %-8.2f %-8.2f", sg1.conversion, sg2.conversion, sg3.conversion, sg4.conversion, sg5.conversion);
+    // Serial.println(line);
 
-    // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
-    char line[160];
-    Serial.println();
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s",
-        "ebs_ctrl",
-        "ebs_rss",
-        "ebs_out",
-        "shdn_l",
-        "shdn_n",
-        "ds_shdn_m",
-        "dsms",
-        "shdn_ds_ok",
-        "shdn_m");
-    Serial.println(line);
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
-        adc.getEBSCtrlExt(),
-        adc.getEBSSupplyRssExt(),
-        adc.getEBSSupplyOut(),
-        adc.getShdnL(),
-        adc.getShdnN(),
-        adc.getDsShdnM(),
-        adc.getDsmsActiveExt(),
-        adc.getShdnDsOk(),
-        adc.getShdnM());
-    Serial.println(line);
-
-    std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8d %-8d %-8d %-8d %-8d", sg1.raw, sg2.raw, sg3.raw, sg4.raw, sg5.raw);
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8.2f %-8.2f %-8.2f %-8.2f %-8.2f", sg1.conversion, sg2.conversion, sg3.conversion, sg4.conversion, sg5.conversion);
-    Serial.println(line);
+    // Serial.println();
+    // Serial.print("Lower Fore AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge1().raw);
+    // Serial.print("Lower Aft AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge2().raw);
+    // Serial.print("Upper Fore AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge3().raw);
+    // Serial.print("Upper Aft AA: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge4().raw);
+    // Serial.print("Toe Rod: ");
+    // Serial.println(ADCInterfaceInstance::instance().getStrainGauge5().raw);
 
     return HT_TASK::TaskResponse::YIELD;
 }

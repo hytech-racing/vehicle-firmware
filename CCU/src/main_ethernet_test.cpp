@@ -1,5 +1,5 @@
-#include "EthernetAddressDefs.h"
-#include "EthernetTestHarness.h"
+#include "EthernetAddressDefs.hpp"
+#include "EthernetTestHarness.hpp"
 
 /**
  * CCU Ethernet test (192.168.3.40). Connect to another board running its ethernet test and watch serial.

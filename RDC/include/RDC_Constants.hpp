@@ -28,6 +28,9 @@ namespace RDCConstants
     constexpr uint8_t COLLECT_ASYNC_DATA_PRIORITY = 4;
     constexpr time_us COLLECT_ASYNC_DATA_PERIOD_US = 5000; // 5000 us = 200 HZ
 
+    constexpr uint8_t ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY = 11;
+    constexpr time_us ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US = 10000; // 10 000 us = 100 Hz
+
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 100;
     constexpr time_us DEBUG_PRINT_PERIOD_US = 100000; // 100000 us = 10 HZ
     /* --------- CAN Constants ---------- */
@@ -44,6 +47,28 @@ namespace RDCConstants
 
     /* --------- RSS Constants ---------- */
     constexpr uint8_t RSS_NODE_ID = 0x11;
+
+    /* --------- ADC Constants ---------- */
+
+    // (3.3 / 4095) * (1000 / 0.0127) = 63.4536067
+    // based on 12.7mV change in value per 1kN of compression -- for lower A arm
+    // (3.3 / 4095) * (1000 / 0.016) = 50.3663003
+    // based on 16mV change in value per 1kN of compression -- for upper A arm and toe rod
+    constexpr float STRAIN_GAUGE_1_SCALE = 63.4536067;
+    constexpr float STRAIN_GAUGE_2_SCALE = 63.4536067;
+    constexpr float STRAIN_GAUGE_3_SCALE = 50.3663003;
+    constexpr float STRAIN_GAUGE_4_SCALE = 50.3663003;
+    constexpr float STRAIN_GAUGE_5_SCALE = 50.3663003;
+
+    // 0 - (2.62 * 1000 / 0.0127) = -206299.213
+    // based on 2.62V = zero load, and calculated newtons / V slope -- for lower A arm
+    // 0 - (2.62 * 1000 / 0.016) = -163750.0
+    // based on 2.62V = zero load, and calculated newtons / V slope -- for upper A arm and toe
+    constexpr float STRAIN_GAUGE_1_OFFSET = -206299.213;
+    constexpr float STRAIN_GAUGE_2_OFFSET = -206299.213;
+    constexpr float STRAIN_GAUGE_3_OFFSET = -163750.0;
+    constexpr float STRAIN_GAUGE_4_OFFSET = -163750.0;
+    constexpr float STRAIN_GAUGE_5_OFFSET = -163750.0;
 
     /* ---------- Watchdog Constants ---------- */
     constexpr uint16_t WATCHDOG_TIMEOUT_MS = 10; // 10ms = 10 HZ

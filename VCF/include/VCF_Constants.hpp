@@ -188,6 +188,9 @@ namespace VCFConstants
     constexpr uint8_t LOADCELL_SEND_PRIORITY = 8;
     constexpr time_us LOADCELL_SEND_PERIOD_US = 4000; // 4 000 = 250 Hz
 
+    constexpr uint8_t BRAKE_PRESSURE_SEND_PRIORITY = 8;
+    constexpr time_us BRAKE_PRESSURE_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
+
     constexpr uint8_t CAN_SEND_PRIORITY = 9;
     constexpr time_us CAN_SEND_PERIOD_US = 2000; // 2 000 us = 500 Hz
 
@@ -217,7 +220,7 @@ namespace VCFConstants
 
     /* CAN Constants */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000; // 1 000 000 = 1 Mbit/s
-    constexpr uint32_t FAUX_CAN_BAUDRATE = 500000;   // 500 000 = 500 Kbit/s
+    constexpr uint32_t FAUX_CAN_BAUDRATE = 1000000;  // 1 000 000 = 1 Mbit/s
 } // namespace VCFConstants
 
 #endif /* VCF_CONSTANTS */

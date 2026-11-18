@@ -11,13 +11,13 @@
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
-#include "BrakeRotorTempInterface.hpp"
 #include "DashboardInterface.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "VCFCANInterfaceImpl.hpp"
 #include "VCFEthernetInterface.hpp"
+#include "VCFIRTempInterface.hpp"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"
 
@@ -55,6 +55,7 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalization of GPIOs)
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+HT_TASK::TaskResponse enqueueBrakePressureCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 // this task attempts to send any data that is enqueued at 250hz. this will be the max rate that you can send over the CAN bus.
 // you dont have to enqeue at this rate, but this allows us to have 2 layers of rate limiting on CAN sending

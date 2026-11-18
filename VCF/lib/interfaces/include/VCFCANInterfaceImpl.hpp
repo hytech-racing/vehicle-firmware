@@ -13,8 +13,8 @@
 
 /* Local Interface Includes */
 #include "ACUInterface.hpp"
-#include "BrakeRotorTempInterface.hpp"
 #include "DashboardInterface.hpp"
+#include "VCFIRTempInterface.hpp"
 #include "VCRInterface.hpp"
 
 /* Globally accessible types */
@@ -31,11 +31,11 @@ using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_256, TX_SIZE_16>;
  */
 struct CANInterfaces_s
 {
-    explicit CANInterfaces_s(ACUInterface& acu_int, BrakeRotorTempInterface& brake_rotor_temp_int, DashboardInterface& dash_int, VCRInterface& vcr_int)
-        : acu_interface(acu_int), brake_rotor_temp_interface(brake_rotor_temp_int), dash_interface(dash_int), vcr_interface(vcr_int) {};
+    explicit CANInterfaces_s(ACUInterface& acu_int, VCFIRTempInterface& ir_temp_int, DashboardInterface& dash_int, VCRInterface& vcr_int)
+        : acu_interface(acu_int), ir_temp_interface(ir_temp_int), dash_interface(dash_int), vcr_interface(vcr_int) {};
 
     ACUInterface& acu_interface;
-    BrakeRotorTempInterface& brake_rotor_temp_interface;
+    VCFIRTempInterface& ir_temp_interface;
     DashboardInterface& dash_interface;
     VCRInterface& vcr_interface;
 };

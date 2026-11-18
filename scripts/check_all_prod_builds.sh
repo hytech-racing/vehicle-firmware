@@ -3,7 +3,7 @@
 # Build every production board. Run this after editing a shared library
 # to confirm each board still compiles.
 #
-# Usage: ./scripts/checkall.sh
+# Usage: ./scripts/check_all_prod_builds.sh
 
 cd "$(dirname "$0")/.." || exit 1
 

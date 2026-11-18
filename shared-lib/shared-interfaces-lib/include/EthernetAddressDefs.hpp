@@ -1,5 +1,5 @@
-#ifndef ETHERNET_ADDRESS_DEFS_H
-#define ETHERNET_ADDRESS_DEFS_H
+#ifndef ETHERNET_ADDRESS_DEFS_HPP
+#define ETHERNET_ADDRESS_DEFS_HPP
 
 #include "QNEthernet.h"
 #include "etl/singleton.h"
@@ -31,4 +31,4 @@ struct EthernetIPDefs_s
 
 using EthernetIPDefsInstance = etl::singleton<EthernetIPDefs_s>;
 
-#endif /* ETHERNET_ADDRESS_DEFS_H */
+#endif // ETHERNET_ADDRESS_DEFS_HPP
