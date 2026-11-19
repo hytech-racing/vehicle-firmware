@@ -8,7 +8,7 @@ FlexCAN_T4FD<CAN3> CAN_FD;
 
 const uint32_t DELAY = 10;
 const uint32_t CANFD_MSG_SIZE = sizeof(CANFD_message_t);
-const unsigned long interval = 50; // for delay, in micros rn
+const unsigned long interval = 500; // for delay, in micros 
 unsigned long previousMicros = 0; // also for delay
 unsigned long previousMillis2 = 0; // also for delay
 
