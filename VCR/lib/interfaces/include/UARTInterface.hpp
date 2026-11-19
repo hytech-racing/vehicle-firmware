@@ -7,9 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#ifdef ARDUINO
 #include <Arduino.h>
-#endif
 
 // Bounded COBS framing with a CRC-16/CCITT-FALSE checksum, without allocation.
 class UARTFrameCodec
@@ -80,8 +78,6 @@ class UARTCommandDecoder
     Stats _stats;
 };
 
-#ifdef ARDUINO
-// Serial access is available on hardware; the codec/decoder also build natively.
 class UARTCommandSerial
 {
   public:
@@ -95,6 +91,5 @@ class UARTCommandSerial
     HardwareSerial& _serial;
     UARTCommandDecoder _decoder;
 };
-#endif
 
 #endif

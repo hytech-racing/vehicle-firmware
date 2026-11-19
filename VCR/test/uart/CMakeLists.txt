@@ -19,7 +19,7 @@ add_library(command_decoder
     ../../lib/interfaces/src/UARTInterface.cpp
     ${vcr_proto_SOURCE_DIR}/base_msgs.pb.c
     ${vcr_proto_SOURCE_DIR}/hytech_msgs.pb.c)
-target_include_directories(command_decoder PUBLIC ../../lib/interfaces/include ${vcr_proto_SOURCE_DIR})
+target_include_directories(command_decoder PUBLIC ../../lib/interfaces/include ${vcr_proto_SOURCE_DIR} mocks)
 target_link_libraries(command_decoder PUBLIC protobuf-nanopb-static)
 target_compile_options(command_decoder PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(test_uart test_uart.cpp)

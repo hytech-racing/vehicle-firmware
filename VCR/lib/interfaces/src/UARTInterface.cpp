@@ -196,7 +196,6 @@ const UARTCommandDecoder::Stats& UARTCommandDecoder::stats() const
     return _stats;
 }
 
-#ifdef ARDUINO
 UARTCommandSerial::UARTCommandSerial(HardwareSerial& serial)
     : _serial(serial)
 {
@@ -225,4 +224,3 @@ const UARTCommandDecoder::Stats& UARTCommandSerial::stats() const
 {
     return _decoder.stats();
 }
-#endif
