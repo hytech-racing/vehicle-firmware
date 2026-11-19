@@ -1,4 +1,4 @@
-#include "UARTCommandDecoder.hpp"
+#include "UARTInterface.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-using Codec = UARTFrameCodec<UARTCommandDecoder::MAX_PAYLOAD_BYTES>;
+using Codec = UARTFrameCodec;
 
 void check(bool condition, const char* message)
 {
