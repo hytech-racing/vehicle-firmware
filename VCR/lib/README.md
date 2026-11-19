@@ -218,6 +218,3 @@ VCR inputs (sent by drivebrain and VCF):
     - `int16_t drivebrain_torque_fr_torque`
     - `int16_t drivebrain_torque_rl_torque`
     - `int16_t drivebrain_torque_rl_torque`
-
-
-
