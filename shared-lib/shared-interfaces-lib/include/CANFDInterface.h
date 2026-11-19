@@ -82,6 +82,19 @@ namespace CAN_util
         memmove(buf, &can_msg, sizeof(CANFD_message_t));
         CAN_msg_out_queue.push_back(buf, sizeof(CANFD_message_t));
     }
+    
+    void on_telem_can_receive(const CANFD_message_t &msg);
+}
+
+inline void FLEXCAN_FD_EnterFreezeMode()
+{
+  FLEXCANb_MCR(CAN3) |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
+  while (!(FLEXCANb_MCR(CAN3) & FLEXCAN_MCR_FRZ_ACK));
+}
+inline void FLEXCAN_FD_ExitFreezeMode() 
+{
+  FLEXCANb_MCR(CAN3) &= ~FLEXCAN_MCR_HALT;
+  while (FLEXCANb_MCR(CAN3) & FLEXCAN_MCR_FRZ_ACK);
 }
 
 #endif /* CANFDINTERFACE */
