@@ -27,8 +27,7 @@ TEST(VCRUARTInterfaceTesting, command_round_trip_and_reject_invalid_frames)
     // Decode in memory without starting or accessing the serial port.
     VCRUARTInterface uart(Serial1);
     VCRUARTInterface::Command output;
-    const auto decode = [&]()
-    {
+    const auto decode = [&]() {
         bool accepted = false;
         for (std::size_t i = 0; i < size; ++i)
             accepted |= uart.feed(frame[i], 42, output);
