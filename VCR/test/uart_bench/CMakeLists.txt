@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.20)
+project(vcr_uart_bench_tests LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing()
+add_subdirectory(../uart command_tests)
+set(GENERATED "${CMAKE_CURRENT_SOURCE_DIR}/../../../.pio/uart_bench_generated" CACHE PATH "Tester-generated nanopb messages")
+if(NOT EXISTS "${GENERATED}/uart_bench.pb.h")
+    message(FATAL_ERROR "Generate matching bench nanopb messages using Drivebrain generate_messages.py first")
+endif()
+add_executable(uart_bench_endpoint_test uart_bench_endpoint_test.cpp
+    firmware/UARTBenchEndpoint.cpp ../../lib/interfaces/src/UARTCommandDecoder.cpp
+    ${GENERATED}/base_msgs.pb.c ${GENERATED}/hytech_msgs.pb.c ${GENERATED}/uart_bench.pb.c)
+target_include_directories(uart_bench_endpoint_test PRIVATE mocks firmware ../../lib/interfaces/include ${GENERATED})
+target_link_libraries(uart_bench_endpoint_test PRIVATE protobuf-nanopb-static)
+target_compile_definitions(uart_bench_endpoint_test PRIVATE FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../uart/fixtures")
+add_test(NAME uart_bench_endpoint COMMAND uart_bench_endpoint_test)
