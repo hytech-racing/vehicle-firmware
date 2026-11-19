@@ -61,8 +61,8 @@ try
           output.message.prev_MCU_recv_millis == 123 && output.received_millis == 42, "command values changed");
 
     frame[frame.size() - 2] ^= 1;
-    check(!decode(decoder, frame, output) && decoder.stats().crc_errors == 1, "corrupted checksum accepted");
-    check(!decode(decoder, {4, 1, 0}, output) && decoder.stats().cobs_errors == 1, "truncated COBS frame accepted");
+    check(!decode(decoder, frame, output), "corrupted checksum accepted");
+    check(!decode(decoder, {4, 1, 0}, output), "truncated COBS frame accepted");
     command.torque_limit_nm.FR = -1;
     check(!decode(decoder, encode(command), output), "negative torque allowance accepted");
     command.torque_limit_nm.FR = 2;

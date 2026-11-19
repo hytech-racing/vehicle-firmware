@@ -49,14 +49,12 @@ void VCRUARTInterface::reset()
 
 bool VCRUARTInterface::feed(uint8_t byte, uint32_t now_millis, Command& output)
 {
-    ++_stats.rx_bytes;
     if (byte)
     {
         if (!_discarding)
         {
             if (_size == _encoded.size())
             {
-                ++_stats.oversize_errors;
                 _size = 0;
                 _discarding = true;
             }
@@ -70,11 +68,6 @@ bool VCRUARTInterface::feed(uint8_t byte, uint32_t now_millis, Command& output)
     return valid;
 }
 
-const VCRUARTInterface::Stats& VCRUARTInterface::stats() const
-{
-    return _stats;
-}
-
 bool VCRUARTInterface::is_valid(const hytech_msgs_MCUCommandData& message)
 {
     return message.has_desired_rpms && message.has_torque_limit_nm && valid_vector(message.desired_rpms, false) && valid_vector(message.torque_limit_nm, true);
@@ -85,19 +78,12 @@ bool VCRUARTInterface::_decode_command(uint32_t now_millis, Command& output)
     Command candidate;
     pb_istream_t stream = pb_istream_from_buffer(_decoded.data(), _payload_size);
     if (!pb_decode(&stream, hytech_msgs_MCUCommandData_fields, &candidate.message))
-    {
-        ++_stats.protobuf_errors;
         return false;
-    }
     const auto& message = candidate.message;
     if (!is_valid(message))
-    {
-        ++_stats.invalid_commands;
         return false;
-    }
     candidate.received_millis = now_millis;
     output = candidate;
-    ++_stats.valid_commands;
     return true;
 }
 
@@ -152,40 +138,25 @@ bool VCRUARTInterface::_decode_frame()
     {
         const uint8_t code = _encoded[input++];
         if (!code || static_cast<std::size_t>(code - 1) > _size - input)
-        {
-            ++_stats.cobs_errors;
             return false;
-        }
         for (unsigned i = 1; i < code; ++i)
         {
             if (count == _decoded.size())
-            {
-                ++_stats.oversize_errors;
                 return false;
-            }
             _decoded[count++] = _encoded[input++];
         }
         if (code != 255 && input < _size)
         {
             if (count == _decoded.size())
-            {
-                ++_stats.oversize_errors;
                 return false;
-            }
             _decoded[count++] = 0;
         }
     }
     if (count < 2)
-    {
-        ++_stats.cobs_errors;
         return false;
-    }
     _payload_size = count - 2;
     const auto expected = static_cast<uint16_t>(_decoded[count - 2]) | (static_cast<uint16_t>(_decoded[count - 1]) << 8);
     if (crc16(_decoded.data(), _payload_size) != expected)
-    {
-        ++_stats.crc_errors;
         return false;
-    }
     return true;
 }

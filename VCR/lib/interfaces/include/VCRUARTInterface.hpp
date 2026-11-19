@@ -21,16 +21,6 @@ class VCRUARTInterface
         hytech_msgs_MCUCommandData message = hytech_msgs_MCUCommandData_init_zero;
         uint32_t received_millis = 0;
     };
-    struct Stats
-    {
-        uint32_t rx_bytes = 0;
-        uint32_t valid_commands = 0;
-        uint32_t cobs_errors = 0;
-        uint32_t crc_errors = 0;
-        uint32_t oversize_errors = 0;
-        uint32_t protobuf_errors = 0;
-        uint32_t invalid_commands = 0;
-    };
 
     explicit VCRUARTInterface(HardwareSerial& serial);
     void begin(uint32_t baud = 921600);
@@ -39,8 +29,7 @@ class VCRUARTInterface
     // Feed bytes including the delimiter. Rejections leave output unchanged.
     // now_millis is MCU-local processing time, not a timestamp from the Pi.
     bool feed(uint8_t byte, uint32_t now_millis, Command& output);
-    void reset(); // Discard partial input; retain cumulative counters.
-    const Stats& stats() const; // Same-thread access only.
+    void reset(); // Discard partial input.
     static bool is_valid(const hytech_msgs_MCUCommandData& message);
     static uint16_t crc16(const uint8_t* bytes, std::size_t size);
     // Returns length including delimiter, or zero for oversized input/insufficient storage.
@@ -54,7 +43,6 @@ class VCRUARTInterface
     std::array<uint8_t, MAX_PAYLOAD_BYTES + 2> _decoded = {};
     std::size_t _size = 0, _payload_size = 0;
     bool _discarding = false;
-    Stats _stats;
 };
 
 #endif
