@@ -1,4 +1,4 @@
-#include "UARTInterface.hpp"
+#include "VCRUARTInterface.hpp"
 
 #include <cmath>
 #include <pb_decode.h>
@@ -17,54 +17,37 @@ namespace
     }
 } // namespace
 
-void UARTCommandDecoder::reset()
+VCRUARTInterface::VCRUARTInterface(HardwareSerial& serial)
+    : _serial(serial)
 {
-    _framer.reset();
 }
 
-bool UARTCommandDecoder::feed(uint8_t byte, uint32_t now_millis, Command& output)
+void VCRUARTInterface::begin(uint32_t baud)
 {
-    const bool complete = _framer.feed(byte);
-    _stats.rx_bytes = _framer.stats().rx_bytes;
-    _stats.cobs_errors = _framer.stats().cobs_errors;
-    _stats.crc_errors = _framer.stats().crc_errors;
-    _stats.oversize_errors = _framer.stats().oversize_errors;
-    return complete && _decode(now_millis, output);
+    reset();
+    _serial.begin(baud);
 }
 
-bool UARTCommandDecoder::is_valid(const hytech_msgs_MCUCommandData& message)
+bool VCRUARTInterface::poll(uint32_t now_millis, Command& output, std::size_t byte_budget)
 {
-    return message.has_desired_rpms && message.has_torque_limit_nm && valid_vector(message.desired_rpms, false) && valid_vector(message.torque_limit_nm, true);
-}
-
-bool UARTCommandDecoder::_decode(uint32_t now_millis, Command& output)
-{
-    Command candidate;
-    pb_istream_t stream = pb_istream_from_buffer(_framer.payload(), _framer.payload_size());
-    if (!pb_decode(&stream, hytech_msgs_MCUCommandData_fields, &candidate.message))
+    for (std::size_t i = 0; i < byte_budget && _serial.available() > 0; ++i)
     {
-        ++_stats.protobuf_errors;
-        return false;
+        const int byte = _serial.read();
+        if (byte < 0)
+            break;
+        if (feed(static_cast<uint8_t>(byte), now_millis, output))
+            return true;
     }
-    const auto& message = candidate.message;
-    if (!is_valid(message))
-    {
-        ++_stats.invalid_commands;
-        return false;
-    }
-    candidate.received_millis = now_millis;
-    output = candidate;
-    ++_stats.valid_commands;
-    return true;
+    return false;
 }
 
-void UARTFrameCodec::reset()
+void VCRUARTInterface::reset()
 {
     _size = 0;
     _discarding = false;
 }
 
-bool UARTFrameCodec::feed(uint8_t byte)
+bool VCRUARTInterface::feed(uint8_t byte, uint32_t now_millis, Command& output)
 {
     ++_stats.rx_bytes;
     if (byte)
@@ -82,12 +65,43 @@ bool UARTFrameCodec::feed(uint8_t byte)
         }
         return false;
     }
-    const bool valid = !_discarding && _size && decode();
+    const bool valid = !_discarding && _size && _decode_frame() && _decode_command(now_millis, output);
     reset();
     return valid;
 }
 
-uint16_t UARTFrameCodec::crc16(const uint8_t* bytes, std::size_t size)
+const VCRUARTInterface::Stats& VCRUARTInterface::stats() const
+{
+    return _stats;
+}
+
+bool VCRUARTInterface::is_valid(const hytech_msgs_MCUCommandData& message)
+{
+    return message.has_desired_rpms && message.has_torque_limit_nm && valid_vector(message.desired_rpms, false) && valid_vector(message.torque_limit_nm, true);
+}
+
+bool VCRUARTInterface::_decode_command(uint32_t now_millis, Command& output)
+{
+    Command candidate;
+    pb_istream_t stream = pb_istream_from_buffer(_decoded.data(), _payload_size);
+    if (!pb_decode(&stream, hytech_msgs_MCUCommandData_fields, &candidate.message))
+    {
+        ++_stats.protobuf_errors;
+        return false;
+    }
+    const auto& message = candidate.message;
+    if (!is_valid(message))
+    {
+        ++_stats.invalid_commands;
+        return false;
+    }
+    candidate.received_millis = now_millis;
+    output = candidate;
+    ++_stats.valid_commands;
+    return true;
+}
+
+uint16_t VCRUARTInterface::crc16(const uint8_t* bytes, std::size_t size)
 {
     uint16_t crc = 0xffff;
     for (std::size_t i = 0; i < size; ++i)
@@ -99,7 +113,7 @@ uint16_t UARTFrameCodec::crc16(const uint8_t* bytes, std::size_t size)
     return crc;
 }
 
-std::size_t UARTFrameCodec::encode(const uint8_t* payload, std::size_t size, uint8_t* output, std::size_t capacity)
+std::size_t VCRUARTInterface::encode(const uint8_t* payload, std::size_t size, uint8_t* output, std::size_t capacity)
 {
     if (size > MAX_PAYLOAD_BYTES || capacity < size + 2 + (size + 2) / 254 + 2)
         return 0;
@@ -131,7 +145,7 @@ std::size_t UARTFrameCodec::encode(const uint8_t* payload, std::size_t size, uin
     return written;
 }
 
-bool UARTFrameCodec::decode()
+bool VCRUARTInterface::_decode_frame()
 {
     std::size_t input = 0, count = 0;
     while (input < _size)
@@ -174,53 +188,4 @@ bool UARTFrameCodec::decode()
         return false;
     }
     return true;
-}
-
-const UARTFrameCodec::Stats& UARTFrameCodec::stats() const
-{
-    return _stats;
-}
-
-const uint8_t* UARTFrameCodec::payload() const
-{
-    return _decoded.data();
-}
-
-std::size_t UARTFrameCodec::payload_size() const
-{
-    return _payload_size;
-}
-
-const UARTCommandDecoder::Stats& UARTCommandDecoder::stats() const
-{
-    return _stats;
-}
-
-UARTCommandSerial::UARTCommandSerial(HardwareSerial& serial)
-    : _serial(serial)
-{
-}
-
-void UARTCommandSerial::begin(uint32_t baud)
-{
-    _decoder.reset();
-    _serial.begin(baud);
-}
-
-bool UARTCommandSerial::poll(uint32_t now_millis, UARTCommandDecoder::Command& output, std::size_t byte_budget)
-{
-    for (std::size_t i = 0; i < byte_budget && _serial.available() > 0; ++i)
-    {
-        const int byte = _serial.read();
-        if (byte < 0)
-            break;
-        if (_decoder.feed(static_cast<uint8_t>(byte), now_millis, output))
-            return true;
-    }
-    return false;
-}
-
-const UARTCommandDecoder::Stats& UARTCommandSerial::stats() const
-{
-    return _decoder.stats();
 }

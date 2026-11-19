@@ -16,7 +16,7 @@ set(nanopb_BUILD_GENERATOR OFF CACHE BOOL "" FORCE)
 set(nanopb_BUILD_RUNTIME ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(nanopb vcr_proto)
 add_library(command_decoder
-    ../../lib/interfaces/src/UARTInterface.cpp
+    ../../lib/interfaces/src/VCRUARTInterface.cpp
     ${vcr_proto_SOURCE_DIR}/base_msgs.pb.c
     ${vcr_proto_SOURCE_DIR}/hytech_msgs.pb.c)
 target_include_directories(command_decoder PUBLIC ../../lib/interfaces/include ${vcr_proto_SOURCE_DIR} mocks)
