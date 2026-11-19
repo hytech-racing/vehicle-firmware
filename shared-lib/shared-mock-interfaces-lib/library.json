@@ -3,5 +3,8 @@
     "version": "1.0.0",
     "license": "MIT",
     "frameworks": "*",
-    "platforms": "*"
+    "platforms": "native",
+    "build": {
+        "libCompatMode": "strict"
+    }
 }
