@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 
-// The production command and bench envelopes share exactly this wire codec.
+// Bounded COBS framing with a CRC-16/CCITT-FALSE checksum.
 // No allocation, serial peripheral, or protobuf dependency is required here.
 template <std::size_t MaxPayload>
 class UARTFrameCodec
