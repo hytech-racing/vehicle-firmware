@@ -3,10 +3,10 @@
 
 /* ETL Library */
 #include "RDC_Constants.hpp"
-#include <FlexCAN_T4.h>
-#include <etl/singleton.h>
 
+#include <FlexCAN_T4.h>
 #include <SharedFirmwareTypes.h>
+#include <etl/singleton.h>
 #include <ht_can.h>
 
 struct BrakeData_s
@@ -24,7 +24,7 @@ struct FDCControl_s
 class FDCInterface
 
 {
-    public:
+  public:
     FDCInterface() = delete;
 
     FDCInterface(unsigned long init_millis, unsigned long max_heartbeat_timeout_ms)
@@ -34,16 +34,20 @@ class FDCInterface
         _current_ebs_data.pressure_heartbeat_ok = false;
     };
 
-    void receiveEbsPressure(const CAN_message_t &msg, unsigned long curr_millis);
-    void receiveBrakeData(const CAN_message_t &msg, unsigned long curr_millis);
-    void receiveDVMission(const CAN_message_t &msg, unsigned long curr_millis);
+    void receiveEbsPressure(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveBrakeData(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveDVMission(const CAN_message_t& msg, unsigned long curr_millis);
 
     // @brief the output of RDC with both driverless state and whether or not FDC should activate ebs solenoids manually.
     void setFDCControl(bool continue_toggle_ebs_supervisor, uint8_t activate_ebs_solenoid_id);
 
     void resetEbsHeartbeat() { _current_ebs_data.pressure_heartbeat_ok = true; }
 
-    bool getEbsPressureOk() const { return _current_ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI && _current_ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI; }
+    bool getEbsPressureOk() const
+    {
+        return _current_ebs_data.pressure_1 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI
+               && _current_ebs_data.pressure_2 > RDCConstants::EBS_AIR_PRESSURE_THRESHOLD_PSI;
+    }
 
     FDCControl_s getFDCControl() const { return _fdc_control; }
     EBSData_s getEbsData() const { return _current_ebs_data; }
@@ -52,7 +56,7 @@ class FDCInterface
     DriverlessMission_e getDriverlessMision() const { return _current_dv_mission; }
     bool getEbsSupervisorStatus() const { return _current_ebs_data.supervisor_ok; }
 
-    private:
+  private:
     EBSData_s _current_ebs_data;
     BrakeFluidPressureData_s _current_brake_data;
     DriverlessMission_e _current_dv_mission;

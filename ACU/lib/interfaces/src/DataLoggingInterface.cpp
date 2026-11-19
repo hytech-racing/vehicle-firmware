@@ -1,7 +1,8 @@
 #include "DataLoggingInterface.hpp"
 
 
-static const char* CSV_HEADER = "timestamp_ms,em_current_A,min_cell_v," "soc_pct,lifetime_ah,soh,soe_pct,v1,remaining_wh";
+static const char* CSV_HEADER = "timestamp_ms,em_current_A,min_cell_v,"
+                                "soc_pct,lifetime_ah,soh,soe_pct,v1,remaining_wh";
 
 bool DataLoggingInterface::init()
 {
@@ -13,13 +14,13 @@ bool DataLoggingInterface::init()
     }
 
     uint32_t file_counter = 0;
-    uint32_t magic_check  = 0;
+    uint32_t magic_check = 0;
 
     EEPROM.get(_eeprom_magic_address, magic_check);
     if (magic_check != _magic_number)
     {
         file_counter = 0;
-        EEPROM.put(_eeprom_magic_address,   _magic_number);
+        EEPROM.put(_eeprom_magic_address, _magic_number);
         EEPROM.put(_eeprom_counter_address, file_counter);
     }
     else
@@ -63,14 +64,22 @@ void DataLoggingInterface::log_data()
         return;
     }
 
-    data_file.print(sys_time::hal_millis()); data_file.print(",");
-    data_file.print(ts_current, 4); data_file.print(",");
-    data_file.print(bms_data.min_cell_voltage, 4); data_file.print(",");
-    data_file.print(status.SoC * 100.0f, 2); data_file.print(",");
-    data_file.print((float)status.lifetime_ah_throughput, 2); data_file.print(",");
-    data_file.print(status.SoH, 4); data_file.print(",");
-    data_file.print(status.SoE_percentage, 2); data_file.print(",");
-    data_file.print(status.V1, 4); data_file.print(",");
+    data_file.print(sys_time::hal_millis());
+    data_file.print(",");
+    data_file.print(ts_current, 4);
+    data_file.print(",");
+    data_file.print(bms_data.min_cell_voltage, 4);
+    data_file.print(",");
+    data_file.print(status.SoC * 100.0f, 2);
+    data_file.print(",");
+    data_file.print((float)status.lifetime_ah_throughput, 2);
+    data_file.print(",");
+    data_file.print(status.SoH, 4);
+    data_file.print(",");
+    data_file.print(status.SoE_percentage, 2);
+    data_file.print(",");
+    data_file.print(status.V1, 4);
+    data_file.print(",");
     data_file.println(status.remaining_pack_wh, 1);
 
     data_file.close();

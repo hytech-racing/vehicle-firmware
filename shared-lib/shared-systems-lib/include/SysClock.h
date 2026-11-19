@@ -21,7 +21,7 @@ struct SysTick_s
 
 class SysClock
 {
-private:
+  private:
     enum class TriggerIndices_e
     {
         TRIG_1000 = 0,
@@ -36,7 +36,7 @@ private:
 
     unsigned long triggerTimes[static_cast<int>(TriggerIndices_e::NUM_TRIGGERS)];
 
-public:
+  public:
     SysClock();
     SysTick_s tick(unsigned long sysMicros);
 };

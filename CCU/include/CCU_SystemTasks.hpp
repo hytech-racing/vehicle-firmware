@@ -13,13 +13,13 @@
 #include "WatchdogInterface.hpp"
 
 /* Local System Includes */
+#include "ChargerStateMachine.hpp"
 #include "Level2System.hpp"
 #include "MainChargeSystem.hpp"
-#include "ChargerStateMachine.hpp"
 
 /**
  * @brief Creates an instance of all systems.
-*/
+ */
 void initializeAllSystems();
 
 extern etl::delegate<bool()> is_120_conditions_ok;

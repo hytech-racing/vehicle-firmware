@@ -13,4 +13,4 @@ namespace sys_time
     {
         return micros();
     }
-}
+} // namespace sys_time

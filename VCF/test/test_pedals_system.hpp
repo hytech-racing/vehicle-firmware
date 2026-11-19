@@ -1,6 +1,7 @@
 #define PEDALS_SYSTEM_TEST
-#include <gtest/gtest.h>
 #include "PedalsSystem.hpp"
+
+#include <gtest/gtest.h>
 
 float get_pedal_conversion_val(float min, float max, float data)
 {
@@ -46,20 +47,20 @@ PedalsParams gen_positive_slope_only_params()
 
 void debug_print_pedals(PedalsSystemData_s data)
 {
-    std::cout << "accel_is_implausible "<< data.accel_is_implausible << std::endl;
-    std::cout << "brake_is_implausible "<< data.brake_is_implausible << std::endl;
-    std::cout << "brake_is_pressed "<< data.brake_is_pressed << std::endl;
-    std::cout << "accel_is_pressed "<< data.accel_is_pressed << std::endl;
-    std::cout << "mech_brake_is_active "<< data.mech_brake_is_active << std::endl;
-    std::cout << "brake_and_accel_pressed_implausibility_high "<< data.brake_and_accel_pressed_implausibility_high << std::endl;
-    std::cout << "implausibility_has_exceeded_max_duration "<< data.implausibility_has_exceeded_max_duration << std::endl;
-    std::cout << "accel_percent "<< data.accel_percent << std::endl;
-    std::cout << "brake_percent "<< data.brake_percent << std::endl;
-    std::cout << "regen_percent "<< data.regen_percent << std::endl;
+    std::cout << "accel_is_implausible " << data.accel_is_implausible << std::endl;
+    std::cout << "brake_is_implausible " << data.brake_is_implausible << std::endl;
+    std::cout << "brake_is_pressed " << data.brake_is_pressed << std::endl;
+    std::cout << "accel_is_pressed " << data.accel_is_pressed << std::endl;
+    std::cout << "mech_brake_is_active " << data.mech_brake_is_active << std::endl;
+    std::cout << "brake_and_accel_pressed_implausibility_high " << data.brake_and_accel_pressed_implausibility_high << std::endl;
+    std::cout << "implausibility_has_exceeded_max_duration " << data.implausibility_has_exceeded_max_duration << std::endl;
+    std::cout << "accel_percent " << data.accel_percent << std::endl;
+    std::cout << "brake_percent " << data.brake_percent << std::endl;
+    std::cout << "regen_percent " << data.regen_percent << std::endl;
 }
 
 // returns true if implausibility has exceeded max duration for double brake test
-bool get_result_of_double_brake_test(PedalsSystem &pedals, const PedalSensorData_s &sensor_data)
+bool get_result_of_double_brake_test(PedalsSystem& pedals, const PedalSensorData_s& sensor_data)
 {
     pedals.evaluatePedals(sensor_data, 1000);
     pedals.evaluatePedals(sensor_data, 1110);
@@ -67,7 +68,7 @@ bool get_result_of_double_brake_test(PedalsSystem &pedals, const PedalSensorData
 }
 
 // resets implausibility time and returns true always
-bool reset_pedals_system_implaus_time(PedalsSystem &pedals)
+bool reset_pedals_system_implaus_time(PedalsSystem& pedals)
 {
     // Populating the test data with plausible values for the pedals
     PedalSensorData_s test_pedal_data;
@@ -144,10 +145,7 @@ TEST(PedalsSystemTesting, test_accel_and_brake_limits_plausibility)
     };
 
     // Create a vector of test cases for brake sensor implausibility
-    std::vector<PedalSensorData_s> brake_test_cases = {
-        {94, 3996, 0, 5000},
-        {94, 3996, 5000, 0}
-    };
+    std::vector<PedalSensorData_s> brake_test_cases = {{94, 3996, 0, 5000}, {94, 3996, 5000, 0}};
 
     // T.4.2.4 and T.4.2.10 (accel out of ranges min/max) testing
     for (const auto& test : accel_test_cases)
@@ -294,67 +292,66 @@ TEST(PedalsSystemTesting, implausibility_latching_and_accel_is_zero)
     pedals.evaluatePedals(test_pedal_data, 1200);
     // PedalSensorData_s test_not_pressed_pedal_data = {accel_params., 2045, 2045, 2045};
     PedalSensorData_s test_not_pressed_pedal_data;
-    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1-1;
-    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2-1;
+    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1 - 1;
+    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2 - 1;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.max_pedal_1-1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.max_pedal_2-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.max_pedal_1 - 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.max_pedal_2 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1200);
 
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 0);
 
 
-    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1-50;
-    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2-50;
+    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1 - 50;
+    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2 - 50;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1-1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1 - 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1200);
 
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 0);
 
-    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1-50;
-    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2-50;
+    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1 - 50;
+    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2 - 50;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1-1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1 - 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1200);
 
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 0);
 
-    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1-50;
-    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2-50;
+    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1 - 50;
+    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2 - 50;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1-1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1 - 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_1 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1200);
 
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 0);
 
     // this should reset the error
-    test_not_pressed_pedal_data.accel_1 = accel_params.min_pedal_1+1;
-    test_not_pressed_pedal_data.accel_2 = accel_params.min_pedal_2-1;
+    test_not_pressed_pedal_data.accel_1 = accel_params.min_pedal_1 + 1;
+    test_not_pressed_pedal_data.accel_2 = accel_params.min_pedal_2 - 1;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1+1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_2-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1 + 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_2 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1210);
 
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 0);
 
-    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1-1;
-    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2+1;
+    test_not_pressed_pedal_data.accel_1 = accel_params.max_pedal_1 - 1;
+    test_not_pressed_pedal_data.accel_2 = accel_params.max_pedal_2 + 1;
 
-    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1+1;
-    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_2-1;
+    test_not_pressed_pedal_data.brake_1 = brake_params.min_pedal_1 + 1;
+    test_not_pressed_pedal_data.brake_2 = brake_params.min_pedal_2 - 1;
     pedals.evaluatePedals(test_not_pressed_pedal_data, 1220);
     debug_print_pedals(pedals.getPedalsSystemData());
     EXPECT_EQ(pedals.getPedalsSystemData().accel_percent, 1);
-
 }
 
 // testing accel and brake pedal percentage accuracies with deadzone
@@ -389,7 +386,6 @@ TEST(PedalsSystemTesting, deadzone_removal_calc_double_brake_ped)
     test_brake_pedal_data = {94, 3996, 3996, 94};
     pedals.evaluatePedals(test_brake_pedal_data, 1200);
     EXPECT_NEAR(pedals.getPedalsSystemData().brake_percent, 1, .001);
-
 }
 
 // testing mechanical brake and brake activation
@@ -440,8 +436,6 @@ TEST(PedalsSystemTesting, check_accel_pressed)
     EXPECT_TRUE(pedals.getPedalsSystemData().accel_is_pressed);
 
 
-
-
     test_pedal_data = {872, 3218, 91, 3900};
     PedalsSystem pedals2(params, params);
     pedals2.evaluatePedals(test_pedal_data, 1000);
@@ -449,43 +443,42 @@ TEST(PedalsSystemTesting, check_accel_pressed)
     EXPECT_FALSE(pedals2.getPedalsSystemData().accel_is_pressed);
     EXPECT_NEAR(pedals2.getPedalsSystemData().accel_percent, 0.2, 0.001);
 
-    test_pedal_data = {2145,1945,94,3996};
-    PedalsSystem pedals3(params,params);
-    pedals3.evaluatePedals(test_pedal_data,1000);
+    test_pedal_data = {2145, 1945, 94, 3996};
+    PedalsSystem pedals3(params, params);
+    pedals3.evaluatePedals(test_pedal_data, 1000);
     EXPECT_TRUE(pedals3.getPedalsSystemData().accel_is_pressed);
 
-    test_pedal_data = {params.min_pedal_1+2 ,params.min_pedal_2 - 4, params.min_pedal_1 - 4,params.min_pedal_2};
+    test_pedal_data = {params.min_pedal_1 + 2, params.min_pedal_2 - 4, params.min_pedal_1 - 4, params.min_pedal_2};
     PedalsSystem pedals4(params, params);
-    pedals4.evaluatePedals(test_pedal_data,1000);
+    pedals4.evaluatePedals(test_pedal_data, 1000);
     EXPECT_FALSE(pedals4.getPedalsSystemData().accel_is_pressed);
 
     debug_print_pedals(pedals4.getPedalsSystemData());
 
-    test_pedal_data = {94,3996,94,3996};
-    PedalsSystem pedals5(params,params);
-    pedals5.evaluatePedals(test_pedal_data,1000);
+    test_pedal_data = {94, 3996, 94, 3996};
+    PedalsSystem pedals5(params, params);
+    pedals5.evaluatePedals(test_pedal_data, 1000);
     EXPECT_FALSE(pedals5.getPedalsSystemData().accel_is_pressed);
 
-    test_pedal_data = {194,3896,94,3996};
-    PedalsSystem pedals6(params,params);
+    test_pedal_data = {194, 3896, 94, 3996};
+    PedalsSystem pedals6(params, params);
     pedals6.evaluatePedals(test_pedal_data, 1000);
     EXPECT_FALSE(pedals6.getPedalsSystemData().accel_is_pressed);
 
     test_pedal_data = {294, 3796, 94, 3996};
-    PedalsSystem pedals8(params,params);
+    PedalsSystem pedals8(params, params);
     pedals8.evaluatePedals(test_pedal_data, 1000);
     EXPECT_FALSE(pedals8.getPedalsSystemData().accel_is_pressed);
 
     test_pedal_data = {1094, 2996, 94, 3996};
-    PedalsSystem pedals9(params,params);
+    PedalsSystem pedals9(params, params);
     pedals9.evaluatePedals(test_pedal_data, 1000);
     EXPECT_TRUE(pedals9.getPedalsSystemData().accel_is_pressed);
 
-    test_pedal_data = {1194,2896,04,3996};
-    PedalsSystem pedals7(params,params);
+    test_pedal_data = {1194, 2896, 04, 3996};
+    PedalsSystem pedals7(params, params);
     pedals7.evaluatePedals(test_pedal_data, 1000);
     EXPECT_TRUE(pedals7.getPedalsSystemData().accel_is_pressed);
-
 }
 
 TEST(PedalsSystemTesting, check_brake_pressed)
@@ -500,7 +493,7 @@ TEST(PedalsSystemTesting, check_brake_pressed)
     EXPECT_TRUE(pedals.getPedalsSystemData().brake_is_pressed);
 
     // Is supposed to fail, will be 0.2
-    test_pedal_data = {90,3900,872,3218};
+    test_pedal_data = {90, 3900, 872, 3218};
     PedalsSystem pedals2(params, params);
     pedals2.evaluatePedals(test_pedal_data, 1000);
     EXPECT_FALSE(pedals2.getPedalsSystemData().brake_is_pressed);

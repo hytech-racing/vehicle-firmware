@@ -1,13 +1,13 @@
 #ifndef __MCP_ADC_H__
 #define __MCP_ADC_H__
 
-#include "SPI.h"
 #include "AnalogSensorsInterface.h"
+#include "SPI.h"
 
 // Definitions
-const int MCP_ADC_DEFAULT_SPI_SDI   = 12;
-const int MCP_ADC_DEFAULT_SPI_SDO   = 11;
-const int MCP_ADC_DEFAULT_SPI_CLK   = 13;
+const int MCP_ADC_DEFAULT_SPI_SDI = 12;
+const int MCP_ADC_DEFAULT_SPI_SDO = 11;
+const int MCP_ADC_DEFAULT_SPI_CLK = 13;
 const int MCP_ADC_DEFAULT_SPI_SPEED = 2000000;
 
 /**
@@ -18,7 +18,7 @@ const int MCP_ADC_DEFAULT_SPI_SPEED = 2000000;
 template <int MCP_ADC_NUM_CHANNELS>
 class MCP_ADC : public AnalogMultiSensor<MCP_ADC_NUM_CHANNELS>
 {
-private:
+  private:
     const int _spiPinCS;
     const int _spiPinSDI;
     const int _spiPinSDO;
@@ -30,10 +30,17 @@ private:
      * contract, stores the raw sampled values into each AnalogChannel's lastSample instance variable.
      */
     void _sample() override;
-    
-public:
+
+  public:
     /* Constructors */
-    MCP_ADC(int spiPinCS, const int spiPinSDI, const int spiPinSDO, const int spiPinCLK, const int spiSpeed, const float scales[MCP_ADC_NUM_CHANNELS], const float offsets[MCP_ADC_NUM_CHANNELS]);
+    MCP_ADC(
+        int spiPinCS,
+        const int spiPinSDI,
+        const int spiPinSDO,
+        const int spiPinCLK,
+        const int spiSpeed,
+        const float scales[MCP_ADC_NUM_CHANNELS],
+        const float offsets[MCP_ADC_NUM_CHANNELS]);
 
     /* Functions */
 
@@ -41,7 +48,6 @@ public:
      * Calls sample() and convert(). After calling tick(), this MCP_ADC's data can be accessed using the get() command.
      */
     void tick() override;
-
 };
 
 #include "MCP_ADC.tpp"

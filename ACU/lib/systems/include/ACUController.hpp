@@ -5,20 +5,21 @@
 #include "etl/singleton.h"
 
 /* Externl Includes */
+#include "SOCKalmanFilter.hpp"
 #include "SharedFirmwareTypes.h"
 #include "shared_types.hpp"
-#include "SOCKalmanFilter.hpp"
+
 #include <array>
+#include <cstdint>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <cstdint>
 
 
 namespace acu_controller_default_parameters
 {
     constexpr const size_t MAX_INVALID_PACKET_FAULT_COUNT = 1000; // Same as voltage fault count
-    constexpr const time_ms MAX_VOLTAGE_FAULT_DUR = 1000;            // At 15 Hz, we'll know if there is an error within 3 seconds of startup
+    constexpr const time_ms MAX_VOLTAGE_FAULT_DUR = 1000;         // At 15 Hz, we'll know if there is an error within 3 seconds of startup
     constexpr const time_ms MAX_TEMP_FAULT_DUR = 1000;
     constexpr const time_ms MAX_INVALID_PACKET_FAULT_DUR = 1000; // In cases in EMI, we will need more leniency with invalid packet faults
 
@@ -26,8 +27,8 @@ namespace acu_controller_default_parameters
     constexpr const float PACK_MAX_VOLTAGE = 529.2;         // from data sheet https://wiki.hytechracing.org/books/ht09-design/page/molicel-pack-investigation
     constexpr const float PACK_MIN_VOLTAGE = 378.0;         // from data sheet^ but just assume 126 * 3.0V
     constexpr const float PACK_INTERNAL_RESISTANCE = 0.246; // Ohms (measured)
-    constexpr const float MIN_CELL_VOLTAGE_FOR_SOC = 2.5; // Volts
-}
+    constexpr const float MIN_CELL_VOLTAGE_FOR_SOC = 2.5;   // Volts
+} // namespace acu_controller_default_parameters
 
 struct ACUControllerData_s
 {
@@ -95,8 +96,7 @@ class ACUController
 {
     // using ACUData = etl::singleton<BMSCoreData_s<num_cells, num_celltemps, num_boardtemps>>;
 
-public:
-
+  public:
     /**
      * ACU Controller Constructor
      * @param cell_overvoltage_thresh_v cell overvoltage threshold value | units in volts
@@ -107,26 +107,19 @@ public:
      * @param max_volt_fault_dur max number of voltage faults allowed
      * @param max_temp_fault_dur max number of temp faults allowed
      */
-    ACUController(ACUControllerThresholds_s thresholds,
-                size_t invalid_packet_count_thresh = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_COUNT,
-                ACUControllerFaultDurations_s fault_durations = {
-                    .max_allowed_voltage_fault_dur = acu_controller_default_parameters::MAX_VOLTAGE_FAULT_DUR,
-                    .max_allowed_temp_fault_dur = acu_controller_default_parameters::MAX_TEMP_FAULT_DUR,
-                    .max_allowed_invalid_packet_fault_dur = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_DUR
-                },
-                ACUControllerPackSpecs_s pack_specs = {
-                    .pack_nominal_capacity = acu_controller_default_parameters::PACK_NOMINAL_CAPACITY_AH,
-                    .pack_max_voltage = acu_controller_default_parameters::PACK_MAX_VOLTAGE,
-                    .pack_min_voltage = acu_controller_default_parameters::PACK_MIN_VOLTAGE,
-                    .pack_internal_resistance = acu_controller_default_parameters::PACK_INTERNAL_RESISTANCE
-                }
-    ) : _acu_parameters {
-            thresholds,
-            invalid_packet_count_thresh,
-            fault_durations,
-            pack_specs
-        }
-    {};
+    ACUController(
+        ACUControllerThresholds_s thresholds,
+        size_t invalid_packet_count_thresh = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_COUNT,
+        ACUControllerFaultDurations_s fault_durations =
+            {.max_allowed_voltage_fault_dur = acu_controller_default_parameters::MAX_VOLTAGE_FAULT_DUR,
+             .max_allowed_temp_fault_dur = acu_controller_default_parameters::MAX_TEMP_FAULT_DUR,
+             .max_allowed_invalid_packet_fault_dur = acu_controller_default_parameters::MAX_INVALID_PACKET_FAULT_DUR},
+        ACUControllerPackSpecs_s pack_specs =
+            {.pack_nominal_capacity = acu_controller_default_parameters::PACK_NOMINAL_CAPACITY_AH,
+             .pack_max_voltage = acu_controller_default_parameters::PACK_MAX_VOLTAGE,
+             .pack_min_voltage = acu_controller_default_parameters::PACK_MIN_VOLTAGE,
+             .pack_internal_resistance = acu_controller_default_parameters::PACK_INTERNAL_RESISTANCE})
+        : _acu_parameters{thresholds, invalid_packet_count_thresh, fault_durations, pack_specs} {};
 
     /**
      * @brief Initialize the status time stamps because we don't want accidental sudden faults
@@ -156,9 +149,15 @@ public:
      * @post updates configuration bytes and sends configuration command
      * @param pack_current current flowing from the pack in amps (negative during discharge, positive during charge)
      */
-    ACUControllerData_s evaluate_accumulator(time_ms current_millis, const BMSCoreData_s &bms_core_data, size_t max_consecutive_invalid_packet_count, float em_current, size_t num_of_voltage_cells, bool voltage_is_fresh = false);
+    ACUControllerData_s evaluate_accumulator(
+        time_ms current_millis,
+        const BMSCoreData_s& bms_core_data,
+        size_t max_consecutive_invalid_packet_count,
+        float em_current,
+        size_t num_of_voltage_cells,
+        bool voltage_is_fresh = false);
 
-        /**
+    /**
      * Calculate Cell Balancing values
      * @pre cell charging is enabled
      * @post output will have the new values
@@ -173,20 +172,13 @@ public:
 
     ACUControllerData_s get_status() const { return _acu_state; };
 
-    void enableCharging()
-    {
-        _acu_state.charging_enabled = true;
-    }
+    void enableCharging() { _acu_state.charging_enabled = true; }
 
-    void disableCharging()
-    {
-        _acu_state.charging_enabled = false;
-    }
+    void disableCharging() { _acu_state.charging_enabled = false; }
 
     bool check_is_contactor_welded(volt pack_voltage_adc, volt ts_voltage_adc);
 
-private:
-
+  private:
     /**
      * @brief ACU State Holder
      * Most importantly, holding the current cell balances, fault counters, and watchdog HIGH?LOW
@@ -220,8 +212,8 @@ private:
      * @brief Minimum current and voltage thresholds for the car to be considered stabilized
      *
      */
-    static constexpr float STABILIZED_CURRENT_THRESH = 0.5f; // Absolute value threshold
-    static constexpr uint32_t MIN_STABILIZED_CURRENT_DURATION_MS = 1800000;  // 30 minutes in milliseconds
+    static constexpr float STABILIZED_CURRENT_THRESH = 0.5f;                // Absolute value threshold
+    static constexpr uint32_t MIN_STABILIZED_CURRENT_DURATION_MS = 1800000; // 30 minutes in milliseconds
 
     /**
      * @brief State of Health linear fade model parameters
@@ -263,7 +255,6 @@ private:
      * @return boolean, true if there has been global invalid packets for > MAX DURATION
      */
     bool _check_invalid_packet_faults(time_ms current_millis);
-
 };
 
 using ACUControllerInstance = etl::singleton<ACUController>;

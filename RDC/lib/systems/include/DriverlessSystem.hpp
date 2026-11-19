@@ -1,15 +1,15 @@
 #ifndef DRIVERLESSSYSTEM_H
 #define DRIVERLESSSYSTEM_H
 
+#include "RDC_Constants.hpp"
+
 #include <SharedFirmwareTypes.h>
 #include <etl/delegate.h>
 #include <etl/singleton.h>
 
-#include "RDC_Constants.hpp"
-
 class DriverlessSystem
 {
-    public:
+  public:
     DriverlessSystem(
         etl::delegate<void(bool, uint8_t)> commandFDCDelegate,
         etl::delegate<DriverlessMission_e()> getDriverlessMissionDelegate,
@@ -32,7 +32,7 @@ class DriverlessSystem
     void resetNoTSValues();
     void resetTSActiveValues();
 
-    private:
+  private:
     etl::delegate<void(bool, uint8_t)> _commandFDCDelegate; // continue toggle watchdog, solenoid control
     etl::delegate<DriverlessMission_e()> _getDriverlessMissionDelegate;
     etl::delegate<EBSData_s()> _getEbsDataDelegate;

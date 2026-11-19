@@ -12,9 +12,9 @@
 #include "VehicleStateMachine.hpp"
 
 /* Local Interface Includes */
-#include "VCFInterface.hpp"
-
 #include "DrivetrainSystem.hpp"
+#include "RSSInterface.hpp"
+#include "VCFInterface.hpp"
 
 
 /**

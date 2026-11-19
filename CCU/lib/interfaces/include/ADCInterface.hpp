@@ -22,14 +22,14 @@ namespace adc_default_parameters
 
     constexpr float CONTROL_PILOT_VOLTAGE_LOW_THRESHOLD = 0.5f;
     constexpr float PROXIMITY_PILOT_VOLTAGE_HIGH_THRESHOLD = 4.0f;
-};
+}; // namespace adc_default_parameters
 
 struct ADCPinout_s
 {
     /**
      * NOTE: All SHDN pins are currently digital pins. However, if there is an issue where shdn voltage is fluctuating,
      *       make a transition to reading shdn C as an analog pin
-    */
+     */
     pin teensy_shdn_A_pin;
     pin teensy_shdn_B_pin;
     pin teensy_shdn_C_pin;
@@ -79,144 +79,139 @@ struct ADCInterfaceParams_s
 
 class ADCInterface
 {
-public:
-
-    ADCInterface(ADCPinout_s pinout,
-                ADCConversions_s conversions,
-                float bit_resolution,
-                ADCConfigs_s configs = {
-                    .teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE
-                },
-                ADCThresholds_s thresholds = {
-                    .teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
-                    .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
-                    .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD
-                }
-    ): _adc_parameters {
-            pinout,
-            configs,
-            [=]() mutable {
-                conversions.glv_conv_factor              = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.glv_conv_factor;
-                conversions.control_pilot_conv_factor    = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.control_pilot_conv_factor;
-                conversions.proximity_pilot_conv_factor  = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.proximity_pilot_conv_factor;
-                conversions.jumper_out_conv_factor       = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.jumper_out_conv_factor;
-                return conversions;
-            }(),
-            thresholds,
-            bit_resolution
-        },
-        _reset_error_button(pinout.reset_error_button_pin)
-    {};
+  public:
+    ADCInterface(
+        ADCPinout_s pinout,
+        ADCConversions_s conversions,
+        float bit_resolution,
+        ADCConfigs_s configs = {.teensy41_max_input_voltage = adc_default_parameters::TEENSY41_MAX_INPUT_VOLTAGE},
+        ADCThresholds_s thresholds =
+            {.teensy41_min_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MIN_DIGITAL_READ_VOLTAGE_THRESH,
+             .teensy41_max_digital_read_voltage_thresh = adc_default_parameters::TEENSY41_MAX_DIGITAL_READ_VOLTAGE_THRESH,
+             .shutdown_voltage_digital_threshold = adc_default_parameters::SHUTDOWN_VOLTAGE_DIGITAL_THRESHOLD})
+        : _adc_parameters{
+              pinout,
+              configs,
+              [=]() mutable
+              {
+                  conversions.glv_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.glv_conv_factor;
+                  conversions.control_pilot_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.control_pilot_conv_factor;
+                  conversions.proximity_pilot_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.proximity_pilot_conv_factor;
+                  conversions.jumper_out_conv_factor = (configs.teensy41_max_input_voltage / bit_resolution) / conversions.jumper_out_conv_factor;
+                  return conversions;
+              }(),
+              thresholds,
+              bit_resolution},
+          _reset_error_button(pinout.reset_error_button_pin) {};
 
     /**
      * @pre constructor called and instance created
      * @post Pins on Teensy configured and written as IN/OUT
-    */
+     */
     void init(uint32_t init_millis);
 
     /**
      * @return true if shdn A HIGH, else false
-    */
+     */
     bool isShutdownAHigh();
 
     /**
      * @return true if shdn B HIGH, else false
-    */
+     */
     bool isShutdownBHigh();
 
     /**
      * @return true if shdn C HIGH, else false
-    */
+     */
     bool isShutdownCHigh();
 
     /**
      * @return true if shdn D HIGH, else false
-    */
+     */
     bool isShutdownDHigh();
 
     /**
      * @return true if shdn E HIGH, else false
-    */
+     */
     bool isShutdownEHigh();
 
     /**
      * @return true if shdn  HIGH, else false
-    */
+     */
     bool isShutdownFHigh();
 
     /**
      * @return true if shdn G HIGH, else false
-    */
+     */
     bool isShutdownGHigh();
 
     /**
      * @return voltage value of GLV, nominal 24V
-    */
+     */
     volt readGLV();
 
     /**
      * @return voltage value of Control Pilot
-    */
+     */
     volt readControlPilot();
 
     /**
      * @return true if Control Pilot voltage below threshold, else false
-    */
+     */
     bool isControlPilotLow();
 
     /**
      * @return voltage value of Proximity Pilot
-    */
+     */
     volt readProximityPilot();
 
     /**
      * @return true if Proximity Pilot voltage above threshold, else false
-    */
+     */
     bool isProximityHigh();
 
     /**
      * @return true if 240_Enabled HIGH, else false
-    */
+     */
     bool read240Enabled();
 
     /**
      * @return true if 240_Ok HIGH, else false
-    */
+     */
     bool read240OK();
 
     /**
      * @return voltage value of JP_OUT_READ
-    */
+     */
     volt readJumperOut();
 
     /**
      * @return true if JP_OUT_READ HIGH, else false
-    */
+     */
     bool isJumperOutHigh();
 
     /**
      * @return true if JP_OUT_READ LOW, else false
-    */
+     */
     bool isJumperOutLow();
 
     /**
      * @return true if reset button pressed, else false
-    */
+     */
     bool isResetErrorsButtonPressed(unsigned long current_millis);
 
     /**
      * @return ADC parameters
-    */
+     */
     const ADCInterfaceParams_s& getADCParams() const;
 
-private:
-
+  private:
     const ADCInterfaceParams_s _adc_parameters = {};
     ButtonInterface _reset_error_button;
 
     /**
      * @brief timestamp captured in init()
-    */
+     */
     uint32_t _init_millis = 0;
 };
 

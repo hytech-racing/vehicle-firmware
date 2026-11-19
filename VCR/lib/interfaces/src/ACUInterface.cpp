@@ -1,17 +1,21 @@
 #include "ACUInterface.hpp"
+
 #include "VCRCANInterfaceImpl.hpp"
 
-void ACUInterface::receive_acu_ok_message(const CAN_message_t &msg, unsigned long curr_millis)
+void ACUInterface::receive_acu_ok_message(const CAN_message_t& msg, unsigned long curr_millis)
 {
     ACU_OK_t acu_msg = {};
     Unpack_ACU_OK_ht_can(&acu_msg, &msg.buf[0], msg.len);
     _curr_data.imd_ok = acu_msg.imd_ok;
     _curr_data.bms_ok = acu_msg.bms_ok;
-    if (_curr_data.last_recv_millis == 0) { _received_first_acu_heartbeat = true; }
+    if (_curr_data.last_recv_millis == 0)
+    {
+        _received_first_acu_heartbeat = true;
+    }
     _curr_data.last_recv_millis = curr_millis;
 }
 
-void ACUInterface::receive_em_measurement(const CAN_message_t &msg, unsigned long curr_millis)
+void ACUInterface::receive_em_measurement(const CAN_message_t& msg, unsigned long curr_millis)
 {
     EM_MEASUREMENT_t em_msg = {};
     Unpack_EM_MEASUREMENT_ht_can(&em_msg, &msg.buf[0], msg.len);
@@ -21,7 +25,7 @@ void ACUInterface::receive_em_measurement(const CAN_message_t &msg, unsigned lon
 
 ACUCANInterfaceData_s ACUInterface::get_latest_data(uint64_t curr_millis)
 {
-    if(_received_first_acu_heartbeat || _curr_data.heartbeat_ok)
+    if (_received_first_acu_heartbeat || _curr_data.heartbeat_ok)
     {
         _received_first_acu_heartbeat = false;
         _curr_data.heartbeat_ok = ((curr_millis - _curr_data.last_recv_millis) < _max_heartbeat_interval_ms);

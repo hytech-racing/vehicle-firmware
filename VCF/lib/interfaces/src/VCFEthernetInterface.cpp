@@ -1,4 +1,5 @@
 #include "VCFEthernetInterface.hpp"
+
 #include "hytech_msgs_version.h"
 
 #define hytech_msgs_VCFData_s_fields &hytech_msgs_VCFData_s_msg
@@ -7,23 +8,23 @@
 void VCFEthernetInterface::initEthernetDevice()
 {
     EthernetIPDefsInstance::create();
-    Ethernet.begin(EthernetIPDefsInstance::instance().vcf_ip,
-                EthernetIPDefsInstance::instance().car_subnet,
-                EthernetIPDefsInstance::instance().default_gateway
-    );
+    Ethernet.begin(
+        EthernetIPDefsInstance::instance().vcf_ip,
+        EthernetIPDefsInstance::instance().car_subnet,
+        EthernetIPDefsInstance::instance().default_gateway);
     _vcf_send_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
     _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
 }
 
 
-hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_int,
-                                                            DashboardInterface &dash_int,
-                                                            PedalsSystem &pedals_sys,
-                                                            SteeringSystem &steering_sys,
-                                                            BrakeRotorTempInterface &brake_rotor_temp_int
-)
+hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
+    ADCInterface& adc_int,
+    DashboardInterface& dash_int,
+    PedalsSystem& pedals_sys,
+    SteeringSystem& steering_sys,
+    VCFIRTempInterface& ir_temp_int)
 {
-	auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
+    auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_VCFData_s out = {};
 
     // has_value
@@ -54,11 +55,12 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.brake_pressure_data.front_brake_pressure = adc_int.getBrakePressureFront().conversion;
     out.brake_pressure_data.rear_brake_pressure = adc_int.getBrakePressureRear().conversion;
 
-    // Brake rotor temps
-    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.max_temp;
-    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fl_sensor.avg_temp;
-    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.max_temp;
-    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = brake_rotor_temp_int.getBrakeRotorTempData().fr_sensor.avg_temp;
+    // Brake rotor temps (left = FL, right = FR)
+    const IRTempAllSensorData_s ir_temp_data = ir_temp_int.getIRTempData();
+    out.brake_rotor_temp_data.fl_max_brake_rotor_temp = ir_temp_data.left_sensor.max_temp;
+    out.brake_rotor_temp_data.fl_avg_brake_rotor_temp = ir_temp_data.left_sensor.avg_temp;
+    out.brake_rotor_temp_data.fr_max_brake_rotor_temp = ir_temp_data.right_sensor.max_temp;
+    out.brake_rotor_temp_data.fr_avg_brake_rotor_temp = ir_temp_data.right_sensor.avg_temp;
 
     // Dash
     out.dash_input_state.dim_btn_is_pressed = dash_int.getDashboardOutputs().brightness_ctrl_btn_is_pressed;
@@ -69,7 +71,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     out.dash_input_state.data_btn_is_pressed = dash_int.getDashboardOutputs().data_btn_is_pressed;
     out.dash_input_state.left_paddle_is_pressed = 0;
     out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().BUTTON_2;
-    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e) (dash_int.getDashboardOutputs().dial_state);
+    out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e)(dash_int.getDashboardOutputs().dial_state);
 
     // Ethernet link data
     /*** Ethernet link data values initialized to 1 in VCFDataInstance_s ***/
@@ -129,18 +131,17 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(ADCInterface &adc_
     return out;
 }
 
-void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s &msg_in, VCFData_s &shared_state, unsigned long curr_millis)
+void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s& msg_in, VCFData_s& shared_state, unsigned long curr_millis)
 {
     shared_state.system_data.buzzer_is_active = msg_in.buzzer_is_active;
 }
 
-void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s &data)
+void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s& data)
 {
     handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size>(
         EthernetIPDefsInstance::instance().vcr_ip,
         EthernetIPDefsInstance::instance().VCFData_port,
         &_vcf_send_socket,
         data,
-        hytech_msgs_VCFData_s_fields
-    );
+        hytech_msgs_VCFData_s_fields);
 }

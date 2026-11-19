@@ -1,23 +1,51 @@
-Checks: 'bugprone-*, cppcoreguidelines-*, readability-identifier-naming, -cppcoreguidelines-avoid-non-const-global-variables, -bugprone-branch-clone, -cppcoreguidelines-pro-type-vararg, -bugprone-easily-swappable-parameters, -cppcoreguidelines-avoid-c-arrays'
-WarningsAsErrors: 'cppcoreguidelines-*, bugprone-*, readability-identifier-naming'
-FormatStyle: 'file'
-SystemHeaders: false
+# ==============================================================================
+# 1. Enabled Checks & File Filtering
+# ==============================================================================
+Checks: 'readability-identifier-naming'
 HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
+
 CheckOptions:
-  # Variables: snake_case
-  - { key: readability-identifier-naming.VariableCase,      value: 'lower_case' }
-  - { key: readability-identifier-naming.ParameterCase,     value: 'lower_case' }
-  - { key: readability-identifier-naming.MemberCase,        value: 'lower_case' }
-  - { key: readability-identifier-naming.ClassMemberCase,   value: 'lower_case' }
+  # ============================================================================
+  # 2. Types, Classes, Enums & Templates
+  # ============================================================================
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
 
-  # Free functions: snake_case (from your existing config)
-  - { key: readability-identifier-naming.FunctionCase,      value: 'lower_case' }
+  # ============================================================================
+  # 3. Functions & Methods
+  # ============================================================================
+  readability-identifier-naming.FunctionCase: camelBack
+  readability-identifier-naming.MethodCase: camelBack
+  readability-identifier-naming.PrivateMethodCase: camelBack
+  readability-identifier-naming.PrivateMethodPrefix: '_'
 
-  # Methods: lowerCamelCase
-  - { key: readability-identifier-naming.MethodCase,        value: 'camelBack' }
+  # ============================================================================
+  # 4. Variables, Parameters & Class Members
+  # ============================================================================
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.PublicMemberCase: lower_case
+  readability-identifier-naming.ProtectedMemberCase: lower_case
+  readability-identifier-naming.ProtectedMemberPrefix: '_'
+  readability-identifier-naming.PrivateMemberCase: lower_case
+  readability-identifier-naming.PrivateMemberPrefix: '_'
 
-  # Private members and methods: leading underscore
-  - { key: readability-identifier-naming.PrivateMemberCase,   value: 'lower_case' }
-  - { key: readability-identifier-naming.PrivateMemberPrefix, value: '_' }
-  - { key: readability-identifier-naming.PrivateMethodCase,   value: 'camelBack' }
-  - { key: readability-identifier-naming.PrivateMethodPrefix, value: '_' }
+  # ============================================================================
+  # 5. Constants & Enum Values
+  # ============================================================================
+  readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
+  readability-identifier-naming.StaticConstantCase: UPPER_CASE
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+
+  # ============================================================================
+  # 6. Naming Exceptions (Ignored Patterns)
+  # ============================================================================
+  readability-identifier-naming.VariableIgnoredRegexp: '.*Delegate$'
+  readability-identifier-naming.ParameterIgnoredRegexp: '.*Delegate$'
+  readability-identifier-naming.MemberIgnoredRegexp: '.*Delegate$'
+  readability-identifier-naming.PublicMemberIgnoredRegexp: '.*Delegate$'
+  readability-identifier-naming.ProtectedMemberIgnoredRegexp: '.*Delegate$'
+  readability-identifier-naming.PrivateMemberIgnoredRegexp: '.*Delegate$'

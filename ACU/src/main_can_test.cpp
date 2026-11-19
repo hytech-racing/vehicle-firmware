@@ -1,43 +1,21 @@
-#include <Arduino.h>
-#include "CANInterface.h"
+#include "ACU_Constants.hpp"
+#include "CANTestHarness.h"
 
-const FlexCAN_T4<CAN3> MAIN_CAN;
-
-const size_t CAN_BAUDRATE = 500000;
-
+/**
+ * ACU buses:
+ *   CAN2 = CCU    (ACUConstants::VEH_CAN_BAUDRATE)
+ *   CAN3 = EM     (ACUConstants::EM_CAN_BAUDRATE)
+ */
+using TestHarness = CANTestHarness<CAN3>;
+const uint32_t CAN_BAUDRATE = ACUConstants::EM_CAN_BAUDRATE;
 const uint32_t MSG_ID = 0x11;
-const uint8_t MSG_DATA = 0x45;
-
-const uint32_t DELAY = 10;
-
-
-void on_recv(const CAN_message_t &msg)
-{
-    Serial.println("msg recvd");
-    Serial.print("MB: "); Serial.print(msg.mb);
-    Serial.print("  ID: 0x"); Serial.print(msg.id, HEX);
-    Serial.print("  EXT: "); Serial.print(msg.flags.extended);
-    Serial.print("  LEN: "); Serial.print(msg.len);
-    Serial.print(" DATA: ");
-    for (auto b : msg.buf)
-    {
-      Serial.print(b); Serial.print(" ");
-    }
-    Serial.print("  TS: "); Serial.println(msg.timestamp);
-}
 
 void setup()
 {
-    handle_CAN_setup(MAIN_CAN, CAN_BAUDRATE, &on_recv);
+    TestHarness::setup(CAN_BAUDRATE, MSG_ID);
 }
 
 void loop()
 {
-    delay(DELAY);
-    CAN_message_t test_msg;
-    test_msg.id = MSG_ID;
-    test_msg.len = 1;
-    test_msg.buf[0] = MSG_DATA;
-    MAIN_CAN.write(test_msg);
-    // Serial.println("testing");
+    TestHarness::loop();
 }

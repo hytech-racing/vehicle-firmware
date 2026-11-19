@@ -1,8 +1,9 @@
 #ifndef __TEST_DRIVETRAIN__
 #define __TEST_DRIVETRAIN__
 #include "DrivetrainSystem.hpp"
-#include "gtest/gtest.h"
 #include "shared_types.hpp"
+
+#include "gtest/gtest.h"
 
 InverterStatus_s FL_status = {};
 InverterStatus_s FR_status = {};
@@ -22,37 +23,28 @@ void set_ef_active_pin(bool value)
 
 class MockInverterInterface
 {
-public:
-
+  public:
     DrivetrainSystem::InverterFuncts_s inverter_functs;
 
-    MockInverterInterface(InverterStatus_s &status,
-                        MotorMechanics_s &m_mech
-    ) : inverter_status(status),
-        motor_mechanics(m_mech)
+    MockInverterInterface(InverterStatus_s& status, MotorMechanics_s& m_mech)
+        : inverter_status(status), motor_mechanics(m_mech)
     {
 
         using namespace std::placeholders;
 
-        inverter_functs.set_speed =
-            std::bind(&MockInverterInterface::set_speed, this, _1, _2);
-        inverter_functs.set_idle =
-            std::bind(&MockInverterInterface::set_idle, this);
-        inverter_functs.set_inverter_control_word =
-            std::bind(&MockInverterInterface::set_inverter_control_word, this, _1);
-        inverter_functs.get_status =
-            std::bind(&MockInverterInterface::get_status, this);
-        inverter_functs.get_motor_mechanics =
-            std::bind(&MockInverterInterface::get_motor_mechanics, this);
+        inverter_functs.set_speed = std::bind(&MockInverterInterface::set_speed, this, _1, _2);
+        inverter_functs.set_idle = std::bind(&MockInverterInterface::set_idle, this);
+        inverter_functs.set_inverter_control_word = std::bind(&MockInverterInterface::set_inverter_control_word, this, _1);
+        inverter_functs.get_status = std::bind(&MockInverterInterface::get_status, this);
+        inverter_functs.get_motor_mechanics = std::bind(&MockInverterInterface::get_motor_mechanics, this);
     }
 
-    InverterControlWord_s get_control_word() {return _last_control_word;}
-    InverterControlInput_s get_control_input() {return _last_control_input;}
+    InverterControlWord_s get_control_word() { return _last_control_word; }
+    InverterControlInput_s get_control_input() { return _last_control_input; }
 
-private:
-
-    InverterStatus_s &inverter_status;
-    MotorMechanics_s &motor_mechanics;
+  private:
+    InverterStatus_s& inverter_status;
+    MotorMechanics_s& motor_mechanics;
     InverterControlWord_s _last_control_word;
     InverterControlInput_s _last_control_input;
 
@@ -76,16 +68,9 @@ private:
         return;
     }
 
-    InverterStatus_s get_status()
-    {
-        return inverter_status;
-    }
+    InverterStatus_s get_status() { return inverter_status; }
 
-    MotorMechanics_s get_motor_mechanics()
-    {
-        return motor_mechanics;
-    }
-
+    MotorMechanics_s get_motor_mechanics() { return motor_mechanics; }
 };
 
 MockInverterInterface FL(FL_status, FL_motor_mechanics);
@@ -114,7 +99,8 @@ void ASSERT_CONTROL_INPUT_EQ(InverterControlInput_s actual, InverterControlInput
     ASSERT_EQ(actual.negative_torque_limit, expected.negative_torque_limit);
 }
 
-TEST (DrivetrainTest, test) {
+TEST(DrivetrainTest, test)
+{
     DrivetrainSystem drivetrain = DrivetrainSystem(mock_inverter_functs, etl::delegate<void(bool)>::create<set_ef_active_pin>());
 
     FL_status.hv_present = false;
@@ -529,7 +515,6 @@ TEST (DrivetrainTest, test) {
     ASSERT_CONTROL_INPUT_EQ(FR.get_control_input(), {0, 0.0f, 0.0f});
     ASSERT_CONTROL_INPUT_EQ(RL.get_control_input(), {0, 0.0f, 0.0f});
     ASSERT_CONTROL_INPUT_EQ(RR.get_control_input(), {0, 0.0f, 0.0f});
-
 }
 
 #endif

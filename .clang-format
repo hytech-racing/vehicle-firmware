@@ -1,0 +1,58 @@
+# ==============================================================================
+# 1. Base Style & Indentation
+# ==============================================================================
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+NamespaceIndentation: All
+AccessModifierOffset: -2
+
+# ==============================================================================
+# 2. Column Limit & Line Wrapping (Expressions & Operators)
+# ==============================================================================
+ColumnLimit: 160
+BreakBeforeBinaryOperators: NonAssignment
+BreakBinaryOperations: RespectPrecedence
+AlignOperands: Align
+
+# ==============================================================================
+# 3. Function Calls, Declarations & Constructors
+# ==============================================================================
+AlignAfterOpenBracket: AlwaysBreak
+BinPackParameters: false
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: NextLineOnly
+AlwaysBreakTemplateDeclarations: true
+
+# ==============================================================================
+# 4. Braces & Short Single-Line Statements
+# ==============================================================================
+BreakBeforeBraces: Allman
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: Inline
+
+# ==============================================================================
+# 5. Alignment, Qualifiers & Comments
+# ==============================================================================
+QualifierAlignment: Left
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false
+AlignTrailingComments: true
+FixNamespaceComments: true
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# ==============================================================================
+# 6. Includes & Vertical Whitespace
+# ==============================================================================
+IncludeBlocks: Regroup
+SeparateDefinitionBlocks: Leave
+MaxEmptyLinesToKeep: 2

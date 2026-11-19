@@ -7,9 +7,10 @@ const int TEENSY_ADC_DEFAULT_RESOLUTION = 12;
 template <int TEENSY_ADC_NUM_CHANNELS>
 class Teensy_ADC : public AnalogMultiSensor<TEENSY_ADC_NUM_CHANNELS>, public FilterIIRMulti<uint16_t, TEENSY_ADC_NUM_CHANNELS>
 {
-private:
+  private:
     int _pins[TEENSY_ADC_NUM_CHANNELS];
-public:
+
+  public:
     Teensy_ADC(const int* pins);
     void init();
     void tick();
@@ -18,11 +19,6 @@ public:
     uint16_t translatePin(int pin);
 };
 #include "Teensy_ADC.tpp"
-
-
-
-
-
 
 
 #endif /*__TEENSY_ADC_H__*/

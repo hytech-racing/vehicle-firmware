@@ -65,7 +65,8 @@ bool ADCInterface::isShutdownGHigh()
 
 volt ADCInterface::readGLV()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24V_pin)) * _adc_parameters.conversions.glv_conv_factor; // input before voltage divider (4.3k / (4.3k + 36k))
+    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24V_pin))
+                * _adc_parameters.conversions.glv_conv_factor; // input before voltage divider (4.3k / (4.3k + 36k))
     return data;
 }
 
