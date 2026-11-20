@@ -109,6 +109,59 @@ void initializeAllInterfaces()
     /* Ethernet */
     VCFEthernetInterfaceInstance::create();
     VCFEthernetInterfaceInstance::instance().initEthernetDevice();
+
+    /* VCF Sensor Range Check */
+    auto& adc = ADCInterfaceInstance::instance();
+
+    // Get the latest sensor readings
+    const float front_left_load_cell_reading =
+        adc.getFLLoadcell().conversion;
+
+    const float front_right_load_cell_reading =
+        adc.getFRLoadcell().conversion;
+
+    const float front_left_suspension_pot_reading =
+        adc.getFLSuspot().conversion;
+
+    const float front_right_suspension_pot_reading =
+        adc.getFRSuspot().conversion;
+
+    const float front_brake_pressure_reading =
+        adc.getBrakePressureFront().conversion;
+
+    const float rear_brake_pressure_reading =
+        adc.getBrakePressureRear().conversion;
+
+    // Check each reading against its limits
+    const bool front_left_load_cell_ok = sensor_range_check(
+        front_left_load_cell_reading,
+        VCFStartupSensorChecks::FRONT_LEFT_LOAD_CELL_MIN,
+        VCFStartupSensorChecks::FRONT_LEFT_LOAD_CELL_MAX);
+
+    const bool front_right_load_cell_ok = sensor_range_check(
+        front_right_load_cell_reading,
+        VCFStartupSensorChecks::FRONT_RIGHT_LOAD_CELL_MIN,
+        VCFStartupSensorChecks::FRONT_RIGHT_LOAD_CELL_MAX);
+
+    const bool front_left_suspension_pot_ok = sensor_range_check(
+        front_left_suspension_pot_reading,
+        VCFStartupSensorChecks::FRONT_LEFT_SUSPENSION_POT_MIN,
+        VCFStartupSensorChecks::FRONT_LEFT_SUSPENSION_POT_MAX);
+
+    const bool front_right_suspension_pot_ok = sensor_range_check(
+        front_right_suspension_pot_reading,
+        VCFStartupSensorChecks::FRONT_RIGHT_SUSPENSION_POT_MIN,
+        VCFStartupSensorChecks::FRONT_RIGHT_SUSPENSION_POT_MAX);
+
+    const bool front_brake_pressure_ok = sensor_range_check(
+        front_brake_pressure_reading,
+        VCFStartupSensorChecks::FRONT_BRAKE_PRESSURE_MIN,
+        VCFStartupSensorChecks::FRONT_BRAKE_PRESSURE_MAX);
+
+    const bool rear_brake_pressure_ok = sensor_range_check(
+        rear_brake_pressure_reading,
+        VCFStartupSensorChecks::REAR_BRAKE_PRESSURE_MIN,
+        VCFStartupSensorChecks::REAR_BRAKE_PRESSURE_MAX);
 }
 
 HT_TASK::TaskResponse readADC0Task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)

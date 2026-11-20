@@ -223,4 +223,21 @@ namespace VCRConstants
     constexpr uint32_t RAUX_CAN_BAUDRATE = 1000000; // CTRE Kraken runs CAN 2.0B at 1 Mbit/s
     constexpr uint32_t INVERTER_CAN_BAUDRATE = 500000;
 } // namespace VCRConstants
+
+namespace VCRStartupSensorChecks
+{
+    /* Load Cells */
+    constexpr float REAR_LEFT_LOAD_CELL_MIN = 935.0f; // 1035 - 100
+    constexpr float REAR_LEFT_LOAD_CELL_MAX = 1250.0f; // 1035 + 100
+
+    constexpr float REAR_RIGHT_LOAD_CELL_MIN = 1005.0f; // 1105 - 100
+    constexpr float REAR_RIGHT_LOAD_CELL_MAX = 1205.0f; // 1105 + 100
+
+    /* Suspension potentiometers */
+    constexpr float REAR_LEFT_SUSPENSION_POT_MIN = 173.16f; // 183.16 - 10 
+    constexpr float REAR_LEFT_SUSPENSION_POT_MAX = 193.16f; // 183.16 + 10
+
+    constexpr float REAR_RIGHT_SUSPENSION_POT_MIN = 176.27f; // 186.27 - 10
+    constexpr float REAR_RIGHT_SUSPENSION_POT_MAX = 196.27f; // 186.27 + 10
+} // namespace VCRStartupSensorChecks
 #endif /* VCR_CONSTANTS */

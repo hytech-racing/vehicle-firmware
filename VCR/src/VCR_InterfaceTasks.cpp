@@ -121,6 +121,43 @@ void initialize_all_interfaces()
     handle_CAN_setup(VCRCANInterfaceInstance::instance().INVERTER_CAN, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_inverter_can_receive);
     handle_CAN_setup(VCRCANInterfaceInstance::instance().TELEM_CAN, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_telem_can_receive);
     // handle_CAN_setup(VCRCANInterfaceInstance::instance().REAR_AUX_CAN, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::on_auxillary_can_receive);
+
+    /* VCR Sensor Range Check */
+    const auto& adc = ADCInterfaceInstance::instance();
+
+    // Get the latest sensor readings
+    const float rear_left_load_cell_reading =
+        adc.get_RL_load_cell().conversion;
+
+    const float rear_right_load_cell_reading =
+        adc.get_RR_load_cell().conversion;
+
+    const float rear_left_suspension_pot_reading =
+        adc.get_RL_sus_pot().conversion;
+
+    const float rear_right_suspension_pot_reading =
+        adc.get_RR_sus_pot().conversion;
+
+    // Check each reading against its limits
+    const bool rear_left_load_cell_ok = sensor_range_check(
+        rear_left_load_cell_reading,
+        VCRStartupSensorChecks::REAR_LEFT_LOAD_CELL_MIN,
+        VCRStartupSensorChecks::REAR_LEFT_LOAD_CELL_MAX);
+
+    const bool rear_right_load_cell_ok = sensor_range_check(
+        rear_right_load_cell_reading,
+        VCRStartupSensorChecks::REAR_RIGHT_LOAD_CELL_MIN,
+        VCRStartupSensorChecks::REAR_RIGHT_LOAD_CELL_MAX);
+
+    const bool rear_left_suspension_pot_ok = sensor_range_check(
+        rear_left_suspension_pot_reading,
+        VCRStartupSensorChecks::REAR_LEFT_SUSPENSION_POT_MIN,
+        VCRStartupSensorChecks::REAR_LEFT_SUSPENSION_POT_MAX);
+
+    const bool rear_right_suspension_pot_ok = sensor_range_check(
+        rear_right_suspension_pot_reading,
+        VCRStartupSensorChecks::REAR_RIGHT_SUSPENSION_POT_MIN,
+        VCRStartupSensorChecks::REAR_RIGHT_SUSPENSION_POT_MAX);
 }
 
 HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
