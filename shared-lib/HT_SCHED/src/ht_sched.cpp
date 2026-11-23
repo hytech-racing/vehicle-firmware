@@ -1,119 +1,121 @@
 #include "ht_sched.hpp"
-
 #include <algorithm>
+#include <cstdint>
+#include <limits>
 
 namespace HT_SCHED
 {
-    // Constructor
-    Scheduler::Scheduler()
-        : _numTasks(0)
+    void Scheduler::setTimingFunction(std::function<std::uint32_t()> microsFunction)
     {
-    }
-
-    void Scheduler::setTimingFunction(std::function<uint32_t()> microsFunction)
-    {
-        _microsFunction = microsFunction;
+        _microsFunction = std::move(microsFunction);
     }
 
     // Add a task to the scheduler's list
     // Give the task an ID
     // Return true upon success
-    // Return false when the scheduling queue is full. (increase HT_SCHED_MAX_TASKS if this happens)
+    // Return false when the scheduling queue is full. (increase kMaxTasks if this happens)
     bool Scheduler::schedule(HT_TASK::Task& task)
     {
-        if (!(_numTasks < HT_SCHED_MAX_TASKS))
+        if (_numTasks >= kMaxTasks)
         {
             return false;
         }
-        // place the task at the back of the queue (last execution in a scheduling cycle)
-        _taskQueue[_numTasks] = &task;
 
-        // start from the back (lowest priority) and shift forward until priority is correct
+        // place the task at the back of the queue (last execution in a scheduling cycle)
+        std::size_t i = _numTasks;
+        _taskQueue[i] = &task;
+        // start from the back and shift forward until priority ordering is satisfied
         // idle tasks are always lower priority than interval tasks
         // promote if either:
         // 1. tasks are the same type and priority of shifting task is higher
         // 2. shifting task is interval ask and compared task is idle
-        int i = _numTasks;
-        while ((i > 0)
-               && (
-                   // check tasks are the same type and priority of shifting task is higher
-                   ((task._taskInfo.priority < _taskQueue[i - 1]->_taskInfo.priority)
-                    && (task._taskInfo.isIntervalFunction == _taskQueue[i - 1]->_taskInfo.isIntervalFunction))
-                   // check shifting task is interval ask and compared task is idle
-                   || ((_taskQueue[i - 1]->_taskInfo.isIntervalFunction == false) && (task._taskInfo.isIntervalFunction == true))))
+        while ((i > 0) &&
+               (((task._taskInfo.priority < _taskQueue[i - 1]->_taskInfo.priority) &&
+                 (task._taskInfo.isIntervalFunction == _taskQueue[i - 1]->_taskInfo.isIntervalFunction)) ||
+                ((_taskQueue[i - 1]->_taskInfo.isIntervalFunction == false) &&
+                 (task._taskInfo.isIntervalFunction == true))))
         {
             HT_TASK::Task* temp = _taskQueue[i];
             _taskQueue[i] = _taskQueue[i - 1];
             _taskQueue[i - 1] = temp;
+            --i;
         }
-
-        task._taskInfo.id = ++_numTasks;
-
+        task._taskInfo.id = static_cast<unsigned int>(++_numTasks);
         return true;
     }
 
     void Scheduler::run()
     {
-        // get the time
-        uint32_t nowMicros = (uint32_t)_microsFunction();
-        uint32_t cycleExecTimer = 0;
-        // used to find the timing of the nearest interval function
-        _timeOfNextExec = ULONG_MAX;
+        if (!_microsFunction)
+        {
+            return;
+        }
 
-        for (int i = 0; i < _numTasks; i++)
+        // get the time
+        const std::uint32_t nowMicros = _microsFunction();
+        std::uint32_t cycleExecTimer = 0;
+        // used to find the timing of the nearest interval function
+        _timeOfNextExec = std::numeric_limits<std::uint32_t>::max();
+
+        for (std::size_t i = 0; i < _numTasks; ++i)
         {
             HT_TASK::Task* task = _taskQueue[i];
+            auto& info = task->_taskInfo;
 
-            switch (task->_taskInfo.state)
+            switch (info.state)
             {
             case HT_TASK::TaskState::UNINITIALIZED:
             {
-                // enable the task
-                // run its setup function
-                // check if the task wants to exit
-                HT_TASK::TaskResponse result = task->_setup(nowMicros, task->_taskInfo);
-                if (result == HT_TASK::TaskResponse::EXIT)
-                    task->_taskInfo.state = HT_TASK::TaskState::KILLED;
-                else
-                    task->_taskInfo.state = HT_TASK::TaskState::RUNNING;
+                const HT_TASK::TaskResponse result = task->_setup(nowMicros, info);
+                info.state = (result == HT_TASK::TaskResponse::EXIT)
+                                 ? HT_TASK::TaskState::KILLED
+                                 : HT_TASK::TaskState::RUNNING;
 
-                task->_taskInfo.nextExecutionMicros = nowMicros;
-                task->_taskInfo.lastExecutionMicros = nowMicros;
-                task->_taskInfo.executions++;
+                info.nextExecutionMicros = nowMicros;
+                info.lastExecutionMicros = nowMicros;
+                ++info.executions;
                 break;
             }
             case HT_TASK::TaskState::RUNNING:
             {
-                // find the time the next interval function is scheduled to run
-                if (task->_taskInfo.isIntervalFunction)
-                    _timeOfNextExec = std::min(task->_taskInfo.nextExecutionMicros, _timeOfNextExec);
-
-                // check if it's time to execute
-                if (
-                    // for interval functions, see if nextExecutionMicros has passed
-                    ((task->_taskInfo.isIntervalFunction == true)
-                     && (task->_taskInfo.nextExecutionMicros - nowMicros >= task->_taskInfo.executionIntervalMicros))
-                    // for idle functions, see if time might conflict with interval function
-                    || ((task->_taskInfo.isIntervalFunction == false)
-                        && (task->_taskInfo.filteredExecutionDurationMicros + _microsFunction() < _timeOfNextExec)))
+                if (info.isIntervalFunction)
                 {
-                    // run its loop function
-                    uint32_t dt = (uint32_t)_microsFunction();
-                    HT_TASK::TaskResponse result = task->_loop(nowMicros, task->_taskInfo);
-                    dt = _microsFunction() - dt;
-                    if (result == HT_TASK::EXIT)
-                        task->_taskInfo.state = HT_TASK::TaskState::KILLED;
+                    _timeOfNextExec = std::min(info.nextExecutionMicros, _timeOfNextExec);
+                }
 
-                    task->_taskInfo.nextExecutionMicros += task->_taskInfo.executionIntervalMicros;
-                    task->_taskInfo.lastExecutionMicros = _microsFunction();
-                    task->_taskInfo.filteredExecutionDurationMicros = (dt * 0.5) + (task->_taskInfo.filteredExecutionDurationMicros * 0.5);
-                    task->_taskInfo.executions++;
+                const bool intervalDue =
+                    info.isIntervalFunction &&
+                    (static_cast<std::int32_t>(nowMicros - info.nextExecutionMicros) >= 0);
 
-                    // track execution time
-                    if (task->_taskInfo.isIntervalFunction)
+                const bool idleCanRun =
+                    !info.isIntervalFunction &&
+                    ((info.filteredExecutionDurationMicros + _microsFunction()) < _timeOfNextExec);
+
+                if (intervalDue || idleCanRun)
+                {
+                    const std::uint32_t t0 = _microsFunction();
+                    const HT_TASK::TaskResponse result = task->_loop(nowMicros, info);
+                    const std::uint32_t t1 = _microsFunction();
+                    const std::uint32_t dt = t1 - t0;
+
+                    if (result == HT_TASK::TaskResponse::EXIT)
+                    {
+                        info.state = HT_TASK::TaskState::KILLED;
+                    }
+
+                    if (info.isIntervalFunction)
+                    {
+                        info.nextExecutionMicros += info.executionIntervalMicros;
                         _intervalExecTimer += dt;
+                    }
                     else
+                    {
                         _idleExecTimer += dt;
+                    }
+
+                    info.lastExecutionMicros = t1;
+                    info.filteredExecutionDurationMicros = static_cast<std::uint32_t>((static_cast<float>(dt) * 0.5f) + (static_cast<float>(info.filteredExecutionDurationMicros) * 0.5f));
+                    ++info.executions;
                     cycleExecTimer += dt;
                 }
                 break;
@@ -123,48 +125,58 @@ namespace HT_SCHED
                 break;
             }
         }
-
         // track time in the scheduler
-        _schedulerExecTimer += _microsFunction() - nowMicros - cycleExecTimer;
+        const std::uint32_t endMicros = _microsFunction();
+        _schedulerExecTimer += (endMicros - nowMicros) - cycleExecTimer;
     }
 
-    HT_TASK::TaskResponse Scheduler::initSchedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+    HT_TASK::TaskResponse Scheduler::initSchedMon(const std::uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
     {
+        (void)sysMicros;
+        (void)taskInfo;
         _intervalExecTimer = 0;
         _idleExecTimer = 0;
         _schedulerExecTimer = 0;
-
         return HT_TASK::TaskResponse::YIELD;
     }
 
-    HT_TASK::TaskResponse Scheduler::schedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+    HT_TASK::TaskResponse Scheduler::schedMon(const std::uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
     {
-        uint32_t totalTime = _intervalExecTimer + _idleExecTimer + _schedulerExecTimer;
-        periodicUtilization = (float)_intervalExecTimer / totalTime;
-        idleUtilization = (float)_idleExecTimer / totalTime;
-        schedulerUtilization = (float)_schedulerExecTimer / totalTime;
+        (void)sysMicros;
+        (void)taskInfo;
+        const std::uint32_t totalTime = _intervalExecTimer + _idleExecTimer + _schedulerExecTimer;
+        if (totalTime > 0)
+        {
+            const float invTotal = 1.0f / static_cast<float>(totalTime);
+            periodicUtilization = static_cast<float>(_intervalExecTimer) * invTotal;
+            idleUtilization = static_cast<float>(_idleExecTimer) * invTotal;
+            schedulerUtilization = static_cast<float>(_schedulerExecTimer) * invTotal;
+        }
+        else
+        {
+            periodicUtilization = 0.0f;
+            idleUtilization = 0.0f;
+            schedulerUtilization = 0.0f;
+        }
 
         // reset counters
         _intervalExecTimer = 0;
         _idleExecTimer = 0;
         _schedulerExecTimer = 0;
-
-        // std::cout << "p_util: " << periodicUtilization << ", i_util: " << idleUtilization << ", s_util:" << schedulerUtilization << "\n";
-
         return HT_TASK::TaskResponse::YIELD;
     }
 
-    const float& Scheduler::getPeriodicUtilization()
+    const float& Scheduler::getPeriodicUtilization() const noexcept
     {
         return periodicUtilization;
     }
 
-    const float& Scheduler::getIdleUtilization()
+    const float& Scheduler::getIdleUtilization() const noexcept
     {
         return idleUtilization;
     }
 
-    const float& Scheduler::getSchedulerUtilization()
+    const float& Scheduler::getSchedulerUtilization() const noexcept
     {
         return schedulerUtilization;
     }
