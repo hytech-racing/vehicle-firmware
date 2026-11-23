@@ -1,8 +1,9 @@
 #ifndef __HT_TASK__
 #define __HT_TASK__
 
+#include <algorithm>
+#include <cstdint>
 #include <functional>
-#include <stdint.h>
 
 namespace HT_TASK
 {
@@ -24,17 +25,17 @@ namespace HT_TASK
     {
       public:
         TaskState state;
-        uint32_t executionIntervalMicros;
-        uint32_t lastExecutionMicros;
-        uint32_t nextExecutionMicros;
-        uint32_t filteredExecutionDurationMicros;
-        uint32_t executions;
+        std::uint32_t executionIntervalMicros;
+        std::uint32_t lastExecutionMicros;
+        std::uint32_t nextExecutionMicros;
+        std::uint32_t filteredExecutionDurationMicros;
+        std::uint32_t executions;
         unsigned int id;
         // use priority to enforce ordering when multiple tasks execute on the same scheduling cycle
         unsigned int priority; // 0 is highest priority.
         bool isIntervalFunction;
 
-        TaskInfo()
+        TaskInfo() noexcept
             : state(TaskState::UNINITIALIZED),
               executionIntervalMicros(1),
               lastExecutionMicros(0),
@@ -49,8 +50,10 @@ namespace HT_TASK
     };
 
     // Use this to declare a task without a setup or loop
-    inline TaskResponse DUMMY_FUNCTION(const uint32_t& timeMicros, const TaskInfo& taskInfo)
+    inline TaskResponse DUMMY_FUNCTION(const std::uint32_t& timeMicros, const TaskInfo& taskInfo) noexcept
     {
+        (void)timeMicros; ///unused
+        (void)taskInfo;
         return TaskResponse::YIELD;
     }
 
@@ -58,38 +61,36 @@ namespace HT_TASK
     {
       public:
         TaskInfo _taskInfo;
-        std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _setup;
-        std::function<TaskResponse(const uint32_t&, const TaskInfo&)> _loop;
+        std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> _setup;
+        std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> _loop;
 
-        // Interval task constructor
+        // Interval task constructor (keeps int priority parameter)
         Task(
-            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup,
-            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop,
+            std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> setup,
+            std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> loop,
             int priority,
-            uint32_t executionIntervalMicros)
-            : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
+            std::uint32_t executionIntervalMicros)
+            : _taskInfo(TaskInfo()), _setup(std::move(setup)), _loop(std::move(loop))
         {
             _taskInfo.executionIntervalMicros = executionIntervalMicros;
             _taskInfo.isIntervalFunction = true;
-            _taskInfo.priority = priority;
-        };
+            _taskInfo.priority = static_cast<unsigned int>(std::max(0, priority));
+        }
 
-        // Idle task constructor with priority
+        // Idle task constructor with priority (keeps int priority parameter)
         Task(
-            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> setup,
-            std::function<TaskResponse(const uint32_t&, const TaskInfo&)> loop,
+            std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> setup,
+            std::function<TaskResponse(const std::uint32_t&, const TaskInfo&)> loop,
             int priority)
-            : _taskInfo(TaskInfo()), _setup(setup), _loop(loop)
+            : _taskInfo(TaskInfo()), _setup(std::move(setup)), _loop(std::move(loop))
         {
             _taskInfo.isIntervalFunction = false;
-            _taskInfo.priority = priority;
-        };
+            _taskInfo.priority = static_cast<unsigned int>(std::max(0, priority));
+        }
 
         // default constructor
         Task()
-            : Task(DUMMY_FUNCTION, DUMMY_FUNCTION, 0) {};
+            : Task(DUMMY_FUNCTION, DUMMY_FUNCTION, 0) {}
     };
 } // namespace HT_TASK
-
-
 #endif // __HT_TASK__
