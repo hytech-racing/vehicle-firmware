@@ -199,9 +199,7 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse debugPrint(
-    const unsigned long& sys_micros,
-    const HT_TASK::TaskInfo& task_info)
+HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     auto& adc = ADCInterfaceInstance::instance();
 
@@ -213,8 +211,7 @@ HT_TASK::TaskResponse debugPrint(
 
     Serial.println();
 
-    const auto state =
-        DriverlessStateMachineInstance::instance().getState();
+    const auto state = DriverlessStateMachineInstance::instance().getState();
 
     const char* state_name = "UNKNOWN";
 
@@ -266,12 +263,10 @@ HT_TASK::TaskResponse debugPrint(
     Serial.print(state_name);
 
     Serial.print(" vehicle=");
-    Serial.print(static_cast<unsigned>(
-        DrivebrainInterfaceInstance::instance().getVehicleState()));
+    Serial.print(static_cast<unsigned>(DrivebrainInterfaceInstance::instance().getVehicleState()));
 
     Serial.print(" mission=");
-    Serial.print(static_cast<unsigned>(
-        fdc.getDriverlessMision()));
+    Serial.print(static_cast<unsigned>(fdc.getDriverlessMision()));
 
     Serial.print(" dsms=");
     Serial.println(static_cast<int>(adc.getDsmsActiveExt()));
@@ -294,19 +289,16 @@ HT_TASK::TaskResponse debugPrint(
 
     // Brake pressure and FDC commands
     Serial.print("brake_psi front=");
-    Serial.print(static_cast<unsigned>(
-        brakes.brake_fluid_pressure_data_front));
+    Serial.print(static_cast<unsigned>(brakes.brake_fluid_pressure_data_front));
 
     Serial.print(" rear=");
-    Serial.print(static_cast<unsigned>(
-        brakes.brake_fluid_pressure_data_rear));
+    Serial.print(static_cast<unsigned>(brakes.brake_fluid_pressure_data_rear));
 
     Serial.print(" | FDC_CMD toggle_supervisor=");
     Serial.print(static_cast<int>(control.toggle_watchdog));
 
     Serial.print(" solenoid_id=");
-    Serial.println(static_cast<unsigned>(
-        control.activate_ebs_solenoid_id));
+    Serial.println(static_cast<unsigned>(control.activate_ebs_solenoid_id));
 
     // ADC digital signals
     Serial.print("ebs_ctrl=");
