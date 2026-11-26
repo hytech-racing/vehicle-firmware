@@ -1,5 +1,5 @@
-#include "EthernetAddressDefs.h"
-#include "EthernetTestHarness.h"
+#include "EthernetAddressDefs.hpp"
+#include "EthernetTestHarness.hpp"
 
 /**
  * VCR Ethernet test (192.168.3.31). Connect to another board running its ethernet test and watch serial.

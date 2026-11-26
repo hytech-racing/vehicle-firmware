@@ -310,7 +310,7 @@ jobs:
           failed=0
           for TEST_ENV in ${{ join(matrix.test_envs, ' ') }}; do
             echo "→ Running $TEST_ENV"
-            pio test -e "$TEST_ENV" || failed=1
+            PLATFORMIO_FORCE_ANSI=true pio test -e "$TEST_ENV" | awk -F'\t' 'NF==2 && $2 ~ /^\[/ { printf "%-90s %s\n", $1, $2; next } { print }' || failed=1
           done
           exit $failed
 

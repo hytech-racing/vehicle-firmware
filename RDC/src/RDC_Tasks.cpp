@@ -4,8 +4,6 @@
 #include "DriverlessStateMachine.hpp"
 #include "ht_task.hpp"
 
-#include <cstdio>
-
 void initializeAllInterfaces()
 {
     Serial.begin(RDCConstants::SERIAL_BAUDRATE);
@@ -18,6 +16,8 @@ void initializeAllInterfaces()
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<RDCCANInterfaceImpl::RDCRecvSwitch>(),
         RDCConstants::DRIVERLESS_CAN_BAUDRATE);
 
+    // DSSI
+    DSSIInterfaceInstance::create(PinAssignments::DSSI_PIN_YELLOW, PinAssignments::DSSI_PIN_BLUE);
     // ADC Setup
     ADCInterfaceParams_s adc_params = {
         .pinouts =
@@ -176,6 +176,12 @@ HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const
     return HT_TASK::TaskResponse::YIELD;
 };
 
+HT_TASK::TaskResponse setDSSI(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+{
+    DSSIInterfaceInstance::instance().setDSSI(sys_time::hal_millis(), DriverlessStateMachineInstance::instance().getState());
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse initWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     WatchdogInstance::create(RDCConstants::WATCHDOG_TIMEOUT_MS);
@@ -196,50 +202,167 @@ HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_
 HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     auto& adc = ADCInterfaceInstance::instance();
+
     const auto& sg1 = adc.getStrainGauge1();
     const auto& sg2 = adc.getStrainGauge2();
     const auto& sg3 = adc.getStrainGauge3();
     const auto& sg4 = adc.getStrainGauge4();
     const auto& sg5 = adc.getStrainGauge5();
 
-    // Fixed widths. Tabs slip once a name is longer than one tab stop, so shdn_ds_ok and shdn_m had no number under them.
-    char line[160];
     Serial.println();
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8s %-7s %-7s %-6s %-6s %-9s %-4s %-10s %-6s",
-        "ebs_ctrl",
-        "ebs_rss",
-        "ebs_out",
-        "shdn_l",
-        "shdn_n",
-        "ds_shdn_m",
-        "dsms",
-        "shdn_ds_ok",
-        "shdn_m");
-    Serial.println(line);
-    std::snprintf(
-        line,
-        sizeof(line),
-        "%-8d %-7d %-7d %-6d %-6d %-9d %-4d %-10d %-6d",
-        adc.getEBSCtrlExt(),
-        adc.getEBSSupplyRssExt(),
-        adc.getEBSSupplyOut(),
-        adc.getShdnL(),
-        adc.getShdnN(),
-        adc.getDsShdnM(),
-        adc.getDsmsActiveExt(),
-        adc.getShdnDsOk(),
-        adc.getShdnM());
-    Serial.println(line);
 
-    std::snprintf(line, sizeof(line), "%-8s %-8s %-8s %-8s %-8s", "sg1", "sg2", "sg3", "sg4", "sg5");
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8d %-8d %-8d %-8d %-8d", sg1.raw, sg2.raw, sg3.raw, sg4.raw, sg5.raw);
-    Serial.println(line);
-    std::snprintf(line, sizeof(line), "%-8.2f %-8.2f %-8.2f %-8.2f %-8.2f", sg1.conversion, sg2.conversion, sg3.conversion, sg4.conversion, sg5.conversion);
-    Serial.println(line);
+    const auto state = DriverlessStateMachineInstance::instance().getState();
+
+    const char* state_name = "UNKNOWN";
+
+    switch (state)
+    {
+    case DriverlessSystemState_e::OFF:
+        state_name = "OFF";
+        break;
+
+    case DriverlessSystemState_e::STARTUP_NO_TS:
+        state_name = "STARTUP_NO_TS";
+        break;
+
+    case DriverlessSystemState_e::STARTUP_TS_ACTIVE:
+        state_name = "STARTUP_TS_ACTIVE";
+        break;
+
+    case DriverlessSystemState_e::READY:
+        state_name = "READY";
+        break;
+
+    case DriverlessSystemState_e::DRIVING:
+        state_name = "DRIVING";
+        break;
+
+    case DriverlessSystemState_e::FINISHED:
+        state_name = "FINISHED";
+        break;
+
+    case DriverlessSystemState_e::EMERGENCY:
+        state_name = "EMERGENCY";
+        break;
+
+    default:
+        break;
+    }
+
+    const auto& fdc = FDCInterfaceInstance::instance();
+    const auto ebs = fdc.getEbsData();
+    const auto brakes = fdc.getBrakeData();
+    const auto control = fdc.getFDCControl();
+    const unsigned long now = sys_time::hal_millis();
+
+    // Driverless state
+    Serial.print("t_ms=");
+    Serial.print(now);
+
+    Serial.print(" dv=");
+    Serial.print(state_name);
+
+    Serial.print(" vehicle=");
+    Serial.print(static_cast<unsigned>(DrivebrainInterfaceInstance::instance().getVehicleState()));
+
+    Serial.print(" mission=");
+    Serial.print(static_cast<unsigned>(fdc.getDriverlessMision()));
+
+    Serial.print(" dsms=");
+    Serial.println(static_cast<int>(adc.getDsmsActiveExt()));
+
+    // EBS pressure and supervisor status
+    Serial.print("air_psi=[");
+    Serial.print(static_cast<unsigned long>(ebs.pressure_1));
+    Serial.print(",");
+    Serial.print(static_cast<unsigned long>(ebs.pressure_2));
+    Serial.print("]");
+
+    Serial.print(" supervisor_ok=");
+    Serial.print(static_cast<int>(ebs.supervisor_ok));
+
+    Serial.print(" ebs_rx_age_ms=");
+    Serial.print(now - ebs.pressure_last_recv_millis);
+
+    Serial.print(" air_pressure_ok=");
+    Serial.println(static_cast<int>(fdc.getEbsPressureOk()));
+
+    // Brake pressure and FDC commands
+    Serial.print("brake_psi front=");
+    Serial.print(static_cast<unsigned>(brakes.brake_fluid_pressure_data_front));
+
+    Serial.print(" rear=");
+    Serial.print(static_cast<unsigned>(brakes.brake_fluid_pressure_data_rear));
+
+    Serial.print(" | FDC_CMD toggle_supervisor=");
+    Serial.print(static_cast<int>(control.toggle_watchdog));
+
+    Serial.print(" solenoid_id=");
+    Serial.println(static_cast<unsigned>(control.activate_ebs_solenoid_id));
+
+    // ADC digital signals
+    Serial.print("ebs_ctrl=");
+    Serial.print(static_cast<int>(adc.getEBSCtrlExt()));
+
+    Serial.print(" ebs_rss=");
+    Serial.print(static_cast<int>(adc.getEBSSupplyRssExt()));
+
+    Serial.print(" ebs_out=");
+    Serial.print(static_cast<int>(adc.getEBSSupplyOut()));
+
+    Serial.print(" shdn_l=");
+    Serial.print(static_cast<int>(adc.getShdnL()));
+
+    Serial.print(" shdn_n=");
+    Serial.print(static_cast<int>(adc.getShdnN()));
+
+    Serial.print(" ds_shdn_m=");
+    Serial.print(static_cast<int>(adc.getDsShdnM()));
+
+    Serial.print(" dsms=");
+    Serial.print(static_cast<int>(adc.getDsmsActiveExt()));
+
+    Serial.print(" shdn_ds_ok=");
+    Serial.print(static_cast<int>(adc.getShdnDsOk()));
+
+    Serial.print(" shdn_m=");
+    Serial.println(static_cast<int>(adc.getShdnM()));
+
+    // Raw strain gauge readings
+    Serial.print("SG_RAW: ");
+
+    Serial.print("sg1=");
+    Serial.print(static_cast<int>(sg1.raw));
+
+    Serial.print(" sg2=");
+    Serial.print(static_cast<int>(sg2.raw));
+
+    Serial.print(" sg3=");
+    Serial.print(static_cast<int>(sg3.raw));
+
+    Serial.print(" sg4=");
+    Serial.print(static_cast<int>(sg4.raw));
+
+    Serial.print(" sg5=");
+    Serial.println(static_cast<int>(sg5.raw));
+
+    // Converted strain gauge readings
+    Serial.print("SG_CONV: ");
+
+    Serial.print("sg1=");
+    Serial.print(sg1.conversion, 2);
+
+    Serial.print(" sg2=");
+    Serial.print(sg2.conversion, 2);
+
+    Serial.print(" sg3=");
+    Serial.print(sg3.conversion, 2);
+
+    Serial.print(" sg4=");
+    Serial.print(sg4.conversion, 2);
+
+    Serial.print(" sg5=");
+    Serial.println(sg5.conversion, 2);
 
     return HT_TASK::TaskResponse::YIELD;
 }

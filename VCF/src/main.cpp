@@ -25,6 +25,11 @@ HT_TASK::Task front_suspension_message_enqueue(
     &enqueueFrontSuspensionCANDataTask,
     VCFConstants::LOADCELL_SEND_PRIORITY,
     VCFConstants::LOADCELL_SEND_PERIOD_US);
+HT_TASK::Task brake_pressure_message_enqueue(
+    HT_TASK::DUMMY_FUNCTION,
+    &enqueueBrakePressureCANDataTask,
+    VCFConstants::BRAKE_PRESSURE_SEND_PRIORITY,
+    VCFConstants::BRAKE_PRESSURE_SEND_PERIOD_US);
 HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
 HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
 HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
@@ -67,6 +72,7 @@ void setup()
     HT_SCHED::Scheduler::getInstance().schedule(steering_evaluate);
     HT_SCHED::Scheduler::getInstance().schedule(steering_message_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(front_suspension_message_enqueue);
+    HT_SCHED::Scheduler::getInstance().schedule(brake_pressure_message_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(pedals_calibration_task);
     HT_SCHED::Scheduler::getInstance().schedule(steering_calibration_task);
     HT_SCHED::Scheduler::getInstance().schedule(ethernet_send_task);

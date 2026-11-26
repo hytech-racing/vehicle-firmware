@@ -5,7 +5,7 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include "EthernetAddressDefs.h"
+#include "EthernetAddressDefs.hpp"
 #include "ProtobufMsgInterface.h"
 #include "SharedFirmwareTypes.h"
 #include "device_fw_version.h"

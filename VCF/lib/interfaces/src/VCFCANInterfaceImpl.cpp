@@ -38,6 +38,13 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
     case CAR_STATES_CANID:
     {
         interfaces.vcr_interface.recieveCarStatesCANMsg(msg);
+        // VCR sends car states on TELEM. Forward them unchanged onto FRONT_AUX for FDC.
+        if (interface_type == CANInterfaceType_e::TELEM)
+        {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCFCANInterfaceInstance::instance().front_aux_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
         break;
     }
     case INV1_STATUS_CANID:
@@ -72,6 +79,17 @@ void VCFCANInterfaceImpl::vcf_recv_switch(CANInterfaces_s& interfaces, const CAN
     case FR_BRAKE_ROTOR_TEMP_CH13_CH16_CANID:
     {
         interfaces.brake_rotor_temp_interface.receiveBrakeRotorTempCANMsgs(msg);
+        break;
+    }
+    // FDC sends EBS data on FRONT_AUX. Forward it unchanged onto TELEM so it's logged.
+    case EBS_DATA_CANID:
+    {
+        if (interface_type == CANInterfaceType_e::FAUX)
+        {
+            std::array<uint8_t, CAN_MSG_SIZE> buf;
+            memmove(buf.data(), &msg, CAN_MSG_SIZE);
+            VCFCANInterfaceInstance::instance().telem_can_tx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
+        }
         break;
     }
     default:
