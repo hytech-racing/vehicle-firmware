@@ -13,7 +13,13 @@ void initializeAllSystems()
         CCUSystems::MAX_120V_CURRENT_AMP,
         CCUSystems::MAX_240V_CURRENT_AMP,
         CCUConstants::MAX_CELL_CUTOFF_TEMP_CELSIUS,
-        CCUConstants::MAX_BOARD_CUTOFF_TEMP_CELSIUS);
+        CCUConstants::MAX_BOARD_CUTOFF_TEMP_CELSIUS,
+        ChargeSystemCCCVParams_s{
+            .target_pack_voltage = CCUSystems::TARGET_PACK_VOLTAGE,
+            .cv_detect_band_voltage = CCUSystems::CV_DETECT_BAND_VOLTAGE,
+            .termination_current_amp = CCUSystems::CHARGE_TERMINATION_CURRENT_AMP,
+            .termination_time_ms = CCUSystems::CHARGE_TERMINATION_TIME_MS,
+        });
     MainChargeSystemInstance::instance().init(sys_time::hal_millis());
 
     /* State Machine Initialization */
@@ -80,11 +86,16 @@ HT_TASK::TaskResponse tickStateMachineTask(const unsigned long& sysMicros, const
 
 HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    MainChargeSystemInstance::instance().calculate_charge_current(
+    MainChargeSystemInstance::instance().calculateChargeCurrent(
         CCUConstants::MAX_PACK_VOLTAGE,
         CCUConstants::MAX_CELL_CUTOFF_VOLTAGE,
         RotaryEncoderInterfaceInstance::instance().getValue(),
+        ChargerInterfaceInstance::instance().getOutputCurrentA(),
+        ChargerInterfaceInstance::instance().isFaulted(),
         sys_time::hal_millis());
+
+    // Report the charge enable decision to ACU (sent in CCU_STATUS)
+    ACUInterfaceInstance::instance().setIsChargingEnabled(MainChargeSystemInstance::instance().isChargingEnabled());
 
     return HT_TASK::TaskResponse::YIELD;
 }

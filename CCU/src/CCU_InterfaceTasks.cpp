@@ -32,7 +32,7 @@ void initializeAllInterfaces()
     ADCInterfaceInstance::instance().init(sys_time::hal_millis());
 
     /* Charger Interface */
-    ChargerInterface(ACUInterfaceInstance::instance());
+    ChargerInterfaceInstance::create();
 
     /* Display Interface */
     DisplayInterfaceInstance::create(
@@ -106,7 +106,11 @@ HT_TASK::TaskResponse enqueueACUCANDataTask(const unsigned long& sysMicros, cons
 
 HT_TASK::TaskResponse enqueueChargerCANdataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    ChargerInterfaceInstance::instance().enqueueChargingCANMsg(ACUInterfaceInstance::instance(), MainChargeSystemInstance::instance().get_charge_current());
+    const auto& charge_system = MainChargeSystemInstance::instance();
+    ChargerInterfaceInstance::instance().enqueueChargingCANMsg(
+        charge_system.getTargetPackVoltage(),
+        charge_system.getChargeCurrent(),
+        charge_system.isChargingEnabled());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -213,7 +217,7 @@ HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK
     Serial.print("Charger Current    : ");
     Serial.println(charger_data.output_current_low);
     Serial.print("Calc Charge Current: ");
-    Serial.println(MainChargeSystemInstance::instance().get_charge_current());
+    Serial.println(MainChargeSystemInstance::instance().getChargeCurrent());
     Serial.println();
 
 

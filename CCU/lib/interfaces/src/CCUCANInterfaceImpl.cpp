@@ -36,7 +36,7 @@ void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s& interfaces, const 
     }
     case CHARGER_DATA_CANID:
     {
-        interfaces.charger_interface.receiveChargerCANMsg(msg, millis, interfaces.acu_interface, interfaces.max_pack_voltage, interfaces.cell_cutoff_voltage);
+        interfaces.charger_interface.receiveChargerCANMsg(msg, millis);
         break;
     }
     case BMS_TEMPS_CANID:

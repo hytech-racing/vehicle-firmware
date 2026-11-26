@@ -6,9 +6,17 @@ void MainChargeSystem::init(unsigned long init_millis)
 {
     _init_millis = init_millis;
     _startup_complete = false;
+    _is_termination_timing = false;
+    _charge_data.is_charge_complete = false;
 }
 
-void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis)
+void MainChargeSystem::calculateChargeCurrent(
+    float max_pack_voltage,
+    float cell_cutoff_voltage,
+    float dial_percent,
+    float charger_output_current_A,
+    bool is_charger_faulted,
+    unsigned long curr_millis)
 {
     // Get battery data from ACU
     const auto& acu_data = ACUInterfaceInstance::instance().getLatestData();
@@ -16,30 +24,76 @@ void MainChargeSystem::calculate_charge_current(float max_pack_voltage, float ce
     float total_pack_voltage = acu_data.pack_voltage; // the total voltage in the pack
     auto current_state = ChargerStateMachineInstance::instance().getState();
 
+    // CV setpoint never exceeds the hard pack limit
+    _charge_data.target_pack_voltage = std::min(_charge_system_parameters.cccv_params.target_pack_voltage, max_pack_voltage);
+
     // Check safety conditions first
-    if (!_is_safety_conditions_valid())
+    if (!_isSafetyConditionsValid() || is_charger_faulted)
     {
-        _charge_data.calculated_charge_current = 0.0F;
+        _is_termination_timing = false;
+        _stopCharging();
         return;
     }
 
-    // Check if voltage limits reached/exceeded
+    // Hard voltage limits (safety backstop, the charger's CV setpoint should keep us below these)
     bool is_voltage_limit_exceeded = (max_cell_voltage >= cell_cutoff_voltage) || (total_pack_voltage > max_pack_voltage);
 
     if (is_voltage_limit_exceeded)
     {
-        _charge_data.calculated_charge_current = 0.0F;
+        _stopCharging();
         return;
     }
 
-    // Determine requested current based on state
-    float requested_current = _get_current_for_state(current_state) * (dial_percent / 100.0F);
+    // CV termination: stop once current has tapered off at the target voltage
+    _checkChargeComplete(total_pack_voltage, charger_output_current_A, curr_millis);
+
+    if (_charge_data.is_charge_complete)
+    {
+        _stopCharging();
+        return;
+    }
+
+    // CC limit: requested current based on state, scaled by the dial
+    float requested_current = _getCurrentForState(current_state) * (dial_percent / 100.0F);
 
     // Apply safety limits
-    _charge_data.calculated_charge_current = _apply_current_limits(current_state, requested_current, curr_millis);
+    _charge_data.calculated_charge_current = _applyCurrentLimits(current_state, requested_current, curr_millis);
+    _charge_data.is_charging_enabled = _charge_data.calculated_charge_current > 0.0F;
 }
 
-bool MainChargeSystem::_is_safety_conditions_valid()
+void MainChargeSystem::_checkChargeComplete(float total_pack_voltage, float charger_output_current_A, unsigned long curr_millis)
+{
+    const auto& cccv_params = _charge_system_parameters.cccv_params;
+
+    bool is_in_cv = total_pack_voltage >= (_charge_data.target_pack_voltage - cccv_params.cv_detect_band_voltage);
+    bool is_current_below_termination = charger_output_current_A < cccv_params.termination_current_amp;
+
+    if (!(is_in_cv && is_current_below_termination))
+    {
+        _is_termination_timing = false;
+        return;
+    }
+
+    if (!_is_termination_timing)
+    {
+        _is_termination_timing = true;
+        _termination_start_millis = curr_millis;
+        return;
+    }
+
+    if ((curr_millis - _termination_start_millis) >= cccv_params.termination_time_ms)
+    {
+        _charge_data.is_charge_complete = true;
+    }
+}
+
+void MainChargeSystem::_stopCharging()
+{
+    _charge_data.calculated_charge_current = 0.0F;
+    _charge_data.is_charging_enabled = false;
+}
+
+bool MainChargeSystem::_isSafetyConditionsValid()
 {
     // Check BRB on charge cart (shutdown F is after BRB)
     bool is_shutdown_low = false;
@@ -68,7 +122,7 @@ bool MainChargeSystem::_is_safety_conditions_valid()
     return true;
 }
 
-float MainChargeSystem::_apply_current_limits(ChargerState_e state, float requested_current, unsigned long curr_millis)
+float MainChargeSystem::_applyCurrentLimits(ChargerState_e state, float requested_current, unsigned long curr_millis)
 {
     float limited_current = requested_current;
 
@@ -78,13 +132,13 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
 
 
     // Cell temp derate (stop completely at 45°C, 40°C start derating)
-    float cell_temp_factor = _calculate_cell_temp_derate_factor(curr_max_cell_temp);
+    float cell_temp_factor = _calculateCellTempDerateFactor(curr_max_cell_temp);
 
     // Board temper derate (stop completely 60°C, 50°C start derating)
-    float board_temp_factor = _calculate_board_temp_derate_factor(curr_max_board_temp);
+    float board_temp_factor = _calculateBoardTempDerateFactor(curr_max_board_temp);
 
     // Startup derate
-    float startup_delay_factor = _startup_derate_factor(curr_millis);
+    float startup_delay_factor = _startupDerateFactor(curr_millis);
 
     // Apply all derating factors
     limited_current *= startup_delay_factor;
@@ -93,7 +147,7 @@ float MainChargeSystem::_apply_current_limits(ChargerState_e state, float reques
     return std::max(0.0F, limited_current);
 }
 
-float MainChargeSystem::_get_current_for_state(ChargerState_e state)
+float MainChargeSystem::_getCurrentForState(ChargerState_e state)
 {
     switch (state)
     {
@@ -114,7 +168,7 @@ float MainChargeSystem::_get_current_for_state(ChargerState_e state)
     }
 }
 
-float MainChargeSystem::_calculate_cell_temp_derate_factor(float curr_temp)
+float MainChargeSystem::_calculateCellTempDerateFactor(float curr_temp)
 {
     if (curr_temp < _charge_system_parameters.thresholds.cell_temp_derate_thresh)
     {
@@ -134,7 +188,7 @@ float MainChargeSystem::_calculate_cell_temp_derate_factor(float curr_temp)
                0.0F);
 }
 
-float MainChargeSystem::_calculate_board_temp_derate_factor(float curr_temp)
+float MainChargeSystem::_calculateBoardTempDerateFactor(float curr_temp)
 {
     if (curr_temp < _charge_system_parameters.thresholds.board_temp_derate_thresh)
     {
@@ -154,7 +208,7 @@ float MainChargeSystem::_calculate_board_temp_derate_factor(float curr_temp)
                0.0F);
 }
 
-float MainChargeSystem::_startup_derate_factor(unsigned long current_millis)
+float MainChargeSystem::_startupDerateFactor(unsigned long current_millis)
 {
     const unsigned long startup_delay = _charge_system_parameters.configs.startup_delay_ms;
     const unsigned long elapsed_ms = current_millis - _init_millis;

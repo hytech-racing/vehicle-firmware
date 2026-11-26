@@ -63,7 +63,7 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg()
         out.board_temperatures,
         [](const etl::optional<float>& v) { return v.value_or(0.0f); });
 
-    const ChargeSystemData_s& charge_system_data = MainChargeSystemInstance::instance().get_charge_data();
+    const ChargeSystemData_s& charge_system_data = MainChargeSystemInstance::instance().getChargeData();
     out.calculated_charge_current = charge_system_data.calculated_charge_current;
     out.current_charger_state = static_cast<hytech_msgs_ChargerState_e>(charge_system_data.current_charger_state);
     out.is_120_switched =

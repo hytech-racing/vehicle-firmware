@@ -37,9 +37,6 @@ struct CANInterfaces_s
     ACUInterface& acu_interface;
     ChargerInterface& charger_interface;
     EnergyMeterInterface& em_interface;
-
-    float max_pack_voltage = 0.0f;
-    float cell_cutoff_voltage = 0.0f;
 };
 using CANInterfacesInstance = etl::singleton<CANInterfaces_s>;
 struct CCUCANInterface_s

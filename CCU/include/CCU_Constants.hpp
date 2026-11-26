@@ -64,7 +64,14 @@ namespace CCUSystems
 {
     constexpr float MAX_120V_CURRENT_AMP = 3.5;  // 3.5 A = 35 A in the charger CAN format
     constexpr float MAX_240V_CURRENT_AMP = 11.0; // 11 A = 110 A in the charger CAN format
+
+    /* CC/CV charge profile */
+    constexpr float TARGET_PACK_VOLTAGE = 520.0F;          // CV setpoint, pack volts
+    constexpr float CV_DETECT_BAND_VOLTAGE = 1.0F;         // pack is "in CV" within this many volts of the target
+    constexpr float CHARGE_TERMINATION_CURRENT_AMP = 0.5F; // in CV, charge is complete once current drops below this ...
+    constexpr uint32_t CHARGE_TERMINATION_TIME_MS = 5000;  // ... for this long
 } // namespace CCUSystems
+
 namespace CCUConstants
 {
     /* General Information */
@@ -114,6 +121,5 @@ namespace CCUConstants
     const uint32_t ACU_CAN_BAUDRATE = 1000000;    // CAN for ACU
     const uint32_t CHARGER_CAN_BAUDRATE = 500000; // CAN for charger
 }; // namespace CCUConstants
-
 
 #endif
