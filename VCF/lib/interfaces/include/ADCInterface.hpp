@@ -5,7 +5,7 @@
 #include <etl/singleton.h>
 
 /* External Includes */
-#include <SPI_ADC.h>
+#include <MCP_DMA_ADC.hpp>
 
 using pin = uint8_t;
 
@@ -242,9 +242,9 @@ class ADCInterface
     EventResponder _spiEventADC1;
 
     // MCP3208. ADC0 in VCF schematic. Used for steering, pedal reference, and pedal position sensors.
-    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc0;
+    MCP_DMA_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc0;
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
-    SPI_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc1;
+    MCP_DMA_ADC<3, vcf_adc_default_parameters::channels_within_mcp_adc> _adc1;
 
     float _FL_load_cell_filtered;
     float _FR_load_cell_filtered;

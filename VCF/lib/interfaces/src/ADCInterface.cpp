@@ -1,20 +1,13 @@
 #include "ADCInterface.hpp"
 
+// Both ADCs share the SPI bus; tick() returns early by itself while the bus is busy.
 void ADCInterface::tickADC0()
 {
-    if (_adc1.isBusy())
-    {
-        return;
-    }
     _adc0.tick();
 }
 
 void ADCInterface::tickADC1()
 {
-    if (_adc0.isBusy())
-    {
-        return;
-    }
     _adc1.tick();
 }
 
