@@ -13,10 +13,10 @@
 template <typename quad_array_type>
 void setFourOutputs(quad_array_type& out, float val)
 {
-    out.FL = val;
-    out.FR = val;
-    out.RL = val;
-    out.RR = val;
+    out.fl = val;
+    out.fr = val;
+    out.rl = val;
+    out.rr = val;
 }
 
 template <typename cmd_type>
@@ -144,10 +144,10 @@ TEST(TorqueControllerMuxTesting, test_torque_diff_swap_limit)
 
     ASSERT_EQ(test.getTcMuxStatus().active_controller_mode, ControllerMode_e::MODE_0);
 
-    ASSERT_EQ(out1.torque_limits.FL, 1);
-    ASSERT_EQ(out1.torque_limits.FR, 1);
-    ASSERT_EQ(out1.torque_limits.RL, 1);
-    ASSERT_EQ(out1.torque_limits.RR, 1);
+    ASSERT_EQ(out1.torque_limits.fl, 1);
+    ASSERT_EQ(out1.torque_limits.fr, 1);
+    ASSERT_EQ(out1.torque_limits.rl, 1);
+    ASSERT_EQ(out1.torque_limits.rr, 1);
 }
 
 // TEST(TorqueControllerMuxTesting, test_construction_with_new_controller_orgs)
@@ -208,10 +208,10 @@ TEST(TorqueControllerMuxTesting, test_mode0_evaluation)
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.brake_percent = 0.0f;
 
     DrivetrainCommand_s out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    ASSERT_NEAR(out.torque_limits.FL, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.FR, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.RL, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-    ASSERT_NEAR(out.torque_limits.RR, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
+    ASSERT_NEAR(out.torque_limits.fl, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
+    ASSERT_NEAR(out.torque_limits.fr, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
+    ASSERT_NEAR(out.torque_limits.rl, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
+    ASSERT_NEAR(out.torque_limits.rr, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
 
     //     mode_0_input_state = {{}, {}, {}, {}, {.accelPercent = 0.0f, .brakePercent = 0.0f,
     //     .regenPercent = 0.0}, {}, {}, {}}; out =
@@ -248,10 +248,10 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
         new_power_lim);
 
     DrivetrainCommand_s out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
-    ASSERT_NEAR(out.torque_limits.FL, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.FR, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
-    ASSERT_NEAR(out.torque_limits.RL, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
-    ASSERT_NEAR(out.torque_limits.RR, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
+    ASSERT_NEAR(out.torque_limits.fl, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
+    ASSERT_NEAR(out.torque_limits.fr, (max_torque / 2) * (2 - standard_params.rear_torque_scale), 0.01);
+    ASSERT_NEAR(out.torque_limits.rl, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
+    ASSERT_NEAR(out.torque_limits.rr, (max_torque / 2) * standard_params.rear_torque_scale, 0.01);
 
 
     float rpm_set = 20000.0f;
@@ -260,10 +260,10 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
     out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
 
     ASSERT_NEAR(
-        ((out.torque_limits.FL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.FR * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RR * (rpm_set * RPM_TO_RAD_PER_SECOND))),
+        ((out.torque_limits.fl * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.fr * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.rl * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.rr * (rpm_set * RPM_TO_RAD_PER_SECOND))),
         new_power_lim,
         0.1);
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.6f;
@@ -275,10 +275,10 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
     (void)torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
     out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
     ASSERT_NEAR(
-        ((out.torque_limits.FL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.FR * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RL * (rpm_set * RPM_TO_RAD_PER_SECOND))
-         + (out.torque_limits.RR * (rpm_set * RPM_TO_RAD_PER_SECOND))),
+        ((out.torque_limits.fl * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.fr * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.rl * (rpm_set * RPM_TO_RAD_PER_SECOND))
+         + (out.torque_limits.rr * (rpm_set * RPM_TO_RAD_PER_SECOND))),
         new_power_lim,
         0.1);
 }
@@ -293,7 +293,7 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
         return inst1;
     };
     setOutputs(inst1, 500, 10.0);
-    inst1.torque_limits.FL = 5;
+    inst1.torque_limits.fl = 5;
     TorqueControllerMux<1> test({test_func_1}, {false});
 
     DrivetrainDynamicReport_s drivetrain_data = {};
@@ -306,25 +306,25 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.regen_percent = 0.0f;
     auto drive_command = test.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, mode_0_input_state);
 
-    ASSERT_EQ(drive_command.torque_limits.FL, 5.0f);
-    ASSERT_EQ(drive_command.torque_limits.FR, 10.0f);
-    ASSERT_EQ(drive_command.torque_limits.RL, 10.0f);
-    ASSERT_EQ(drive_command.torque_limits.RR, 10.0f);
+    ASSERT_EQ(drive_command.torque_limits.fl, 5.0f);
+    ASSERT_EQ(drive_command.torque_limits.fr, 10.0f);
+    ASSERT_EQ(drive_command.torque_limits.rl, 10.0f);
+    ASSERT_EQ(drive_command.torque_limits.rr, 10.0f);
 
     setOutputs(inst1, 500, 20.0);
-    inst1.torque_limits.FL = 5;
+    inst1.torque_limits.fl = 5;
 
     drive_command = test.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, mode_0_input_state);
 
-    ASSERT_LT(drive_command.torque_limits.FL, 3.5f);
-    ASSERT_LT(drive_command.torque_limits.FR, 12.5f);
-    ASSERT_LT(drive_command.torque_limits.RL, 12.5f);
-    ASSERT_LT(drive_command.torque_limits.RR, 12.5f);
+    ASSERT_LT(drive_command.torque_limits.fl, 3.5f);
+    ASSERT_LT(drive_command.torque_limits.fr, 12.5f);
+    ASSERT_LT(drive_command.torque_limits.rl, 12.5f);
+    ASSERT_LT(drive_command.torque_limits.rr, 12.5f);
 
-    printf("torque 1: %.2f\n", drive_command.torque_limits.FL);
-    printf("torque 2: %.2f\n", drive_command.torque_limits.FR);
-    printf("torque 3: %.2f\n", drive_command.torque_limits.RL);
-    printf("torque 4: %.2f\n", drive_command.torque_limits.RR);
+    printf("torque 1: %.2f\n", drive_command.torque_limits.fl);
+    printf("torque 2: %.2f\n", drive_command.torque_limits.fr);
+    printf("torque 3: %.2f\n", drive_command.torque_limits.rl);
+    printf("torque 4: %.2f\n", drive_command.torque_limits.rr);
 }
 
 TEST(TorqueControllerMuxTesting, test_null_pointer_error_state)
@@ -376,7 +376,7 @@ TEST(TorqueControllerMuxTesting, test_drivebrain_and_simple_controller_integrati
     res = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
 
     EXPECT_FALSE(db_controller.getTimingFailureStatus());
-    EXPECT_FLOAT_EQ(res.desired_speeds.FL, data.desired_speeds.veh_vec_data.FL);
+    EXPECT_FLOAT_EQ(res.desired_speeds.fl, data.desired_speeds.veh_vec_data.fl);
 
     data.desired_speeds.last_recv_millis = 3000;
     data.torque_limits.last_recv_millis = 2000;

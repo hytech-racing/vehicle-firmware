@@ -235,10 +235,10 @@ class ADCInterface
     // MCP3208. ADC1 in VCF schematic. Used for SHDN senses, load cells, suspension potentiometers, and brake pressure sensors.
     MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc1;
 
-    float _FL_load_cell_filtered;
-    float _FR_load_cell_filtered;
-    float _FL_sus_pot_filtered;
-    float _FR_sus_pot_filtered;
+    float _fl_load_cell_filtered;
+    float _fr_load_cell_filtered;
+    float _fl_sus_pot_filtered;
+    float _fr_sus_pot_filtered;
 
     std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_scales();
     std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_offsets();

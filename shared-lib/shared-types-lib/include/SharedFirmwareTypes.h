@@ -53,31 +53,31 @@ template <typename T>
 struct veh_vec
 {
   public:
-    T FL = {};
-    T FR = {};
-    T RL = {};
-    T RR = {};
+    T fl = {};
+    T fr = {};
+    T rl = {};
+    T rr = {};
 
   public:
     veh_vec() {};
-    veh_vec(T _FL, T _FR, T _RL, T _RR)
+    veh_vec(T fl_value, T fr_value, T rl_value, T rr_value)
     {
-        FL = _FL;
-        FR = _FR;
-        RL = _RL;
-        RR = _RR;
+        fl = fl_value;
+        fr = fr_value;
+        rl = rl_value;
+        rr = rr_value;
     }
 
     /// @brief copy values to array in FL, FR, RL, RR order
     void copy_to_arr(T (&arr_out)[4])
     {
-        arr_out[0] = FL;
-        arr_out[1] = FR;
-        arr_out[2] = RL;
-        arr_out[3] = RR;
+        arr_out[0] = fl;
+        arr_out[1] = fr;
+        arr_out[2] = rl;
+        arr_out[3] = rr;
     }
 
-    std::array<T, 4> as_array() { return {FL, FR, RL, RR}; }
+    std::array<T, 4> as_array() { return {fl, fr, rl, rr}; }
 };
 
 struct TimestampedData_s
@@ -133,10 +133,10 @@ struct BrakeFluidPressureData_s
 
 struct FrontLoadCellData_s
 {
-    uint32_t FL_loadcell_analog;
-    bool valid_FL_sample;
-    uint32_t FR_loadcell_analog;
-    bool valid_FR_sample;
+    uint32_t fl_loadcell_analog;
+    bool valid_fl_sample;
+    uint32_t fr_loadcell_analog;
+    bool valid_fr_sample;
 };
 
 /**
@@ -144,8 +144,8 @@ struct FrontLoadCellData_s
  */
 struct FrontSusPotData_s
 {
-    uint32_t FL_sus_pot_analog;
-    uint32_t FR_sus_pot_analog;
+    uint32_t fl_sus_pot_analog;
+    uint32_t fr_sus_pot_analog;
 };
 
 /**
@@ -247,10 +247,10 @@ struct SteeringSystemData_s
 
 struct RearLoadCellData_s
 {
-    uint32_t RL_loadcell_analog;
-    bool valid_RL_sample;
-    uint32_t RR_loadcell_analog;
-    bool valid_RR_sample;
+    uint32_t rl_loadcell_analog;
+    bool valid_rl_sample;
+    uint32_t rr_loadcell_analog;
+    bool valid_rr_sample;
 };
 
 /**
@@ -258,8 +258,8 @@ struct RearLoadCellData_s
  */
 struct RearSusPotData_s
 {
-    uint32_t RL_sus_pot_analog;
-    uint32_t RR_sus_pot_analog;
+    uint32_t rl_sus_pot_analog;
+    uint32_t rr_sus_pot_analog;
 };
 
 /**

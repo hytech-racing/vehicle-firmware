@@ -21,10 +21,10 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
     {
     case LaunchStates_e::LAUNCH_NOT_READY:
     {
-        out.torque_limits.FL = brake_torque_req;
-        out.torque_limits.FR = brake_torque_req;
-        out.torque_limits.RL = brake_torque_req;
-        out.torque_limits.RR = brake_torque_req;
+        out.torque_limits.fl = brake_torque_req;
+        out.torque_limits.fr = brake_torque_req;
+        out.torque_limits.rl = brake_torque_req;
+        out.torque_limits.rr = brake_torque_req;
 
         // init launch vars
         _launch_speed_target_rpm = 0;
@@ -42,10 +42,10 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
     }
     case LaunchStates_e::LAUNCH_READY:
     {
-        out.torque_limits.FL = brake_torque_req;
-        out.torque_limits.FR = brake_torque_req;
-        out.torque_limits.RL = brake_torque_req;
-        out.torque_limits.RR = brake_torque_req;
+        out.torque_limits.fl = brake_torque_req;
+        out.torque_limits.fr = brake_torque_req;
+        out.torque_limits.rl = brake_torque_req;
+        out.torque_limits.rr = brake_torque_req;
 
         // init launch vars
         _launch_speed_target_rpm = 0;
@@ -76,10 +76,10 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
 
         _launch_speed_target_rpm = _calcLaunchAlgo(curr_millis);
 
-        out.torque_limits.FL = PhysicalParameters::AMK_MAX_TORQUE;
-        out.torque_limits.FR = PhysicalParameters::AMK_MAX_TORQUE;
-        out.torque_limits.RL = PhysicalParameters::AMK_MAX_TORQUE;
-        out.torque_limits.RR = PhysicalParameters::AMK_MAX_TORQUE;
+        out.torque_limits.fl = PhysicalParameters::AMK_MAX_TORQUE;
+        out.torque_limits.fr = PhysicalParameters::AMK_MAX_TORQUE;
+        out.torque_limits.rl = PhysicalParameters::AMK_MAX_TORQUE;
+        out.torque_limits.rr = PhysicalParameters::AMK_MAX_TORQUE;
 
         break;
     }
@@ -89,10 +89,10 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
     }
     }
 
-    out.desired_speeds.FL = _launch_speed_target_rpm;
-    out.desired_speeds.FR = _launch_speed_target_rpm;
-    out.desired_speeds.RL = _launch_speed_target_rpm;
-    out.desired_speeds.RR = _launch_speed_target_rpm;
+    out.desired_speeds.fl = _launch_speed_target_rpm;
+    out.desired_speeds.fr = _launch_speed_target_rpm;
+    out.desired_speeds.rl = _launch_speed_target_rpm;
+    out.desired_speeds.rr = _launch_speed_target_rpm;
 
     return out;
 }

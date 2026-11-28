@@ -54,16 +54,16 @@ DrivetrainStatus_s DrivetrainSystem::evaluateDrivetrain(DrivetrainSystem::CmdVar
 
     DrivetrainStatus_s status;
     status.all_inverters_connected =
-        (_inverter_interfaces.FL.get_status().connected
-         && _inverter_interfaces.FR.get_status().connected
-         && _inverter_interfaces.RL.get_status().connected
-         && _inverter_interfaces.RR.get_status().connected);
+        (_inverter_interfaces.fl.get_status().connected
+         && _inverter_interfaces.fr.get_status().connected
+         && _inverter_interfaces.rl.get_status().connected
+         && _inverter_interfaces.rr.get_status().connected);
     // while not all inverters are connected, some may still be here so we can return the entire status for partially connected drivetrain.
     status.inverter_statuses = {
-        _inverter_interfaces.FL.get_status(),
-        _inverter_interfaces.FR.get_status(),
-        _inverter_interfaces.RL.get_status(),
-        _inverter_interfaces.RR.get_status()};
+        _inverter_interfaces.fl.get_status(),
+        _inverter_interfaces.fr.get_status(),
+        _inverter_interfaces.rl.get_status(),
+        _inverter_interfaces.rr.get_status()};
 
     bool attempting_init_while_not_connected =
         ((state == DrivetrainState_e::NOT_CONNECTED) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED));
@@ -395,10 +395,10 @@ void DrivetrainSystem::_setDrivetrainErrorReset()
 
 void DrivetrainSystem::_setDrivetrainCommand(DrivetrainCommand_s cmd)
 {
-    _inverter_interfaces.FL.set_speed(cmd.desired_speeds.FL, cmd.torque_limits.FL);
-    _inverter_interfaces.FR.set_speed(cmd.desired_speeds.FR, cmd.torque_limits.FR);
-    _inverter_interfaces.RL.set_speed(cmd.desired_speeds.RL, cmd.torque_limits.RL);
-    _inverter_interfaces.RR.set_speed(cmd.desired_speeds.RR, cmd.torque_limits.RR);
+    _inverter_interfaces.fl.set_speed(cmd.desired_speeds.fl, cmd.torque_limits.fl);
+    _inverter_interfaces.fr.set_speed(cmd.desired_speeds.fr, cmd.torque_limits.fr);
+    _inverter_interfaces.rl.set_speed(cmd.desired_speeds.rl, cmd.torque_limits.rl);
+    _inverter_interfaces.rr.set_speed(cmd.desired_speeds.rr, cmd.torque_limits.rr);
 }
 
 bool DrivetrainSystem::_drivetrainActive(float min_active_rpm)

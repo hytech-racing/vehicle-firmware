@@ -354,23 +354,23 @@ namespace async_tasks
         auto rl_inv_status = can_interfaces.rl_inverter_interface.getStatus();
         auto rr_inv_status = can_interfaces.rr_inverter_interface.getStatus();
 
-        ret.inverter_data.FL.speed_rpm = fl_inv_mechanics.actual_speed;
-        ret.inverter_data.FR.speed_rpm = fr_inv_mechanics.actual_speed;
-        ret.inverter_data.RL.speed_rpm = rl_inv_mechanics.actual_speed;
-        ret.inverter_data.RR.speed_rpm = rr_inv_mechanics.actual_speed;
+        ret.inverter_data.fl.speed_rpm = fl_inv_mechanics.actual_speed;
+        ret.inverter_data.fr.speed_rpm = fr_inv_mechanics.actual_speed;
+        ret.inverter_data.rl.speed_rpm = rl_inv_mechanics.actual_speed;
+        ret.inverter_data.rr.speed_rpm = rr_inv_mechanics.actual_speed;
 
-        ret.inverter_data.FL.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
-        ret.inverter_data.FR.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
-        ret.inverter_data.RL.dc_bus_voltage = rl_inv_status.dc_bus_voltage;
-        ret.inverter_data.RR.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
+        ret.inverter_data.fl.dc_bus_voltage = fl_inv_status.dc_bus_voltage;
+        ret.inverter_data.fr.dc_bus_voltage = fr_inv_status.dc_bus_voltage;
+        ret.inverter_data.rl.dc_bus_voltage = rl_inv_status.dc_bus_voltage;
+        ret.inverter_data.rr.dc_bus_voltage = rr_inv_status.dc_bus_voltage;
 
         ret.recvd_pedals_data = vcf_data.stamped_pedals;
         ret.recvd_steering_data = vcf_data.stamped_steering;
         ret.front_loadcell_data = vcf_data.front_loadcell_data;
-        ret.rear_loadcell_data.RL_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().getFilteredRLLoadCell());
-        ret.rear_loadcell_data.RR_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().getFilteredRRLoadCell());
-        ret.rear_loadcell_data.valid_RL_sample = true;
-        ret.rear_loadcell_data.valid_RR_sample = true;
+        ret.rear_loadcell_data.rl_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().getFilteredRLLoadCell());
+        ret.rear_loadcell_data.rr_loadcell_analog = static_cast<uint32_t>(ADCInterfaceInstance::instance().getFilteredRRLoadCell());
+        ret.rear_loadcell_data.valid_rl_sample = true;
+        ret.rear_loadcell_data.valid_rr_sample = true;
         ret.front_suspot_data = vcf_data.front_suspot_data;
         ret.dash_input_state = vcf_data.dash_input_state;
         ret.latest_drivebrain_telem_command = drivebrain_telem_data;
@@ -388,12 +388,12 @@ namespace async_tasks
         VCRInterfaceData_s new_interface_data = gatherLatestInterfaceData(CANInterfacesInstance::instance());
 
         vcr_data.system_data.drivetrain_data.measuredSpeeds = {
-            new_interface_data.inverter_data.FL.speed_rpm,
-            new_interface_data.inverter_data.FR.speed_rpm,
-            new_interface_data.inverter_data.RL.speed_rpm,
-            new_interface_data.inverter_data.RR.speed_rpm};
+            new_interface_data.inverter_data.fl.speed_rpm,
+            new_interface_data.inverter_data.fr.speed_rpm,
+            new_interface_data.inverter_data.rl.speed_rpm,
+            new_interface_data.inverter_data.rr.speed_rpm};
 
-        vcr_data.system_data.drivetrain_data.measuredInverterFLPackVoltage = new_interface_data.inverter_data.FL.dc_bus_voltage;
+        vcr_data.system_data.drivetrain_data.measuredInverterFLPackVoltage = new_interface_data.inverter_data.fl.dc_bus_voltage;
 
         if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2)
         {
@@ -440,13 +440,13 @@ HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK:
     Serial.print("Drivetrain system state: ");
     Serial.println(static_cast<int>(DrivetrainInstance::instance().getState()));
     Serial.print("Diagnostic FL #: ");
-    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.FL.diagnostic_number);
+    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.fl.diagnostic_number);
     Serial.print(" FR #: ");
-    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.FR.diagnostic_number);
+    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.fr.diagnostic_number);
     Serial.print(" RL #: ");
-    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.RL.diagnostic_number);
+    Serial.print(DrivetrainInstance::instance().getStatus().inverter_statuses.rl.diagnostic_number);
     Serial.print(" RR #: ");
-    Serial.println(DrivetrainInstance::instance().getStatus().inverter_statuses.RR.diagnostic_number);
+    Serial.println(DrivetrainInstance::instance().getStatus().inverter_statuses.rr.diagnostic_number);
 
     Serial.print("Vehicle state machine state: ");
     Serial.println(static_cast<int>(VehicleStateMachineInstance::instance().getState()));
@@ -533,21 +533,21 @@ HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK:
     Serial.println("Drivetrain Command:");
     Serial.println("\t\tFL\tFR\tRL\tRR");
     Serial.print("Speed (rpm)\t");
-    Serial.print(dt_command.desired_speeds.FL);
+    Serial.print(dt_command.desired_speeds.fl);
     Serial.print("\t");
-    Serial.print(dt_command.desired_speeds.FR);
+    Serial.print(dt_command.desired_speeds.fr);
     Serial.print("\t");
-    Serial.print(dt_command.desired_speeds.RL);
+    Serial.print(dt_command.desired_speeds.rl);
     Serial.print("\t");
-    Serial.println(dt_command.desired_speeds.RR);
+    Serial.println(dt_command.desired_speeds.rr);
     Serial.print("Torque Lim (Nm)\t");
-    Serial.print(dt_command.torque_limits.FL);
+    Serial.print(dt_command.torque_limits.fl);
     Serial.print("\t");
-    Serial.print(dt_command.torque_limits.FR);
+    Serial.print(dt_command.torque_limits.fr);
     Serial.print("\t");
-    Serial.print(dt_command.torque_limits.RL);
+    Serial.print(dt_command.torque_limits.rl);
     Serial.print("\t");
-    Serial.println(dt_command.torque_limits.RR);
+    Serial.println(dt_command.torque_limits.rr);
     Serial.println();
 
     Serial.print("Current Controller Mode: ");

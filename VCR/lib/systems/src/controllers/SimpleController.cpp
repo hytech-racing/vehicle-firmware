@@ -18,10 +18,10 @@ DrivetrainCommand_s TorqueControllerSimple::evaluate(const VCRData_s& state, uns
         torque_request = accel_request * _params.amk_max_torque;
 
         out.desired_speeds = {_params.amk_max_rpm, _params.amk_max_rpm, _params.amk_max_rpm, _params.amk_max_rpm};
-        out.torque_limits.FL = torque_request * (BALANCE - _params.rear_torque_scale);
-        out.torque_limits.FR = torque_request * (BALANCE - _params.rear_torque_scale);
-        out.torque_limits.RL = torque_request * _params.rear_torque_scale;
-        out.torque_limits.RR = torque_request * _params.rear_torque_scale;
+        out.torque_limits.fl = torque_request * (BALANCE - _params.rear_torque_scale);
+        out.torque_limits.fr = torque_request * (BALANCE - _params.rear_torque_scale);
+        out.torque_limits.rl = torque_request * _params.rear_torque_scale;
+        out.torque_limits.rr = torque_request * _params.rear_torque_scale;
     }
     else
     {
@@ -30,10 +30,10 @@ DrivetrainCommand_s TorqueControllerSimple::evaluate(const VCRData_s& state, uns
 
         out.desired_speeds = {0.0f, 0.0f, 0.0f, 0.0f};
 
-        out.torque_limits.FL = torque_request * (BALANCE - _params.rear_regen_torque_scale);
-        out.torque_limits.FR = torque_request * (BALANCE - _params.rear_regen_torque_scale);
-        out.torque_limits.RL = torque_request * _params.rear_regen_torque_scale;
-        out.torque_limits.RR = torque_request * _params.rear_regen_torque_scale;
+        out.torque_limits.fl = torque_request * (BALANCE - _params.rear_regen_torque_scale);
+        out.torque_limits.fr = torque_request * (BALANCE - _params.rear_regen_torque_scale);
+        out.torque_limits.rl = torque_request * _params.rear_regen_torque_scale;
+        out.torque_limits.rr = torque_request * _params.rear_regen_torque_scale;
     }
 
     return out;

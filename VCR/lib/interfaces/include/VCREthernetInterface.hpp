@@ -91,10 +91,10 @@ class VCREthernetInterface
     template <typename FromT, typename ToT>
     void copyVehVecMembers(const FromT& from, ToT& to)
     {
-        to.FL = from.FL;
-        to.FR = from.FR;
-        to.RL = from.RL;
-        to.RR = from.RR;
+        to.FL = from.fl;
+        to.FR = from.fr;
+        to.RL = from.rl;
+        to.RR = from.rr;
     };
 
     EthernetUDP* getVCRDataSendSocket() { return &_vcr_data_send_socket; }

@@ -28,62 +28,62 @@ void VCRInterface::receive_inverter_status_1(const CAN_message_t& can_msg)
 {
     INV1_STATUS_t unpacked_msg;
     Unpack_INV1_STATUS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _inverter_status.error.FL = unpacked_msg.error;
-    _inverter_status.dc_bus_voltage.FL = unpacked_msg.dc_bus_voltage;
+    _inverter_status.error.fl = unpacked_msg.error;
+    _inverter_status.dc_bus_voltage.fl = unpacked_msg.dc_bus_voltage;
 }
 
 void VCRInterface::receive_inverter_status_2(const CAN_message_t& can_msg)
 {
     INV2_STATUS_t unpacked_msg;
     Unpack_INV2_STATUS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _inverter_status.error.FR = unpacked_msg.error;
-    _inverter_status.dc_bus_voltage.FR = unpacked_msg.dc_bus_voltage;
+    _inverter_status.error.fr = unpacked_msg.error;
+    _inverter_status.dc_bus_voltage.fr = unpacked_msg.dc_bus_voltage;
 }
 
 void VCRInterface::receive_inverter_status_3(const CAN_message_t& can_msg)
 {
     INV3_STATUS_t unpacked_msg;
     Unpack_INV3_STATUS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _inverter_status.error.RL = unpacked_msg.error;
-    _inverter_status.dc_bus_voltage.RL = unpacked_msg.dc_bus_voltage;
+    _inverter_status.error.rl = unpacked_msg.error;
+    _inverter_status.dc_bus_voltage.rl = unpacked_msg.dc_bus_voltage;
 }
 
 void VCRInterface::receive_inverter_status_4(const CAN_message_t& can_msg)
 {
     INV4_STATUS_t unpacked_msg;
     Unpack_INV4_STATUS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _inverter_status.error.RR = unpacked_msg.error;
-    _inverter_status.dc_bus_voltage.RR = unpacked_msg.dc_bus_voltage;
+    _inverter_status.error.rr = unpacked_msg.error;
+    _inverter_status.dc_bus_voltage.rr = unpacked_msg.dc_bus_voltage;
 }
 
 void VCRInterface::receive_inverter_temperature_1(const CAN_message_t& can_msg)
 {
     INV1_TEMPS_t unpacked_msg;
     Unpack_INV1_TEMPS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _temps.motor_temps.FL = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
-    _temps.inverter_temps.FL = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
+    _temps.motor_temps.fl = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
+    _temps.inverter_temps.fl = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
 void VCRInterface::receive_inverter_temperature_2(const CAN_message_t& can_msg)
 {
     INV2_TEMPS_t unpacked_msg;
     Unpack_INV2_TEMPS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _temps.motor_temps.FR = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
-    _temps.inverter_temps.FR = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
+    _temps.motor_temps.fr = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
+    _temps.inverter_temps.fr = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
 void VCRInterface::receive_inverter_temperature_3(const CAN_message_t& can_msg)
 {
     INV3_TEMPS_t unpacked_msg;
     Unpack_INV3_TEMPS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _temps.motor_temps.RL = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
-    _temps.inverter_temps.RL = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
+    _temps.motor_temps.rl = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
+    _temps.inverter_temps.rl = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }
 
 void VCRInterface::receive_inverter_temperature_4(const CAN_message_t& can_msg)
 {
     INV4_TEMPS_t unpacked_msg;
     Unpack_INV4_TEMPS_ht_can(&unpacked_msg, can_msg.buf, can_msg.len); // NOLINT
-    _temps.motor_temps.RR = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
-    _temps.inverter_temps.RR = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
+    _temps.motor_temps.rr = HT_CAN_motor_temp_ro_fromS(unpacked_msg.motor_temp_ro);
+    _temps.inverter_temps.rr = HT_CAN_inverter_temp_ro_fromS(unpacked_msg.inverter_temp_ro);
 }

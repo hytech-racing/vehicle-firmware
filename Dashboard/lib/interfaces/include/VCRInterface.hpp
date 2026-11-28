@@ -61,9 +61,9 @@ class VCRInterface
 
     VehicleState_e get_curr_car_state() { return _vehicle_state_value; }
 
-    int get_inverter_max_temp() { return std::max({_temps.inverter_temps.FL, _temps.inverter_temps.FR, _temps.inverter_temps.RL, _temps.inverter_temps.RR}); }
+    int get_inverter_max_temp() { return std::max({_temps.inverter_temps.fl, _temps.inverter_temps.fr, _temps.inverter_temps.rl, _temps.inverter_temps.rr}); }
 
-    int get_motor_max_temp() { return std::max({_temps.motor_temps.FL, _temps.motor_temps.FR, _temps.motor_temps.RL, _temps.motor_temps.RR}); }
+    int get_motor_max_temp() { return std::max({_temps.motor_temps.fl, _temps.motor_temps.fr, _temps.motor_temps.rl, _temps.motor_temps.rr}); }
 
   private:
     bool _is_in_pedals_calibration_state = false;

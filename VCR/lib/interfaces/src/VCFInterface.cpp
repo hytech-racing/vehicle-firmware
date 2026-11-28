@@ -74,13 +74,13 @@ void VCFInterface::receiveFrontSuspensionMsg(const CAN_message_t& msg, unsigned 
 {
     FRONT_SUSPENSION_t front_suspension_msg;
     Unpack_FRONT_SUSPENSION_ht_can(&front_suspension_msg, &msg.buf[0], msg.len);
-    _curr_data.front_loadcell_data.FL_loadcell_analog = front_suspension_msg.fl_load_cell;
-    _curr_data.front_suspot_data.FL_sus_pot_analog = HT_CAN_fl_shock_pot_ro_fromS(front_suspension_msg.fl_shock_pot_ro);
-    _curr_data.front_loadcell_data.FR_loadcell_analog = front_suspension_msg.fr_load_cell;
-    _curr_data.front_suspot_data.FR_sus_pot_analog = HT_CAN_fr_shock_pot_ro_fromS(front_suspension_msg.fr_shock_pot_ro);
+    _curr_data.front_loadcell_data.fl_loadcell_analog = front_suspension_msg.fl_load_cell;
+    _curr_data.front_suspot_data.fl_sus_pot_analog = HT_CAN_fl_shock_pot_ro_fromS(front_suspension_msg.fl_shock_pot_ro);
+    _curr_data.front_loadcell_data.fr_loadcell_analog = front_suspension_msg.fr_load_cell;
+    _curr_data.front_suspot_data.fr_sus_pot_analog = HT_CAN_fr_shock_pot_ro_fromS(front_suspension_msg.fr_shock_pot_ro);
 
-    _curr_data.front_loadcell_data.valid_FL_sample = true; // only sent over CAN if valid from VCF
-    _curr_data.front_loadcell_data.valid_FR_sample = true; // or send validities over CAN
+    _curr_data.front_loadcell_data.valid_fl_sample = true; // only sent over CAN if valid from VCF
+    _curr_data.front_loadcell_data.valid_fr_sample = true; // or send validities over CAN
 }
 
 void VCFInterface::resetPedalsHeartbeat()

@@ -188,13 +188,13 @@ void DisplayInterface::display_all_temps(veh_vec<int> temps)
     _display.setTextColor(_black);
 
     _display.setCursor(220, 120);
-    _display.print(temps.FL);
+    _display.print(temps.fl);
     _display.setCursor(250, 120);
-    _display.print(temps.FR);
+    _display.print(temps.fr);
     _display.setCursor(220, 140);
-    _display.print(temps.RL);
+    _display.print(temps.rl);
     _display.setCursor(250, 140);
-    _display.print(temps.RR);
+    _display.print(temps.rr);
 }
 
 void DisplayInterface::display_max_temps(int inverter_temp, int motor_temp)
