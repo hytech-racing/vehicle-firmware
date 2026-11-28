@@ -10,8 +10,8 @@ void VCREthernetInterface::initEthernetDevice()
         EthernetIPDefsInstance::instance().vcr_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
-    _vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
+    _vcr_data_send_socket.begin(EthernetIPDefsInstance::instance().vcr_data_port);
+    _vcf_data_recv_socket.begin(EthernetIPDefsInstance::instance().vcf_data_port);
 }
 
 hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataMsg(

@@ -112,7 +112,7 @@ HT_TASK::TaskResponse enqueuePedalsCANDataTask(const unsigned long& sys_micros, 
     pedals_data.accel_pedal_ro = HT_CAN_accel_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().accel_percent);
     pedals_data.brake_pedal_ro = HT_CAN_brake_pedal_ro_toS(PedalsSystemInstance::instance().getPedalsSystemData().brake_percent);
 
-    CAN_util::enqueue_msg(&pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&pedals_data, &Pack_PEDALS_SYSTEM_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -166,7 +166,7 @@ HT_TASK::TaskResponse enqueueSteeringCANDataTask(const unsigned long& sysMicros,
     msg_out.steering_analog_raw = steering_system_data.analog_raw;
     msg_out.steering_digital_raw = steering_system_data.digital_raw;
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_STEERING_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg_out, &Pack_STEERING_DATA_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -227,7 +227,7 @@ HT_TASK::TaskResponse init_buzzer_control_task(const unsigned long& sysMicros, c
 HT_TASK::TaskResponse run_buzzer_control_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
 
-    bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()); // NOLINT
+    bool buzzer_is_active = BuzzerControllerInstance::instance().isBuzzerActive(sys_time::halMillis()); // NOLINT
 
     digitalWrite(VCFInterfaces::BUZZER_CONTROL_PIN, buzzer_is_active);
     return HT_TASK::TaskResponse::YIELD;

@@ -29,7 +29,7 @@ void initializeAllInterfaces()
             CCUInterfaces::PROXIMITY_PILOT_CONV_FACTOR,
             CCUInterfaces::JUMPER_OUT_CONV_FACTOR},
         CCUInterfaces::BIT_RESOLUTION);
-    ADCInterfaceInstance::instance().init(sys_time::hal_millis());
+    ADCInterfaceInstance::instance().init(sys_time::halMillis());
 
     /* Charger Interface */
     ChargerInterface(ACUInterfaceInstance::instance());
@@ -74,19 +74,19 @@ void initializeAllInterfaces()
     CCUCANInterfaceInstance::create(
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::ccuRecvSwitch>());
 
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().acu_can, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().charger_can, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);
+    handleCANSetup(CCUCANInterfaceInstance::instance().acu_can, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
+    handleCANSetup(CCUCANInterfaceInstance::instance().charger_can, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);
 }
 
 HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::hal_millis());
+    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse readEncoderTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    RotaryEncoderInterfaceInstance::instance().tick(sys_time::hal_millis());
+    RotaryEncoderInterfaceInstance::instance().tick(sys_time::halMillis());
 
     if (RotaryEncoderInterfaceInstance::instance().isSwitchPressed())
     {
@@ -135,16 +135,16 @@ HT_TASK::TaskResponse clearAllCANBuffersTask(const unsigned long& sys_micros, co
 
 HT_TASK::TaskResponse sampleCANTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    process_ring_buffer(
+    processRingBuffer(
         CCUCANInterfaceInstance::instance().acu_can_rx_buffer,
         CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         CCUCANInterfaceInstance::instance().can_recv_switch,
         CANInterfaceType_e::ACU);
-    process_ring_buffer(
+    processRingBuffer(
         CCUCANInterfaceInstance::instance().charger_can_rx_buffer,
         CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         CCUCANInterfaceInstance::instance().can_recv_switch,
         CANInterfaceType_e::CHARGER);
     return HT_TASK::TaskResponse::YIELD;
@@ -153,7 +153,7 @@ HT_TASK::TaskResponse sampleCANTask(const unsigned long& sys_micros, const HT_TA
 
 HT_TASK::TaskResponse updateDisplayTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto curr_time_ms = sys_time::hal_millis();
+    auto curr_time_ms = sys_time::halMillis();
     DisplayInterfaceInstance::instance().update(curr_time_ms);
     DisplayInterfaceInstance::instance().displayData(curr_time_ms, Level2SystemInstance::instance().is120Switched(ADCInterfaceInstance::instance()));
     DisplayInterfaceInstance::instance().refreshDisplayData(curr_time_ms);

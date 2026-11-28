@@ -8,8 +8,8 @@ void CCUEthernetInterface::initEthernetDevice()
         EthernetIPDefsInstance::instance().ccu_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _acu_all_data_recv_socket.begin(EthernetIPDefsInstance::instance().ACUAllData_port);
-    _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().CCUData_port);
+    _acu_all_data_recv_socket.begin(EthernetIPDefsInstance::instance().acu_all_data_port);
+    _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().ccu_data_port);
 }
 
 void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_t& acu_all_data)
@@ -21,9 +21,9 @@ void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_i
 
 void CCUEthernetInterface::sendCCUDataMsg(const hytech_msgs_CCUData& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_CCUData_size>(
+    handleEthernetSocketSendPB<hytech_msgs_CCUData_size>(
         EthernetIPDefsInstance::instance().drivebrain_ip,
-        EthernetIPDefsInstance::instance().CCUData_port,
+        EthernetIPDefsInstance::instance().ccu_data_port,
         &_ccu_data_send_socket,
         data,
         hytech_msgs_CCUData_fields);

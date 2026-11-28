@@ -38,6 +38,9 @@ CheckOptions:
   readability-identifier-naming.ProtectedMemberPrefix: '_'
   readability-identifier-naming.PrivateMemberCase: lower_case
   readability-identifier-naming.PrivateMemberPrefix: '_'
+  # Static data members: clang-tidy can't tell private from public here, so allow an optional leading '_'
+  readability-identifier-naming.ClassMemberCase: lower_case
+  readability-identifier-naming.ClassMemberIgnoredRegexp: '^_[a-z][a-z0-9_]*$'
 
   # ============================================================================
   # 5. Constants & Enum Values

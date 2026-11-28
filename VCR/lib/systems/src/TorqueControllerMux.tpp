@@ -29,7 +29,7 @@ DrivetrainCommand_s TorqueControllerMux<NumControllers>::getDrivetrainCommand(Co
         return empty_command;
     }
 
-    current_output = _controller_evals[active_controller_mode_index](input_state, sys_time::hal_millis());
+    current_output = _controller_evals[active_controller_mode_index](input_state, sys_time::halMillis());
 
     // std::cout << "output torques " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
 
@@ -37,7 +37,7 @@ DrivetrainCommand_s TorqueControllerMux<NumControllers>::getDrivetrainCommand(Co
 
     if (requesting_controller_change)
     {
-        DrivetrainCommand_s proposed_output = _controller_evals[req_controller_mode_index](input_state, sys_time::hal_millis());
+        DrivetrainCommand_s proposed_output = _controller_evals[req_controller_mode_index](input_state, sys_time::halMillis());
         TorqueControllerMuxError_e error_state = _canSwitchController(input_state.system_data.drivetrain_data, current_output, proposed_output);
 
         //successful change

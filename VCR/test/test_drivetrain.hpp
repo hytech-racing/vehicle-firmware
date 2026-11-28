@@ -310,7 +310,7 @@ TEST(DrivetrainTest, test)
 
     // (requesting init) && (inverters ready) && (quit dc on)
     uint32_t arbitrary_time_ms = 2001;
-    sys_time::set_millis(arbitrary_time_ms);
+    sys_time::setMillis(arbitrary_time_ms);
     drivetrain.evaluateDrivetrain(init);
     ASSERT_EQ(drivetrain.getState(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Goes to INVERTERS_HV_ENABLED because all conditions have been met
     ASSERT_EQ(ef_is_active, true);
@@ -324,7 +324,7 @@ TEST(DrivetrainTest, test)
     ASSERT_CONTROL_INPUT_EQ(rr.getControlInput(), {0, 0.0f, 0.0f});
 
     // Requesting init before 50ms have passed (inverters should not be enabled yet)
-    sys_time::set_millis(arbitrary_time_ms + 49);
+    sys_time::setMillis(arbitrary_time_ms + 49);
     drivetrain.evaluateDrivetrain(init);
     ASSERT_EQ(drivetrain.getState(), DrivetrainState_e::INVERTERS_HV_ENABLED);
     ASSERT_EQ(ef_is_active, true);
@@ -338,7 +338,7 @@ TEST(DrivetrainTest, test)
     ASSERT_CONTROL_INPUT_EQ(rr.getControlInput(), {0, 0.0f, 0.0f});
 
     // Requesting init after 50ms have passed (inverters should be getting enabled)
-    sys_time::set_millis(arbitrary_time_ms + 51);
+    sys_time::setMillis(arbitrary_time_ms + 51);
     drivetrain.evaluateDrivetrain(init);
     ASSERT_EQ(drivetrain.getState(), DrivetrainState_e::INVERTERS_HV_ENABLED); // Goes to INVERTERS_HV_ENABLED because all conditions have been met
     ASSERT_EQ(ef_is_active, true);
@@ -400,7 +400,7 @@ TEST(DrivetrainTest, test)
     drivetrain.evaluateDrivetrain(init);
     ASSERT_EQ(drivetrain.getState(), DrivetrainState_e::INVERTERS_HV_ENABLED); // return to INVERTERS_HV_ENABLED
 
-    sys_time::set_millis(arbitrary_time_ms + 150);
+    sys_time::setMillis(arbitrary_time_ms + 150);
     drivetrain.evaluateDrivetrain(init);
     ASSERT_EQ(drivetrain.getState(), DrivetrainState_e::INVERTERS_HV_ENABLED); // stays in INVERTERS_HV_ENABLED
     ASSERT_EQ(ef_is_active, true);

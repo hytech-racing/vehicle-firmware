@@ -10,7 +10,7 @@ void DashboardInterface::init()
     pinMode(_dashboard_gpios.DATA_BUTTON, INPUT_PULLUP);
     pinMode(_dashboard_gpios.BUTTON_2, INPUT_PULLUP);
 
-    _dash_created_millis = sys_time::hal_millis();
+    _dash_created_millis = sys_time::halMillis();
 }
 
 void DashboardInterface::syncDashboardStoredState()

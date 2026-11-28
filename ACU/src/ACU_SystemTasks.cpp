@@ -15,17 +15,17 @@ bool initialize_all_systems()
             ACUSystems::BALANCE_TEMP_LIMIT_C,
             ACUSystems::BALANCE_ENABLE_TEMP_THRESH_C,
             ACUSystems::TS_ISOLATION_VOLTAGE});
-    ACUControllerInstance::instance().init(sys_time::hal_millis(), BMSDriverInstance_t::instance().get_bms_data().total_voltage);
+    ACUControllerInstance::instance().init(sys_time::halMillis(), BMSDriverInstance_t::instance().get_bms_data().total_voltage);
     /* State Machine Initialization */
 
     /* Delegate Function Definitions */
     etl::delegate<bool()> charge_state_request =
-        etl::delegate<bool()>::create([]() -> bool { return CCUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis()).charging_requested; });
+        etl::delegate<bool()>::create([]() -> bool { return CCUInterfaceInstance::instance().get_latest_data(sys_time::halMillis()).charging_requested; });
 
     etl::delegate<bool()> has_bms_fault = etl::delegate<bool()>::create([]() -> bool { return !ACUControllerInstance::instance().get_status().bms_ok; });
 
     etl::delegate<bool()> has_imd_fault =
-        etl::delegate<bool()>::create([]() -> bool { return !ADCInterfaceInstance::instance().read_imd_ok(sys_time::hal_millis()); });
+        etl::delegate<bool()>::create([]() -> bool { return !ADCInterfaceInstance::instance().read_imd_ok(sys_time::halMillis()); });
 
     etl::delegate<bool()> contactor_welded = etl::delegate<bool()>::create(
         []() -> bool
@@ -70,7 +70,7 @@ bool initialize_all_systems()
         reinitialize_watchdog,
         reset_latch,
         disable_n_latch_en,
-        sys_time::hal_millis());
+        sys_time::halMillis());
 
     return true;
 }
@@ -78,7 +78,7 @@ bool initialize_all_systems()
 HT_TASK::TaskResponse evaluate_accumulator(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     ACUControllerInstance::instance().evaluate_accumulator(
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         BMSDriverInstance_t::instance().get_bms_core_data(),
         BMSFaultDataManagerInstance_t::instance().get_fault_data().max_consecutive_invalid_packet_count,
         ADCInterfaceInstance::instance().read_shunt_current(),
@@ -89,7 +89,7 @@ HT_TASK::TaskResponse evaluate_accumulator(const unsigned long& sysMicros, const
 
 HT_TASK::TaskResponse tick_state_machine(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    ACUStateMachineInstance::instance().tick_state_machine(sys_time::hal_millis());
+    ACUStateMachineInstance::instance().tick_state_machine(sys_time::halMillis());
 
     return HT_TASK::TaskResponse::YIELD;
 }

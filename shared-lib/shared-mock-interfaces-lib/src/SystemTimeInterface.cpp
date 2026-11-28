@@ -7,21 +7,21 @@ unsigned long millis, micros;
 
 namespace sys_time
 {
-    unsigned long hal_millis()
+    unsigned long halMillis()
     {
         return millis;
     }
-    unsigned long hal_micros()
+    unsigned long halMicros()
     {
         return micros;
     }
 
-    void set_millis(unsigned long m)
+    void setMillis(unsigned long m)
     {
         millis = m;
     }
 
-    void set_micros(unsigned long m)
+    void setMicros(unsigned long m)
     {
         micros = m;
     }

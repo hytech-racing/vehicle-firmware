@@ -14,7 +14,7 @@ void initializeAllSystems()
         CCUSystems::MAX_240V_CURRENT_AMP,
         CCUConstants::MAX_CELL_CUTOFF_TEMP_CELSIUS,
         CCUConstants::MAX_BOARD_CUTOFF_TEMP_CELSIUS);
-    MainChargeSystemInstance::instance().init(sys_time::hal_millis());
+    MainChargeSystemInstance::instance().init(sys_time::halMillis());
 
     /* State Machine Initialization */
     /* Delegate Function Definitions */
@@ -41,7 +41,7 @@ void initializeAllSystems()
         { return Level2SystemInstance::instance().checkStateC2Conditions(ADCInterfaceInstance::instance(), Level2InterfaceInstance::instance()); });
 
     etl::delegate<bool()> reset_error_requested =
-        etl::delegate<bool()>::create([]() -> bool { return ADCInterfaceInstance::instance().isResetErrorsButtonPressed(sys_time::hal_millis()); });
+        etl::delegate<bool()>::create([]() -> bool { return ADCInterfaceInstance::instance().isResetErrorsButtonPressed(sys_time::halMillis()); });
 
     etl::delegate<void()> set_sw_shutdown_high = etl::delegate<void()>::create([]() -> void { WatchdogInterfaceInstance::instance().setSWShutdownPinHigh(); });
 
@@ -52,7 +52,7 @@ void initializeAllSystems()
     etl::delegate<void()> set_start_charge_low = etl::delegate<void()>::create([]() -> void { Level2InterfaceInstance::instance().setStartCharge(LOW); });
 
     etl::delegate<void()> reset_startup_time_ms =
-        etl::delegate<void()>::create([]() -> void { MainChargeSystemInstance::instance().init(sys_time::hal_millis()); });
+        etl::delegate<void()>::create([]() -> void { MainChargeSystemInstance::instance().init(sys_time::halMillis()); });
 
     ChargerStateMachineInstance::create(
         is_120_conditions_ok,
@@ -68,13 +68,13 @@ void initializeAllSystems()
         set_start_charge_high,
         set_start_charge_low,
         reset_startup_time_ms,
-        sys_time::hal_millis());
+        sys_time::halMillis());
 }
 
 
 HT_TASK::TaskResponse tickStateMachineTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    ChargerStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
+    ChargerStateMachineInstance::instance().tickStateMachine(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -84,7 +84,7 @@ HT_TASK::TaskResponse calculateChargeCurrentTask(const unsigned long& sys_micros
         CCUConstants::MAX_PACK_VOLTAGE,
         CCUConstants::MAX_CELL_CUTOFF_VOLTAGE,
         RotaryEncoderInterfaceInstance::instance().getValue(),
-        sys_time::hal_millis());
+        sys_time::halMillis());
 
     return HT_TASK::TaskResponse::YIELD;
 }

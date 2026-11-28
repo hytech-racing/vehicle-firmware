@@ -103,5 +103,5 @@ void ACUInterface::enqueueCCUStatusCANMsg()
 {
     CCU_STATUS_t ccu_status = {};
     ccu_status.charger_enabled = _curr_data.is_charging_enabled;
-    CAN_util::enqueue_msg(&ccu_status, &Pack_CCU_STATUS_ht_can, CCUCANInterfaceInstance::instance().acu_can_tx_buffer);
+    CAN_util::enqueueMsg(&ccu_status, &Pack_CCU_STATUS_ht_can, CCUCANInterfaceInstance::instance().acu_can_tx_buffer);
 }

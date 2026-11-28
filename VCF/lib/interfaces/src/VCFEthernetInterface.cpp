@@ -12,8 +12,8 @@ void VCFEthernetInterface::initEthernetDevice()
         EthernetIPDefsInstance::instance().vcf_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _vcf_send_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
-    _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
+    _vcf_send_socket.begin(EthernetIPDefsInstance::instance().vcf_data_port);
+    _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().vcr_data_port);
 }
 
 
@@ -138,9 +138,9 @@ void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s& msg_in,
 
 void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size>(
+    handleEthernetSocketSendPB<hytech_msgs_VCFData_s_size>(
         EthernetIPDefsInstance::instance().vcr_ip,
-        EthernetIPDefsInstance::instance().VCFData_port,
+        EthernetIPDefsInstance::instance().vcf_data_port,
         &_vcf_send_socket,
         data,
         hytech_msgs_VCFData_s_fields);

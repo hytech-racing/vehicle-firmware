@@ -101,8 +101,8 @@ VCFCANInterfaceData_s VCFInterface::getLatestData() const
     if (_first_received_message_heartbeat_init || _curr_data.stamped_pedals.heartbeat_ok || _curr_data.stamped_steering.heartbeat_ok)
     {
         _first_received_message_heartbeat_init = false;
-        _curr_data.stamped_pedals.heartbeat_ok = ((sys_time::hal_millis() - _curr_data.stamped_pedals.last_recv_millis) < _max_heartbeat_interval_ms);
-        _curr_data.stamped_steering.heartbeat_ok = ((sys_time::hal_millis() - _curr_data.stamped_steering.last_recv_millis) < _max_heartbeat_interval_ms);
+        _curr_data.stamped_pedals.heartbeat_ok = ((sys_time::halMillis() - _curr_data.stamped_pedals.last_recv_millis) < _max_heartbeat_interval_ms);
+        _curr_data.stamped_steering.heartbeat_ok = ((sys_time::halMillis() - _curr_data.stamped_steering.last_recv_millis) < _max_heartbeat_interval_ms);
     }
     else
     {
@@ -120,7 +120,7 @@ void VCFInterface::sendBuzzerStartMsg()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::sendRecalibratePedalsMsg()
@@ -130,7 +130,7 @@ void VCFInterface::sendRecalibratePedalsMsg()
     ctrl.in_pedal_calibration_state = true;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::sendRecalibrateSteeringMsg()
@@ -140,7 +140,7 @@ void VCFInterface::sendRecalibrateSteeringMsg()
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = true;
     ctrl.torque_limit_enum_value = 0xFF; // MAX_VALUE indicates "ignore this value" //NOLINT
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::enqueueTorqueModeLEDMsg(TorqueLimit_e torque_limit)
@@ -150,7 +150,7 @@ void VCFInterface::enqueueTorqueModeLEDMsg(TorqueLimit_e torque_limit)
     ctrl.in_pedal_calibration_state = false;
     ctrl.in_steering_calibration_state = false;
     ctrl.torque_limit_enum_value = (uint8_t)torque_limit;
-    CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void VCFInterface::enqueueVehicleStateMsg(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl)
@@ -159,6 +159,6 @@ void VCFInterface::enqueueVehicleStateMsg(VehicleState_e vehicle_state, Drivetra
     state.vehicle_state = static_cast<uint8_t>(vehicle_state);
     state.drivetrain_state = static_cast<uint8_t>(drivetrain_state);
     state.drivebrain_in_control = db_is_in_ctrl;
-    CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
-    CAN_util::enqueue_msg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer); // RDC is on REAR_AUX
+    CAN_util::enqueueMsg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&state, &Pack_CAR_STATES_ht_can, VCRCANInterfaceInstance::instance().rear_aux_can_tx_buffer); // RDC is on REAR_AUX
 }

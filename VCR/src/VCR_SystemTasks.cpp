@@ -138,7 +138,7 @@ void initializeAllSystems()
  */
 // HT_TASK::TaskResponse tickStateMachine(const unsigned long &sys_micros, const HT_TASK::TaskInfo &task_info)
 // {
-//     VehicleStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
+//     VehicleStateMachineInstance::instance().tickStateMachine(sys_time::halMillis());
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }

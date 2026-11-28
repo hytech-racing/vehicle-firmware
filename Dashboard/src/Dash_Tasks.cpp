@@ -17,7 +17,7 @@ void initialize_all_interfaces()
     DisplayInterfaceInstance::instance().startup();
 
     /* VCF Interface */
-    VCFInterfaceInstance::create(sys_time::hal_millis(), 50UL); // TODO: needs to be updated to use constexpr
+    VCFInterfaceInstance::create(sys_time::halMillis(), 50UL); // TODO: needs to be updated to use constexpr
 
     /* VCR Interface */
     VCRInterfaceInstance::create();

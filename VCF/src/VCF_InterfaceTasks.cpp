@@ -103,8 +103,8 @@ void initializeAllInterfaces()
     VCFCANInterfaceInstance::create(
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCFCANInterfaceImpl::vcf_recv_switch>());
 
-    handle_CAN_setup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
-    handle_CAN_setup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
+    handleCANSetup(VCFCANInterfaceInstance::instance().TELEM_CAN, VCFConstants::TELEM_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_telem_can_recv);
+    handleCANSetup(VCFCANInterfaceInstance::instance().FRONT_AUX_CAN, VCFConstants::FAUX_CAN_BAUDRATE, &VCFCANInterfaceImpl::on_front_aux_can_recv);
 
     /* Ethernet */
     VCFEthernetInterfaceInstance::create();
@@ -135,7 +135,7 @@ HT_TASK::TaskResponse readADC1Task(const unsigned long& sysMicros, const HT_TASK
 
 HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
-    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::hal_millis());
+    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -187,14 +187,14 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     msg_out.right_shifter_button = dash_outputs.button_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
-    CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg_out, &Pack_DASH_INPUT_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse enqueueFirmwareVersionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     VCF_FW_VERSION_t msg_out = FirmwareVersionCAN::makeFirmwareVersionMsg<VCF_FW_VERSION_t>();
-    CAN_util::enqueue_msg(&msg_out, &Pack_VCF_FW_VERSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg_out, &Pack_VCF_FW_VERSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -205,7 +205,7 @@ HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sys
     msg_out.fl_load_cell = ADCInterfaceInstance::instance().getFilteredFLLoadcell();
     msg_out.fr_shock_pot_ro = HT_CAN_fr_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFRSuspot());
     msg_out.fl_shock_pot_ro = HT_CAN_fl_shock_pot_ro_toS(ADCInterfaceInstance::instance().getFilteredFLSuspot());
-    CAN_util::enqueue_msg(&msg_out, &Pack_FRONT_SUSPENSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg_out, &Pack_FRONT_SUSPENSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -215,7 +215,7 @@ HT_TASK::TaskResponse enqueueBrakePressureCANDataTask(const unsigned long& sysMi
     msg_out.brake_pressure_1 = ADCInterfaceInstance::instance().getBrakePressureFront().conversion; // front
     msg_out.brake_pressure_2 = ADCInterfaceInstance::instance().getBrakePressureRear().conversion;  // rear
 
-    CAN_util::enqueue_msg(&msg_out, &Pack_BRAKE_PRESSURE_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg_out, &Pack_BRAKE_PRESSURE_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -246,13 +246,13 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 }
 
 // HT_TASK::TaskResponse init_handle_receive_vcr_ethernet_data() {
-//     VCFEthernetInterface::VCF_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
+//     VCFEthernetInterface::VCF_socket.begin(EthernetIPDefsInstance::instance().vcf_data_port);
 
 //     return HT_TASK::TaskResponse::YIELD;
 // }
 
 // HT_TASK::TaskResponse run_handle_receive_vcr_ethernet_data() {
-//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handle_ethernet_socket_receive<hytech_msgs_VCRData_s_size,
+//     etl::optional<hytech_msgs_VCRData_s> protoc_struct = handleEthernetSocketReceive<hytech_msgs_VCRData_s_size,
 //     hytech_msgs_VCRData_s>(&VCFEthernetInterface::VCF_socket, &hytech_msgs_VCRData_s_msg);
 
 //     return HT_TASK::TaskResponse::YIELD;

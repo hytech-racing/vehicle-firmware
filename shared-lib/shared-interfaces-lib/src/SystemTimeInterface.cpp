@@ -4,12 +4,12 @@
 
 namespace sys_time
 {
-    unsigned long hal_millis()
+    unsigned long halMillis()
     {
         return millis();
     }
 
-    unsigned long hal_micros()
+    unsigned long halMicros()
     {
         return micros();
     }

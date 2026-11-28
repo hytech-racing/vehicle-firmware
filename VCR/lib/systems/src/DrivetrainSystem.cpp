@@ -141,7 +141,7 @@ DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(DrivetrainSystem::CmdV
         else if (_checkInverterFlags(_check_inverter_ready_flag))
         {
             _setState(DrivetrainState_e::INVERTERS_READY);
-            _precharge_wait_start = sys_time::hal_millis();
+            _precharge_wait_start = sys_time::halMillis();
         }
 
         break;
@@ -178,10 +178,10 @@ DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(DrivetrainSystem::CmdV
         {
             _setState(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
         }
-        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::hal_millis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2
-                                                                                                                            // seconds
+        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::halMillis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2
+                                                                                                                           // seconds
         {
-            _last_toggled_ef_active = sys_time::hal_millis();
+            _last_toggled_ef_active = sys_time::halMillis();
             _set_ef_active_pin(true);
             _setState(DrivetrainState_e::INVERTERS_HV_ENABLED);
         }
@@ -197,7 +197,7 @@ DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(DrivetrainSystem::CmdV
 
         // State Outputs (Note: trying to make inverters ready and inverters enabled true in this state)
         _set_ef_active_pin(true);
-        if (sys_time::hal_millis() - _last_toggled_ef_active > _ef_pin_enable_delay_ms)
+        if (sys_time::halMillis() - _last_toggled_ef_active > _ef_pin_enable_delay_ms)
         {
             _setEnableDrivetrain();
         }
@@ -226,7 +226,7 @@ DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(DrivetrainSystem::CmdV
         }
         else if (hv_enabled && inverters_ready && inverters_enabled)
         {
-            _precharge_wait_start = sys_time::hal_millis();
+            _precharge_wait_start = sys_time::halMillis();
             _setState(DrivetrainState_e::ENABLED_DRIVE_MODE);
         }
         else if (!hv_enabled && inverters_ready)

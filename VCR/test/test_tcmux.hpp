@@ -349,7 +349,7 @@ TEST(TorqueControllerMuxTesting, test_drivebrain_and_simple_controller_integrati
     data.desired_speeds.last_recv_millis = 1000;
     data.desired_speeds.recvd = true;
     data.torque_limits.last_recv_millis = 1000;
-    sys_time::set_millis(1000);
+    sys_time::setMillis(1000);
     data.torque_limits.recvd = true;
     data.torque_limits.veh_vec_data = {1, 1, 1, 1};
     data.desired_speeds.veh_vec_data = {1, 1, 1, 1};
@@ -380,7 +380,7 @@ TEST(TorqueControllerMuxTesting, test_drivebrain_and_simple_controller_integrati
 
     data.desired_speeds.last_recv_millis = 3000;
     data.torque_limits.last_recv_millis = 2000;
-    sys_time::set_millis(3000);
+    sys_time::setMillis(3000);
     state.interface_data.latest_drivebrain_telem_command = data;
     res = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
 

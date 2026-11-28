@@ -89,7 +89,7 @@ void DrivebrainInterface::handleEnqueueSuspensionCANData(const ADCInterface& adc
     rear_sus_msg.rl_shock_pot_ro = HT_CAN_rl_shock_pot_ro_toS(adc_instance.getFilteredRLSusPot());
     rear_sus_msg.rr_shock_pot_ro = HT_CAN_rr_shock_pot_ro_toS(adc_instance.getFilteredRRSusPot());
 
-    CAN_util::enqueue_msg(&rear_sus_msg, &Pack_REAR_SUSPENSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&rear_sus_msg, &Pack_REAR_SUSPENSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void DrivebrainInterface::handleEnqueueCoolantTempCANData(const ADCInterface& adc_instance)
@@ -98,17 +98,17 @@ void DrivebrainInterface::handleEnqueueCoolantTempCANData(const ADCInterface& ad
     thermistor_msg.thermistor_0_deg_C_ro = HT_CAN_thermistor_0_deg_C_ro_toS(adc_instance.getThermistorNDegreesC(0));
     thermistor_msg.thermistor_1_deg_C_ro = HT_CAN_thermistor_1_deg_C_ro_toS(adc_instance.getThermistorNDegreesC(1));
     thermistor_msg.thermistor_2_deg_C_ro = HT_CAN_thermistor_2_deg_C_ro_toS(adc_instance.getThermistorNDegreesC(2));
-    CAN_util::enqueue_msg(&thermistor_msg, &Pack_REAR_THERMISTORS_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&thermistor_msg, &Pack_REAR_THERMISTORS_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void DrivebrainInterface::handleEnqueueFlowmeterCANData(FlowmeterInterface& flowmeter_instance, unsigned long curr_millis)
 {
     FLOWMETER_DATA_t flowmeter_msg;
     flowmeter_msg.flow_rate = static_cast<int>(flowmeter_instance.getFlowGpm(curr_millis));
-    CAN_util::enqueue_msg(&flowmeter_msg, &Pack_FLOWMETER_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&flowmeter_msg, &Pack_FLOWMETER_DATA_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
 void DrivebrainInterface::handleSendEthernetData(const hytech_msgs_VCRData_s& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_VCRData_s_size>(_drivebrain_ip, _vcr_data_port, _udp_socket, data, hytech_msgs_VCRData_s_fields);
+    handleEthernetSocketSendPB<hytech_msgs_VCRData_s_size>(_drivebrain_ip, _vcr_data_port, _udp_socket, data, hytech_msgs_VCRData_s_fields);
 }

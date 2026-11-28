@@ -12,7 +12,7 @@
 #include <Arduino.h>
 
 
-template <CAN_DEV_TABLE CAN_DEV>
+template <CAN_DEV_TABLE CanDev>
 class CANTestHarness
 {
   public:
@@ -22,7 +22,7 @@ class CANTestHarness
     static void setup(uint32_t baudrate, uint32_t tx_id)
     {
         _tx_id = tx_id;
-        handle_CAN_setup(_bus, baudrate, &_onRecv);
+        handleCANSetup(_bus, baudrate, &_onRecv);
     }
 
     static void loop()
@@ -36,7 +36,7 @@ class CANTestHarness
     }
 
   private:
-    static inline FlexCAN_T4<CAN_DEV> _bus;
+    static inline FlexCAN_T4<CanDev> _bus;
     static inline uint32_t _tx_id = 0;
 
     static void _onRecv(const CAN_message_t& msg)

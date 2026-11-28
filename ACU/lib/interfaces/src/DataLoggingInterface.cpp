@@ -64,7 +64,7 @@ void DataLoggingInterface::log_data()
         return;
     }
 
-    data_file.print(sys_time::hal_millis());
+    data_file.print(sys_time::halMillis());
     data_file.print(",");
     data_file.print(ts_current, 4);
     data_file.print(",");

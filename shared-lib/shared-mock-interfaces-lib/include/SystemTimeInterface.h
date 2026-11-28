@@ -3,11 +3,11 @@
 
 namespace sys_time
 {
-    unsigned long hal_millis();
-    unsigned long hal_micros();
+    unsigned long halMillis();
+    unsigned long halMicros();
 
-    void set_millis(unsigned long m);
-    void set_micros(unsigned long m);
+    void setMillis(unsigned long m);
+    void setMicros(unsigned long m);
 } // namespace sys_time
 
 

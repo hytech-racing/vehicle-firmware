@@ -18,7 +18,7 @@ void initializeAllInterfaces()
     WatchdogInterfaceInstance::instance().init();
 
     /* ---------- ACU Interface ---------- */
-    ACUInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::ACU_ACU_OK_MAX_HEARTBEAT_MS);
+    ACUInterfaceInstance::create(sys_time::halMillis(), VCRInterfaces::ACU_ACU_OK_MAX_HEARTBEAT_MS);
 
     /* ---------- ADC Interface ---------- */
     ADCInterfaceInstance::create(
@@ -86,7 +86,7 @@ void initializeAllInterfaces()
     /* ---------- Drivebrain Interface ---------- */
     DrivebrainInterfaceInstance::create(
         EthernetIPDefsInstance::instance().drivebrain_ip,
-        EthernetIPDefsInstance::instance().VCRData_port,
+        EthernetIPDefsInstance::instance().vcr_data_port,
         VCREthernetInterfaceInstance::instance().getVCRDataSendSocket());
 
     /* ---------- IO Expander Interface ---------- */
@@ -99,7 +99,7 @@ void initializeAllInterfaces()
             IOExpanderPortMode_s{VCRInterfaces::PORTB_DIRECTIONS, VCRInterfaces::PORTB_PULLUPS, VCRInterfaces::PORTB_INVERTED}});
 
     /* ---------- VCF Interface ---------- */
-    VCFInterfaceInstance::create(sys_time::hal_millis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
+    VCFInterfaceInstance::create(sys_time::halMillis(), VCRInterfaces::VCF_PEDALS_MAX_HEARTBEAT_MS);
 
     /* ---------- RSS Interface ---------- */
     RSSInterfaceInstance::create(VCRInterfaces::RSS_NODE_ID);
@@ -126,9 +126,9 @@ void initializeAllInterfaces()
     VCRCANInterfaceInstance::create(
         etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<VCRCANInterfaceImpl::vcrRecvSwitch>());
 
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().inverter_can, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::onInverterCANReceive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().telem_can, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::onTelemCANReceive);
-    handle_CAN_setup(VCRCANInterfaceInstance::instance().rear_aux_can, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::onAuxillaryCANReceive);
+    handleCANSetup(VCRCANInterfaceInstance::instance().inverter_can, VCRConstants::INVERTER_CAN_BAUDRATE, &VCRCANInterfaceImpl::onInverterCANReceive);
+    handleCANSetup(VCRCANInterfaceInstance::instance().telem_can, VCRConstants::TELEM_CAN_BAUDRATE, &VCRCANInterfaceImpl::onTelemCANReceive);
+    handleCANSetup(VCRCANInterfaceInstance::instance().rear_aux_can, VCRConstants::RAUX_CAN_BAUDRATE, &VCRCANInterfaceImpl::onAuxillaryCANReceive);
 }
 
 HT_TASK::TaskResponse runReadADC0Task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
@@ -152,14 +152,14 @@ HT_TASK::TaskResponse runReadMpbADCTask(const unsigned long& sys_micros, const H
 
 HT_TASK::TaskResponse updateACUHeartbeat(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().getLatestData(sys_time::hal_millis());
+    ACUCANInterfaceData_s data = ACUInterfaceInstance::instance().getLatestData(sys_time::halMillis());
     digitalWrite(VCRInterfaces::SOFTWARE_OK_PIN, data.heartbeat_ok);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::hal_millis());
+    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -248,7 +248,7 @@ HT_TASK::TaskResponse enqueueCoolantTempCANData(const unsigned long& sys_micros,
 HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     VCR_FW_VERSION_t msg = FirmwareVersionCAN::makeFirmwareVersionMsg<VCR_FW_VERSION_t>();
-    CAN_util::enqueue_msg(&msg, &Pack_VCR_FW_VERSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    CAN_util::enqueueMsg(&msg, &Pack_VCR_FW_VERSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
     return HT_TASK::TaskResponse::YIELD;
 }
 
@@ -308,22 +308,22 @@ namespace async_tasks
 {
     void handleAsyncCANReceive()
     {
-        process_ring_buffer(
+        processRingBuffer(
             VCRCANInterfaceInstance::instance().inverter_can_rx_buffer,
             CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
+            sys_time::halMillis(),
             VCRCANInterfaceInstance::instance().can_recv_switch,
             CANInterfaceType_e::INVERTER);
-        process_ring_buffer(
+        processRingBuffer(
             VCRCANInterfaceInstance::instance().telem_can_rx_buffer,
             CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
+            sys_time::halMillis(),
             VCRCANInterfaceInstance::instance().can_recv_switch,
             CANInterfaceType_e::TELEM);
-        process_ring_buffer(
+        processRingBuffer(
             VCRCANInterfaceInstance::instance().rear_aux_can_rx_buffer,
             CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
+            sys_time::halMillis(),
             VCRCANInterfaceInstance::instance().can_recv_switch,
             CANInterfaceType_e::RAUX);
     }
@@ -340,7 +340,7 @@ namespace async_tasks
         VCRInterfaceData_s ret = vcr_data.interface_data;
 
         auto vcf_data = can_interfaces.vcf_interface.getLatestData();
-        auto acu_data = can_interfaces.acu_interface.getLatestData(sys_time::hal_millis());
+        auto acu_data = can_interfaces.acu_interface.getLatestData(sys_time::halMillis());
         auto drivebrain_telem_data = can_interfaces.db_interface.getLatestTelemDrivebrainCommand();
         auto drivebrain_auxillary_data = can_interfaces.db_interface.getLatestAuxillaryDrivebrainCommand();
 
@@ -402,7 +402,7 @@ namespace async_tasks
         }
 
         vcr_data.system_data.tc_mux_status = VCRControlsInstance::instance().getTcMuxStatus();
-        vcr_data.system_data.vehicle_state_machine_state = VehicleStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
+        vcr_data.system_data.vehicle_state_machine_state = VehicleStateMachineInstance::instance().tickStateMachine(sys_time::halMillis());
         vcr_data.system_data.drivetrain_state_machine_state = DrivetrainInstance::instance().getState();
         vcr_data.interface_data = new_interface_data;
         vcr_data.system_data.db_cntrl_status.drivebrain_is_in_control = VCRControlsInstance::instance().drivebrainIsInControl();

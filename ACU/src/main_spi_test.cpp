@@ -347,7 +347,7 @@ void setup()
 
 void loop()
 {
-    WatchdogInstance::instance().update_watchdog_state(sys_time::hal_millis()); // verified
+    WatchdogInstance::instance().update_watchdog_state(sys_time::halMillis()); // verified
 
     if (timer >= sample_period_ms) // 300 Hz - reads one group per call
     {

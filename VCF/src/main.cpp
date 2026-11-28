@@ -96,16 +96,16 @@ namespace async_tasks
     // these are async tasks. we want these to run as fast as possible p much
     void handle_async_CAN_receive() // NOLINT caps for CAN
     {
-        process_ring_buffer(
+        processRingBuffer(
             VCFCANInterfaceInstance::instance().telem_can_rx_buffer,
             CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
+            sys_time::halMillis(),
             VCFCANInterfaceInstance::instance().can_recv_switch,
             CANInterfaceType_e::TELEM);
-        process_ring_buffer(
+        processRingBuffer(
             VCFCANInterfaceInstance::instance().front_aux_can_rx_buffer,
             CANInterfacesInstance::instance(),
-            sys_time::hal_millis(),
+            sys_time::halMillis(),
             VCFCANInterfaceInstance::instance().can_recv_switch,
             CANInterfaceType_e::FAUX);
     }
@@ -121,7 +121,7 @@ namespace async_tasks
     {
         handle_async_recvs();
 
-        PedalsSystemInstance::instance().evaluatePedals(PedalsSystemInstance::instance().getPedalsSensorData(), sys_time::hal_millis());
+        PedalsSystemInstance::instance().evaluatePedals(PedalsSystemInstance::instance().getPedalsSensorData(), sys_time::halMillis());
         return HT_TASK::TaskResponse::YIELD;
     }
 }; // namespace async_tasks
@@ -183,7 +183,7 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
     Serial.print("digital_steering_angle: ");
     Serial.println(SteeringSystemInstance::instance().getSteeringSystemData().digital_steering_angle);
     Serial.print("time: ");
-    Serial.println(sys_time::hal_millis());
+    Serial.println(sys_time::halMillis());
 
     Serial.print("output_steering_angle: ");
     Serial.println(SteeringSystemInstance::instance().getSteeringSystemData().output_steering_angle);
@@ -293,13 +293,13 @@ HT_TASK::TaskResponse debugPrints(const unsigned long& sysMicros, const HT_TASK:
     Serial.print("\t");
     Serial.print(DashboardInterfaceInstance::instance().getDashboardOutputs().data_btn_is_pressed);
     Serial.print("\t");
-    Serial.println(BuzzerControllerInstance::instance().isBuzzerActive(sys_time::hal_millis()));
+    Serial.println(BuzzerControllerInstance::instance().isBuzzerActive(sys_time::halMillis()));
 
     /* IR Temp Data (front brake rotors) */
     const IRTempAllSensorData_s ir_temp_data = VCFIRTempInterfaceInstance::instance().getIRTempData();
     const char* ir_names[ir_temp_default_params::NUM_SENSORS] = {"FL", "FR"};
     const IRTempSingleSensorData_s* ir_sensors[ir_temp_default_params::NUM_SENSORS] = {&ir_temp_data.left_sensor, &ir_temp_data.right_sensor};
-    const unsigned long now = sys_time::hal_millis();
+    const unsigned long now = sys_time::halMillis();
 
     Serial.println("\nIR Temps (C):");
     Serial.print("Corner\tBase ID\tAge\tMax\tAvg");

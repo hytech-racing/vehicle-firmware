@@ -21,12 +21,12 @@ struct EthernetIPDefs_s
     const IPAddress default_dns{192, 168, 3, 1};
     const IPAddress default_gateway{192, 168, 3, 1};
     const IPAddress car_subnet{255, 255, 255, 0};
-    const uint16_t VCFData_port = 4444;
-    const uint16_t VCRData_port = 9999;
-    const uint16_t ACUCoreData_port = 7777;
-    const uint16_t ACUAllData_port = 7766;
-    const uint16_t DBData_port = 8888;
-    const uint16_t CCUData_port = 6666;
+    const uint16_t vcf_data_port = 4444;
+    const uint16_t vcr_data_port = 9999;
+    const uint16_t acu_core_data_port = 7777;
+    const uint16_t acu_all_data_port = 7766;
+    const uint16_t db_data_port = 8888;
+    const uint16_t ccu_data_port = 6666;
 };
 
 using EthernetIPDefsInstance = etl::singleton<EthernetIPDefs_s>;
