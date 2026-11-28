@@ -10,7 +10,7 @@
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 namespace watchdog_default_parameters
 {
@@ -19,8 +19,8 @@ namespace watchdog_default_parameters
 
 struct WatchdogPinout_s
 {
-    pin teensy_watchdog_pin;
-    pin teensy_software_ok_pin;
+    Pin teensy_watchdog_pin;
+    Pin teensy_software_ok_pin;
 };
 
 struct WatchdogInterfaceParams_s
@@ -49,7 +49,7 @@ class WatchdogInterface
      * @param curr_millis time of VCF time
      * @post IF reach interval, _watchdog_time updated and state switched
      */
-    bool update_watchdog_state(unsigned long curr_millis);
+    bool updateWatchdogState(unsigned long curr_millis);
 
   private:
     const WatchdogInterfaceParams_s _watchdog_parameters = {};

@@ -22,8 +22,8 @@ constexpr size_t CAN_MSG_SIZE = sizeof(CAN_message_t);
 using CANRXBuffer_t = Circular_Buffer<uint8_t, (uint32_t)16, CAN_MSG_SIZE>;
 using CANTXBuffer_t = Circular_Buffer<uint8_t, (uint32_t)128, CAN_MSG_SIZE>;
 
-template <CAN_DEV_TABLE CAN_DEV>
-using FlexCAN_t = FlexCAN_T4<CAN_DEV, RX_SIZE_256, TX_SIZE_16>;
+template <CAN_DEV_TABLE CanDev>
+using FlexCAN_t = FlexCAN_T4<CanDev, RX_SIZE_256, TX_SIZE_16>;
 
 
 /**
@@ -49,11 +49,11 @@ struct CCUCANInterface_s
     {
     }
 
-    FlexCAN_t<CAN1> ACU_CAN;
+    FlexCAN_t<CAN1> acu_can;
     CANRXBuffer_t acu_can_rx_buffer;
     CANTXBuffer_t acu_can_tx_buffer;
 
-    FlexCAN_t<CAN3> CHARGER_CAN;
+    FlexCAN_t<CAN3> charger_can;
     CANRXBuffer_t charger_can_rx_buffer;
     CANTXBuffer_t charger_can_tx_buffer;
 
@@ -70,7 +70,7 @@ namespace CCUCANInterfaceImpl
     /**
      * @brief Routes a decoded message to the appropriate interface based on CANID
      */
-    void CCUReceiveIDSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type);
+    void ccuRecvSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type);
 
     void clearAllCANBuffers(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
 }; // namespace CCUCANInterfaceImpl

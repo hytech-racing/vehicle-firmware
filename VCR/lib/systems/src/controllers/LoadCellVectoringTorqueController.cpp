@@ -12,25 +12,25 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s&
     const FrontLoadCellData_s& front_lc_data = vcr_data.interface_data.front_loadcell_data;
     const RearLoadCellData_s& rear_lc_data = vcr_data.interface_data.rear_loadcell_data;
 
-    veh_vec<float> load_cell_data(
-        static_cast<float>(front_lc_data.FL_loadcell_analog),
-        static_cast<float>(front_lc_data.FR_loadcell_analog),
-        static_cast<float>(rear_lc_data.RL_loadcell_analog),
-        static_cast<float>(rear_lc_data.RR_loadcell_analog));
+    VehVec_s<float> load_cell_data(
+        static_cast<float>(front_lc_data.fl_loadcell_analog),
+        static_cast<float>(front_lc_data.fr_loadcell_analog),
+        static_cast<float>(rear_lc_data.rl_loadcell_analog),
+        static_cast<float>(rear_lc_data.rr_loadcell_analog));
 
     // Do sanity checks on raw data - FIX
-    _load_cell_error_counts.FL = front_lc_data.valid_FL_sample ? 0 : _load_cell_error_counts.FL + 1;
-    _load_cell_error_counts.FR = front_lc_data.valid_FR_sample ? 0 : _load_cell_error_counts.FR + 1;
-    _load_cell_error_counts.RL = rear_lc_data.valid_RL_sample ? 0 : _load_cell_error_counts.RL + 1;
-    _load_cell_error_counts.RR = rear_lc_data.valid_RR_sample ? 0 : _load_cell_error_counts.RR + 1;
+    _load_cell_error_counts.fl = front_lc_data.valid_fl_sample ? 0 : _load_cell_error_counts.fl + 1;
+    _load_cell_error_counts.fr = front_lc_data.valid_fr_sample ? 0 : _load_cell_error_counts.fr + 1;
+    _load_cell_error_counts.rl = rear_lc_data.valid_rl_sample ? 0 : _load_cell_error_counts.rl + 1;
+    _load_cell_error_counts.rr = rear_lc_data.valid_rr_sample ? 0 : _load_cell_error_counts.rr + 1;
 
-    if (_load_cell_error_counts.FL < _max_error_count
-        && _load_cell_error_counts.FR < _max_error_count
-        && _load_cell_error_counts.RL < _max_error_count
-        && _load_cell_error_counts.RR < _max_error_count)
+    if (_load_cell_error_counts.fl < _max_error_count
+        && _load_cell_error_counts.fr < _max_error_count
+        && _load_cell_error_counts.rl < _max_error_count
+        && _load_cell_error_counts.rr < _max_error_count)
     {
         // Calculate total normal force
-        float sum_normal_force = load_cell_data.FL + load_cell_data.FR + load_cell_data.RL + load_cell_data.RR;
+        float sum_normal_force = load_cell_data.fl + load_cell_data.fr + load_cell_data.rl + load_cell_data.rr;
 
         // Both pedals are not pressed and no implausibility has been detected
         // accel_request goes between 1.0 and -1.0
@@ -42,15 +42,15 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s&
             // Positive torque request
             torque_request = accel_request * PhysicalParameters::AMK_MAX_TORQUE * 4;
 
-            out.desired_speeds.FL = PhysicalParameters::AMK_MAX_RPM;
-            out.desired_speeds.FR = PhysicalParameters::AMK_MAX_RPM;
-            out.desired_speeds.RL = PhysicalParameters::AMK_MAX_RPM;
-            out.desired_speeds.RR = PhysicalParameters::AMK_MAX_RPM;
+            out.desired_speeds.fl = PhysicalParameters::AMK_MAX_RPM;
+            out.desired_speeds.fr = PhysicalParameters::AMK_MAX_RPM;
+            out.desired_speeds.rl = PhysicalParameters::AMK_MAX_RPM;
+            out.desired_speeds.rr = PhysicalParameters::AMK_MAX_RPM;
 
-            out.torque_limits.FL = torque_request * _front_torque_scale * load_cell_data.FL / sum_normal_force;
-            out.torque_limits.FR = torque_request * _front_torque_scale * load_cell_data.FR / sum_normal_force;
-            out.torque_limits.RL = torque_request * _rear_torque_scale * load_cell_data.RL / sum_normal_force;
-            out.torque_limits.RR = torque_request * _rear_torque_scale * load_cell_data.RR / sum_normal_force;
+            out.torque_limits.fl = torque_request * _front_torque_scale * load_cell_data.fl / sum_normal_force;
+            out.torque_limits.fr = torque_request * _front_torque_scale * load_cell_data.fr / sum_normal_force;
+            out.torque_limits.rl = torque_request * _rear_torque_scale * load_cell_data.rl / sum_normal_force;
+            out.torque_limits.rr = torque_request * _rear_torque_scale * load_cell_data.rr / sum_normal_force;
         }
         else
         {
@@ -63,10 +63,10 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s&
 
             out.desired_speeds = {0.0F, 0.0F, 0.0F, 0.0F};
 
-            out.torque_limits.FL = std::min(_front_regen_limit, std::max(0.0f, torque_request * _front_regen_torque_scale));
-            out.torque_limits.FR = std::min(_front_regen_limit, std::max(0.0f, torque_request * _front_regen_torque_scale));
-            out.torque_limits.RL = std::min(_rear_regen_limit, std::max(0.0f, torque_request * _rear_regen_torque_scale));
-            out.torque_limits.RR = std::min(_rear_regen_limit, std::max(0.0f, torque_request * _rear_regen_torque_scale));
+            out.torque_limits.fl = std::min(_front_regen_limit, std::max(0.0f, torque_request * _front_regen_torque_scale));
+            out.torque_limits.fr = std::min(_front_regen_limit, std::max(0.0f, torque_request * _front_regen_torque_scale));
+            out.torque_limits.rl = std::min(_rear_regen_limit, std::max(0.0f, torque_request * _rear_regen_torque_scale));
+            out.torque_limits.rr = std::min(_rear_regen_limit, std::max(0.0f, torque_request * _rear_regen_torque_scale));
         }
     }
 

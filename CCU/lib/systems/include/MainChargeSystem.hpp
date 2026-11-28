@@ -55,8 +55,8 @@ struct ChargeSystemParams_s
 {
     ChargeSystemThresholds_s thresholds;
     ChargeSystemConfigs_s configs;
-    float max_120V_current_amp;
-    float max_240V_current_amp;
+    float max_120v_current_amp;
+    float max_240v_current_amp;
     float max_cell_cutoff_temp_celcius;
     float max_board_cutoff_temp_celcius;
 };
@@ -65,8 +65,8 @@ class MainChargeSystem
 {
   public:
     MainChargeSystem(
-        float max_120V_current_amp,
-        float max_240V_current_amp,
+        float max_120v_current_amp,
+        float max_240v_current_amp,
         float max_cell_cutoff_temp_celcius,
         float max_board_cutoff_temp_celcius,
         ChargeSystemThresholds_s thresholds =
@@ -78,8 +78,8 @@ class MainChargeSystem
         : _charge_system_parameters{
               thresholds,
               configs,
-              max_120V_current_amp,
-              max_240V_current_amp,
+              max_120v_current_amp,
+              max_240v_current_amp,
               max_cell_cutoff_temp_celcius,
               max_board_cutoff_temp_celcius}
     {
@@ -98,7 +98,7 @@ class MainChargeSystem
      * @param charger_current_max Maximum current (will be scaled based on 120V vs 240V state)
      * @param curr_time Current time in millis
      */
-    void calculate_charge_current(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis);
+    void calculateChargeCurrent(float max_pack_voltage, float cell_cutoff_voltage, float dial_percent, unsigned long curr_millis);
 
     /**
      * @brief Determine if cell balancing should be enabled
@@ -106,17 +106,17 @@ class MainChargeSystem
      * @param min_balance_voltage Minimum cell voltage to start balancing (default 3.0V)
      * @return true if balancing should be enabled
      */
-    bool determine_balancing_state(ChargerState_e current_state, float voltage_delta_threshold = 0.02F, float min_balance_voltage = 3.0F);
+    bool determineBalancingState(ChargerState_e current_state, float voltage_delta_threshold = 0.02F, float min_balance_voltage = 3.0F);
 
     /**
      * @brief Get calculated charge current
      */
-    float get_charge_current() const { return _charge_data.calculated_charge_current; }
+    float getChargeCurrent() const { return _charge_data.calculated_charge_current; }
 
     /**
      * @brief Get the current charge system data
      */
-    const ChargeSystemData_s& get_charge_data() const { return _charge_data; }
+    const ChargeSystemData_s& getChargeData() const { return _charge_data; }
 
   private:
     /**
@@ -135,32 +135,32 @@ class MainChargeSystem
     /**
      * @brief Check if it's safe to charge based on safety systems
      */
-    bool _is_safety_conditions_valid();
+    bool _isSafetyConditionsValid();
 
     /**
      * @brief Apply current limiting, includes temperature and inital startup ramp-up
      */
-    float _apply_current_limits(ChargerState_e state, float requested_current, unsigned long curr_millis);
+    float _applyCurrentLimits(ChargerState_e state, float requested_current, unsigned long curr_millis);
 
     /**
      * @brief Get appropriate current based on charger state
      */
-    float _get_current_for_state(ChargerState_e state);
+    float _getCurrentForState(ChargerState_e state);
 
     /**
      * @brief
      */
-    float _calculate_cell_temp_derate_factor(float curr_temp);
+    float _calculateCellTempDerateFactor(float curr_temp);
 
     /**
      * @brief
      */
-    float _calculate_board_temp_derate_factor(float curr_temp);
+    float _calculateBoardTempDerateFactor(float curr_temp);
 
     /**
      *
      */
-    float _startup_derate_factor(unsigned long current_millis);
+    float _startupDerateFactor(unsigned long current_millis);
 };
 
 using MainChargeSystemInstance = etl::singleton<MainChargeSystem>;

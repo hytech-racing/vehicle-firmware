@@ -9,14 +9,14 @@
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
-HT_TASK::Task updateBuckConverters(HT_TASK::DUMMY_FUNCTION, &updateBuckConvertersTask, PDBConstants::BUCK_UPDATE_PRIORITY, PDBConstants::BUCK_UPDATE_PERIOD_US);
-HT_TASK::Task readTempSensors(HT_TASK::DUMMY_FUNCTION, &readTempSensorsTask, PDBConstants::TEMP_SENSOR_READ_PRIORITY, PDBConstants::TEMP_SENSOR_READ_PERIOD_US);
-HT_TASK::Task updateHotSwap(HT_TASK::DUMMY_FUNCTION, &updateHotSwapTask, PDBConstants::HOTSWAP_UPDATE_PRIORITY, PDBConstants::HOTSWAP_UPDATE_PERIOD_US);
+HT_TASK::Task updateBuckConverters(HT_TASK::dummyFunction, &updateBuckConvertersTask, PDBConstants::BUCK_UPDATE_PRIORITY, PDBConstants::BUCK_UPDATE_PERIOD_US);
+HT_TASK::Task readTempSensors(HT_TASK::dummyFunction, &readTempSensorsTask, PDBConstants::TEMP_SENSOR_READ_PRIORITY, PDBConstants::TEMP_SENSOR_READ_PERIOD_US);
+HT_TASK::Task updateHotSwap(HT_TASK::dummyFunction, &updateHotSwapTask, PDBConstants::HOTSWAP_UPDATE_PRIORITY, PDBConstants::HOTSWAP_UPDATE_PERIOD_US);
 HT_TASK::Task
-    sampleLoadSwitches(HT_TASK::DUMMY_FUNCTION, &sampleLoadSwitchesTask, PDBConstants::LOAD_SWITCH_SAMPLE_PRIORITY, PDBConstants::LOAD_SWITCH_SAMPLE_PERIOD_US);
+    sampleLoadSwitches(HT_TASK::dummyFunction, &sampleLoadSwitchesTask, PDBConstants::LOAD_SWITCH_SAMPLE_PRIORITY, PDBConstants::LOAD_SWITCH_SAMPLE_PERIOD_US);
 HT_TASK::Task
-    sendFirmwareVersionCAN(HT_TASK::DUMMY_FUNCTION, &sendFirmwareVersionCANTask, PDBConstants::FW_VERSION_CAN_PRIORITY, PDBConstants::FW_VERSION_CAN_PERIOD_US);
-HT_TASK::Task debugPrints(HT_TASK::DUMMY_FUNCTION, &debugPrintsTask, PDBConstants::DEBUG_PRINT_PRIORITY, PDBConstants::DEBUG_PRINT_PERIOD_US);
+    sendFirmwareVersionCAN(HT_TASK::dummyFunction, &sendFirmwareVersionCANTask, PDBConstants::FW_VERSION_CAN_PRIORITY, PDBConstants::FW_VERSION_CAN_PERIOD_US);
+HT_TASK::Task debugPrints(HT_TASK::dummyFunction, &debugPrintsTask, PDBConstants::DEBUG_PRINT_PRIORITY, PDBConstants::DEBUG_PRINT_PERIOD_US);
 
 
 void setup()

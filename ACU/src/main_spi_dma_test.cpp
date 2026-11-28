@@ -92,10 +92,10 @@ void loop()
                 SPI1.beginTransaction(SPISettings(spi_baudrate, MSBFIRST, SPI_MODE3));
                 digitalWrite(ACUConstants::CS[1], LOW);
                 delayMicroseconds(1);
-                auto start = sys_time::hal_micros();
+                auto start = sys_time::halMicros();
                 SPI1.transfer(tx, rx, len, spi_event);
                 dma_busy = true;
-                Serial.println(sys_time::hal_micros() - start);
+                Serial.println(sys_time::halMicros() - start);
             };
 
             if (spi_state == SPIState_e::IDLE)

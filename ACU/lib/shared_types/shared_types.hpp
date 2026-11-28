@@ -5,12 +5,12 @@
 
 struct BMSCoreData_s
 {
-    volt min_cell_voltage;
-    volt max_cell_voltage;
-    volt pack_voltage;
-    celsius max_cell_temp;
-    celsius min_cell_temp;
-    celsius max_board_temp;
+    Volt min_cell_voltage;
+    Volt max_cell_voltage;
+    Volt pack_voltage;
+    Celsius max_cell_temp;
+    Celsius min_cell_temp;
+    Celsius max_board_temp;
 };
 
 /**

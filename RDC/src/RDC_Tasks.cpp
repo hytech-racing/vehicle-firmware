@@ -14,7 +14,7 @@ void initializeAllInterfaces()
 {
     Serial.begin(RDCConstants::SERIAL_BAUDRATE);
     DrivebrainInterfaceInstance::create();
-    FDCInterfaceInstance::create(sys_time::hal_millis(), RDCConstants::EBS_HEARTBEAT_TIMEOUT_MS);
+    FDCInterfaceInstance::create(sys_time::halMillis(), RDCConstants::EBS_HEARTBEAT_TIMEOUT_MS);
     RSSInterfaceInstance::create(RDCConstants::RSS_NODE_ID);
     CANInterfacesInstance::create(DrivebrainInterfaceInstance::instance(), FDCInterfaceInstance::instance(), RSSInterfaceInstance::instance());
 
@@ -102,7 +102,7 @@ void initializeDriverless()
         etl::delegate<DriverlessMission_e()>::create<FDCInterface, &FDCInterface::getDriverlessMision>(FDCInterfaceInstance::instance()),
         etl::delegate<EBSData_s()>::create<FDCInterface, &FDCInterface::getEbsData>(FDCInterfaceInstance::instance()),
         etl::delegate<bool()>::create<FDCInterface, &FDCInterface::getEbsSupervisorStatus>(FDCInterfaceInstance::instance()),
-        etl::delegate<unsigned long()>::create<sys_time::hal_millis>(),
+        etl::delegate<unsigned long()>::create<sys_time::halMillis>(),
         etl::delegate<BrakeFluidPressureData_s()>::create<FDCInterface, &FDCInterface::getBrakeData>(FDCInterfaceInstance::instance()));
 
     DriverlessStateMachineInstance::create(
@@ -193,7 +193,7 @@ HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_
     /* Process the CAN messages we have received */
     CoreRDCCANInterfaceInstance::instance().processCANMessages(
         CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         CoreRDCCANInterfaceInstance::instance().recvSwitch,
         CANInterfaceType_e::RAUX);
     /* Collect data from ADC */
@@ -203,7 +203,7 @@ HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_
 
 HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    DriverlessStateMachineInstance::instance().tickStateMachine(sys_time::hal_millis());
+    DriverlessStateMachineInstance::instance().tickStateMachine(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 };
 
@@ -217,7 +217,7 @@ HT_TASK::TaskResponse initWatchdog(const unsigned long& sys_micros, const HT_TAS
 
 HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    digitalWrite(PinAssignments::WATCHDOG_PIN, WatchdogInstance::instance().getRDCWatchdogState(sys_time::hal_millis()));
+    digitalWrite(PinAssignments::WATCHDOG_PIN, WatchdogInstance::instance().getRDCWatchdogState(sys_time::halMillis()));
     digitalWrite(
         PinAssignments::DS_SENSORS_OK_PIN,
         true); // TODO: implement a function instead of true that validates the ds sensors are ok and sets the ds_sensors_ok pin to that.

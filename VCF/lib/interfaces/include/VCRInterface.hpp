@@ -17,12 +17,12 @@
 
 struct InverterErrorFlags_s
 {
-    veh_vec<bool> error;
+    VehVec_s<bool> error;
 };
 
 struct InverterBusVolts_s
 {
-    veh_vec<int> voltage;
+    VehVec_s<int> voltage;
 };
 
 class VCRInterface

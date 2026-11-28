@@ -42,13 +42,13 @@ class DrivebrainController
     /// @return torque controller output that gets passed through the TC MUX
     DrivetrainCommand_s evaluate(const VCRData_s& state, unsigned long curr_millis);
 
-    MessageLatencyInfo_s get_aux_latency_data() { return _aux_latency_info; }
+    MessageLatencyInfo_s getAuxLatencyData() { return _aux_latency_info; }
 
-    MessageLatencyInfo_s get_telem_latency_data() { return _telem_latency_info; }
+    MessageLatencyInfo_s getTelemLatencyData() { return _telem_latency_info; }
 
     /// @brief getter for the current status of whether or not the controller has had a timing failure during operation
     /// @return bool of status
-    bool get_timing_failure_status() const { return !_should_run_controller; }
+    bool getTimingFailureStatus() const { return !_should_run_controller; }
 
   private:
     struct
@@ -64,7 +64,7 @@ class DrivebrainController
 
     TorqueControllerSimple _emergency_control = {{1.0f, 1.0f, 20000.0f, 10.0f, -15.0f}}; // NOLINT
 
-    void _check_drivebrain_command_timing_failure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info);
+    void _checkDrivebrainCommandTimingFailure(StampedDrivetrainCommand_s command, unsigned long curr_millis, MessageLatencyInfo_s& latency_info);
 };
 
 #endif // DRIVEBRAINCONTROLLER_H

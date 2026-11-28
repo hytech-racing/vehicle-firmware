@@ -8,7 +8,7 @@
 #include "MAX114XInterface.hpp"
 #include "SharedFirmwareTypes.h"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace adc_default_parameters
@@ -26,26 +26,26 @@ namespace adc_default_parameters
 
 struct ADCPinout_s
 {
-    pin teensy_imd_ok_pin;
-    pin teensy_precharge_pin;
-    pin teensy_shdn_out_pin;
+    Pin teensy_imd_ok_pin;
+    Pin teensy_precharge_pin;
+    Pin teensy_shdn_out_pin;
 
-    pin teensy_hv_plus_out_ok_pin;
-    pin teensy_main_ok_pin;
-    pin teensy_main_under_thresh_pin;
-    pin teensy_precharge_under_thresh_pin;
+    Pin teensy_hv_plus_out_ok_pin;
+    Pin teensy_main_ok_pin;
+    Pin teensy_main_under_thresh_pin;
+    Pin teensy_precharge_under_thresh_pin;
 
-    pin teensy_ts_out_filtered_pin;
-    pin teensy_pack_out_filtered_pin;
-    pin teensy_bspd_current_pin;
-    pin teensy_scaled_24V_pin;
+    Pin teensy_ts_out_filtered_pin;
+    Pin teensy_pack_out_filtered_pin;
+    Pin teensy_bspd_current_pin;
+    Pin teensy_scaled_24V_pin;
 
     // MAX114X
-    pin spiPinCS;
-    pin spiPinSDI;
-    pin spiPinSDO;
-    pin spiPinCLK;
-    pin adc_not_shdn_pin;
+    Pin spiPinCS;
+    Pin spiPinSDI;
+    Pin spiPinSDO;
+    Pin spiPinCLK;
+    Pin adc_not_shdn_pin;
 };
 
 struct ADCChannels_s
@@ -230,7 +230,7 @@ class ADCInterface
     /**
      * @return the voltage of SHDN_OUT
      */
-    volt read_shdn_voltage();
+    Volt read_shdn_voltage();
 
     /**
      * @return the state of PRECHARGE, HIGH = precharge relay is closed
@@ -240,52 +240,52 @@ class ADCInterface
     /**
      * @return the voltage of PRECHARGE
      */
-    volt read_precharge_voltage();
+    Volt read_precharge_voltage();
 
     /**
      * @return HV+ out ok voltage -- output of AND gate that compares if the PACK_OUT voltage is within range
      */
-    volt read_hv_plus_out_ok_voltage();
+    Volt read_hv_plus_out_ok_voltage();
 
     /**
      * @return main ok voltage -- output of AND gate that checks MAIN_CHECK_OK and PACK_REF_UV_OK
      */
-    volt read_main_ok_voltage();
+    Volt read_main_ok_voltage();
 
     /**
      * @return main under threshold voltage -- dynamic voltage that is the output 0.9 Pack and TS_OUT hysteresis
      */
-    volt read_main_under_threshold_voltage();
+    Volt read_main_under_threshold_voltage();
 
     /**
      * @return precharge under threshold voltage -- dynamic voltage that is output of 0.95 Pack and TS_OUT hysteresis
      */
-    volt read_precharge_under_threshold_voltage();
+    Volt read_precharge_under_threshold_voltage();
 
     /**
      * @return voltage values of filtered TS OUT
      */
-    volt read_ts_out_filtered();
+    Volt read_ts_out_filtered();
 
     /**
      * @return voltage values of filtered PACK OUT
      */
-    volt read_pack_out_filtered();
+    Volt read_pack_out_filtered();
 
     /**
      * @return the current of BSPD
      */
-    volt read_bspd_current();
+    Volt read_bspd_current();
 
     /**
      * @return voltage value of GLV, nominal 24V
      */
-    volt read_global_lv_value();
+    Volt read_global_lv_value();
 
     /**
      * @return shdn out voltage
      */
-    volt read_shdn_out_voltage();
+    Volt read_shdn_out_voltage();
 
     /**
      * @return ISO Pack Differential

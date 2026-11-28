@@ -36,7 +36,7 @@ void setup()
     // SteeringEncoderReading_s result = OrbisBRInstance::instance().convert();
     //     if (result.errors.generalError)   { Serial.println("General error"); }
     //     if (result.errors.generalWarning) { Serial.println("General warning"); }
-    //     if (result.errors.noData)         { Serial.println("No data"); }
+    //     if (result.errors.no_data)         { Serial.println("No data"); }
 
     //     OrbisErrorFlags_s orbisErrors = OrbisBRInstance::instance().getOrbisErrors();
     //     if (orbisErrors.distFar)              { Serial.println("Readhead too far"); }
@@ -57,15 +57,15 @@ void loop()
         OrbisInterfaceInstance::instance().sample();
 
         SteeringEncoderReading_s result = OrbisInterfaceInstance::instance().get_last_reading();
-        if (result.errors.dataInvalid)
+        if (result.errors.data_invalid)
         {
             Serial.println("General error");
         }
-        if (result.errors.operatingLimit)
+        if (result.errors.operating_limit)
         {
             Serial.println("General warning");
         }
-        if (result.errors.noData)
+        if (result.errors.no_data)
         {
             Serial.println("No data");
         }

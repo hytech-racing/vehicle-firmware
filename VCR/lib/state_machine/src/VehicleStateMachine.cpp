@@ -1,7 +1,7 @@
 #include "VehicleStateMachine.hpp"
 
 
-VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_millis)
+VehicleState_e VehicleStateMachine::tickStateMachine(unsigned long current_millis)
 {
     switch (_current_state)
     {
@@ -14,18 +14,18 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (_check_hv_over_threshold())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
 
         if (_is_calibrate_pedals_button_pressed())
         {
-            _set_state(VehicleState_e::WANTING_RECALIBRATE_PEDALS, current_millis);
+            _setState(VehicleState_e::WANTING_RECALIBRATE_PEDALS, current_millis);
         }
 
         if (_is_calibrate_steering_button_pressed())
         {
-            _set_state(VehicleState_e::WANTING_RECALIBRATE_STEERING, current_millis);
+            _setState(VehicleState_e::WANTING_RECALIBRATE_STEERING, current_millis);
         }
 
         _command_drivetrain(false, false);
@@ -43,13 +43,13 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_check_hv_over_threshold())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
             break;
         }
 
         if ((_is_start_button_pressed() && _is_brake_pressed()) || (_is_rss_go_button_pressed() && _is_brake_pressed()))
         {
-            _set_state(VehicleState_e::WANTING_READY_TO_DRIVE, current_millis);
+            _setState(VehicleState_e::WANTING_READY_TO_DRIVE, current_millis);
             break;
         }
 
@@ -61,17 +61,17 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_check_hv_over_threshold())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
             break;
         }
         if (_check_drivetrain_error_ocurred())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
         if (_check_drivetrain_ready())
         {
-            _set_state(VehicleState_e::READY_TO_DRIVE, current_millis);
+            _setState(VehicleState_e::READY_TO_DRIVE, current_millis);
             break;
         }
 
@@ -83,25 +83,25 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_check_hv_over_threshold())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
             break;
         }
 
         if (_check_drivetrain_error_ocurred())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
 
         if (_check_pedals_timeout())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
             break;
         }
 
         if (_check_steering_timeout())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_ACTIVE, current_millis);
         }
 
         break;
@@ -112,12 +112,12 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_is_calibrate_pedals_button_pressed())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
         }
 
         if (_is_calibrate_pedals_button_pressed() && (current_millis - _last_entered_pedals_waiting_state_ms > 3000))
         {
-            _set_state(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
+            _setState(VehicleState_e::RECALIBRATING_PEDALS, current_millis);
         }
 
         break;
@@ -128,12 +128,12 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_is_calibrate_steering_button_pressed())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
         }
 
         if (_is_calibrate_steering_button_pressed() && (current_millis - _last_entered_steering_waiting_state_ms > 3000))
         {
-            _set_state(VehicleState_e::RECALIBRATING_STEERING, current_millis);
+            _setState(VehicleState_e::RECALIBRATING_STEERING, current_millis);
         }
 
         break;
@@ -144,7 +144,7 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_is_calibrate_steering_button_pressed())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
         }
 
         if (_is_calibrate_steering_button_pressed())
@@ -160,7 +160,7 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
 
         if (!_is_calibrate_pedals_button_pressed())
         {
-            _set_state(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
+            _setState(VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE, current_millis);
         }
 
         if (_is_calibrate_pedals_button_pressed())
@@ -178,14 +178,14 @@ VehicleState_e VehicleStateMachine::tick_state_machine(unsigned long current_mil
     return _current_state;
 }
 
-void VehicleStateMachine::_set_state(VehicleState_e new_state, unsigned long curr_millis)
+void VehicleStateMachine::_setState(VehicleState_e new_state, unsigned long curr_millis)
 {
-    _handle_exit_logic(_current_state, curr_millis);
+    _handleExitLogic(_current_state, curr_millis);
     _current_state = new_state;
-    _handle_entry_logic(_current_state, curr_millis);
+    _handleEntryLogic(_current_state, curr_millis);
 }
 
-void VehicleStateMachine::_handle_exit_logic(VehicleState_e prev_state, unsigned long curr_millis)
+void VehicleStateMachine::_handleExitLogic(VehicleState_e prev_state, unsigned long curr_millis)
 {
     switch (prev_state)
     {
@@ -232,7 +232,7 @@ void VehicleStateMachine::_handle_exit_logic(VehicleState_e prev_state, unsigned
     }
 }
 
-void VehicleStateMachine::_handle_entry_logic(VehicleState_e new_state, unsigned long curr_millis)
+void VehicleStateMachine::_handleEntryLogic(VehicleState_e new_state, unsigned long curr_millis)
 {
     switch (new_state)
     {

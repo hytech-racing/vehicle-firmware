@@ -7,8 +7,8 @@
  *   CAN3 = CHARGER  (CCUConstants::CHARGER_CAN_BAUDRATE)
  */
 using TestHarness = CANTestHarness<CAN1>;
-const uint32_t CAN_BAUDRATE = CCUConstants::ACU_CAN_BAUDRATE;
-const uint32_t MSG_ID = 0x12;
+constexpr uint32_t CAN_BAUDRATE = CCUConstants::ACU_CAN_BAUDRATE;
+constexpr uint32_t MSG_ID = 0x12;
 
 void setup()
 {

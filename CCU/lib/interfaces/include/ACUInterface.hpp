@@ -32,30 +32,30 @@ namespace default_acu_params
 struct ACUInterfaceData_s
 {
     /* ACU Status Message */
-    time_ms last_recv_status_ms;
+    TimeMs last_recv_status_ms;
     ACUState_e acu_state;
     bool heartbeat_ok;
 
     /* BMS Voltages */
-    volt average_voltage;
-    volt low_voltage;
-    volt high_voltage;
-    volt pack_voltage;
+    Volt average_voltage;
+    Volt low_voltage;
+    Volt high_voltage;
+    Volt pack_voltage;
 
     /* BMS Temps Data */
-    celsius max_cell_temp;
-    celsius min_cell_temp;
-    celsius avg_cell_temp;
-    celsius max_board_temp;
+    Celsius max_cell_temp;
+    Celsius min_cell_temp;
+    Celsius avg_cell_temp;
+    Celsius max_board_temp;
 
     /* BMS Detailed Data */
-    std::array<etl::optional<volt>, default_acu_params::NUM_CELLS> cell_voltages;
-    std::array<etl::optional<celsius>, default_acu_params::NUM_CELL_TEMPS> cell_temps;
-    std::array<etl::optional<celsius>, default_acu_params::NUM_BOARD_TEMPS> board_temps;
+    std::array<etl::optional<Volt>, default_acu_params::NUM_CELLS> cell_voltages;
+    std::array<etl::optional<Celsius>, default_acu_params::NUM_CELL_TEMPS> cell_temps;
+    std::array<etl::optional<Celsius>, default_acu_params::NUM_BOARD_TEMPS> board_temps;
 
     /* Elcon Charger Status */
     bool is_charging_enabled;
-    float SoC;
+    float state_of_charge;
 };
 
 class ACUInterface

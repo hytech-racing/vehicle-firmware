@@ -224,20 +224,20 @@ class ADS112Interface : public AnalogMultiSensor<ads112_default_parameters::ADS1
     void tick() override;
 
     // Returns the most recent converted value for a channel.
-    AnalogConversion_s get_channel(size_t channel);
+    AnalogConversion_s getChannel(size_t channel);
 
     // True once the init sequence is complete and sampling is running.
-    bool is_ready() const;
+    bool isReady() const;
 
     // True if a communication fault has been detected.
-    bool is_faulted() const;
+    bool isFaulted() const;
 
     // Current state machine state (useful for debugging).
-    ADS112State_e get_state() const;
+    ADS112State_e getState() const;
 
-    void power_down();
+    void powerDown();
 
-    ADS112TemperatureReading_s get_internal_temperature();
+    ADS112TemperatureReading_s getInternalTemperature();
 
   private:
     HardwareSerial* _serial;
@@ -257,26 +257,26 @@ class ADS112Interface : public AnalogMultiSensor<ads112_default_parameters::ADS1
     // --------------- state machine helpers ----------------------------------
 
     // Send one byte then flush. Inserts byte-gap delay after flush.
-    void _send_byte(uint8_t b);
+    void _sendByte(uint8_t b);
 
     // Send sync word + command byte.
-    void _send_command(uint8_t command);
+    void _sendCommand(uint8_t command);
 
     // Send sync word + WREG command + data byte.
-    void _write_register(uint8_t register_address, uint8_t value);
+    void _writeRegister(uint8_t register_address, uint8_t value);
 
     // Drain all bytes currently in the RX buffer.
-    void _clear_rx();
+    void _clearRx();
 
     // Transition to a new state and record the entry time.
-    void _enter_state(ADS112State_e next);
+    void _enterState(ADS112State_e next);
 
     // Build register byte values.
-    uint8_t _build_config_register_0(ADS112U04InputMux_e mux) const;
-    uint8_t _build_config_register_1(bool temperature_sensor_enabled = false) const;
+    uint8_t _buildConfigRegister0(ADS112U04InputMux_e mux) const;
+    uint8_t _buildConfigRegister1(bool temperature_sensor_enabled = false) const;
 
-    bool _has_reset_pin() const;
-    bool _has_drdy_pin() const;
+    bool _hasResetPin() const;
+    bool _hasDrdyPin() const;
 
     // Required by AnalogMultiSensor — not used (state machine drives sampling).
     void _sample() override {}

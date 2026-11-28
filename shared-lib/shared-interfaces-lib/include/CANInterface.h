@@ -10,20 +10,20 @@
 /**
  * @brief CAN setup function for flexcan devices
  *
- * @tparam CAN_DEVICE the type of the CAN device being used (flexcan has all sorts of template args im not gonna call out here)
- * @param CAN_dev ref to the CAN device to be setup
+ * @tparam CanDevice the type of the CAN device being used (flexcan has all sorts of template args im not gonna call out here)
+ * @param can_dev ref to the CAN device to be setup
  * @param baudrate the baudrate to set the device to have
  * @param on_recv_func the receive function callback that will get registered to be ran on the receive of a CAN message
  */
-template <typename CAN_DEVICE>
-void handle_CAN_setup(CAN_DEVICE& CAN_dev, uint32_t baudrate, void (*on_recv_func)(const CAN_message_t& msg))
+template <typename CanDevice>
+void handleCANSetup(CanDevice& can_dev, uint32_t baudrate, void (*on_recv_func)(const CAN_message_t& msg))
 {
-    CAN_dev.begin();
-    CAN_dev.setBaudRate(baudrate);
-    CAN_dev.setMaxMB(16);
-    CAN_dev.enableFIFO();
-    CAN_dev.enableFIFOInterrupt();
-    CAN_dev.onReceive(on_recv_func);
+    can_dev.begin();
+    can_dev.setBaudRate(baudrate);
+    can_dev.setMaxMB(16);
+    can_dev.enableFIFO();
+    can_dev.enableFIFOInterrupt();
+    can_dev.onReceive(on_recv_func);
 }
 
 // reads from receive buffer updating the current message frame from a specific receive buffer
@@ -38,7 +38,7 @@ void handle_CAN_setup(CAN_DEVICE& CAN_dev, uint32_t baudrate, void (*on_recv_fun
  *
  * Provides the different can interfaces we use
  * so that they can be referenced in generic methods
- * such as process_ring_buffer
+ * such as processRingBuffer
  */
 enum CANInterfaceType_e
 {
@@ -65,11 +65,11 @@ enum CANInterfaceType_e
  * switch statement.
  */
 template <typename BufferType, typename InterfaceContainer>
-void process_ring_buffer(
+void processRingBuffer(
     BufferType& rx_buffer,
     InterfaceContainer& interfaces,
     unsigned long curr_millis,
-    etl::delegate<void(InterfaceContainer& interfaces, const CAN_message_t& CAN_msg, unsigned long curr_millis, CANInterfaceType_e interface_type)>
+    etl::delegate<void(InterfaceContainer& interfaces, const CAN_message_t& can_msg, unsigned long curr_millis, CANInterfaceType_e interface_type)>
         recv_switch_func,
     CANInterfaceType_e interface_type)
 {
@@ -85,25 +85,25 @@ void process_ring_buffer(
 
 namespace CAN_util
 {
-    template <typename can_struct, typename queue_type>
-    void enqueue_msg(can_struct* structure, uint32_t (*pack_function)(can_struct*, uint8_t*, uint8_t*, uint8_t*), queue_type& CAN_msg_out_queue)
+    template <typename CanStruct, typename QueueType>
+    void enqueueMsg(CanStruct* structure, uint32_t (*pack_function)(CanStruct*, uint8_t*, uint8_t*, uint8_t*), QueueType& can_msg_out_queue)
     {
         CAN_message_t can_msg;
         can_msg.id = pack_function(structure, can_msg.buf, &can_msg.len, (uint8_t*)&can_msg.flags.extended);
         uint8_t buf[sizeof(CAN_message_t)] = {};
         memmove(buf, &can_msg, sizeof(CAN_message_t));
-        CAN_msg_out_queue.push_back(buf, sizeof(CAN_message_t));
+        can_msg_out_queue.push_back(buf, sizeof(CAN_message_t));
     }
 
-    template <typename can_struct, typename queue_type>
-    void enqueue_msg(can_struct* structure, uint32_t (*pack_function)(can_struct*, uint8_t*, uint8_t*, uint8_t*), queue_type& CAN_msg_out_queue, uint32_t id)
+    template <typename CanStruct, typename QueueType>
+    void enqueueMsg(CanStruct* structure, uint32_t (*pack_function)(CanStruct*, uint8_t*, uint8_t*, uint8_t*), QueueType& can_msg_out_queue, uint32_t id)
     {
         CAN_message_t can_msg;
         pack_function(structure, can_msg.buf, &can_msg.len, (uint8_t*)&can_msg.flags.extended);
         can_msg.id = id;
         uint8_t buf[sizeof(CAN_message_t)] = {};
         memmove(buf, &can_msg, sizeof(CAN_message_t));
-        CAN_msg_out_queue.push_back(buf, sizeof(CAN_message_t));
+        can_msg_out_queue.push_back(buf, sizeof(CAN_message_t));
     }
 
 } // namespace CAN_util

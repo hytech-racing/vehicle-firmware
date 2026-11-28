@@ -12,8 +12,8 @@ void VCFEthernetInterface::initEthernetDevice()
         EthernetIPDefsInstance::instance().vcf_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _vcf_send_socket.begin(EthernetIPDefsInstance::instance().VCFData_port);
-    _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
+    _vcf_send_socket.begin(EthernetIPDefsInstance::instance().vcf_data_port);
+    _vcr_recv_socket.begin(EthernetIPDefsInstance::instance().vcr_data_port);
 }
 
 
@@ -70,7 +70,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
     out.dash_input_state.start_btn_is_pressed = dash_int.getDashboardOutputs().start_btn_is_pressed;
     out.dash_input_state.data_btn_is_pressed = dash_int.getDashboardOutputs().data_btn_is_pressed;
     out.dash_input_state.left_paddle_is_pressed = 0;
-    out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().BUTTON_2;
+    out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().button_2;
     out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e)(dash_int.getDashboardOutputs().dial_state);
 
     // Ethernet link data
@@ -138,9 +138,9 @@ void VCFEthernetInterface::receiveVCRETHMsg(const hytech_msgs_VCRData_s& msg_in,
 
 void VCFEthernetInterface::handleSendVCFETHData(const hytech_msgs_VCFData_s& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_VCFData_s_size>(
+    handleEthernetSocketSendPB<hytech_msgs_VCFData_s_size>(
         EthernetIPDefsInstance::instance().vcr_ip,
-        EthernetIPDefsInstance::instance().VCFData_port,
+        EthernetIPDefsInstance::instance().vcf_data_port,
         &_vcf_send_socket,
         data,
         hytech_msgs_VCFData_s_fields);

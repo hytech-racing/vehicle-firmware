@@ -51,7 +51,7 @@ namespace
     CAN_message_t config_msg;
     unsigned long start_millis = 0;
     unsigned long last_send_millis = 0;
-    bool isConfigChangeDone = false;
+    bool is_config_change_done = false;
 
     /**
      * @brief Listens (without ever transmitting) at each bit rate and prints the standard CAN IDs heard
@@ -127,7 +127,7 @@ void setup()
     if (!PROGRAM_SENSOR)
     {
         Serial.println("Scan only (PROGRAM_SENSOR = false). Nothing was sent.");
-        isConfigChangeDone = true;
+        is_config_change_done = true;
         return;
     }
     rear_aux_can.setBaudRate(CURRENT_BITRATE); // back to normal (transmitting) mode for programming
@@ -157,7 +157,7 @@ void setup()
 
 void loop()
 {
-    if (isConfigChangeDone)
+    if (is_config_change_done)
     {
         return;
     }
@@ -166,7 +166,7 @@ void loop()
     if ((now - start_millis) > SEND_DURATION_MS)
     {
         // Datasheet: do NOT continuously send messages on the sensor's base ID
-        isConfigChangeDone = true;
+        is_config_change_done = true;
         Serial.println("DONE. Power cycle the sensor to apply the new config.");
         return;
     }

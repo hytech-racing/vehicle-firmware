@@ -8,11 +8,11 @@ void CCUEthernetInterface::initEthernetDevice()
         EthernetIPDefsInstance::instance().ccu_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _acu_all_data_recv_socket.begin(EthernetIPDefsInstance::instance().ACUAllData_port);
-    _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().CCUData_port);
+    _acu_all_data_recv_socket.begin(EthernetIPDefsInstance::instance().acu_all_data_port);
+    _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().ccu_data_port);
 }
 
-void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_s& acu_all_data)
+void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_t& acu_all_data)
 {
     std::copy(std::begin(msg_in.cell_voltages), std::end(msg_in.cell_voltages), std::begin(acu_all_data.cell_voltages));
     std::copy(std::begin(msg_in.cell_temperatures), std::end(msg_in.cell_temperatures), std::begin(acu_all_data.cell_temps));
@@ -21,9 +21,9 @@ void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_i
 
 void CCUEthernetInterface::sendCCUDataMsg(const hytech_msgs_CCUData& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_CCUData_size>(
+    handleEthernetSocketSendPB<hytech_msgs_CCUData_size>(
         EthernetIPDefsInstance::instance().drivebrain_ip,
-        EthernetIPDefsInstance::instance().CCUData_port,
+        EthernetIPDefsInstance::instance().ccu_data_port,
         &_ccu_data_send_socket,
         data,
         hytech_msgs_CCUData_fields);
@@ -63,7 +63,7 @@ hytech_msgs_CCUData CCUEthernetInterface::makeCCUDataMsg()
         out.board_temperatures,
         [](const etl::optional<float>& v) { return v.value_or(0.0f); });
 
-    const ChargeSystemData_s& charge_system_data = MainChargeSystemInstance::instance().get_charge_data();
+    const ChargeSystemData_s& charge_system_data = MainChargeSystemInstance::instance().getChargeData();
     out.calculated_charge_current = charge_system_data.calculated_charge_current;
     out.current_charger_state = static_cast<hytech_msgs_ChargerState_e>(charge_system_data.current_charger_state);
     out.is_120_switched =

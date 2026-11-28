@@ -9,18 +9,18 @@
 
 #include <QNEthernet.h>
 
-template <size_t buffer_size, typename pb_msg_type>
-etl::optional<pb_msg_type> handle_ethernet_socket_receive(qindesign::network::EthernetUDP* socket, const pb_msgdesc_t* desc_pointer)
+template <size_t BufferSize, typename PbMsgType>
+etl::optional<PbMsgType> handleEthernetSocketReceive(qindesign::network::EthernetUDP* socket, const pb_msgdesc_t* desc_pointer)
 {
     int packet_size = socket->parsePacket();
     if (packet_size > 0)
     {
-        uint8_t buffer[buffer_size];
+        uint8_t buffer[BufferSize];
         size_t read_bytes = socket->read(buffer, sizeof(buffer));
-        socket->read(buffer, buffer_size); // remove?
+        socket->read(buffer, BufferSize); // remove?
 
         pb_istream_t stream = pb_istream_from_buffer(buffer, packet_size);
-        pb_msg_type msg = {};
+        PbMsgType msg = {};
         if (pb_decode(&stream, desc_pointer, &msg))
         {
             return msg;
@@ -29,11 +29,11 @@ etl::optional<pb_msg_type> handle_ethernet_socket_receive(qindesign::network::Et
     return etl::nullopt;
 }
 
-template <size_t buffer_size, typename pb_struct>
-bool handle_ethernet_socket_send_pb(IPAddress addr, uint16_t port, qindesign::network::EthernetUDP* socket, const pb_struct& msg, const pb_msgdesc_t* msg_desc)
+template <size_t BufferSize, typename PbStruct>
+bool handleEthernetSocketSendPB(IPAddress addr, uint16_t port, qindesign::network::EthernetUDP* socket, const PbStruct& msg, const pb_msgdesc_t* msg_desc)
 {
     socket->beginPacket(addr, port);
-    uint8_t buffer[buffer_size];
+    uint8_t buffer[BufferSize];
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     if (!pb_encode(&stream, msg_desc, &msg))
     {

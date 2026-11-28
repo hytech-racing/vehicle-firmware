@@ -136,7 +136,7 @@ class TTPMSInterface
     /**
      * @return true if the CAN ID falls in the 24-ID TTPMS block
      */
-    bool isTTPMSMessage(uint32_t can_id) const;
+    bool isTTPMSMsg(uint32_t can_id) const;
 
     /**
      * @brief CAN receive function to parse a TTPMS CAN msg and update internal state

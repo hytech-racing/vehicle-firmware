@@ -67,7 +67,7 @@ void CoreRDCCANInterface::processCANMessages(
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recv_switch,
     CANInterfaceType_e interface_type)
 {
-    process_ring_buffer(_driverless_can_rx_buffer, can_interfaces, curr_millis, recv_switch, interface_type);
+    processRingBuffer(_driverless_can_rx_buffer, can_interfaces, curr_millis, recv_switch, interface_type);
 }
 void CoreRDCCANInterface::sendAllCanMsgs()
 {

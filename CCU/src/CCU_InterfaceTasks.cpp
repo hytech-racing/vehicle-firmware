@@ -29,7 +29,7 @@ void initializeAllInterfaces()
             CCUInterfaces::PROXIMITY_PILOT_CONV_FACTOR,
             CCUInterfaces::JUMPER_OUT_CONV_FACTOR},
         CCUInterfaces::BIT_RESOLUTION);
-    ADCInterfaceInstance::instance().init(sys_time::hal_millis());
+    ADCInterfaceInstance::instance().init(sys_time::halMillis());
 
     /* Charger Interface */
     ChargerInterface(ACUInterfaceInstance::instance());
@@ -57,7 +57,7 @@ void initializeAllInterfaces()
     RotaryEncoderInterfaceInstance::instance().init();
 
     /* Level2 Interface */
-    Level2InterfaceInstance::create(Level2_Pinout_s{CCUInterfaces::CONTROL_PWM_SENSE_PIN, CCUInterfaces::START_CHARGE_PIN});
+    Level2InterfaceInstance::create(Level2Pinout_s{CCUInterfaces::CONTROL_PWM_SENSE_PIN, CCUInterfaces::START_CHARGE_PIN});
     Level2InterfaceInstance::instance().init();
 
     /* Watchdog Interface */
@@ -72,21 +72,21 @@ void initializeAllInterfaces()
     CANInterfacesInstance::create(ACUInterfaceInstance::instance(), ChargerInterfaceInstance::instance(), EnergyMeterInterfaceInstance::instance());
 
     CCUCANInterfaceInstance::create(
-        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::CCUReceiveIDSwitch>());
+        etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)>::create<CCUCANInterfaceImpl::ccuRecvSwitch>());
 
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().ACU_CAN, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
-    handle_CAN_setup(CCUCANInterfaceInstance::instance().CHARGER_CAN, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);
+    handleCANSetup(CCUCANInterfaceInstance::instance().acu_can, CCUConstants::ACU_CAN_BAUDRATE, &CCUCANInterfaceImpl::onACUCANReceive);
+    handleCANSetup(CCUCANInterfaceInstance::instance().charger_can, CCUConstants::CHARGER_CAN_BAUDRATE, &CCUCANInterfaceImpl::onChargerCANReceive);
 }
 
-HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse kickWatchdogTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::hal_millis());
+    WatchdogInterfaceInstance::instance().updateWatchdogState(sys_time::halMillis());
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse readEncoderTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse readEncoderTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    RotaryEncoderInterfaceInstance::instance().tick(sys_time::hal_millis());
+    RotaryEncoderInterfaceInstance::instance().tick(sys_time::halMillis());
 
     if (RotaryEncoderInterfaceInstance::instance().isSwitchPressed())
     {
@@ -97,79 +97,79 @@ HT_TASK::TaskResponse readEncoderTask(const unsigned long& sysMicros, const HT_T
 }
 
 
-HT_TASK::TaskResponse enqueueACUCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueACUCANDataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     ACUInterfaceInstance::instance().enqueueCCUStatusCANMsg();
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse enqueueChargerCANdataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse enqueueChargerCANdataTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    ChargerInterfaceInstance::instance().enqueueChargingCANMsg(ACUInterfaceInstance::instance(), MainChargeSystemInstance::instance().get_charge_current());
+    ChargerInterfaceInstance::instance().enqueueChargingCANMsg(ACUInterfaceInstance::instance(), MainChargeSystemInstance::instance().getChargeCurrent());
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse sendETHTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse sendETHTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     CCUEthernetInterfaceInstance::instance().sendCCUDataMsg(CCUEthernetInterfaceInstance::instance().makeCCUDataMsg());
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse receiveETHTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse receiveETHTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     // Recv ACU message
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse clearAllCANBuffersTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse clearAllCANBuffersTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().acu_can_tx_buffer, &CCUCANInterfaceInstance::instance().ACU_CAN);
-    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().charger_can_tx_buffer, &CCUCANInterfaceInstance::instance().CHARGER_CAN);
+    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().acu_can_tx_buffer, &CCUCANInterfaceInstance::instance().acu_can);
+    CCUCANInterfaceImpl::clearAllCANBuffers(CCUCANInterfaceInstance::instance().charger_can_tx_buffer, &CCUCANInterfaceInstance::instance().charger_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse sampleCANTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse sampleCANTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    process_ring_buffer(
+    processRingBuffer(
         CCUCANInterfaceInstance::instance().acu_can_rx_buffer,
         CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         CCUCANInterfaceInstance::instance().can_recv_switch,
         CANInterfaceType_e::ACU);
-    process_ring_buffer(
+    processRingBuffer(
         CCUCANInterfaceInstance::instance().charger_can_rx_buffer,
         CANInterfacesInstance::instance(),
-        sys_time::hal_millis(),
+        sys_time::halMillis(),
         CCUCANInterfaceInstance::instance().can_recv_switch,
         CANInterfaceType_e::CHARGER);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse updateDisplayTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse updateDisplayTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    auto curr_time_ms = sys_time::hal_millis();
+    auto curr_time_ms = sys_time::halMillis();
     DisplayInterfaceInstance::instance().update(curr_time_ms);
-    DisplayInterfaceInstance::instance().displayData(curr_time_ms, Level2SystemInstance::instance().is_120_switched(ADCInterfaceInstance::instance()));
+    DisplayInterfaceInstance::instance().displayData(curr_time_ms, Level2SystemInstance::instance().is120Switched(ADCInterfaceInstance::instance()));
     DisplayInterfaceInstance::instance().refreshDisplayData(curr_time_ms);
     return HT_TASK::TaskResponse::YIELD;
 }
 
 
-HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse debugPrints(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
     const auto acu_data = ACUInterfaceInstance::instance().getLatestData();
-    const auto charger_data = ChargerInterfaceInstance::instance().get_latest_charger_data();
+    const auto charger_data = ChargerInterfaceInstance::instance().getLatestChargerData();
     const auto level2_data = Level2InterfaceInstance::instance().getLevel2Data();
     auto& adc = ADCInterfaceInstance::instance();
 
     /* ----- General Status ----- */
-    Serial.println(Level2SystemInstance::instance().is_120_switched(adc) ? "Set to 120 V Charging" : "Set to 240 V Charging");
+    Serial.println(Level2SystemInstance::instance().is120Switched(adc) ? "Set to 120 V Charging" : "Set to 240 V Charging");
     Serial.print("ACU State          : ");
     Serial.println(static_cast<int>(acu_data.acu_state));
     Serial.print("Charging State     : ");
@@ -213,7 +213,7 @@ HT_TASK::TaskResponse debug_prints(const unsigned long& sysMicros, const HT_TASK
     Serial.print("Charger Current    : ");
     Serial.println(charger_data.output_current_low);
     Serial.print("Calc Charge Current: ");
-    Serial.println(MainChargeSystemInstance::instance().get_charge_current());
+    Serial.println(MainChargeSystemInstance::instance().getChargeCurrent());
     Serial.println();
 
 

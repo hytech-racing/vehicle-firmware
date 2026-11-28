@@ -6,8 +6,8 @@
 
 #include <array>
 
-using pin = uint8_t;
-using time_us = uint32_t;
+using Pin = uint8_t;
+using TimeUs = uint32_t;
 
 
 namespace VCRInterfaces
@@ -73,22 +73,22 @@ namespace VCRInterfaces
     constexpr float RR_SUS_POT_OFFSET = 152.5;
 
     // TODO: Figure out values
-    const float THERMISTOR_0_SCALE = 1;
-    const float THERMISTOR_0_OFFSET = 0;
-    const float THERMISTOR_1_SCALE = 1;
-    const float THERMISTOR_1_OFFSET = 0;
-    const float THERMISTOR_2_SCALE = 1;
-    const float THERMISTOR_2_OFFSET = 0;
-    const float THERMISTOR_3_SCALE = 1;
-    const float THERMISTOR_3_OFFSET = 0;
-    const float THERMISTOR_4_SCALE = 1;
-    const float THERMISTOR_4_OFFSET = 0;
-    const float THERMISTOR_5_SCALE = 1;
-    const float THERMISTOR_5_OFFSET = 0;
-    const float THERMISTOR_6_SCALE = 1;
-    const float THERMISTOR_6_OFFSET = 0;
-    const float THERMISTOR_7_SCALE = 1;
-    const float THERMISTOR_7_OFFSET = 0;
+    constexpr float THERMISTOR_0_SCALE = 1;
+    constexpr float THERMISTOR_0_OFFSET = 0;
+    constexpr float THERMISTOR_1_SCALE = 1;
+    constexpr float THERMISTOR_1_OFFSET = 0;
+    constexpr float THERMISTOR_2_SCALE = 1;
+    constexpr float THERMISTOR_2_OFFSET = 0;
+    constexpr float THERMISTOR_3_SCALE = 1;
+    constexpr float THERMISTOR_3_OFFSET = 0;
+    constexpr float THERMISTOR_4_SCALE = 1;
+    constexpr float THERMISTOR_4_OFFSET = 0;
+    constexpr float THERMISTOR_5_SCALE = 1;
+    constexpr float THERMISTOR_5_OFFSET = 0;
+    constexpr float THERMISTOR_6_SCALE = 1;
+    constexpr float THERMISTOR_6_OFFSET = 0;
+    constexpr float THERMISTOR_7_SCALE = 1;
+    constexpr float THERMISTOR_7_OFFSET = 0;
 
     // Coolant Temperature Sensor scale / offsets
     constexpr const float COOLANT_TEMP_SCALE = -31.3;
@@ -167,58 +167,58 @@ namespace VCRConstants
     /* ---------- Task Priorities & Periods ---------- */
 
     constexpr uint8_t WATCHDOG_PRIORITY = 1;
-    constexpr time_us WATCHDOG_KICK_PERIOD_US = 10000; // 10 000 us = 100 Hz
+    constexpr TimeUs WATCHDOG_KICK_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t ASYNC_MAIN_PRIORITY = 2;
-    constexpr time_us ASYNC_MAIN_PERIOD_US = 100; // 100 us = 10 kHz
+    constexpr TimeUs ASYNC_MAIN_PERIOD_US = 100; // 100 us = 10 kHz
 
     constexpr uint8_t SEND_CAN_PRIORITY = 3;
-    constexpr time_us SEND_CAN_PERIOD_US = 1000; // 1 000 us = 1 000 Hz
+    constexpr TimeUs SEND_CAN_PERIOD_US = 1000; // 1 000 us = 1 000 Hz
 
     constexpr uint8_t AMS_PRIORITY = 4;
-    constexpr time_us AMS_UPDATE_PERIOD_US = 5000; // 5 000 us = 200 Hz
+    constexpr TimeUs AMS_UPDATE_PERIOD_US = 5000; // 5 000 us = 200 Hz
 
     constexpr uint8_t BUZZER_PRIORITY = 5;
-    constexpr time_us UPDATE_BUZZER_CONTROLLER_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs UPDATE_BUZZER_CONTROLLER_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t SUSPENSION_PRIORITY = 6;
-    constexpr time_us SUSPENSION_CAN_PERIOD_US = 4000; // 4 000 us = 250 Hz
+    constexpr TimeUs SUSPENSION_CAN_PERIOD_US = 4000; // 4 000 us = 250 Hz
 
     constexpr uint8_t INVERTER_SEND_PRIORITY = 7;
-    constexpr time_us INVERTER_SEND_PERIOD_US = 5000; // 5 000 us = 200 Hz
+    constexpr TimeUs INVERTER_SEND_PERIOD_US = 5000; // 5 000 us = 200 Hz
 
-    constexpr time_us ETHERNET_SEND_PRIORITY = 8;
-    constexpr time_us ETHERNET_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs ETHERNET_SEND_PRIORITY = 8;
+    constexpr TimeUs ETHERNET_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
-    constexpr time_us ADC0_PRIORITY = 9;
-    constexpr time_us ADC0_SAMPLE_PERIOD_US = 250; // 250 us = 4 kHz
+    constexpr TimeUs ADC0_PRIORITY = 9;
+    constexpr TimeUs ADC0_SAMPLE_PERIOD_US = 250; // 250 us = 4 kHz
 
-    constexpr time_us CONTROLS_PRIORITY = 10;
-    constexpr time_us CONTROLS_CAN_PERIOD_US = 4000; // 4 000 us = 250 Hz
+    constexpr TimeUs CONTROLS_PRIORITY = 10;
+    constexpr TimeUs CONTROLS_CAN_PERIOD_US = 4000; // 4 000 us = 250 Hz
 
     constexpr uint8_t COOLANT_TEMP_SEND_PRIORITY = 11;
-    constexpr time_us COOLANT_TEMP_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs COOLANT_TEMP_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t DASHBOARD_SEND_PRIORITY = 12;
-    constexpr time_us DASHBOARD_SEND_PERIOD_US = 200000; // 200 000 us = 5 Hz
+    constexpr TimeUs DASHBOARD_SEND_PERIOD_US = 200000; // 200 000 us = 5 Hz
 
     constexpr uint8_t UPDATE_BRAKELIGHT_PRIORITY = 13;
-    constexpr time_us UPDATE_BRAKELIGHT_PERIOD_US = 50000; // 50 000 us = 20 Hz
+    constexpr TimeUs UPDATE_BRAKELIGHT_PERIOD_US = 50000; // 50 000 us = 20 Hz
 
     constexpr uint8_t ADC1_PRIORITY = 14;
-    constexpr time_us ADC1_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
+    constexpr TimeUs ADC1_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t IOEXPANDER_PRIORITY = 15;
-    constexpr time_us IOEXPANDER_SAMPLE_PERIOD_US = 5000; // 5 000 us = 200 Hz
+    constexpr TimeUs IOEXPANDER_SAMPLE_PERIOD_US = 5000; // 5 000 us = 200 Hz
 
     constexpr uint8_t MPB_ADC_PRIORITY = 16;
-    constexpr time_us MPB_ADC_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
+    constexpr TimeUs MPB_ADC_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t FW_VERSION_CAN_PRIORITY = 17;
-    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
+    constexpr TimeUs FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
 
     constexpr uint8_t DEBUG_PRIORITY = 50;
-    constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
+    constexpr TimeUs DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
 
 
     /* --------- CAN Constants ---------- */

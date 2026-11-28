@@ -17,7 +17,7 @@
 
 struct InverterParams_s
 {
-    float MINIMUM_HV_VOLTAGE;
+    float minimum_hv_voltage;
 };
 
 /**
@@ -43,51 +43,51 @@ class InverterInterface
     InverterInterface(uint32_t inv_control_word_id, uint32_t inv_control_input_id, uint32_t inv_control_params_id, InverterParams_s inverter_params)
         : _inverter_params(inverter_params)
     {
-        inverter_ids.inv_control_word_id = inv_control_word_id;
-        inverter_ids.inv_control_parameter_id = inv_control_params_id;
-        inverter_ids.inv_control_input_id = inv_control_input_id;
+        _inverter_ids.inv_control_word_id = inv_control_word_id;
+        _inverter_ids.inv_control_parameter_id = inv_control_params_id;
+        _inverter_ids.inv_control_input_id = inv_control_input_id;
     }
 
     /* receiving callbacks */
-    void receive_INV_STATUS(const CAN_message_t& can_msg, unsigned long curr_millis);
+    void receiveInvStatus(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_TEMPS(const CAN_message_t& can_msg, unsigned long curr_millis);
+    void receiveInvTemps(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_DYNAMICS(const CAN_message_t& can_msg, unsigned long curr_millis);
+    void receiveInvDynamics(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_POWER(const CAN_message_t& can_msg, unsigned long curr_millis);
+    void receiveInvPower(const CAN_message_t& can_msg, unsigned long curr_millis);
 
-    void receive_INV_FEEDBACK(const CAN_message_t& can_msg, unsigned long curr_millis);
+    void receiveInvFeedback(const CAN_message_t& can_msg, unsigned long curr_millis);
 
     /* Sending */
-    void send_INV_SETPOINT_COMMAND();
+    void sendInvSetpointCommand();
 
-    void send_INV_CONTROL_WORD();
+    void sendInvControlWord();
 
-    void send_INV_CONTROL_PARAMS();
+    void sendInvControlParams();
 
     /* Inverter Functs */
-    void set_speed(float desired_rpm, float torque_limit_nm);
+    void setSpeed(float desired_rpm, float torque_limit_nm);
 
-    void set_idle();
+    void setIdle();
 
-    void set_inverter_control_word(InverterControlWord_s control_word);
+    void setInverterControlWord(InverterControlWord_s control_word);
 
     /* Getters */
-    InverterStatus_s get_status() const;
+    InverterStatus_s getStatus() const;
 
-    InverterTemps_s get_temps() const;
+    InverterTemps_s getTemps() const;
 
-    InverterPower_s get_power() const;
+    InverterPower_s getPower() const;
 
-    MotorMechanics_s get_motor_mechanics() const;
+    MotorMechanics_s getMotorMechanics() const;
 
-    InverterControlFeedback_s get_control_params() const;
+    InverterControlFeedback_s getControlParams() const;
 
-    InverterFeedbackData_s get_all_inverter_data() const;
+    InverterFeedbackData_s getAllInverterData() const;
 
   private:
-    InverterCANIds_s inverter_ids;
+    InverterCANIds_s _inverter_ids;
     InverterControlInput_s _inverter_control_inputs;
     InverterControlWord_s _inverter_control_word;
     InverterControlParams_s _inverter_control_params;

@@ -2,7 +2,9 @@
 # 1. Enabled Checks & File Filtering
 # ==============================================================================
 Checks: 'readability-identifier-naming'
-HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
+# Naming violations are reported as errors so `pio check --fail-on-defect high` fails CI.
+WarningsAsErrors: 'readability-identifier-naming'
+HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard|PDB|shared-lib)/.*'
 
 CheckOptions:
   # ============================================================================
@@ -13,6 +15,10 @@ CheckOptions:
   readability-identifier-naming.EnumCase: CamelCase
   readability-identifier-naming.TypeAliasCase: CamelCase
   readability-identifier-naming.TemplateParameterCase: CamelCase
+  # Allow the repo's type suffixes: Struct_s, Enum_e, Alias_t (base name must still be CamelCase)
+  readability-identifier-naming.StructIgnoredRegexp: '^[A-Z][A-Za-z0-9]*_s$'
+  readability-identifier-naming.EnumIgnoredRegexp: '^[A-Z][A-Za-z0-9]*_e$'
+  readability-identifier-naming.TypeAliasIgnoredRegexp: '^[A-Z][A-Za-z0-9]*_t$'
 
   # ============================================================================
   # 3. Functions & Methods
@@ -32,6 +38,9 @@ CheckOptions:
   readability-identifier-naming.ProtectedMemberPrefix: '_'
   readability-identifier-naming.PrivateMemberCase: lower_case
   readability-identifier-naming.PrivateMemberPrefix: '_'
+  # Static data members: clang-tidy can't tell private from public here, so allow an optional leading '_'
+  readability-identifier-naming.ClassMemberCase: lower_case
+  readability-identifier-naming.ClassMemberIgnoredRegexp: '^_[a-z][a-z0-9_]*$'
 
   # ============================================================================
   # 5. Constants & Enum Values

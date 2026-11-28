@@ -624,7 +624,7 @@ void BMSDriverGroup<num_chips, num_chip_selects, chip_type>::_load_auxillaries(B
 }
 
 template <size_t num_chips, size_t num_chip_selects, LTC6811_Type_e chip_type>
-void BMSDriverGroup<num_chips, num_chip_selects, chip_type>::_store_voltage_data(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_reference, volt voltage_in, uint8_t cell_index)
+void BMSDriverGroup<num_chips, num_chip_selects, chip_type>::_store_voltage_data(BMSDriverData &bms_data, ReferenceMaxMin_s &max_min_reference, Volt voltage_in, uint8_t cell_index)
 {
     max_min_reference.total_voltage -= bms_data.voltages[cell_index];
     bms_data.voltages[cell_index] = voltage_in;

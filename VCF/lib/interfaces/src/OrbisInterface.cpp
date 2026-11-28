@@ -153,7 +153,7 @@ void OrbisInterface::sample()
     {
         if (millis() - startTime >= orbis_constants::TIMEOUT_MS) // NOLINT
         {
-            _last_reading.errors.noData = true;
+            _last_reading.errors.no_data = true;
             _last_reading.status = SteeringEncoderStatus_e::ERROR;
             return;
         }
@@ -164,7 +164,7 @@ void OrbisInterface::sample()
 
     if (echo != orbis_commands::DETAILED_POS_REQUEST)
     {
-        _last_reading.errors.noData = true;
+        _last_reading.errors.no_data = true;
         _last_reading.status = SteeringEncoderStatus_e::ERROR;
         return;
     }
@@ -179,7 +179,7 @@ void OrbisInterface::sample()
 
     uint16_t raw_position = ((((uint16_t)general_high_byte) << orbis_constants::POSITION_DATA_HIGH_BYTE_SHIFT) | (uint16_t)general_low_byte)
                             >> orbis_constants::POSITION_DATA_RIGHT_SHIFT;
-    _last_reading.rawValue = raw_position;
+    _last_reading.raw_value = raw_position;
 
     float angle = ((float)raw_position / orbis_constants::ENCODER_RESOLUTION) * orbis_constants::DEGREES_PER_REVOLUTION;
     if (angle > orbis_constants::ANGLE_WRAPAROUND_THRESHOLD)
@@ -193,7 +193,7 @@ void OrbisInterface::sample()
     // Thus, if the angle is > 180 (ANGLE_CONVERSION_MARKER), we want to subtract 360 (ANGLE_CONVERSION) so that it's negative.
 
     // Serial.print("Raw ");
-    // Serial.println(_lastReading.rawValue, HEX);
+    // Serial.println(_lastReading.raw_value, HEX);
     // Serial.print("Angle ");
     // Serial.println(_lastReading.angle);
 }
@@ -202,8 +202,8 @@ void OrbisInterface::sample()
 void OrbisInterface::_decodeErrors(uint8_t general, uint8_t detailed)
 {
     // General bits error low (0)
-    _last_reading.errors.dataInvalid = !(general & orbis_bitmasks::GENERAL_ERROR_BITMASK);
-    _last_reading.errors.operatingLimit = !(general & orbis_bitmasks::GENERAL_WARNING_BITMASK);
+    _last_reading.errors.data_invalid = !(general & orbis_bitmasks::GENERAL_ERROR_BITMASK);
+    _last_reading.errors.operating_limit = !(general & orbis_bitmasks::GENERAL_WARNING_BITMASK);
 
     // Detailed bits are error high (1)
     _orbis_errors.counter_error = detailed & orbis_bitmasks::DETAILED_COUNTER_ERROR_BITMASK;
@@ -213,8 +213,8 @@ void OrbisInterface::_decodeErrors(uint8_t general, uint8_t detailed)
     _orbis_errors.dist_near = detailed & orbis_bitmasks::DETAILED_DIST_NEAR_BITMASK;
 
     bool anyError =
-        (_last_reading.errors.dataInvalid
-         || _last_reading.errors.noData
+        (_last_reading.errors.data_invalid
+         || _last_reading.errors.no_data
          || _orbis_errors.counter_error
          || _orbis_errors.speed_high
          || _orbis_errors.temp_out_of_range

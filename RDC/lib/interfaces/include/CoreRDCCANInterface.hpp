@@ -47,7 +47,7 @@ class CoreRDCCANInterface
     CoreRDCCANInterface(etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recvSwitchFunction, uint32_t baudrate)
         : recvSwitch(recvSwitchFunction)
     {
-        handle_CAN_setup(DRIVERLESS_CAN, baudrate, &RDCCANInterfaceImpl::onDVCANRecvHelper);
+        handleCANSetup(DRIVERLESS_CAN, baudrate, &RDCCANInterfaceImpl::onDVCANRecvHelper);
     }
 
     etl::delegate<void(CANInterfaces_s&, const CAN_message_t&, unsigned long, CANInterfaceType_e)> recvSwitch;
@@ -58,7 +58,7 @@ class CoreRDCCANInterface
     template <typename CANStruct>
     void enqueueMsg(CANStruct* msg, uint32_t (*packFunction)(CANStruct*, uint8_t*, uint8_t*, uint8_t*))
     {
-        CAN_util::enqueue_msg(msg, packFunction, _driverless_can_tx_buffer);
+        CAN_util::enqueueMsg(msg, packFunction, _driverless_can_tx_buffer);
     }
 
     void processCANMessages(

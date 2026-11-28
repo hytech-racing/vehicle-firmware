@@ -26,7 +26,7 @@ void SoHPersistenceInterface::init()
     _last_write_ms = 0;
 }
 
-bool SoHPersistenceInterface::save(double lifetime_ah_throughput, time_ms now, bool force)
+bool SoHPersistenceInterface::save(double lifetime_ah_throughput, TimeMs now, bool force)
 {
     _lifetime_ah_throughput = lifetime_ah_throughput;
 

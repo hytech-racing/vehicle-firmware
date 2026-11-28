@@ -1,6 +1,6 @@
 #include "Dash_Tasks.hpp"
 
-veh_vec<int> fake_temps = {30, 32, 28, 31};
+VehVec_s<int> fake_temps = {30, 32, 28, 31};
 
 
 void initialize_all_interfaces()
@@ -17,7 +17,7 @@ void initialize_all_interfaces()
     DisplayInterfaceInstance::instance().startup();
 
     /* VCF Interface */
-    VCFInterfaceInstance::create(sys_time::hal_millis(), 50UL); // TODO: needs to be updated to use constexpr
+    VCFInterfaceInstance::create(sys_time::halMillis(), 50UL); // TODO: needs to be updated to use constexpr
 
     /* VCR Interface */
     VCRInterfaceInstance::create();

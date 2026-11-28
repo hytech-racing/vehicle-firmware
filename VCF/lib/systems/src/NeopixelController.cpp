@@ -139,10 +139,10 @@ void NeopixelController::refreshNeopixels(const PedalsSystemData_s& pedals_data,
     }
     }
 
-    bool hv_present = controller_inputs.bus_voltages.FL > _hv_threshold_voltage
-                      || controller_inputs.bus_voltages.FR > _hv_threshold_voltage
-                      || controller_inputs.bus_voltages.RL > _hv_threshold_voltage
-                      || controller_inputs.bus_voltages.RR > _hv_threshold_voltage;
+    bool hv_present = controller_inputs.bus_voltages.fl > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.fr > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.rl > _hv_threshold_voltage
+                      || controller_inputs.bus_voltages.rr > _hv_threshold_voltage;
 
     /* SHUTDOWN LEDS */
     setNeopixelColor(LED_ID_e::LATCH, hv_present ? LED_color_e::PURPLE : LED_color_e::GREEN);

@@ -16,7 +16,7 @@
 #include "EMInterface.hpp"
 #include "RotaryEncoderInterface.hpp"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace default_display_params
@@ -38,14 +38,14 @@ enum DisplayView_e
 
 struct DisplayPinout_s
 {
-    pin teensy_lcd_cs_pin;
-    pin teensy_lcd_sck_pin;
-    pin teensy_lcd_miso_pin;
-    pin teensy_lcd_mosi_pin;
-    pin teensy_lcd_reset_pin;
-    pin teensy_lcd_dc_pin;
+    Pin teensy_lcd_cs_pin;
+    Pin teensy_lcd_sck_pin;
+    Pin teensy_lcd_miso_pin;
+    Pin teensy_lcd_mosi_pin;
+    Pin teensy_lcd_reset_pin;
+    Pin teensy_lcd_dc_pin;
 
-    pin cycle_display_view_pin;
+    Pin cycle_display_view_pin;
 };
 
 struct DisplayInterfaceParams_s

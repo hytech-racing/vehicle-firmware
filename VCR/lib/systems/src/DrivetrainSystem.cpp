@@ -1,7 +1,7 @@
 #include <DrivetrainSystem.hpp>
 
 DrivetrainSystem::DrivetrainSystem(
-    veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+    VehVec_s<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
     etl::delegate<void(bool)> set_ef_active_pin,
     unsigned long ef_pin_enable_delay_ms)
     : _inverter_interfaces(inverter_interfaces),
@@ -16,54 +16,54 @@ DrivetrainSystem::DrivetrainSystem(
       _set_ef_active_pin(set_ef_active_pin),
       _ef_pin_enable_delay_ms(ef_pin_enable_delay_ms) {};
 
-DrivetrainState_e DrivetrainSystem::get_state() const
+DrivetrainState_e DrivetrainSystem::getState() const
 {
     return _state;
 }
 
-DrivetrainStatus_s DrivetrainSystem::get_status() const
+DrivetrainStatus_s DrivetrainSystem::getStatus() const
 {
     return _status;
 }
 
-bool DrivetrainSystem::hv_over_threshold()
+bool DrivetrainSystem::hvOverThreshold()
 {
-    return _check_inverter_flags(_check_inverter_hv_present_flag);
+    return _checkInverterFlags(_check_inverter_hv_present_flag);
 }
 
-bool DrivetrainSystem::drivetrain_error_present()
+bool DrivetrainSystem::drivetrainErrorPresent()
 {
-    return !_check_inverter_flags(_check_inverter_no_errors_present);
+    return !_checkInverterFlags(_check_inverter_no_errors_present);
 }
 
-bool DrivetrainSystem::drivetrain_ready()
+bool DrivetrainSystem::drivetrainReady()
 {
-    return (get_state() == DrivetrainState_e::ENABLED_DRIVE_MODE);
+    return (getState() == DrivetrainState_e::ENABLED_DRIVE_MODE);
 }
 
-void DrivetrainSystem::reset_dt_error()
+void DrivetrainSystem::resetDtError()
 {
     DrivetrainResetError_s reset_cmd = {true};
     DrivetrainSystem::CmdVariant var = reset_cmd;
-    auto state = evaluate_drivetrain(reset_cmd).state;
+    auto state = evaluateDrivetrain(reset_cmd).state;
 }
 
-DrivetrainStatus_s DrivetrainSystem::evaluate_drivetrain(DrivetrainSystem::CmdVariant cmd)
+DrivetrainStatus_s DrivetrainSystem::evaluateDrivetrain(DrivetrainSystem::CmdVariant cmd)
 {
-    auto state = _evaluate_state_machine(cmd);
+    auto state = _evaluateStateMachine(cmd);
 
     DrivetrainStatus_s status;
     status.all_inverters_connected =
-        (_inverter_interfaces.FL.get_status().connected
-         && _inverter_interfaces.FR.get_status().connected
-         && _inverter_interfaces.RL.get_status().connected
-         && _inverter_interfaces.RR.get_status().connected);
+        (_inverter_interfaces.fl.get_status().connected
+         && _inverter_interfaces.fr.get_status().connected
+         && _inverter_interfaces.rl.get_status().connected
+         && _inverter_interfaces.rr.get_status().connected);
     // while not all inverters are connected, some may still be here so we can return the entire status for partially connected drivetrain.
     status.inverter_statuses = {
-        _inverter_interfaces.FL.get_status(),
-        _inverter_interfaces.FR.get_status(),
-        _inverter_interfaces.RL.get_status(),
-        _inverter_interfaces.RR.get_status()};
+        _inverter_interfaces.fl.get_status(),
+        _inverter_interfaces.fr.get_status(),
+        _inverter_interfaces.rl.get_status(),
+        _inverter_interfaces.rr.get_status()};
 
     bool attempting_init_while_not_connected =
         ((state == DrivetrainState_e::NOT_CONNECTED) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED));
@@ -81,31 +81,31 @@ DrivetrainStatus_s DrivetrainSystem::evaluate_drivetrain(DrivetrainSystem::CmdVa
     return status;
 }
 
-DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::CmdVariant cmd)
+DrivetrainState_e DrivetrainSystem::_evaluateStateMachine(DrivetrainSystem::CmdVariant cmd)
 {
-    switch (get_state())
+    switch (getState())
     {
     // TODO need to ensure that the inverter outputs CAN messages on idle even not when being sent msgs
     case DrivetrainState_e::NOT_CONNECTED:
     {
         // State Outputs
-        _set_drivetrain_disabled();
+        _setDrivetrainDisabled();
         _set_ef_active_pin(false);
 
         // State Transitions
         bool connected_no_hv_present = false;
-        connected_no_hv_present = (_check_inverter_flags(_check_inverter_connected_flag) && _check_inverter_flags(_check_inverter_hv_not_present_flag));
+        connected_no_hv_present = (_checkInverterFlags(_check_inverter_connected_flag) && _checkInverterFlags(_check_inverter_hv_not_present_flag));
 
         bool connected_hv_present = false;
-        connected_hv_present = (_check_inverter_flags(_check_inverter_connected_flag) && _check_inverter_flags(_check_inverter_hv_present_flag));
+        connected_hv_present = (_checkInverterFlags(_check_inverter_connected_flag) && _checkInverterFlags(_check_inverter_hv_present_flag));
 
         if (connected_no_hv_present)
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
         }
         else if (connected_hv_present)
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
         }
 
         break;
@@ -113,13 +113,13 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
     case DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT:
     {
         // State Outputs
-        _set_drivetrain_disabled();
+        _setDrivetrainDisabled();
         _set_ef_active_pin(false);
 
         // State Transitions
-        if (_check_inverter_flags(_check_inverter_hv_present_flag))
+        if (_checkInverterFlags(_check_inverter_hv_present_flag))
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
         }
 
         break;
@@ -127,21 +127,21 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
     case DrivetrainState_e::NOT_ENABLED_HV_PRESENT:
     {
         // State Outputs
-        _set_drivetrain_disabled();
+        _setDrivetrainDisabled();
         _set_ef_active_pin(false);
 
         // State Transitions
         bool inverter_error_present = false;
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         if (inverter_error_present)
         {
-            _set_state(DrivetrainState_e::ERROR);
+            _setState(DrivetrainState_e::ERROR);
         }
-        else if (_check_inverter_flags(_check_inverter_ready_flag))
+        else if (_checkInverterFlags(_check_inverter_ready_flag))
         {
-            _set_state(DrivetrainState_e::INVERTERS_READY);
-            _precharge_wait_start = sys_time::hal_millis();
+            _setState(DrivetrainState_e::INVERTERS_READY);
+            _precharge_wait_start = sys_time::halMillis();
         }
 
         break;
@@ -150,44 +150,44 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
     {
 
         // State Outputs (Note: the reason that this state exists is to attempt to make quit_dc_on true)
-        _set_enable_drivetrain_hv();
+        _setEnableDrivetrainHv();
         _set_ef_active_pin(false);
 
         // State Transitions
         bool inverter_error_present = false;
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         bool requesting_init = false;
         requesting_init =
             etl::holds_alternative<DrivetrainInit_s>(cmd) && (etl::get<DrivetrainInit_s>(cmd).init_drivetrain != DrivetrainModeRequest_e::UNINITIALIZED);
 
         bool inverters_ready = false;
-        inverters_ready = _check_inverter_flags(_check_inverter_ready_flag);
+        inverters_ready = _checkInverterFlags(_check_inverter_ready_flag);
 
         bool quit_dc_on = false;
-        quit_dc_on = _check_inverter_flags(_check_inverter_quit_dc_flag);
+        quit_dc_on = _checkInverterFlags(_check_inverter_quit_dc_flag);
 
         bool hv_present = false;
-        hv_present = _check_inverter_flags(_check_inverter_hv_present_flag);
+        hv_present = _checkInverterFlags(_check_inverter_hv_present_flag);
 
         if (inverter_error_present)
         {
-            _set_state(DrivetrainState_e::ERROR);
+            _setState(DrivetrainState_e::ERROR);
         }
         else if (!hv_present)
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
         }
-        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::hal_millis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2
-                                                                                                                            // seconds
+        else if (requesting_init && inverters_ready && quit_dc_on && sys_time::halMillis() - _precharge_wait_start > 2000) // NOLINT 2000 corresponds to 2
+                                                                                                                           // seconds
         {
-            _last_toggled_ef_active = sys_time::hal_millis();
+            _last_toggled_ef_active = sys_time::halMillis();
             _set_ef_active_pin(true);
-            _set_state(DrivetrainState_e::INVERTERS_HV_ENABLED);
+            _setState(DrivetrainState_e::INVERTERS_HV_ENABLED);
         }
         else if (!inverters_ready)
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
         }
 
         break;
@@ -197,41 +197,41 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
 
         // State Outputs (Note: trying to make inverters ready and inverters enabled true in this state)
         _set_ef_active_pin(true);
-        if (sys_time::hal_millis() - _last_toggled_ef_active > _ef_pin_enable_delay_ms)
+        if (sys_time::halMillis() - _last_toggled_ef_active > _ef_pin_enable_delay_ms)
         {
-            _set_enable_drivetrain();
+            _setEnableDrivetrain();
         }
         else
         {
-            _set_enable_drivetrain_hv();
+            _setEnableDrivetrainHv();
         }
 
 
         // State Transitions
         bool inverter_error_present = false;
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         bool hv_enabled = false;
-        hv_enabled = _check_inverter_flags(_check_inverter_quit_dc_flag);
+        hv_enabled = _checkInverterFlags(_check_inverter_quit_dc_flag);
 
         bool inverters_ready = false;
-        inverters_ready = _check_inverter_flags(_check_inverter_ready_flag);
+        inverters_ready = _checkInverterFlags(_check_inverter_ready_flag);
 
         bool inverters_enabled = false;
-        inverters_enabled = _check_inverter_flags(_check_inverter_enabled);
+        inverters_enabled = _checkInverterFlags(_check_inverter_enabled);
 
         if (inverter_error_present)
         {
-            _set_state(DrivetrainState_e::ERROR);
+            _setState(DrivetrainState_e::ERROR);
         }
         else if (hv_enabled && inverters_ready && inverters_enabled)
         {
-            _precharge_wait_start = sys_time::hal_millis();
-            _set_state(DrivetrainState_e::ENABLED_DRIVE_MODE);
+            _precharge_wait_start = sys_time::halMillis();
+            _setState(DrivetrainState_e::ENABLED_DRIVE_MODE);
         }
         else if (!hv_enabled && inverters_ready)
         {
-            _set_state(DrivetrainState_e::INVERTERS_READY);
+            _setState(DrivetrainState_e::INVERTERS_READY);
         }
 
         break;
@@ -245,25 +245,25 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
         if (valid_drivetrain_command)
         {
             DrivetrainCommand_s drivetrain_command = etl::get<DrivetrainCommand_s>(cmd);
-            _set_drivetrain_command(drivetrain_command);
+            _setDrivetrainCommand(drivetrain_command);
         }
         _set_ef_active_pin(true);
 
         // State Transitions
         bool inverter_error_present = false;
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         if (inverter_error_present)
         {
-            _set_state(DrivetrainState_e::ERROR);
+            _setState(DrivetrainState_e::ERROR);
         }
-        else if (!(_check_inverter_flags(_check_inverter_hv_present_flag)))
+        else if (!(_checkInverterFlags(_check_inverter_hv_present_flag)))
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_NO_HV_PRESENT);
         }
         else if (!valid_drivetrain_command)
         {
-            _set_state(DrivetrainState_e::INVERTERS_HV_ENABLED);
+            _setState(DrivetrainState_e::INVERTERS_HV_ENABLED);
         }
 
         break;
@@ -271,44 +271,44 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
     case DrivetrainState_e::ERROR:
     {
         // State Outputs
-        _set_drivetrain_disabled();
+        _setDrivetrainDisabled();
         _set_ef_active_pin(false);
 
         DrivetrainCommand_s drivetrain_command = {{0, 0, 0, 0}, {0.0f, 0.0f, 0.0f, 0.0f}};
-        _set_drivetrain_command(drivetrain_command); // Explicitly set RPMs and torques to 0 while in ERROR state
+        _setDrivetrainCommand(drivetrain_command); // Explicitly set RPMs and torques to 0 while in ERROR state
 
         // State Transitions
         bool user_requesting_error_reset = etl::holds_alternative<DrivetrainResetError_s>(cmd) && (etl::get<DrivetrainResetError_s>(cmd).reset_errors);
         bool inverter_error_present = false;
 
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         if (user_requesting_error_reset)
         {
-            _set_state(DrivetrainState_e::CLEARING_ERRORS);
+            _setState(DrivetrainState_e::CLEARING_ERRORS);
         }
         else if (user_requesting_error_reset && (!inverter_error_present))
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
         }
         break;
     }
     case DrivetrainState_e::CLEARING_ERRORS:
     {
         // State Outputs
-        _set_drivetrain_error_reset();
+        _setDrivetrainErrorReset();
         _set_ef_active_pin(false);
 
         DrivetrainCommand_s drivetrain_command = {{0, 0, 0, 0}, {0.0f, 0.0f, 0.0f, 0.0f}};
-        _set_drivetrain_command(drivetrain_command); // Explicitly set RPMs and torques to 0 while in ERROR state
+        _setDrivetrainCommand(drivetrain_command); // Explicitly set RPMs and torques to 0 while in ERROR state
 
         // State Transitions
         bool inverter_error_present = false;
-        inverter_error_present = !_check_inverter_flags(_check_inverter_no_errors_present);
+        inverter_error_present = !_checkInverterFlags(_check_inverter_no_errors_present);
 
         if (!inverter_error_present)
         {
-            _set_state(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
+            _setState(DrivetrainState_e::NOT_ENABLED_HV_PRESENT);
         }
         break;
     }
@@ -318,18 +318,18 @@ DrivetrainState_e DrivetrainSystem::_evaluate_state_machine(DrivetrainSystem::Cm
     }
     }
 
-    return get_state();
+    return getState();
 }
 
-void DrivetrainSystem::_set_state(DrivetrainState_e new_state)
+void DrivetrainSystem::_setState(DrivetrainState_e new_state)
 {
     _state = new_state;
 }
 
 // returns false if any of the inverters fail the flag check.
-bool DrivetrainSystem::_check_inverter_flags(std::function<bool(const InverterStatus_s&)> flag_check_func)
+bool DrivetrainSystem::_checkInverterFlags(std::function<bool(const InverterStatus_s&)> flag_check_func)
 {
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         auto inverter_status = func.get_status();
@@ -341,10 +341,10 @@ bool DrivetrainSystem::_check_inverter_flags(std::function<bool(const InverterSt
     return true;
 }
 
-void DrivetrainSystem::_set_drivetrain_disabled()
+void DrivetrainSystem::_setDrivetrainDisabled()
 {
     InverterControlWord_s disabled_control_word = {.inverter_enable = false, .hv_enable = false, .driver_enable = false, .remove_error = false};
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(disabled_control_word);
@@ -352,11 +352,11 @@ void DrivetrainSystem::_set_drivetrain_disabled()
     }
 }
 
-void DrivetrainSystem::_set_enable_drivetrain_hv()
+void DrivetrainSystem::_setEnableDrivetrainHv()
 {
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = false, .remove_error = false};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -364,16 +364,16 @@ void DrivetrainSystem::_set_enable_drivetrain_hv()
     }
 }
 
-void DrivetrainSystem::_set_enable_drivetrain()
+void DrivetrainSystem::_setEnableDrivetrain()
 {
-    _set_drivetrain_keepalive_idle(); // since they are the same
+    _setDrivetrainKeepaliveIdle(); // since they are the same
 }
 
-void DrivetrainSystem::_set_drivetrain_keepalive_idle()
+void DrivetrainSystem::_setDrivetrainKeepaliveIdle()
 {
     InverterControlWord_s control_word = {.inverter_enable = true, .hv_enable = true, .driver_enable = true, .remove_error = false};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -381,11 +381,11 @@ void DrivetrainSystem::_set_drivetrain_keepalive_idle()
     }
 }
 
-void DrivetrainSystem::_set_drivetrain_error_reset()
+void DrivetrainSystem::_setDrivetrainErrorReset()
 {
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = true, .remove_error = true};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -393,18 +393,18 @@ void DrivetrainSystem::_set_drivetrain_error_reset()
     }
 }
 
-void DrivetrainSystem::_set_drivetrain_command(DrivetrainCommand_s cmd)
+void DrivetrainSystem::_setDrivetrainCommand(DrivetrainCommand_s cmd)
 {
-    _inverter_interfaces.FL.set_speed(cmd.desired_speeds.FL, cmd.torque_limits.FL);
-    _inverter_interfaces.FR.set_speed(cmd.desired_speeds.FR, cmd.torque_limits.FR);
-    _inverter_interfaces.RL.set_speed(cmd.desired_speeds.RL, cmd.torque_limits.RL);
-    _inverter_interfaces.RR.set_speed(cmd.desired_speeds.RR, cmd.torque_limits.RR);
+    _inverter_interfaces.fl.set_speed(cmd.desired_speeds.fl, cmd.torque_limits.fl);
+    _inverter_interfaces.fr.set_speed(cmd.desired_speeds.fr, cmd.torque_limits.fr);
+    _inverter_interfaces.rl.set_speed(cmd.desired_speeds.rl, cmd.torque_limits.rl);
+    _inverter_interfaces.rr.set_speed(cmd.desired_speeds.rr, cmd.torque_limits.rr);
 }
 
-bool DrivetrainSystem::_drivetrain_active(float min_active_rpm)
+bool DrivetrainSystem::_drivetrainActive(float min_active_rpm)
 {
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         auto motor_mechanics = func.get_motor_mechanics();

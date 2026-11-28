@@ -34,20 +34,20 @@ class ACUInterface
         _curr_data.last_recv_millis = 0;
     };
 
-    void receive_acu_ok_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveACUOkMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_em_measurement(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveEMMeasurement(const CAN_message_t& msg, unsigned long curr_millis);
 
     /* Getters */
-    bool is_imd_ok() { return _curr_data.imd_ok; }
+    bool isIMDOk() { return _curr_data.imd_ok; }
 
-    bool is_bms_ok() { return _curr_data.bms_ok; }
+    bool isBMSOk() { return _curr_data.bms_ok; }
 
-    uint64_t get_last_received_msg_time() { return _curr_data.last_recv_millis; }
+    uint64_t getLastReceivedMsgTime() { return _curr_data.last_recv_millis; }
 
-    bool has_received_first_acu_heartbeat() { return _received_first_acu_heartbeat; }
+    bool hasReceivedFirstACUHeartbeat() { return _received_first_acu_heartbeat; }
 
-    ACUCANInterfaceData_s get_latest_data(uint64_t curr_millis);
+    ACUCANInterfaceData_s getLatestData(uint64_t curr_millis);
 
   private:
     ACUCANInterfaceData_s _curr_data;

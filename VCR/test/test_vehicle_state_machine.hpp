@@ -20,7 +20,7 @@ bool calibrate_steering_pressed = false;
 bool steering_timeout = false;
 bool rss_go_pressed = false;
 
-void reset_all_booleans()
+void resetAllBooleans()
 {
     hv_over_threshold = false;
     start_btn = false;
@@ -59,13 +59,13 @@ etl::delegate<void()> mock_end_buzzer = etl::delegate<void()>::create([]() -> vo
 
 etl::delegate<void()> mock_handle_drivetrain_init = etl::delegate<void()>::create([]() -> void { return; });
 
-void mock_command_drivetrain_function(bool wrtd, bool rtd)
+void mockCommandDrivetrainFunction(bool wrtd, bool rtd)
 {
     wanting_ready_to_drive = wrtd;
     ready_to_drive = rtd;
     return;
 }
-etl::delegate<void(bool, bool)> mock_command_drivetrain = etl::delegate<void(bool, bool)>::create<mock_command_drivetrain_function>();
+etl::delegate<void(bool, bool)> mock_command_drivetrain = etl::delegate<void(bool, bool)>::create<mockCommandDrivetrainFunction>();
 
 etl::delegate<bool()> mock_pedals_timeout = etl::delegate<bool()>::create([]() -> bool { return pedals_timeout; });
 
@@ -141,29 +141,29 @@ TEST(VehicleStateMachine, TractiveSystemNotActive)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Ensure errors can be cleared
     inverter_button_pressed = true;
     drivetrain_error = false;
-    state_machine.tick_state_machine(0);
+    state_machine.tickStateMachine(0);
     ASSERT_EQ(called_reset_inverter_error, false);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     inverter_button_pressed = false;
     drivetrain_error = true;
-    state_machine.tick_state_machine(0);
+    state_machine.tickStateMachine(0);
     ASSERT_EQ(called_reset_inverter_error, false);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     inverter_button_pressed = true;
     drivetrain_error = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_EQ(called_reset_inverter_error, true);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
     called_reset_inverter_error = false;
@@ -192,59 +192,59 @@ TEST(VehicleStateMachine, CalibratingPedals)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Enter WANTING_RECALIBRATE_PEDALS
     calibrate_pedals_pressed = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Leave WANTING_RECALIBRATE_PEDALS because not enough time has passed
     calibrate_pedals_pressed = false;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Enter WANTING_RECALIBRATE_PEDALS
     calibrate_pedals_pressed = true;
-    state_machine.tick_state_machine(2000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
+    state_machine.tickStateMachine(2000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Not enough time has passed
     calibrate_pedals_pressed = true;
-    state_machine.tick_state_machine(4999);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
+    state_machine.tickStateMachine(4999);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_RECALIBRATE_PEDALS);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Entered RECALIBRATING_PEDALS
     calibrate_pedals_pressed = true;
-    state_machine.tick_state_machine(5001);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::RECALIBRATING_PEDALS);
+    state_machine.tickStateMachine(5001);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::RECALIBRATING_PEDALS);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Called calibrate pedals function
     calibrate_pedals_pressed = true;
-    state_machine.tick_state_machine(6000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::RECALIBRATING_PEDALS);
+    state_machine.tickStateMachine(6000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::RECALIBRATING_PEDALS);
     ASSERT_EQ(called_recalibrate_pedals, true);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
     called_recalibrate_pedals = false;
-    state_machine.tick_state_machine(6700);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::RECALIBRATING_PEDALS);
+    state_machine.tickStateMachine(6700);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::RECALIBRATING_PEDALS);
     ASSERT_EQ(called_recalibrate_pedals, true);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
     called_recalibrate_pedals = false;
 
     // Exit RECALIBRATING_PEDALS
     calibrate_pedals_pressed = false;
-    state_machine.tick_state_machine(7000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(7000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 }
 
@@ -269,66 +269,66 @@ TEST(VehicleStateMachine, TractiveSystemActive)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(115);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(115);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Ensure errors can be cleared
     inverter_button_pressed = true;
     drivetrain_error = false;
-    state_machine.tick_state_machine(254);
+    state_machine.tickStateMachine(254);
     ASSERT_EQ(called_reset_inverter_error, false);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     inverter_button_pressed = false;
     drivetrain_error = true;
-    state_machine.tick_state_machine(670);
+    state_machine.tickStateMachine(670);
     ASSERT_EQ(called_reset_inverter_error, false);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     inverter_button_pressed = true;
     drivetrain_error = true;
-    state_machine.tick_state_machine(841);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(841);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_EQ(called_reset_inverter_error, true);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
     called_reset_inverter_error = false;
 
     // Returns to TRACTIVE_SYSTEM_NOT_ACTIVE when hv dips below threshold
     hv_over_threshold = false;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     hv_over_threshold = true;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Only goes into WRTD when start button & brake pressed
     start_btn = true;
     brake_pressed = false;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     start_btn = false;
     brake_pressed = true;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(1000);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(1000);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 }
 
@@ -353,54 +353,54 @@ TEST(VehicleStateMachine, WantingReadyToDrive)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into WANTING_READY_TO_DRIVE
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, false);
 
     // Returns to TRACTIVE_SYSTEM_NOT_ACTIVE if HV is not over threshold
     hv_over_threshold = false;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into WANTING_READY_TO_DRIVE
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, false);
     start_btn = false;
     brake_pressed = false;
 
     // Goes into DRIVETRAIN_READY
     drivetrain_ready = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, true);
 }
 
@@ -425,38 +425,38 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenNoHV)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into WANTING_READY_TO_DRIVE
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, false);
 
     // Goes into READY_TO_DRIVE
     drivetrain_ready = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, true);
 
     // Leaves RTD when HV dips below threshold
     hv_over_threshold = false;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 }
 
@@ -481,40 +481,40 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenDrivetrainError)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into WANTING_READY_TO_DRIVE
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, false);
     start_btn = false;
     brake_pressed = false;
 
     // Goes into READY_TO_DRIVE
     drivetrain_ready = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, true);
 
     // Leaves RTD when Drivetrain Error occurs
     drivetrain_error = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 }
 
@@ -541,39 +541,39 @@ TEST(VehicleStateMachine, ExitsReadyToDriveWhenPedalsTimeout)
         mock_steering_timeout,
         mock_steering_reset,
         mock_rss_go_pressed);
-    reset_all_booleans();
+    resetAllBooleans();
 
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into TRACTIVE_SYSTEM_ACTIVE
     hv_over_threshold = true;
-    state_machine.tick_state_machine(0);
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0);
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 
     // Goes into WANTING_READY_TO_DRIVE
     start_btn = true;
     brake_pressed = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::WANTING_READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::WANTING_READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, false);
     start_btn = false;
     brake_pressed = false;
 
     // Goes into READY_TO_DRIVE
     drivetrain_ready = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::READY_TO_DRIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::READY_TO_DRIVE);
     ASSERT_DRIVETRAIN_COMMANDED(true, true);
 
     // Leaves RTD when Pedal Timeout occurs
     pedals_timeout = true;
-    state_machine.tick_state_machine(0); // Switches states
-    state_machine.tick_state_machine(0); // Evaluates in new state
-    ASSERT_EQ(state_machine.get_state(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
+    state_machine.tickStateMachine(0); // Switches states
+    state_machine.tickStateMachine(0); // Evaluates in new state
+    ASSERT_EQ(state_machine.getState(), VehicleState_e::TRACTIVE_SYSTEM_ACTIVE);
     ASSERT_DRIVETRAIN_COMMANDED(false, false);
 }

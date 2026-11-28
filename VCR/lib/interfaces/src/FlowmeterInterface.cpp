@@ -7,10 +7,10 @@ FlowmeterInterface::FlowmeterInterface(const size_t flowmeter_pin)
     : _pin(flowmeter_pin), _last_sample_timestamp_ms(0UL)
 {
     pinMode(_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(_pin), count_pulse, RISING);
+    attachInterrupt(digitalPinToInterrupt(_pin), countPulse, RISING);
 }
 
-float FlowmeterInterface::get_flow_gpm(unsigned long curr_millis)
+float FlowmeterInterface::getFlowGpm(unsigned long curr_millis)
 {
     if (_last_sample_timestamp_ms == 0)
     {

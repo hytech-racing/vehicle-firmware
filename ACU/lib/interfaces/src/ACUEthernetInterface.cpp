@@ -10,17 +10,17 @@ void ACUEthernetInterface::init_ethernet_device()
         EthernetIPDefsInstance::instance().acu_ip,
         EthernetIPDefsInstance::instance().car_subnet,
         EthernetIPDefsInstance::instance().default_gateway);
-    _acu_core_data_send_socket.begin(EthernetIPDefsInstance::instance().ACUCoreData_port);
-    _acu_all_data_send_socket.begin(EthernetIPDefsInstance::instance().ACUAllData_port);
-    _vcr_data_recv_socket.begin(EthernetIPDefsInstance::instance().VCRData_port);
-    _db_data_recv_socket.begin(EthernetIPDefsInstance::instance().DBData_port);
+    _acu_core_data_send_socket.begin(EthernetIPDefsInstance::instance().acu_core_data_port);
+    _acu_all_data_send_socket.begin(EthernetIPDefsInstance::instance().acu_all_data_port);
+    _vcr_data_recv_socket.begin(EthernetIPDefsInstance::instance().vcr_data_port);
+    _db_data_recv_socket.begin(EthernetIPDefsInstance::instance().db_data_port);
 }
 
 void ACUEthernetInterface::handle_send_ethernet_acu_all_data(const hytech_msgs_ACUAllData& data)
 {
-    handle_ethernet_socket_send_pb<hytech_msgs_ACUAllData_size>(
+    handleEthernetSocketSendPB<hytech_msgs_ACUAllData_size>(
         EthernetIPDefsInstance::instance().drivebrain_ip,
-        EthernetIPDefsInstance::instance().ACUAllData_port,
+        EthernetIPDefsInstance::instance().acu_all_data_port,
         &_acu_all_data_send_socket,
         data,
         hytech_msgs_ACUAllData_fields);
@@ -29,9 +29,9 @@ void ACUEthernetInterface::handle_send_ethernet_acu_all_data(const hytech_msgs_A
 void ACUEthernetInterface::handle_send_ethernet_acu_core_data(const hytech_msgs_ACUCoreData& data)
 {
     // no TCP Ethernet, just UDP
-    handle_ethernet_socket_send_pb<hytech_msgs_ACUCoreData_size>(
+    handleEthernetSocketSendPB<hytech_msgs_ACUCoreData_size>(
         EthernetIPDefsInstance::instance().drivebrain_ip,
-        EthernetIPDefsInstance::instance().ACUCoreData_port,
+        EthernetIPDefsInstance::instance().acu_core_data_port,
         &_acu_core_data_send_socket,
         data,
         hytech_msgs_ACUCoreData_fields);
@@ -70,7 +70,7 @@ hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCo
     return out;
 }
 
-hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_s& shared_state)
+hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_t& shared_state)
 {
     auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_ACUAllData out = {};
@@ -98,7 +98,7 @@ hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllD
     out.max_cell_temp_id = shared_state.max_cell_temp_id;
     out.measured_bspd_current = shared_state.measured_bspd_current;
     out.valid_packet_rate = shared_state.valid_packet_rate;
-    out.SoC = shared_state.SoC;
+    out.SoC = shared_state.state_of_charge;
     out.SoH = -1;
     /* Firmware Version Hash Assignment */
     out.has_firmware_version_info = true;

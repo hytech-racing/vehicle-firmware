@@ -7,8 +7,8 @@
 
 namespace sys_time
 {
-    unsigned long hal_millis();
-    unsigned long hal_micros();
+    unsigned long halMillis();
+    unsigned long halMicros();
 } // namespace sys_time
 
 #endif // SYSTEMTIMEINTERFACE_H

@@ -16,8 +16,8 @@ struct ACUData_s
 {
     bool bms_ok;
     bool imd_ok;
-    volt pack_voltage;
-    volt min_cell_voltage;
+    Volt pack_voltage;
+    Volt min_cell_voltage;
 };
 
 class ACUInterface

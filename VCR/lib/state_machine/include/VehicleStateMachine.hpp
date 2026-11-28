@@ -54,9 +54,9 @@ class VehicleStateMachine
         _current_state = VehicleState_e::TRACTIVE_SYSTEM_NOT_ACTIVE;
     }
 
-    VehicleState_e tick_state_machine(unsigned long curr_time_millis);
+    VehicleState_e tickStateMachine(unsigned long curr_time_millis);
 
-    VehicleState_e get_state() const { return _current_state; }
+    VehicleState_e getState() const { return _current_state; }
 
   private:
     VehicleState_e _current_state;
@@ -71,11 +71,11 @@ class VehicleStateMachine
      */
     uint32_t _last_entered_steering_waiting_state_ms = 0;
 
-    void _set_state(VehicleState_e new_state, unsigned long current_time_millis);
+    void _setState(VehicleState_e new_state, unsigned long current_time_millis);
 
-    void _handle_entry_logic(VehicleState_e prev_state, unsigned long current_time_millis);
+    void _handleEntryLogic(VehicleState_e prev_state, unsigned long current_time_millis);
 
-    void _handle_exit_logic(VehicleState_e new_state, unsigned long current_time_millis);
+    void _handleExitLogic(VehicleState_e new_state, unsigned long current_time_millis);
 
     /**
      * Lambdas necessary for state machine to work.

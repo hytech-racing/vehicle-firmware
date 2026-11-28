@@ -10,14 +10,14 @@ uint16_t TTPMSInterface::getSensorBaseCANID(TTPMSCorner_e corner) const
     return static_cast<uint16_t>(ttpms_default_params::BASE_CAN_ID + (static_cast<uint16_t>(corner) * ttpms_default_params::MSGS_PER_SENSOR));
 }
 
-bool TTPMSInterface::isTTPMSMessage(uint32_t can_id) const
+bool TTPMSInterface::isTTPMSMsg(uint32_t can_id) const
 {
     return (can_id >= ttpms_default_params::BASE_CAN_ID) && (can_id < (ttpms_default_params::BASE_CAN_ID + ttpms_default_params::NUM_TTPMS_IDS));
 }
 
 bool TTPMSInterface::receiveTTPMSData(const CAN_message_t& can_msg, unsigned long curr_millis)
 {
-    if (can_msg.flags.extended || !isTTPMSMessage(can_msg.id) || can_msg.len < 8)
+    if (can_msg.flags.extended || !isTTPMSMsg(can_msg.id) || can_msg.len < 8)
     {
         return false;
     }

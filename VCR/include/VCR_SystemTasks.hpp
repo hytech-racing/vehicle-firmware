@@ -20,7 +20,7 @@
 /**
  * @brief Creates an instance of all systems.
  */
-void initialize_all_systems();
+void initializeAllSystems();
 
 /* Delegate Functions */
 extern ::etl::delegate<bool()> hv_over_threshold;

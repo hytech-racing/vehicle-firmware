@@ -63,7 +63,7 @@ struct NeopixelControllerInputs_s
     TorqueLimit_e torque_limit_mode;
     VehicleState_e vehicle_state;
     bool is_drivebrain_in_control;
-    veh_vec<int> bus_voltages;
+    VehVec_s<int> bus_voltages;
     bool is_inverter_errored;
     bool is_imd_ok;
     bool is_bms_ok;

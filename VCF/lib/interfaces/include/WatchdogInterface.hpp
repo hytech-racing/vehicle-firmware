@@ -10,7 +10,7 @@
 /* Local Interface Includes */
 #include "SystemTimeInterface.h"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 namespace watchdog_default_parameters
 {
@@ -19,8 +19,8 @@ namespace watchdog_default_parameters
 
 struct WatchdogPinout_s
 {
-    pin teensy_watchdog_pin;
-    pin teensy_software_ok_pin;
+    Pin teensy_watchdog_pin;
+    Pin teensy_software_ok_pin;
 };
 
 struct WatchdogInterfaceParams_s

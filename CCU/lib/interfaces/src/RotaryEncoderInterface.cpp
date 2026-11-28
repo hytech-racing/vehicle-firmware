@@ -13,9 +13,9 @@ void RotaryEncoderInterface::init()
 
     _active_instance = this;
 
-    attachInterrupt(digitalPinToInterrupt(_pinout.enc_a_pin), RotaryEncoderInterface::_ISRHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(_pinout.enc_a_pin), RotaryEncoderInterface::_isrHandler, CHANGE);
 
-    attachInterrupt(digitalPinToInterrupt(_pinout.enc_b_pin), RotaryEncoderInterface::_ISRHandler, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(_pinout.enc_b_pin), RotaryEncoderInterface::_isrHandler, CHANGE);
 }
 
 void RotaryEncoderInterface::tick(unsigned long current_millis)
@@ -88,7 +88,7 @@ bool RotaryEncoderInterface::isSwitchHeld()
     return _enc_switch_button.isHeld();
 }
 
-void RotaryEncoderInterface::_ISRHandler()
+void RotaryEncoderInterface::_isrHandler()
 {
     if (_active_instance != nullptr)
     {

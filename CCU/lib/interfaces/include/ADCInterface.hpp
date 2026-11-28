@@ -10,7 +10,7 @@
 /* Local Interface Includes */
 #include "ButtonInterface.hpp"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace adc_default_parameters
@@ -30,22 +30,22 @@ struct ADCPinout_s
      * NOTE: All SHDN pins are currently digital pins. However, if there is an issue where shdn voltage is fluctuating,
      *       make a transition to reading shdn C as an analog pin
      */
-    pin teensy_shdn_A_pin;
-    pin teensy_shdn_B_pin;
-    pin teensy_shdn_C_pin;
-    pin teensy_shdn_D_pin;
-    pin teensy_shdn_E_pin;
-    pin teensy_shdn_F_pin;
-    pin teensy_shdn_G_pin;
+    Pin teensy_shdn_a_pin;
+    Pin teensy_shdn_b_pin;
+    Pin teensy_shdn_c_pin;
+    Pin teensy_shdn_d_pin;
+    Pin teensy_shdn_e_pin;
+    Pin teensy_shdn_f_pin;
+    Pin teensy_shdn_g_pin;
 
-    pin teensy_scaled_24V_pin;
-    pin teensy_control_pilot_pin;
-    pin teensy_proximity_pilot_pin;
-    pin teensy_240_enabled_pin;
-    pin teensy_240_ok_pin;
+    Pin teensy_scaled_24v_pin;
+    Pin teensy_control_pilot_pin;
+    Pin teensy_proximity_pilot_pin;
+    Pin teensy_240_enabled_pin;
+    Pin teensy_240_ok_pin;
 
-    pin teensy_jumper_out_pin;
-    pin reset_error_button_pin;
+    Pin teensy_jumper_out_pin;
+    Pin reset_error_button_pin;
 };
 
 struct ADCConfigs_s
@@ -148,12 +148,12 @@ class ADCInterface
     /**
      * @return voltage value of GLV, nominal 24V
      */
-    volt readGLV();
+    Volt readGLV();
 
     /**
      * @return voltage value of Control Pilot
      */
-    volt readControlPilot();
+    Volt readControlPilot();
 
     /**
      * @return true if Control Pilot voltage below threshold, else false
@@ -163,7 +163,7 @@ class ADCInterface
     /**
      * @return voltage value of Proximity Pilot
      */
-    volt readProximityPilot();
+    Volt readProximityPilot();
 
     /**
      * @return true if Proximity Pilot voltage above threshold, else false
@@ -183,7 +183,7 @@ class ADCInterface
     /**
      * @return voltage value of JP_OUT_READ
      */
-    volt readJumperOut();
+    Volt readJumperOut();
 
     /**
      * @return true if JP_OUT_READ HIGH, else false

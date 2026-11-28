@@ -21,14 +21,14 @@
 
 struct Level2SystemThresholds_s
 {
-    const float state_B2_control_voltage_min = 6.36F;
-    const float state_B2_control_voltage_max = 9.59F;
-    const float state_B2_proximity_voltage_min = 1.23F;
-    const float state_B2_proximity_voltage_max = 1.82F;
-    const float state_C2_control_voltage_min = 4.00F;
-    const float state_C2_control_voltage_max = 6.53F;
-    const float state_C2_proximity_voltage_min = 1.23F;
-    const float state_C2_proximity_voltage_max = 1.82F;
+    const float state_b2_control_voltage_min = 6.36F;
+    const float state_b2_control_voltage_max = 9.59F;
+    const float state_b2_proximity_voltage_min = 1.23F;
+    const float state_b2_proximity_voltage_max = 1.82F;
+    const float state_c2_control_voltage_min = 4.00F;
+    const float state_c2_control_voltage_max = 6.53F;
+    const float state_c2_proximity_voltage_min = 1.23F;
+    const float state_c2_proximity_voltage_max = 1.82F;
 };
 
 class Level2System
@@ -46,38 +46,38 @@ class Level2System
      * PP = 5  +  CP = 0  +  240_En = HIGH  +  240_OK = LOW
      * @return if the 4 conditions above are met
      */
-    bool check_120_conditions(ADCInterface& adc_interface);
+    bool check120Conditions(ADCInterface& adc_interface);
 
     /**
      * Function check for the expected 240V Charging Conditions (2):
      * 240_OK = HIGH  +  JP_OUT_READ = HIGH
      * @return if the 2 conditions above are met
      */
-    bool check_240_conditions(ADCInterface& adc_interface);
+    bool check240Conditions(ADCInterface& adc_interface);
 
     /**
      * Function checks if the switch is engaged for 120V charging
      * 240_OK = LOW  +  JP_OUT_READ = HIGH
      * @return if the 2 conditions above are met
      */
-    bool is_120_switched(ADCInterface& adc_interface);
+    bool is120Switched(ADCInterface& adc_interface);
 
     /**
      * Function checks if the switch is engaged for 120V charging
      * 240_OK = LOW  +  jumper_read = LOW
      * @return if the 2 conditions above are met
      */
-    bool is_240_switched(ADCInterface& adc_interface);
+    bool is240Switched(ADCInterface& adc_interface);
 
     /**
      * @return true if all state B2 conditions present, else false
      */
-    bool check_state_B2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
+    bool checkStateB2Conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
     /**
      * @return true if all state C2 conditions present, else false
      */
-    bool check_state_C2_conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
+    bool checkStateC2Conditions(ADCInterface& adc_interface, Level2Interface& level2_interface);
 
   private:
     Level2Interface& _level2_interface;

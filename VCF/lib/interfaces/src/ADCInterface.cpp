@@ -154,30 +154,30 @@ AnalogConversion_s ADCInterface::getBrakePressureRear()
 
 void ADCInterface::updateFilteredCalues(float alpha)
 {
-    _FL_load_cell_filtered = _applyIIRFilter(alpha, _FL_load_cell_filtered, getFLLoadcell().conversion);
-    _FR_load_cell_filtered = _applyIIRFilter(alpha, _FR_load_cell_filtered, getFRLoadcell().conversion);
-    _FL_sus_pot_filtered = _applyIIRFilter(alpha, _FL_sus_pot_filtered, getFLSuspot().conversion);
-    _FR_sus_pot_filtered = _applyIIRFilter(alpha, _FR_sus_pot_filtered, getFRSuspot().conversion);
+    _fl_load_cell_filtered = _applyIIRFilter(alpha, _fl_load_cell_filtered, getFLLoadcell().conversion);
+    _fr_load_cell_filtered = _applyIIRFilter(alpha, _fr_load_cell_filtered, getFRLoadcell().conversion);
+    _fl_sus_pot_filtered = _applyIIRFilter(alpha, _fl_sus_pot_filtered, getFLSuspot().conversion);
+    _fr_sus_pot_filtered = _applyIIRFilter(alpha, _fr_sus_pot_filtered, getFRSuspot().conversion);
 }
 
 float ADCInterface::getFilteredFLLoadcell()
 {
-    return _FL_load_cell_filtered;
+    return _fl_load_cell_filtered;
 }
 
 float ADCInterface::getFilteredFRLoadcell()
 {
-    return _FR_load_cell_filtered;
+    return _fr_load_cell_filtered;
 }
 
 float ADCInterface::getFilteredFLSuspot()
 {
-    return _FL_sus_pot_filtered;
+    return _fl_sus_pot_filtered;
 }
 
 float ADCInterface::getFilteredFRSuspot()
 {
-    return _FR_sus_pot_filtered;
+    return _fr_sus_pot_filtered;
 }
 
 float ADCInterface::_applyIIRFilter(float alpha, float prev_value, float new_value)

@@ -64,21 +64,21 @@ void DataLoggingInterface::log_data()
         return;
     }
 
-    data_file.print(sys_time::hal_millis());
+    data_file.print(sys_time::halMillis());
     data_file.print(",");
     data_file.print(ts_current, 4);
     data_file.print(",");
     data_file.print(bms_data.min_cell_voltage, 4);
     data_file.print(",");
-    data_file.print(status.SoC * 100.0f, 2);
+    data_file.print(status.state_of_charge * 100.0f, 2);
     data_file.print(",");
     data_file.print((float)status.lifetime_ah_throughput, 2);
     data_file.print(",");
-    data_file.print(status.SoH, 4);
+    data_file.print(status.state_of_health, 4);
     data_file.print(",");
-    data_file.print(status.SoE_percentage, 2);
+    data_file.print(status.state_of_energy_percentage, 2);
     data_file.print(",");
-    data_file.print(status.V1, 4);
+    data_file.print(status.v1, 4);
     data_file.print(",");
     data_file.println(status.remaining_pack_wh, 1);
 

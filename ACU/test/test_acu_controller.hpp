@@ -67,7 +67,7 @@ TEST(ACUControllerTesting, charging_state)
 
     };
     // Per-cell voltages for balancing calc
-    std::array<volt, num_cells> cell_voltages = {3.7f, 3.81f, 3.7f, 3.7f, 3.81f, 3.76f, 3.7f, 3.7f, 3.84f, 3.85f, 3.75f, 3.75f};
+    std::array<Volt, num_cells> cell_voltages = {3.7f, 3.81f, 3.7f, 3.7f, 3.81f, 3.76f, 3.7f, 3.7f, 3.84f, 3.85f, 3.75f, 3.75f};
 
     controller.enableCharging();
 

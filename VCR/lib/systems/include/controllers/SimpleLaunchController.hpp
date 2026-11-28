@@ -33,15 +33,15 @@ enum class LaunchStates_e
 /// defaults(DEFAULT_launch_speed_target_rpm)
 namespace LaunchControllerParams
 {
-    const int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
+    constexpr int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
     // const int16_t DEFAULT_INIT_SPEED_RPM = 500; // Target RPM as soon as simple launch begins
-    const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 11.76;
+    constexpr float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 11.76;
     // const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 3.0f;
-    const float launch_ready_accel_threshold = .1;
-    const float launch_ready_brake_threshold = .2;
-    const float launch_ready_speed_threshold = 5.0 * METERS_PER_SECOND_TO_RPM; // rpm
-    const float launch_go_accel_threshold = .9;
-    const float launch_stop_accel_threshold = .5;
+    constexpr float LAUNCH_READY_ACCEL_THRESHOLD = .1;
+    constexpr float LAUNCH_READY_BRAKE_THRESHOLD = .2;
+    constexpr float LAUNCH_READY_SPEED_THRESHOLD = 5.0 * METERS_PER_SECOND_TO_RPM; // rpm
+    constexpr float LAUNCH_GO_ACCEL_THRESHOLD = .9;
+    constexpr float LAUNCH_STOP_ACCEL_THRESHOLD = .5;
 } // namespace LaunchControllerParams
 
 class SimpleLaunchController
@@ -57,7 +57,7 @@ class SimpleLaunchController
 
     DrivetrainCommand_s evaluate(const VCRData_s& vcr_data, uint32_t curr_millis);
 
-    LaunchStates_e get_launch_state() { return _launch_state; }
+    LaunchStates_e getLaunchState() { return _launch_state; }
 
   private:
     float _launch_rate_target_m_per_sec_sq;
@@ -72,7 +72,7 @@ class SimpleLaunchController
     /// @note defines important variation in launch controller tick/evaluation as the launch controllers share a tick method defined in this parent class
     /// implementation
     /// @note all launch algorithms are implemented in LaunchControllerAlgos.cpp
-    float calc_launch_algo(uint32_t curr_millis)
+    float _calcLaunchAlgo(uint32_t curr_millis)
     {
         /*
         Stolen launch algo from HT07. This ramps up the speed target over time.

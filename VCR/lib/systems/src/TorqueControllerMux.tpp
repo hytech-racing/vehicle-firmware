@@ -1,8 +1,8 @@
 #include "TorqueControllerMux.hpp"
 
 
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command(ControllerMode_e requested_controller_type,
+template <std::size_t NumControllers>
+DrivetrainCommand_s TorqueControllerMux<NumControllers>::getDrivetrainCommand(ControllerMode_e requested_controller_type,
                                                                                TorqueLimit_e requested_torque_limit,
                                                                                const VCRData_s &input_state
 )
@@ -29,7 +29,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
         return empty_command;
     }
 
-    current_output = _controller_evals[active_controller_mode_index](input_state, sys_time::hal_millis());
+    current_output = _controller_evals[active_controller_mode_index](input_state, sys_time::halMillis());
 
     // std::cout << "output torques " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
 
@@ -37,8 +37,8 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
 
     if (requesting_controller_change)
     {
-        DrivetrainCommand_s proposed_output = _controller_evals[req_controller_mode_index](input_state, sys_time::hal_millis());
-        TorqueControllerMuxError_e error_state = can_switch_controller(input_state.system_data.drivetrain_data, current_output, proposed_output);
+        DrivetrainCommand_s proposed_output = _controller_evals[req_controller_mode_index](input_state, sys_time::halMillis());
+        TorqueControllerMuxError_e error_state = _canSwitchController(input_state.system_data.drivetrain_data, current_output, proposed_output);
 
         //successful change
         if (error_state == TorqueControllerMuxError_e::NO_ERROR)
@@ -54,22 +54,22 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
         _active_status.active_torque_limit_enum = requested_torque_limit;
 
         // Occurs when the desired speed is 0 (braking) and we want to allow regen -- need to apply limits so that the pack voltage doesn't spike too high
-        if (current_output.desired_speeds.FL == 0.0f && current_output.desired_speeds.FR == 0.0f && current_output.desired_speeds.RL == 0.0f && current_output.desired_speeds.RR == 0.0f)
+        if (current_output.desired_speeds.fl == 0.0f && current_output.desired_speeds.fr == 0.0f && current_output.desired_speeds.rl == 0.0f && current_output.desired_speeds.rr == 0.0f)
         {
-            current_output = _apply_regen_limit(current_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
+            current_output = _applyRegenLimit(current_output, input_state.system_data.drivetrain_data, input_state.interface_data.stamped_acu_core_data.acu_data);
         }
 
-        current_output = _apply_torque_limit(current_output, _torque_limit_map[requested_torque_limit]);
+        current_output = _applyTorqueLimit(current_output, _torque_limit_map[requested_torque_limit]);
         _active_status.active_torque_limit_value = _torque_limit_map[requested_torque_limit];
 
         // Applied power limit when accelerating
-        if (current_output.desired_speeds.FL != 0.0f || current_output.desired_speeds.FR != 0.0f || current_output.desired_speeds.RL != 0.0f || current_output.desired_speeds.RR != 0.0f)
+        if (current_output.desired_speeds.fl != 0.0f || current_output.desired_speeds.fr != 0.0f || current_output.desired_speeds.rl != 0.0f || current_output.desired_speeds.rr != 0.0f)
         {
-            current_output = _apply_power_limit(current_output, input_state.system_data.drivetrain_data, _max_power_limit, _torque_limit_map[requested_torque_limit]);
+            current_output = _applyPowerLimit(current_output, input_state.system_data.drivetrain_data, _max_power_limit, _torque_limit_map[requested_torque_limit]);
         }
 
         // std::cout << "output torques after pw " << current_output.inverter_torque_limit[0] << " " << current_output.inverter_torque_limit[1] << " " << current_output.command.inverter_torque_limit[2] << " " << current_output.command.inverter_torque_limit[3] << std::endl;
-        current_output = _apply_positive_speed_limit(current_output);
+        current_output = _applyPositiveSpeedLimit(current_output);
         _active_status.output_is_bypassing_limits = false;
     }
     else
@@ -84,35 +84,35 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::get_drivetrain_command
     return current_output;
 }
 
-template <std::size_t num_controllers>
-TorqueControllerMuxError_e TorqueControllerMux<num_controllers>::can_switch_controller(DrivetrainDynamicReport_s active_drivetrain_data,
+template <std::size_t NumControllers>
+TorqueControllerMuxError_e TorqueControllerMux<NumControllers>::_canSwitchController(DrivetrainDynamicReport_s active_drivetrain_data,
                                                                                       DrivetrainCommand_s previous_controller_command,
                                                                                       DrivetrainCommand_s desired_controller_out
 )
 {
-    bool speedPreventsModeChange = false;
+    bool speed_prevents_mode_change = false;
 
     // Check if torque delta permits mode change
-    bool torqueDeltaPreventsModeChange = false;
+    bool torque_delta_prevents_mode_change = false;
 
-    auto speeds = active_drivetrain_data.measuredSpeeds.as_array();
-    auto desired_torq_lims = desired_controller_out.torque_limits.as_array();
-    auto prev_torq_lims = previous_controller_command.torque_limits.as_array();
+    auto speeds = active_drivetrain_data.measured_speeds.asArray();
+    auto desired_torq_lims = desired_controller_out.torque_limits.asArray();
+    auto prev_torq_lims = previous_controller_command.torque_limits.asArray();
 
 
     // is there a specific reason why we want to switch under speed and torque differences? would it not be safer to keep it to switching under near-stationary conditions instead?
     for (size_t i = 0; i < _num_motors; i++)
     {
         // if a motor's speed >= 5 m/s, don't switch to new controller
-        speedPreventsModeChange = (fabs(speeds[i] * RPM_TO_METERS_PER_SECOND) >= _max_change_speed);
+        speed_prevents_mode_change = (fabs(speeds[i] * RPM_TO_METERS_PER_SECOND) >= _max_change_speed);
 
         // only if the torque delta is positive do we not want to switch to the new one
-        torqueDeltaPreventsModeChange = (desired_torq_lims[i] - prev_torq_lims[i]) > _max_torque_pos_change_delta;
-        if (speedPreventsModeChange)
+        torque_delta_prevents_mode_change = (desired_torq_lims[i] - prev_torq_lims[i]) > _max_torque_pos_change_delta;
+        if (speed_prevents_mode_change)
         {
             return TorqueControllerMuxError_e::ERROR_SPEED_DIFF_TOO_HIGH;
         }
-        if (torqueDeltaPreventsModeChange)
+        if (torque_delta_prevents_mode_change)
         {
             return TorqueControllerMuxError_e::ERROR_TORQUE_DIFF_TOO_HIGH;
         }
@@ -121,27 +121,27 @@ TorqueControllerMuxError_e TorqueControllerMux<num_controllers>::can_switch_cont
 }
 
 /* Apply limit such that wheelspeed never goes negative */
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_positive_speed_limit(const DrivetrainCommand_s &command)
+template <std::size_t NumControllers>
+DrivetrainCommand_s TorqueControllerMux<NumControllers>::_applyPositiveSpeedLimit(const DrivetrainCommand_s &command)
 {
     DrivetrainCommand_s out;
     out = command;
 
     // I just hope HyTech never has to go back to single motor. that would be very sadge :(
-    out.desired_speeds.FL = std::max(0.0f,command.desired_speeds.FL);
-    out.desired_speeds.FR = std::max(0.0f,command.desired_speeds.FR);
-    out.desired_speeds.RL = std::max(0.0f,command.desired_speeds.RL);
-    out.desired_speeds.RR = std::max(0.0f,command.desired_speeds.RR);
+    out.desired_speeds.fl = std::max(0.0f,command.desired_speeds.fl);
+    out.desired_speeds.fr = std::max(0.0f,command.desired_speeds.fr);
+    out.desired_speeds.rl = std::max(0.0f,command.desired_speeds.rl);
+    out.desired_speeds.rr = std::max(0.0f,command.desired_speeds.rr);
     return out;
 }
 
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_torque_limit(const DrivetrainCommand_s &command, float max_torque)
+template <std::size_t NumControllers>
+DrivetrainCommand_s TorqueControllerMux<NumControllers>::_applyTorqueLimit(const DrivetrainCommand_s &command, float max_torque)
 {
     DrivetrainCommand_s out = command;
     float avg_torque = 0;
     // get the average torque accross all 4 wheels
-    auto torq_lims = out.torque_limits.as_array();
+    auto torq_lims = out.torque_limits.asArray();
     for (size_t i = 0; i < torq_lims.size(); i++)
     {
         avg_torque += abs(torq_lims[i]);
@@ -155,10 +155,10 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_torque_limit(co
         // get the scale of avg torque above max torque
         float scale = avg_torque / max_torque;
         // divide by scale to lower avg below max torque
-        out.torque_limits.FL = out.torque_limits.FL / scale;
-        out.torque_limits.FR = out.torque_limits.FR / scale;
-        out.torque_limits.RL = out.torque_limits.RL / scale;
-        out.torque_limits.RR = out.torque_limits.RR / scale;
+        out.torque_limits.fl = out.torque_limits.fl / scale;
+        out.torque_limits.fr = out.torque_limits.fr / scale;
+        out.torque_limits.rl = out.torque_limits.rl / scale;
+        out.torque_limits.rr = out.torque_limits.rr / scale;
     }
 
     return out;
@@ -169,23 +169,23 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_torque_limit(co
     exceeds the preset mechanical power limit. Scales all wheels down to
     preserve functionality of torque controllers
 */
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_power_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain, float power_limit, float max_torque)
+template <std::size_t NumControllers>
+DrivetrainCommand_s TorqueControllerMux<NumControllers>::_applyPowerLimit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain, float power_limit, float max_torque)
 {
     DrivetrainCommand_s out = command;
     float net_torque_mag = 0;
     float net_power = 0;
 
     // uhh why not just put these all on one line? readability?
-    net_torque_mag += out.torque_limits.FL;
-    net_torque_mag += out.torque_limits.FR;
-    net_torque_mag += out.torque_limits.RL;
-    net_torque_mag += out.torque_limits.RR;
+    net_torque_mag += out.torque_limits.fl;
+    net_torque_mag += out.torque_limits.fr;
+    net_torque_mag += out.torque_limits.rl;
+    net_torque_mag += out.torque_limits.rr;
 
-    net_power += (out.torque_limits.FL * (drivetrain.measuredSpeeds.FL * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.FR * (drivetrain.measuredSpeeds.FR * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.RL * (drivetrain.measuredSpeeds.RL * RPM_TO_RAD_PER_SECOND));
-    net_power += (out.torque_limits.RR * (drivetrain.measuredSpeeds.RR * RPM_TO_RAD_PER_SECOND));
+    net_power += (out.torque_limits.fl * (drivetrain.measured_speeds.fl * RPM_TO_RAD_PER_SECOND));
+    net_power += (out.torque_limits.fr * (drivetrain.measured_speeds.fr * RPM_TO_RAD_PER_SECOND));
+    net_power += (out.torque_limits.rl * (drivetrain.measured_speeds.rl * RPM_TO_RAD_PER_SECOND));
+    net_power += (out.torque_limits.rr * (drivetrain.measured_speeds.rr * RPM_TO_RAD_PER_SECOND));
     // only evaluate power limit if current power exceeds it
     auto scale_torque_limit = [](float desired_wheel_torque, float current_wheel_rpm, float net_torque_mag, float power_limit, float max_torque) -> float
     {
@@ -203,16 +203,16 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_power_limit(con
 
     if (net_power > power_limit)
     {
-        out.torque_limits.FL  = scale_torque_limit(out.torque_limits.FL , drivetrain.measuredSpeeds.FL , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.FR  = scale_torque_limit(out.torque_limits.FR , drivetrain.measuredSpeeds.FR , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.RL  = scale_torque_limit(out.torque_limits.RL , drivetrain.measuredSpeeds.RL , net_torque_mag, power_limit, max_torque);
-        out.torque_limits.RR  = scale_torque_limit(out.torque_limits.RR , drivetrain.measuredSpeeds.RR , net_torque_mag, power_limit, max_torque);
+        out.torque_limits.fl  = scale_torque_limit(out.torque_limits.fl , drivetrain.measured_speeds.fl , net_torque_mag, power_limit, max_torque);
+        out.torque_limits.fr  = scale_torque_limit(out.torque_limits.fr , drivetrain.measured_speeds.fr , net_torque_mag, power_limit, max_torque);
+        out.torque_limits.rl  = scale_torque_limit(out.torque_limits.rl , drivetrain.measured_speeds.rl , net_torque_mag, power_limit, max_torque);
+        out.torque_limits.rr  = scale_torque_limit(out.torque_limits.rr , drivetrain.measured_speeds.rr , net_torque_mag, power_limit, max_torque);
     }
     return out;
 }
 
-template <std::size_t num_controllers>
-DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain_data, const ACUCoreData_s acu_data)
+template <std::size_t NumControllers>
+DrivetrainCommand_s TorqueControllerMux<NumControllers>::_applyRegenLimit(const DrivetrainCommand_s &command, const DrivetrainDynamicReport_s &drivetrain_data, const ACUCoreData_s acu_data)
 {
     DrivetrainCommand_s out = command;
     const float no_regen_limit_kph = 10.0;
@@ -229,8 +229,8 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(con
     bool all_wheels_regen_flag = true; // true when all wheels are targeting speeds below the current wheel speed
 
     DrivetrainDynamicReport_s dt_data = drivetrain_data;
-    auto speeds = dt_data.measuredSpeeds.as_array();
-    auto command_speeds = out.desired_speeds.as_array();
+    auto speeds = dt_data.measured_speeds.asArray();
+    auto command_speeds = out.desired_speeds.asArray();
     for (size_t i = 0; i < _num_motors; i++)
     {
         max_wheel_speed = std::max(max_wheel_speed, static_cast<float>(fabs(speeds[i]) * RPM_TO_KILOMETERS_PER_HOUR));
@@ -242,7 +242,7 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(con
     torque_scale_down = std::min(1.0f, std::max(0.0f, (max_wheel_speed - full_regen_limit_kph) / (no_regen_limit_kph - full_regen_limit_kph)));
 
     // limit torque based on overvoltage so that cells do not
-    float over_voltage_protection_scale = std::min(1.0f, std::max(0.1f, (dt_data.measuredInverterFLPackVoltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
+    float over_voltage_protection_scale = std::min(1.0f, std::max(0.1f, (dt_data.measured_inverter_fl_pack_voltage - start_regen_voltage_limit) / (max_regen_voltage_limit - start_regen_voltage_limit)));
     torque_scale_down *= (1.0f - over_voltage_protection_scale);
 
     // regen power limit
@@ -256,10 +256,10 @@ DrivetrainCommand_s TorqueControllerMux<num_controllers>::_apply_regen_limit(con
     // over voltage, rules regen limit
     if (all_wheels_regen_flag)
     {
-        out.torque_limits.FL *= torque_scale_down;
-        out.torque_limits.FR *= torque_scale_down;
-        out.torque_limits.RL *= torque_scale_down;
-        out.torque_limits.RR *= torque_scale_down;
+        out.torque_limits.fl *= torque_scale_down;
+        out.torque_limits.fr *= torque_scale_down;
+        out.torque_limits.rl *= torque_scale_down;
+        out.torque_limits.rr *= torque_scale_down;
     }
 
     return out;

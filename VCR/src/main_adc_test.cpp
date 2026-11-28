@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "VCR_Constants.hpp"
 
-const unsigned long DELAY = 100;
+constexpr unsigned long DELAY = 100;
 unsigned long last = millis();
 
 void setup()
@@ -71,26 +71,26 @@ void loop()
 {
     if (millis() - DELAY > last)
     {
-        ADCInterfaceInstance::instance().tick_adc0();
+        ADCInterfaceInstance::instance().tickADC0();
         Serial.print("\n===== ADC 0 =====\n");
-        Serial.printf("GLV:                      %d\n", ADCInterfaceInstance::instance().get_glv().raw);
-        Serial.printf("BSPD Current:             %d\n", ADCInterfaceInstance::instance().get_bspd_current().raw);
-        Serial.printf("BSPD Ref Current:             %d\n", ADCInterfaceInstance::instance().get_bspd_reference_current().raw);
-        Serial.printf("RL Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().get_RL_load_cell().raw);
-        Serial.printf("RR Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().get_RR_load_cell().raw);
-        Serial.printf("RR Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().get_RR_sus_pot().raw);
-        Serial.printf("RL Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().get_RL_sus_pot().raw);
+        Serial.printf("GLV:                      %d\n", ADCInterfaceInstance::instance().getGlv().raw);
+        Serial.printf("BSPD Current:             %d\n", ADCInterfaceInstance::instance().getBspdCurrent().raw);
+        Serial.printf("BSPD Ref Current:             %d\n", ADCInterfaceInstance::instance().getBspdReferenceCurrent().raw);
+        Serial.printf("RL Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().getRLLoadCell().raw);
+        Serial.printf("RR Load Cell Raw:          %d\n", ADCInterfaceInstance::instance().getRRLoadCell().raw);
+        Serial.printf("RR Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().getRRSusPot().raw);
+        Serial.printf("RL Sus Pot Raw:            %d\n", ADCInterfaceInstance::instance().getRLSusPot().raw);
 
-        ADCInterfaceInstance::instance().tick_adc1();
+        ADCInterfaceInstance::instance().tickADC1();
         Serial.printf("\n===== ADC 1 =====\n");
-        Serial.printf("Thermisistor 0:                %d\n", ADCInterfaceInstance::instance().get_thermistor_0().raw);
-        Serial.printf("Thermisistor 1:                %d\n", ADCInterfaceInstance::instance().get_thermistor_1().raw);
-        Serial.printf("Thermisistor 2:                %d\n", ADCInterfaceInstance::instance().get_thermistor_2().raw);
-        Serial.printf("Thermisistor 3:                %d\n", ADCInterfaceInstance::instance().get_thermistor_3().raw);
-        Serial.printf("Thermisistor 4:                %d\n", ADCInterfaceInstance::instance().get_thermistor_4().raw);
-        Serial.printf("Thermisistor 5:                %d\n", ADCInterfaceInstance::instance().get_thermistor_5().raw);
-        Serial.printf("Thermisistor 6:                %d\n", ADCInterfaceInstance::instance().get_thermistor_6().raw);
-        Serial.printf("Thermisistor 7:                %d\n", ADCInterfaceInstance::instance().get_thermistor_7().raw);
+        Serial.printf("Thermisistor 0:                %d\n", ADCInterfaceInstance::instance().getThermistor0().raw);
+        Serial.printf("Thermisistor 1:                %d\n", ADCInterfaceInstance::instance().getThermistor1().raw);
+        Serial.printf("Thermisistor 2:                %d\n", ADCInterfaceInstance::instance().getThermistor2().raw);
+        Serial.printf("Thermisistor 3:                %d\n", ADCInterfaceInstance::instance().getThermistor3().raw);
+        Serial.printf("Thermisistor 4:                %d\n", ADCInterfaceInstance::instance().getThermistor4().raw);
+        Serial.printf("Thermisistor 5:                %d\n", ADCInterfaceInstance::instance().getThermistor5().raw);
+        Serial.printf("Thermisistor 6:                %d\n", ADCInterfaceInstance::instance().getThermistor6().raw);
+        Serial.printf("Thermisistor 7:                %d\n", ADCInterfaceInstance::instance().getThermistor7().raw);
 
         last = millis();
     }
