@@ -215,6 +215,9 @@ namespace VCFConstants
     constexpr uint8_t STEERING_RECALIBRATION_PRIORITY = 21;
     constexpr time_us STEERING_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
+    constexpr uint8_t FW_VERSION_CAN_PRIORITY = 22;
+    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
+
     constexpr uint8_t DEBUG_PRIORITY = 50;
     constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
 

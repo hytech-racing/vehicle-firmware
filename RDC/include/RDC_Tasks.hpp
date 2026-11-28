@@ -27,6 +27,11 @@ HT_TASK::TaskResponse enqueueFDCControlDVState(const unsigned long& sys_micros, 
 HT_TASK::TaskResponse enqueueRSSOperatingMode(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
+/**
+ * @brief Enqueues RDC_FW_VERSION (git hash + main/master flag) on the rear aux bus.
+ */
+HT_TASK::TaskResponse enqueueFirmwareVersion(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
+
 /* State Machine Tasks */
 HT_TASK::TaskResponse initTickStateMachine(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 HT_TASK::TaskResponse runTickStateMachine(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);

@@ -52,6 +52,11 @@ HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
     enqueue_EM_measurement_CAN_data,
     ACUConstants::EM_MEASUREMENT_SEND_PRIORITY,
     ACUConstants::EM_MEASUREMENT_SEND_PERIOD_US);
+::HT_TASK::Task enqueue_FW_version_CAN_task(
+    HT_TASK::DUMMY_FUNCTION,
+    enqueueFirmwareVersionCANData,
+    ACUConstants::FW_VERSION_CAN_PRIORITY,
+    ACUConstants::FW_VERSION_CAN_PERIOD_US);
 
 ::HT_TASK::Task sample_CAN_task(HT_TASK::DUMMY_FUNCTION, sample_CAN_data, ACUConstants::RECV_CAN_PRIORITY, ACUConstants::RECV_CAN_PERIOD_US);
 ::HT_TASK::Task idle_sample_task(HT_TASK::DUMMY_FUNCTION, idle_sample_interfaces, ACUConstants::IDLE_SAMPLE_PRIORITY, ACUConstants::IDLE_SAMPLE_PERIOD_US);
@@ -82,6 +87,7 @@ void setup()
     scheduler.schedule(enqueue_CCU_all_temps_CAN_task);
     scheduler.schedule(enqueue_ACU_OK_CAN_task);
     scheduler.schedule(enqueue_EM_measurement_CAN_task);
+    scheduler.schedule(enqueue_FW_version_CAN_task);
 
     scheduler.schedule(sample_CAN_task);
     scheduler.schedule(idle_sample_task);

@@ -310,6 +310,14 @@ HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMi
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    ACU_FW_VERSION_t msg = FirmwareVersionCAN::makeFirmwareVersionMsg<ACU_FW_VERSION_t>();
+    CAN_util::enqueue_msg(&msg, &Pack_ACU_FW_VERSION_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
+
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse enqueue_ACU_core_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     auto data = make_acu_all_data();

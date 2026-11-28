@@ -20,6 +20,7 @@
 #include "VCFIRTempInterface.hpp"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 
 /* Local System Includes */
 #include "NeopixelController.hpp"
@@ -54,6 +55,11 @@ HT_TASK::TaskResponse sendAllETHDataTask(const unsigned long& sysMicros, const H
 
 HT_TASK::TaskResponse run_dash_GPIOs_task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalization of GPIOs)
 HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Enqueues VCF_FW_VERSION (git hash + main/master flag) on the telem bus.
+ */
+HT_TASK::TaskResponse enqueueFirmwareVersionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 HT_TASK::TaskResponse enqueueBrakePressureCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 

@@ -269,6 +269,17 @@ HT_TASK::TaskResponse sampleLoadSwitchesTask(const unsigned long& sysMicros, con
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse sendFirmwareVersionCANTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    PDB_FW_VERSION_t msg = FirmwareVersionCAN::makeFirmwareVersionMsg<PDB_FW_VERSION_t>();
+    uint8_t data[8] = {};
+    uint8_t len = 0;
+    uint8_t ide = 0;
+    uint32_t id = Pack_PDB_FW_VERSION_ht_can(&msg, data, &len, &ide);
+    STM32CANInterfaceInstance::instance().write(id, data, len);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse debugPrintsTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     static const String BUCK_NAMES[NUM_BUCK_IDS] = {"LIDAR_24V", "ORIN_18V", "DTI_12V", "MAIN_12V", "MAIN_5V", "MAIN_3V3"};

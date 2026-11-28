@@ -40,6 +40,11 @@ HT_TASK::Task enqueue_coolant_temp_CAN_task(
     enqueue_coolant_temp_CAN_data,
     VCRConstants::COOLANT_TEMP_SEND_PRIORITY,
     VCRConstants::COOLANT_TEMP_SEND_PERIOD_US);
+HT_TASK::Task enqueue_FW_version_CAN_task(
+    HT_TASK::DUMMY_FUNCTION,
+    enqueueFirmwareVersionCANData,
+    VCRConstants::FW_VERSION_CAN_PRIORITY,
+    VCRConstants::FW_VERSION_CAN_PERIOD_US);
 HT_TASK::Task enqueue_dashboard_CAN_task(
     HT_TASK::DUMMY_FUNCTION,
     enqueue_dashboard_CAN_data,
@@ -96,6 +101,7 @@ void setup()
     scheduler.schedule(vcr_data_ethernet_send);
     scheduler.schedule(enqueue_inverter_CAN_task);
     scheduler.schedule(enqueue_coolant_temp_CAN_task);
+    scheduler.schedule(enqueue_FW_version_CAN_task);
     scheduler.schedule(async_main_task);
     scheduler.schedule(enqueue_controls_CAN_task);
     scheduler.schedule(debug_state_print_task);

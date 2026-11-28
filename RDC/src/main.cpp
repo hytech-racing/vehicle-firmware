@@ -28,6 +28,12 @@ HT_TASK::Task enqueue_strain_gauge_data_task(
     RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY,
     RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US);
 
+HT_TASK::Task enqueue_fw_version_task(
+    HT_TASK::DUMMY_FUNCTION,
+    &enqueueFirmwareVersion,
+    RDCConstants::FW_VERSION_CAN_PRIORITY,
+    RDCConstants::FW_VERSION_CAN_PERIOD_US);
+
 HT_TASK::Task run_tick_state_machine_task(
     HT_TASK::DUMMY_FUNCTION,
     &runTickStateMachine,
@@ -51,6 +57,7 @@ void setup()
     scheduler.schedule(enqueue_fdc_control_task);
     scheduler.schedule(enqueue_rss_operating_mode_task);
     scheduler.schedule(enqueue_strain_gauge_data_task);
+    scheduler.schedule(enqueue_fw_version_task);
 
     scheduler.schedule(kick_watchdog_task);
     scheduler.schedule(run_tick_state_machine_task);

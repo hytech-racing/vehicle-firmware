@@ -14,6 +14,8 @@ HT_TASK::Task readTempSensors(HT_TASK::DUMMY_FUNCTION, &readTempSensorsTask, PDB
 HT_TASK::Task updateHotSwap(HT_TASK::DUMMY_FUNCTION, &updateHotSwapTask, PDBConstants::HOTSWAP_UPDATE_PRIORITY, PDBConstants::HOTSWAP_UPDATE_PERIOD_US);
 HT_TASK::Task
     sampleLoadSwitches(HT_TASK::DUMMY_FUNCTION, &sampleLoadSwitchesTask, PDBConstants::LOAD_SWITCH_SAMPLE_PRIORITY, PDBConstants::LOAD_SWITCH_SAMPLE_PERIOD_US);
+HT_TASK::Task
+    sendFirmwareVersionCAN(HT_TASK::DUMMY_FUNCTION, &sendFirmwareVersionCANTask, PDBConstants::FW_VERSION_CAN_PRIORITY, PDBConstants::FW_VERSION_CAN_PERIOD_US);
 HT_TASK::Task debugPrints(HT_TASK::DUMMY_FUNCTION, &debugPrintsTask, PDBConstants::DEBUG_PRINT_PRIORITY, PDBConstants::DEBUG_PRINT_PERIOD_US);
 
 
@@ -35,6 +37,7 @@ void setup()
     scheduler.schedule(readTempSensors);
     scheduler.schedule(updateHotSwap);
     scheduler.schedule(sampleLoadSwitches);
+    scheduler.schedule(sendFirmwareVersionCAN);
     scheduler.schedule(debugPrints);
 }
 

@@ -214,6 +214,9 @@ namespace VCRConstants
     constexpr uint8_t MPB_ADC_PRIORITY = 16;
     constexpr time_us MPB_ADC_SAMPLE_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
+    constexpr uint8_t FW_VERSION_CAN_PRIORITY = 17;
+    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
+
     constexpr uint8_t DEBUG_PRIORITY = 50;
     constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
 
