@@ -172,10 +172,10 @@ class TorqueControllerMux
     DrivetrainCommand_s _applyRegenLimit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain_data, const ACUCoreData_s acu_data);
 };
 
-const int NUMBER_OF_CONTROLLERS = 5;
+constexpr int NUMBER_OF_CONTROLLERS = 5;
 using TCMuxType = TorqueControllerMux<NUMBER_OF_CONTROLLERS>;
 
-const int NUMBER_OF_CONTROLLERS_MIN_VIABLE = 1;
+constexpr int NUMBER_OF_CONTROLLERS_MIN_VIABLE = 1;
 using TCMuxTypeMinViable = TorqueControllerMux<NUMBER_OF_CONTROLLERS_MIN_VIABLE>;
 
 #include "TorqueControllerMux.tpp"

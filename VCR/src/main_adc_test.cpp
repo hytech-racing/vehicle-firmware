@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "VCR_Constants.hpp"
 
-const unsigned long DELAY = 100;
+constexpr unsigned long DELAY = 100;
 unsigned long last = millis();
 
 void setup()

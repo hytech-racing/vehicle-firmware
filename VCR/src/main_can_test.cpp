@@ -8,8 +8,8 @@
  *   CAN3 = INVERTER  (VCRConstants::INVERTER_CAN_BAUDRATE)
  */
 using TestHarness = CANTestHarness<CAN1>;
-const uint32_t CAN_BAUDRATE = VCRConstants::TELEM_CAN_BAUDRATE;
-const uint32_t MSG_ID = 0x14;
+constexpr uint32_t CAN_BAUDRATE = VCRConstants::TELEM_CAN_BAUDRATE;
+constexpr uint32_t MSG_ID = 0x14;
 
 void setup()
 {

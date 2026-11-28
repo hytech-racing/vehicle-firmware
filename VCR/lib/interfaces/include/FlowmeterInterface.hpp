@@ -10,8 +10,8 @@
 
 namespace default_flowmeter_params
 {
-    const float MS_TO_S = 1000.F;
-    const float PULSE_FREQ_TO_GPM = 0.0183F;
+    constexpr float MS_TO_S = 1000.F;
+    constexpr float PULSE_FREQ_TO_GPM = 0.0183F;
 } // namespace default_flowmeter_params
 
 class FlowmeterInterface

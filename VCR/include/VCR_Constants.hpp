@@ -73,22 +73,22 @@ namespace VCRInterfaces
     constexpr float RR_SUS_POT_OFFSET = 152.5;
 
     // TODO: Figure out values
-    const float THERMISTOR_0_SCALE = 1;
-    const float THERMISTOR_0_OFFSET = 0;
-    const float THERMISTOR_1_SCALE = 1;
-    const float THERMISTOR_1_OFFSET = 0;
-    const float THERMISTOR_2_SCALE = 1;
-    const float THERMISTOR_2_OFFSET = 0;
-    const float THERMISTOR_3_SCALE = 1;
-    const float THERMISTOR_3_OFFSET = 0;
-    const float THERMISTOR_4_SCALE = 1;
-    const float THERMISTOR_4_OFFSET = 0;
-    const float THERMISTOR_5_SCALE = 1;
-    const float THERMISTOR_5_OFFSET = 0;
-    const float THERMISTOR_6_SCALE = 1;
-    const float THERMISTOR_6_OFFSET = 0;
-    const float THERMISTOR_7_SCALE = 1;
-    const float THERMISTOR_7_OFFSET = 0;
+    constexpr float THERMISTOR_0_SCALE = 1;
+    constexpr float THERMISTOR_0_OFFSET = 0;
+    constexpr float THERMISTOR_1_SCALE = 1;
+    constexpr float THERMISTOR_1_OFFSET = 0;
+    constexpr float THERMISTOR_2_SCALE = 1;
+    constexpr float THERMISTOR_2_OFFSET = 0;
+    constexpr float THERMISTOR_3_SCALE = 1;
+    constexpr float THERMISTOR_3_OFFSET = 0;
+    constexpr float THERMISTOR_4_SCALE = 1;
+    constexpr float THERMISTOR_4_OFFSET = 0;
+    constexpr float THERMISTOR_5_SCALE = 1;
+    constexpr float THERMISTOR_5_OFFSET = 0;
+    constexpr float THERMISTOR_6_SCALE = 1;
+    constexpr float THERMISTOR_6_OFFSET = 0;
+    constexpr float THERMISTOR_7_SCALE = 1;
+    constexpr float THERMISTOR_7_OFFSET = 0;
 
     // Coolant Temperature Sensor scale / offsets
     constexpr const float COOLANT_TEMP_SCALE = -31.3;

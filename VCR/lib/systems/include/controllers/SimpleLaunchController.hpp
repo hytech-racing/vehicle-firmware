@@ -33,15 +33,15 @@ enum class LaunchStates_e
 /// defaults(DEFAULT_launch_speed_target_rpm)
 namespace LaunchControllerParams
 {
-    const int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
+    constexpr int16_t DEFAULT_INIT_SPEED_RPM = 1500; // Target RPM as soon as simple launch begins
     // const int16_t DEFAULT_INIT_SPEED_RPM = 500; // Target RPM as soon as simple launch begins
-    const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 11.76;
+    constexpr float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 11.76;
     // const float DEFAULT_LAUNCH_RATE_M_PER_SEC_SQ = 3.0f;
-    const float LAUNCH_READY_ACCEL_THRESHOLD = .1;
-    const float LAUNCH_READY_BRAKE_THRESHOLD = .2;
-    const float LAUNCH_READY_SPEED_THRESHOLD = 5.0 * METERS_PER_SECOND_TO_RPM; // rpm
-    const float LAUNCH_GO_ACCEL_THRESHOLD = .9;
-    const float LAUNCH_STOP_ACCEL_THRESHOLD = .5;
+    constexpr float LAUNCH_READY_ACCEL_THRESHOLD = .1;
+    constexpr float LAUNCH_READY_BRAKE_THRESHOLD = .2;
+    constexpr float LAUNCH_READY_SPEED_THRESHOLD = 5.0 * METERS_PER_SECOND_TO_RPM; // rpm
+    constexpr float LAUNCH_GO_ACCEL_THRESHOLD = .9;
+    constexpr float LAUNCH_STOP_ACCEL_THRESHOLD = .5;
 } // namespace LaunchControllerParams
 
 class SimpleLaunchController
