@@ -51,7 +51,7 @@ HAL_StatusTypeDef BuckConverterInterface::init()
         return HAL_ERROR;
     }
 
-    const time_ms curr_millis = HAL_GetTick();
+    const TimeMs curr_millis = HAL_GetTick();
     for (BuckConverter_s& buck : _all_bucks)
     {
         // PG / RESET: open-drain from the part, pulled up on the board
@@ -139,7 +139,7 @@ void BuckConverterInterface::updateBuckConverter(uint8_t index)
     }
     BuckConverter_s& buck = _all_bucks[index];
     BuckConverterStatus_s& status = buck.status;
-    const time_ms curr_millis = HAL_GetTick();
+    const TimeMs curr_millis = HAL_GetTick();
 
     // RESTARTING: wait out the discharge time, then re-enable.
     // Handled before the enabled check because EN is low during this state.
@@ -286,14 +286,14 @@ bool BuckConverterInterface::_isPowerGoodPinSet(const BuckConverter_s& buck)
     return digitalRead(buck.pg_pin) == HIGH;
 }
 
-void BuckConverterInterface::_turnOn(BuckConverter_s& buck, time_ms curr_millis)
+void BuckConverterInterface::_turnOn(BuckConverter_s& buck, TimeMs curr_millis)
 {
     _setEnablePin(buck, true); // EN high: converter begins soft-start
     buck.status.is_enabled = true;
     _beginStartup(buck, curr_millis);
 }
 
-void BuckConverterInterface::_beginStartup(BuckConverter_s& buck, time_ms curr_millis)
+void BuckConverterInterface::_beginStartup(BuckConverter_s& buck, TimeMs curr_millis)
 {
     buck.enabled_at_ms = curr_millis;
     // Record the pin's current level so updateBuckConverter() can detect when it changes
@@ -305,7 +305,7 @@ void BuckConverterInterface::_beginStartup(BuckConverter_s& buck, time_ms curr_m
     buck.status.current_state = BuckConverterState_e::STARTING;
 }
 
-void BuckConverterInterface::_updatePowerGood(BuckConverter_s& buck, time_ms curr_millis)
+void BuckConverterInterface::_updatePowerGood(BuckConverter_s& buck, TimeMs curr_millis)
 {
     const bool is_pg_high = _isPowerGoodPinSet(buck);
     if (is_pg_high != buck.is_pg_raw_high)

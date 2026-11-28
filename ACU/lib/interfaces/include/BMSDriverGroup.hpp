@@ -105,12 +105,12 @@ namespace bms_driver_defaults
 
 namespace ref_max_min_defaults
 {
-    constexpr const volt TOTAL_VOLTAGE = 0;
-    constexpr const volt MAX_CELL_VOLTAGE = 0;
-    constexpr const volt MIN_CELL_VOLTAGE = 10;
-    constexpr const celsius MIN_CELL_TEMP = 80;
-    constexpr const celsius MAX_CELL_TEMP = 0;
-    constexpr const celsius MAX_BOARD_TEMP = 0;
+    constexpr const Volt TOTAL_VOLTAGE = 0;
+    constexpr const Volt MAX_CELL_VOLTAGE = 0;
+    constexpr const Volt MIN_CELL_VOLTAGE = 10;
+    constexpr const Celsius MIN_CELL_TEMP = 80;
+    constexpr const Celsius MAX_CELL_TEMP = 0;
+    constexpr const Celsius MAX_BOARD_TEMP = 0;
 }; // namespace ref_max_min_defaults
 
 struct ValidPacketData_s
@@ -127,35 +127,35 @@ template <size_t num_chips, size_t num_cells, size_t num_board_thermistors>
 struct BMSData_s
 {
     array<ValidPacketData_s, num_chips> valid_read_packets;
-    array<volt, num_cells> voltages;
-    array<celsius, 4 * num_chips> cell_temperatures;
-    array<celsius, num_board_thermistors> board_temperatures;
-    volt min_cell_voltage;
-    volt max_cell_voltage;
-    celsius max_cell_temp;
-    celsius min_cell_temp;
-    celsius max_board_temp;
+    array<Volt, num_cells> voltages;
+    array<Celsius, 4 * num_chips> cell_temperatures;
+    array<Celsius, num_board_thermistors> board_temperatures;
+    Volt min_cell_voltage;
+    Volt max_cell_voltage;
+    Celsius max_cell_temp;
+    Celsius min_cell_temp;
+    Celsius max_board_temp;
     size_t min_cell_voltage_id;              // 0 - 125
     size_t max_cell_voltage_id;              // 0 - 125
     size_t max_board_temperature_segment_id; // 0 - 11
     size_t max_cell_temperature_cell_id;     // 0 - 47
     size_t min_cell_temperature_cell_id;     // 0 - 47
-    volt total_voltage;
-    volt avg_cell_voltage;
-    celsius average_cell_temperature;
+    Volt total_voltage;
+    Volt avg_cell_voltage;
+    Celsius average_cell_temperature;
 
     size_t cs_index;
 };
 
 struct ReferenceMaxMin_s
 {
-    volt total_voltage;
-    volt max_cell_voltage;
-    volt min_cell_voltage;
-    celsius min_cell_temp;
-    celsius max_cell_temp;
-    celsius max_board_temp;
-    celsius total_thermistor_temps;
+    Volt total_voltage;
+    Volt max_cell_voltage;
+    Volt min_cell_voltage;
+    Celsius min_cell_temp;
+    Celsius max_cell_temp;
+    Celsius max_board_temp;
+    Celsius total_thermistor_temps;
 };
 
 struct BMSDriverGroupConfig_s
@@ -393,7 +393,7 @@ class BMSDriverGroup
         uint8_t gpio_index,
         uint8_t chip_index);
 
-    void _store_voltage_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, volt voltage_in, uint8_t cell_index);
+    void _store_voltage_data(BMSDriverData& bms_data, ReferenceMaxMin_s& max_min_reference, Volt voltage_in, uint8_t cell_index);
 
     void _write_config_through_broadcast(uint8_t dcto_mode, array<uint8_t, 6> buffer_format, const array<uint16_t, num_chips>& cell_balance_statuses);
 

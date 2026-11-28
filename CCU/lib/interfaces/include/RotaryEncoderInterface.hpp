@@ -10,7 +10,7 @@
 /* Local Interface Includes */
 #include "ButtonInterface.hpp"
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace default_encoder_params
@@ -50,9 +50,9 @@ namespace default_encoder_params
 
 struct RotaryEncoderPinout_s
 {
-    pin enc_switch_pin;
-    pin enc_a_pin;
-    pin enc_b_pin;
+    Pin enc_switch_pin;
+    Pin enc_a_pin;
+    Pin enc_b_pin;
 };
 
 struct RotaryEncoderState_s
@@ -111,7 +111,7 @@ class RotaryEncoderInterface
     // That is fine for your current use case.
     static RotaryEncoderInterface* _active_instance;
 
-    static void _ISRHandler();
+    static void _isrHandler();
 
     uint8_t _readEncoded() const;
 

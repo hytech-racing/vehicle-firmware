@@ -5,9 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 
-using pin = uint8_t;
+using Pin = uint8_t;
 using degree = float;
-using time_us = uint32_t;
+using TimeUs = uint32_t;
 
 
 namespace VCFInterfaces
@@ -92,8 +92,8 @@ namespace VCFInterfaces
     constexpr int BUZZER_CONTROL_PIN = 32;
 
     /* Watchdog Interface */
-    constexpr pin WATCHDOG_KICK_PIN = 36;
-    constexpr pin SOFTWARE_OK_PIN = 37; // Watchdog's !MR pin
+    constexpr Pin WATCHDOG_KICK_PIN = 36;
+    constexpr Pin SOFTWARE_OK_PIN = 37; // Watchdog's !MR pin
 
     /* Neopixel Interface */
     constexpr int NEOPIXEL_CONTROL_PIN = 33;
@@ -165,61 +165,61 @@ namespace VCFConstants
 {
     /* Task Times */
     constexpr uint8_t WATCHDOG_PRIORITY = 1;
-    constexpr time_us WATCHDOG_KICK_PERIOD_US = 10000; // 10 000 us = 100 Hz
+    constexpr TimeUs WATCHDOG_KICK_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t ASYNC_MAIN_PRIORITY = 2;
-    constexpr time_us ASYNC_MAIN_PERIOD_US = 100; // 100 us = 10 kHz
+    constexpr TimeUs ASYNC_MAIN_PERIOD_US = 100; // 100 us = 10 kHz
 
     constexpr uint8_t PEDALS_SAMPLE_PRIORITY = 3;
-    constexpr time_us PEDALS_SAMPLE_PERIOD_US = 500; // 500 us = 2 kHz
+    constexpr TimeUs PEDALS_SAMPLE_PERIOD_US = 500; // 500 us = 2 kHz
 
     constexpr uint8_t STEERING_SAMPLE_PRIORITY = 4;
-    constexpr time_us STEERING_SAMPLE_PERIOD_US = 1000; // 1 000 us = 1 kHz
+    constexpr TimeUs STEERING_SAMPLE_PERIOD_US = 1000; // 1 000 us = 1 kHz
 
     constexpr uint8_t LOADCELL_SAMPLE_PRIORITY = 5;
-    constexpr time_us LOADCELL_SAMPLE_PERIOD_US = 250; // 250 us = 4 kHz
+    constexpr TimeUs LOADCELL_SAMPLE_PERIOD_US = 250; // 250 us = 4 kHz
 
     constexpr uint8_t PEDALS_SEND_PRIORITY = 6;
-    constexpr time_us PEDALS_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
+    constexpr TimeUs PEDALS_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
 
     constexpr uint8_t STEERING_SEND_PRIORITY = 7;
-    constexpr time_us STEERING_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
+    constexpr TimeUs STEERING_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
 
     constexpr uint8_t LOADCELL_SEND_PRIORITY = 8;
-    constexpr time_us LOADCELL_SEND_PERIOD_US = 4000; // 4 000 = 250 Hz
+    constexpr TimeUs LOADCELL_SEND_PERIOD_US = 4000; // 4 000 = 250 Hz
 
     constexpr uint8_t BRAKE_PRESSURE_SEND_PRIORITY = 8;
-    constexpr time_us BRAKE_PRESSURE_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
+    constexpr TimeUs BRAKE_PRESSURE_SEND_PERIOD_US = 4000; // 4 000 us = 250 Hz
 
     constexpr uint8_t CAN_SEND_PRIORITY = 9;
-    constexpr time_us CAN_SEND_PERIOD_US = 2000; // 2 000 us = 500 Hz
+    constexpr TimeUs CAN_SEND_PERIOD_US = 2000; // 2 000 us = 500 Hz
 
     constexpr uint8_t DASH_SEND_PRIORITY = 10;
-    constexpr time_us DASH_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs DASH_SEND_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t DASH_SAMPLE_PRIORITY = 11;
-    constexpr time_us DASH_SAMPLE_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs DASH_SAMPLE_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t ETHERNET_SEND_PRIORITY = 12;
-    constexpr time_us ETHERNET_SEND_PERIOD_US = 100000; // 100 000 us = 10Hz
+    constexpr TimeUs ETHERNET_SEND_PERIOD_US = 100000; // 100 000 us = 10Hz
 
     constexpr uint8_t BUZZER_PRIORITY = 13;
-    constexpr time_us BUZZER_WRITE_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs BUZZER_WRITE_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t NEOPIXEL_UPDATE_PRIORITY = 14;
-    constexpr time_us NEOPIXEL_UPDATE_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs NEOPIXEL_UPDATE_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t PEDALS_RECALIBRATION_PRIORITY = 20;
-    constexpr time_us PEDALS_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs PEDALS_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t STEERING_RECALIBRATION_PRIORITY = 21;
-    constexpr time_us STEERING_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
+    constexpr TimeUs STEERING_RECALIBRATION_PERIOD_US = 100000; // 100 000 us = 10 Hz
 
     constexpr uint8_t FW_VERSION_CAN_PRIORITY = 22;
-    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
+    constexpr TimeUs FW_VERSION_CAN_PERIOD_US = 1000000; // 1 000 000 us = 1 Hz
 
     constexpr uint8_t DEBUG_PRIORITY = 50;
-    constexpr time_us DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
+    constexpr TimeUs DEBUG_PERIOD_US = 10000; // 10 000 us = 2 Hz
 
     /* CAN Constants */
     constexpr uint32_t TELEM_CAN_BAUDRATE = 1000000; // 1 000 000 = 1 Mbit/s

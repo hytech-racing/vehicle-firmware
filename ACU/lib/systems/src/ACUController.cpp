@@ -1,7 +1,7 @@
 #include "ACUController.hpp"
 
 
-void ACUController::init(time_ms system_start_time, volt pack_voltage)
+void ACUController::init(TimeMs system_start_time, Volt pack_voltage)
 {
     _acu_state.last_time_ov_fault_not_present = system_start_time;
     _acu_state.last_time_uv_fault_not_present = system_start_time;
@@ -29,7 +29,7 @@ void ACUController::restore_lifetime_throughput(double restored_ah)
 }
 
 ACUControllerData_s ACUController::evaluate_accumulator(
-    time_ms current_millis,
+    TimeMs current_millis,
     const BMSCoreData_s& input_state,
     size_t max_consecutive_invalid_packet_count,
     float em_current,
@@ -44,7 +44,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
         has_invalid_packet = true;
     }
 
-    volt min_cell_voltage = input_state.min_cell_voltage;
+    Volt min_cell_voltage = input_state.min_cell_voltage;
     _acu_state.SoC = get_state_of_charge(em_current, current_millis - _acu_state.prev_bms_time_stamp, min_cell_voltage, current_millis, voltage_is_fresh);
     _acu_state.V1 = _soc_ekf.get_voltage();
 
@@ -82,7 +82,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     const float discharge_current = -em_current; // Positive during discharge, negative during charge
 
     // OV check with IR compensation (main concern during charging and recharge)
-    volt internal_resistance_max_cell_voltage = input_state.max_cell_voltage;
+    Volt internal_resistance_max_cell_voltage = input_state.max_cell_voltage;
     if (input_state.max_cell_voltage >= _acu_parameters.thresholds.cell_overvoltage_thresh_v)
     {
         // Only calculate IR compensation when approaching OV threshold
@@ -95,7 +95,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     }
 
     // UV check with IR compensation (main concern during discharging)
-    volt min_cell_voltage_to_check = input_state.min_cell_voltage;
+    Volt min_cell_voltage_to_check = input_state.min_cell_voltage;
     if (input_state.min_cell_voltage <= _acu_parameters.thresholds.cell_undervoltage_thresh_v)
     {
         // Only calculate IR compensation when approaching UV threshold
@@ -111,7 +111,7 @@ ACUControllerData_s ACUController::evaluate_accumulator(
         _acu_state.last_time_pack_uv_fault_not_present = current_millis;
     }
     // Update temp fault time stamps
-    celsius ot_thresh = _acu_state.charging_enabled ? _acu_parameters.thresholds.charging_ot_thresh_c : _acu_parameters.thresholds.running_ot_thresh_c;
+    Celsius ot_thresh = _acu_state.charging_enabled ? _acu_parameters.thresholds.charging_ot_thresh_c : _acu_parameters.thresholds.running_ot_thresh_c;
     if (input_state.max_board_temp < ot_thresh || has_invalid_packet)
     { // charging ot thresh will be the lower of the 2
         _acu_state.last_time_board_ot_fault_not_present = current_millis;
@@ -135,11 +135,11 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     return _acu_state;
 }
 
-void ACUController::calculate_cell_balance_statuses(bool* output, const volt* voltages, size_t num_of_voltage_cells, volt min_voltage)
+void ACUController::calculate_cell_balance_statuses(bool* output, const Volt* voltages, size_t num_of_voltage_cells, Volt min_voltage)
 {
     for (size_t cell = 0; cell < num_of_voltage_cells; cell++)
     {
-        volt cell_voltage = voltages[cell]; // NOLINT
+        Volt cell_voltage = voltages[cell]; // NOLINT
         if (((cell_voltage - min_voltage) > _acu_parameters.thresholds.v_diff_to_init_cb)
             && (cell_voltage > _acu_parameters.thresholds.min_discharge_voltage_thresh))
         {
@@ -152,7 +152,7 @@ void ACUController::calculate_cell_balance_statuses(bool* output, const volt* vo
     }
 }
 
-float ACUController::_get_soc_from_voltage(volt min_cell_voltage)
+float ACUController::_get_soc_from_voltage(Volt min_cell_voltage)
 {
     static constexpr size_t table_size = 101;
 
@@ -181,7 +181,7 @@ float ACUController::_get_soc_from_voltage(volt min_cell_voltage)
     return 0.0f;
 }
 
-float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_ms, volt min_cell_voltage, time_ms current_millis, bool voltage_is_fresh)
+float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_ms, Volt min_cell_voltage, TimeMs current_millis, bool voltage_is_fresh)
 {
     if (!_ekf_initialized)
     {
@@ -240,7 +240,7 @@ float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_m
 }
 
 
-bool ACUController::_is_bms_ok(time_ms current_millis)
+bool ACUController::_is_bms_ok(TimeMs current_millis)
 {
     if (_acu_state.has_fault)
     {
@@ -256,13 +256,13 @@ bool ACUController::_is_bms_ok(time_ms current_millis)
 }
 
 
-bool ACUController::_check_faults(time_ms current_millis)
+bool ACUController::_check_faults(TimeMs current_millis)
 {
     return _check_voltage_faults(current_millis) || _check_temperature_faults(current_millis) || _check_invalid_packet_faults(current_millis);
 }
 
 
-bool ACUController::_check_voltage_faults(time_ms current_millis)
+bool ACUController::_check_voltage_faults(TimeMs current_millis)
 {
     bool ov_fault = (current_millis - _acu_state.last_time_ov_fault_not_present) > _acu_parameters.fault_durations.max_allowed_voltage_fault_dur;
     bool uv_fault = (current_millis - _acu_state.last_time_uv_fault_not_present) > _acu_parameters.fault_durations.max_allowed_voltage_fault_dur;
@@ -271,7 +271,7 @@ bool ACUController::_check_voltage_faults(time_ms current_millis)
 }
 
 
-bool ACUController::_check_temperature_faults(time_ms current_millis)
+bool ACUController::_check_temperature_faults(TimeMs current_millis)
 {
     bool cell_ot_fault = (current_millis - _acu_state.last_time_cell_ot_fault_not_present) > _acu_parameters.fault_durations.max_allowed_temp_fault_dur;
     bool board_ot_fault = (current_millis - _acu_state.last_time_board_ot_fault_not_present) > _acu_parameters.fault_durations.max_allowed_temp_fault_dur;
@@ -279,14 +279,14 @@ bool ACUController::_check_temperature_faults(time_ms current_millis)
 }
 
 
-bool ACUController::_check_invalid_packet_faults(time_ms current_millis)
+bool ACUController::_check_invalid_packet_faults(TimeMs current_millis)
 {
     bool invalid_packet_fault =
         (current_millis - _acu_state.last_time_invalid_packet_present) > _acu_parameters.fault_durations.max_allowed_invalid_packet_fault_dur;
     return invalid_packet_fault;
 }
 
-bool ACUController::check_is_contactor_welded(volt pack_voltage_adc, volt ts_voltage_adc)
+bool ACUController::check_is_contactor_welded(Volt pack_voltage_adc, Volt ts_voltage_adc)
 {
     _acu_state.low_side_contactor_welded = pack_voltage_adc > _acu_parameters.thresholds.ts_isolation_voltage;
     _acu_state.high_side_contactor_welded = ts_voltage_adc > _acu_parameters.thresholds.ts_isolation_voltage;

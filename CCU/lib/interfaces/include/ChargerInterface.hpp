@@ -43,15 +43,15 @@ class ChargerInterface
 
     void enqueueChargingCANMsg(ACUInterface& acu_interface, float calculated_charge_current);
 
-    ChargerData_s get_latest_charger_data() { return _charger_data; };
+    ChargerData_s getLatestChargerData() { return _charger_data; };
 
     /* Charger values are sent as high/low bytes of a 16-bit int in units of 0.1 */
-    float getOutputCurrentA() const { return combineBytes(_charger_data.output_current_high, _charger_data.output_current_low); };
-    float getDCOutputVoltageV() const { return combineBytes(_charger_data.output_dc_voltage_high, _charger_data.output_dc_voltage_low); };
-    float getACInputVoltageV() const { return combineBytes(_charger_data.input_ac_voltage_high, _charger_data.input_ac_voltage_low); };
+    float getOutputCurrentA() const { return _combineBytes(_charger_data.output_current_high, _charger_data.output_current_low); };
+    float getDCOutputVoltageV() const { return _combineBytes(_charger_data.output_dc_voltage_high, _charger_data.output_dc_voltage_low); };
+    float getACInputVoltageV() const { return _combineBytes(_charger_data.input_ac_voltage_high, _charger_data.input_ac_voltage_low); };
 
   private:
-    static float combineBytes(uint8_t high, uint8_t low)
+    static float _combineBytes(uint8_t high, uint8_t low)
     {
         return static_cast<float>((high << default_charger_params::BYTE_SHIFT) | low) / default_charger_params::DATA_SCALAR;
     };

@@ -51,24 +51,24 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         _display.print("EM current (A): ");
         _display.println(EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps, 3);
         _display.print("State of Charge (%): ");
-        _display.println(ACUInterfaceInstance::instance().getLatestData().SoC, 2);
+        _display.println(ACUInterfaceInstance::instance().getLatestData().state_of_charge, 2);
 
         break;
     }
     case DisplayView_e::VIEW_CHARGER:
     {
         auto& charger = ChargerInterfaceInstance::instance();
-        auto dc_output_V = charger.getDCOutputVoltageV();
-        auto ac_input_V = charger.getACInputVoltageV();
-        auto current_output_A = charger.getOutputCurrentA();
+        auto dc_output_v = charger.getDCOutputVoltageV();
+        auto ac_input_v = charger.getACInputVoltageV();
+        auto current_output_a = charger.getOutputCurrentA();
         _display.setTextSize(2);
 
         _display.print("Charger Output Current (A): ");
-        _display.println(current_output_A, 2);
+        _display.println(current_output_a, 2);
         _display.print("Charger DC Output Voltage (V): ");
-        _display.println(dc_output_V, 2);
+        _display.println(dc_output_v, 2);
         _display.print("Charger AC Input Voltage (V): ");
-        _display.println(ac_input_V, 2);
+        _display.println(ac_input_v, 2);
         _display.print("EM current (A): ");
         _display.println(EnergyMeterInterfaceInstance::instance().getLatestEMData().current_amps, 3);
 
@@ -84,23 +84,23 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         auto cell_voltages = ACUInterfaceInstance::instance().getLatestData().cell_voltages;
         _display.setTextSize(1);
 
-        constexpr size_t cells_per_row = 3;
-        constexpr size_t rows_per_page = 14;
-        constexpr size_t cells_per_page = cells_per_row * rows_per_page;
+        constexpr size_t CELLS_PER_ROW = 3;
+        constexpr size_t ROWS_PER_PAGE = 14;
+        constexpr size_t CELLS_PER_PAGE = CELLS_PER_ROW * ROWS_PER_PAGE;
 
-        constexpr size_t total_cells = default_acu_params::NUM_CELLS;
-        constexpr size_t total_rows = (total_cells + cells_per_row - 1) / cells_per_row;
+        constexpr size_t TOTAL_CELLS = default_acu_params::NUM_CELLS;
+        constexpr size_t TOTAL_ROWS = (TOTAL_CELLS + CELLS_PER_ROW - 1) / CELLS_PER_ROW;
 
         static size_t start_voltage_row = 0;
-        const size_t start_index = start_voltage_row * cells_per_row;
+        const size_t start_index = start_voltage_row * CELLS_PER_ROW;
 
-        for (size_t i = 0; i < cells_per_page; i++)
+        for (size_t i = 0; i < CELLS_PER_PAGE; i++)
         {
             size_t idx = start_index + i;
 
-            if (idx >= total_cells)
+            if (idx >= TOTAL_CELLS)
             {
-                idx -= total_cells;
+                idx -= TOTAL_CELLS;
             }
 
             _display.print("C");
@@ -116,7 +116,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
                 _display.print("-.--");
             }
 
-            if ((i + 1) % cells_per_row == 0)
+            if ((i + 1) % CELLS_PER_ROW == 0)
             {
                 _display.println();
                 _display.println();
@@ -129,7 +129,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
 
         start_voltage_row++;
 
-        if (start_voltage_row >= total_rows)
+        if (start_voltage_row >= TOTAL_ROWS)
         {
             start_voltage_row = 0;
         }
@@ -146,13 +146,13 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         auto board_temps = ACUInterfaceInstance::instance().getLatestData().board_temps;
         _display.setTextSize(1);
 
-        constexpr size_t board_temps_per_row = 3;
+        constexpr size_t BOARD_TEMPS_PER_ROW = 3;
 
-        for (size_t row = 0; row < default_acu_params::NUM_BOARD_TEMPS / board_temps_per_row; row++)
+        for (size_t row = 0; row < default_acu_params::NUM_BOARD_TEMPS / BOARD_TEMPS_PER_ROW; row++)
         {
-            for (size_t i = 0; i < board_temps_per_row; i++)
+            for (size_t i = 0; i < BOARD_TEMPS_PER_ROW; i++)
             {
-                size_t bt_index = (row * board_temps_per_row) + i;
+                size_t bt_index = (row * BOARD_TEMPS_PER_ROW) + i;
 
                 _display.print("BT");
                 _display.print(bt_index);
@@ -167,7 +167,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
                     _display.print("--.-");
                 }
 
-                if ((i + 1) % board_temps_per_row == 0)
+                if ((i + 1) % BOARD_TEMPS_PER_ROW == 0)
                 {
                     _display.println();
                     _display.println();
@@ -191,23 +191,23 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
         auto cell_temps = ACUInterfaceInstance::instance().getLatestData().cell_temps;
         _display.setTextSize(1);
 
-        constexpr size_t temps_per_row = 3;
-        constexpr size_t rows_per_page = 14;
-        constexpr size_t temps_per_page = temps_per_row * rows_per_page;
+        constexpr size_t TEMPS_PER_ROW = 3;
+        constexpr size_t ROWS_PER_PAGE = 14;
+        constexpr size_t TEMPS_PER_PAGE = TEMPS_PER_ROW * ROWS_PER_PAGE;
 
-        constexpr size_t total_cell_temps = default_acu_params::NUM_CELL_TEMPS;
-        constexpr size_t total_rows = (total_cell_temps + temps_per_row - 1) / temps_per_row;
+        constexpr size_t TOTAL_CELL_TEMPS = default_acu_params::NUM_CELL_TEMPS;
+        constexpr size_t TOTAL_ROWS = (TOTAL_CELL_TEMPS + TEMPS_PER_ROW - 1) / TEMPS_PER_ROW;
 
         static size_t start_temps_row = 0;
-        const size_t start_index = start_temps_row * temps_per_row;
+        const size_t start_index = start_temps_row * TEMPS_PER_ROW;
 
-        for (size_t i = 0; i < temps_per_page; i++)
+        for (size_t i = 0; i < TEMPS_PER_PAGE; i++)
         {
             size_t ct_idx = start_index + i;
 
-            if (ct_idx >= total_cell_temps)
+            if (ct_idx >= TOTAL_CELL_TEMPS)
             {
-                ct_idx -= total_cell_temps;
+                ct_idx -= TOTAL_CELL_TEMPS;
             }
 
             _display.print("CT");
@@ -223,7 +223,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
                 _display.print("-.--");
             }
 
-            if ((i + 1) % temps_per_row == 0)
+            if ((i + 1) % TEMPS_PER_ROW == 0)
             {
                 _display.println();
                 _display.println();
@@ -236,7 +236,7 @@ void DisplayInterface::displayData(unsigned long current_millis, bool is_120_swi
 
         start_temps_row++;
 
-        if (start_temps_row >= total_rows)
+        if (start_temps_row >= TOTAL_ROWS)
         {
             start_temps_row = 0;
         }

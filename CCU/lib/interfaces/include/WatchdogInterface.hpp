@@ -7,7 +7,7 @@
 /* External Includes */
 #include <Arduino.h>
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace watchdog_default_parameters
@@ -17,8 +17,8 @@ namespace watchdog_default_parameters
 
 struct WatchdogPinout_s
 {
-    pin teensy_watchdog_pin; // teensy input to watchdog
-    pin teensy_sw_shdn_pin;
+    Pin teensy_watchdog_pin; // teensy input to watchdog
+    Pin teensy_sw_shdn_pin;
 };
 
 struct WatchdogInterfaceParams_s

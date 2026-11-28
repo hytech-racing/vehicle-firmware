@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace default_level2_interface_params
@@ -19,19 +19,19 @@ namespace default_level2_interface_params
     constexpr float MAX_VALID_PWM_DUTY_CYCLE_PERCENT = 96.5F;
 } // namespace default_level2_interface_params
 
-struct Level2_Pinout_s
+struct Level2Pinout_s
 {
-    const pin teensy_control_pwm_sense_pin;
-    const pin teensy_start_charge_pin;
+    const Pin teensy_control_pwm_sense_pin;
+    const Pin teensy_start_charge_pin;
 };
 
-struct Level2_Data_s
+struct Level2Data_s
 {
     uint16_t control_pwm;
     float control_pwm_duty_cycle;
 };
 
-struct Level2_Config_s
+struct Level2Config_s
 {
     unsigned long pwm_pulse_in_timeout_ms;
     float min_valid_pwm_duty_cycle_percent;
@@ -42,8 +42,8 @@ class Level2Interface
 {
   public:
     Level2Interface(
-        Level2_Pinout_s pinout,
-        Level2_Config_s config =
+        Level2Pinout_s pinout,
+        Level2Config_s config =
             {
                 .pwm_pulse_in_timeout_ms = default_level2_interface_params::PWM_PULSE_IN_TIMEOUT_MS,
                 .min_valid_pwm_duty_cycle_percent = default_level2_interface_params::MIN_VALID_PWM_DUTY_CYCLE_PERCENT,
@@ -57,19 +57,19 @@ class Level2Interface
      * @brief Method to determine pwm duty cycle, and perform checks
      * @return True if PWM is within thresholds, false otherwise
      */
-    bool _isPWMDutyCycleValid();
+    bool isPWMDutyCycleValid();
 
     /**
      * @brief Setter for START_CHARGE signal
      */
     void setStartCharge(bool state);
 
-    Level2_Data_s getLevel2Data() const;
+    Level2Data_s getLevel2Data() const;
 
   private:
-    Level2_Pinout_s _pinout;
-    Level2_Data_s _readings;
-    Level2_Config_s _config;
+    Level2Pinout_s _pinout;
+    Level2Data_s _readings;
+    Level2Config_s _config;
 };
 
 using Level2InterfaceInstance = etl::singleton<Level2Interface>;

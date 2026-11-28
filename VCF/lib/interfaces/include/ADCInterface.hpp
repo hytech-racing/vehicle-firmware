@@ -7,7 +7,7 @@
 /* External Includes */
 #include <MCP_ADC.h>
 
-using pin = uint8_t;
+using Pin = uint8_t;
 
 
 namespace adc_default_parameters
@@ -17,8 +17,8 @@ namespace adc_default_parameters
 
 struct ADCPinout_s
 {
-    pin adc0_spi_cs_pin;
-    pin adc1_spi_cs_pin;
+    Pin adc0_spi_cs_pin;
+    Pin adc1_spi_cs_pin;
 };
 
 struct ADCChannels_s

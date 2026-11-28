@@ -5,12 +5,12 @@
 #include <stdint.h>
 #include <utility>
 
-using speed_rpm = float;
-using torque_nm = float;
-using volt = float;
-using ohm = float;
-using celsius = float;
-using time_ms = uint32_t;
+using SpeedRpm = float;
+using TorqueNm = float;
+using Volt = float;
+using Ohm = float;
+using Celsius = float;
+using TimeMs = uint32_t;
 
 /**
  * AnalogSensorStatus_e gets packaged along with the AnalogConversion_s struct as
@@ -445,14 +445,14 @@ struct TorqueControllerMuxStatus_s
 /// max torque requested from the inverter to reach such speeds.
 struct DrivetrainCommand_s
 {
-    veh_vec<speed_rpm> desired_speeds;
-    veh_vec<torque_nm> torque_limits;
+    veh_vec<SpeedRpm> desired_speeds;
+    veh_vec<TorqueNm> torque_limits;
 };
 
 struct StampedDrivetrainCommand_s
 {
-    StampedVehVec<speed_rpm> desired_speeds;
-    StampedVehVec<torque_nm> torque_limits;
+    StampedVehVec<SpeedRpm> desired_speeds;
+    StampedVehVec<TorqueNm> torque_limits;
 
     DrivetrainCommand_s get_command() { return {.desired_speeds = desired_speeds.veh_vec_data, .torque_limits = torque_limits.veh_vec_data}; }
 };
@@ -470,14 +470,14 @@ struct DrivebrainMessageLatencyInfo_s
 
 struct DrivetrainTorqueCommand_s
 {
-    veh_vec<torque_nm> torque_limits;
-    veh_vec<torque_nm> torque_setpoints;
+    veh_vec<TorqueNm> torque_limits;
+    veh_vec<TorqueNm> torque_setpoints;
 };
 
 struct StampedDrivetrainTorqueCommand_s
 {
-    StampedVehVec<speed_rpm> torque_limits;
-    StampedVehVec<torque_nm> torque_setpoints;
+    StampedVehVec<SpeedRpm> torque_limits;
+    StampedVehVec<TorqueNm> torque_setpoints;
 
     DrivetrainTorqueCommand_s get_command() { return {.torque_limits = torque_limits.veh_vec_data, .torque_setpoints = torque_setpoints.veh_vec_data}; }
 };
@@ -485,8 +485,8 @@ struct StampedDrivetrainTorqueCommand_s
 struct DrivetrainDynamicReport_s
 {
     uint16_t measuredInverterFLPackVoltage;
-    veh_vec<speed_rpm> measuredSpeeds;
-    veh_vec<torque_nm> measuredTorques;
+    veh_vec<SpeedRpm> measuredSpeeds;
+    veh_vec<TorqueNm> measuredTorques;
     veh_vec<float> measuredTorqueCurrents;
     veh_vec<float> measuredMagnetizingCurrents;
 };
@@ -518,25 +518,25 @@ enum class ACUState_e
  */
 struct ACUCoreData_s
 {
-    volt pack_voltage;
-    volt min_cell_voltage;
-    volt avg_cell_voltage;
-    volt max_cell_voltage;
-    celsius max_cell_temp;
-    celsius min_cell_temp;
-    celsius max_board_temp;
-    volt max_measured_pack_out_voltage;
-    volt max_measured_ts_out_voltage;
-    volt max_measured_glv;
-    volt min_measured_pack_out_voltage;
-    volt min_measured_ts_out_voltage;
-    volt min_measured_glv;
-    volt min_shdn_out_voltage;
-    volt hv_plus_out_voltage;
-    volt main_ok_voltage;
-    volt precharge_ok_voltage;
-    volt main_under_threshold_voltage;
-    volt precharge_under_threshold_voltage;
+    Volt pack_voltage;
+    Volt min_cell_voltage;
+    Volt avg_cell_voltage;
+    Volt max_cell_voltage;
+    Celsius max_cell_temp;
+    Celsius min_cell_temp;
+    Celsius max_board_temp;
+    Volt max_measured_pack_out_voltage;
+    Volt max_measured_ts_out_voltage;
+    Volt max_measured_glv;
+    Volt min_measured_pack_out_voltage;
+    Volt min_measured_ts_out_voltage;
+    Volt min_measured_glv;
+    Volt min_shdn_out_voltage;
+    Volt hv_plus_out_voltage;
+    Volt main_ok_voltage;
+    Volt precharge_ok_voltage;
+    Volt main_under_threshold_voltage;
+    Volt precharge_under_threshold_voltage;
     float tractive_system_current;
     ACUState_e acu_sm_state;
 
@@ -561,9 +561,9 @@ struct ACUAllData_s
     size_t min_cell_voltage_id;
     size_t max_cell_temp_id;
     size_t max_board_temp_id;
-    volt measured_tractive_system_voltage;
-    volt measured_pack_voltage;
-    volt measured_shdn_voltage;
+    Volt measured_tractive_system_voltage;
+    Volt measured_pack_voltage;
+    Volt measured_shdn_voltage;
     float measured_bspd_current;
     FWVersionInfo fw_version_info;
     float valid_packet_rate;
@@ -574,9 +574,9 @@ struct ACUAllData_s
     float V1;
     double remaining_pack_wh;
     std::array<size_t, num_chips> consecutive_invalid_packet_counts;
-    std::array<volt, num_cells> cell_voltages;
-    std::array<celsius, num_cell_temps> cell_temps;
-    std::array<celsius, num_chips> board_temps;
+    std::array<Volt, num_cells> cell_voltages;
+    std::array<Celsius, num_cell_temps> cell_temps;
+    std::array<Celsius, num_chips> board_temps;
     bool shutdown_has_gone_low;
 };
 

@@ -413,12 +413,12 @@ class BuckConverterInterface
      * @note No checks. enable() validates and applies its guards before calling this; updateBuckConverter() calls it
      *       directly to end a restart, so enable()'s RESTARTING guard doesn't block it.
      */
-    static void _turnOn(BuckConverter_s& buck, time_ms curr_millis);
+    static void _turnOn(BuckConverter_s& buck, TimeMs curr_millis);
 
     /**
      * @brief Moves a converter to STARTING and restarts its startup and debounce timers.
      */
-    static void _beginStartup(BuckConverter_s& buck, time_ms curr_millis);
+    static void _beginStartup(BuckConverter_s& buck, TimeMs curr_millis);
 
     /**
      * @brief Debounces PG and updates status.is_pg_high.
@@ -427,7 +427,7 @@ class BuckConverterInterface
      * @warning Every real change is reported about 2–3 ms late due to the debounce period. The critical
      *          one is a fault: it may be reported after the hardware is already off.
      */
-    static void _updatePowerGood(BuckConverter_s& buck, time_ms curr_millis);
+    static void _updatePowerGood(BuckConverter_s& buck, TimeMs curr_millis);
 
     /**
      * @brief Records a fault, moves state to FAULT, and increments fault counter.

@@ -4,38 +4,38 @@
 /* External Includes */
 #include "SharedFirmwareTypes.h"
 
-using time_us = uint32_t;
+using TimeUs = uint32_t;
 namespace RDCConstants
 {
     /* ---------- Task Priorities & Periods ---------- */
     const int SERIAL_BAUDRATE = 115200;
 
     constexpr uint8_t SEND_CAN_PRIORITY = 5;
-    constexpr time_us SEND_CAN_PERIOD_US = 10000; // 10000 us = 100 HZ
+    constexpr TimeUs SEND_CAN_PERIOD_US = 10000; // 10000 us = 100 HZ
 
     constexpr uint8_t ENQUEUE_FDC_CONTROL_PRIORITY = 10;
-    constexpr time_us ENQUEUE_FDC_CONTROL_PERIOD_US = 50000; // 50000 us = 20 HZ
+    constexpr TimeUs ENQUEUE_FDC_CONTROL_PERIOD_US = 50000; // 50000 us = 20 HZ
 
     constexpr uint8_t ENQUEUE_RSS_OPERATING_MODE_PRIORITY = 10;
-    constexpr time_us ENQUEUE_RSS_OPERATING_MODE_PERIOD_US = 50000; // 50000 us = 20 HZ
+    constexpr TimeUs ENQUEUE_RSS_OPERATING_MODE_PERIOD_US = 50000; // 50000 us = 20 HZ
 
     constexpr uint8_t KICK_WATCHDOG_PRIORITY = 0;
-    constexpr time_us KICK_WATCHDOG_PERIOD_US = 10000; // 10000 us = 100 HZ
+    constexpr TimeUs KICK_WATCHDOG_PERIOD_US = 10000; // 10000 us = 100 HZ
 
     constexpr uint8_t TICK_STATE_MACHINE_PRIORITY = 1;
-    constexpr time_us TICK_STATE_MACHINE_PERIOD_US = 5000; // 5000 us = 200 HZ
+    constexpr TimeUs TICK_STATE_MACHINE_PERIOD_US = 5000; // 5000 us = 200 HZ
 
     constexpr uint8_t COLLECT_ASYNC_DATA_PRIORITY = 4;
-    constexpr time_us COLLECT_ASYNC_DATA_PERIOD_US = 5000; // 5000 us = 200 HZ
+    constexpr TimeUs COLLECT_ASYNC_DATA_PERIOD_US = 5000; // 5000 us = 200 HZ
 
     constexpr uint8_t ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY = 11;
-    constexpr time_us ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US = 10000; // 10 000 us = 100 Hz
+    constexpr TimeUs ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
     constexpr uint8_t FW_VERSION_CAN_PRIORITY = 12;
-    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1000000 us = 1 HZ
+    constexpr TimeUs FW_VERSION_CAN_PERIOD_US = 1000000; // 1000000 us = 1 HZ
 
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 100;
-    constexpr time_us DEBUG_PRINT_PERIOD_US = 100000; // 100000 us = 10 HZ
+    constexpr TimeUs DEBUG_PRINT_PERIOD_US = 100000; // 100000 us = 10 HZ
     /* --------- CAN Constants ---------- */
     constexpr uint32_t DRIVERLESS_CAN_BAUDRATE = 1000000;
 

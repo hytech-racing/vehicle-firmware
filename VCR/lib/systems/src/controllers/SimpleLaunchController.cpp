@@ -10,7 +10,7 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
     int16_t brake_torque_req = static_cast<int16_t>(pedals_data.brake_percent * PhysicalParameters::MAX_REGEN_TORQUE);
 
     float max_speed = 0;
-    veh_vec<speed_rpm> measured_speeds = vcr_data.system_data.drivetrain_data.measuredSpeeds;
+    veh_vec<SpeedRpm> measured_speeds = vcr_data.system_data.drivetrain_data.measuredSpeeds;
     std::array<float, 4> wheel_rpms = measured_speeds.as_array();
     for (int i = 0; i < 4; i++)
     {

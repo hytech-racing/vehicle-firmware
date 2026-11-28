@@ -15,7 +15,7 @@ void CCUCANInterfaceImpl::onChargerCANReceive(const CAN_message_t& msg)
     CCUCANInterfaceInstance::instance().charger_can_rx_buffer.push_back(buf.data(), CAN_MSG_SIZE);
 }
 
-void CCUCANInterfaceImpl::CCUReceiveIDSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type)
+void CCUCANInterfaceImpl::ccuRecvSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, uint32_t millis, CANInterfaceType_e interface_type)
 {
     switch (msg.id)
     {

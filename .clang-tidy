@@ -4,7 +4,7 @@
 Checks: 'readability-identifier-naming'
 # Naming violations are reported as errors so `pio check --fail-on-defect high` fails CI.
 WarningsAsErrors: 'readability-identifier-naming'
-HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard)/.*'
+HeaderFilterRegex: '(ACU|CCU|VCF|VCR|RDC|Dashboard|PDB|shared-lib)/.*'
 
 CheckOptions:
   # ============================================================================

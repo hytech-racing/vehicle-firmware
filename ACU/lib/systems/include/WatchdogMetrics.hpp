@@ -8,23 +8,23 @@ class WatchdogMetrics
   public:
     struct WatchdogMetricsData_s
     {
-        volt max_measured_glv;
-        volt max_measured_pack_out_voltage;
-        volt max_measured_ts_out_voltage;
+        Volt max_measured_glv;
+        Volt max_measured_pack_out_voltage;
+        Volt max_measured_ts_out_voltage;
 
-        volt min_measured_glv;
-        volt min_measured_pack_out_voltage;
-        volt min_measured_ts_out_voltage;
+        Volt min_measured_glv;
+        Volt min_measured_pack_out_voltage;
+        Volt min_measured_ts_out_voltage;
 
-        volt min_shdn_out_voltage;
+        Volt min_shdn_out_voltage;
 
         unsigned long last_valid_shdn_out_ms;
     };
 
 
-    void update_metrics(volt measured_glv, volt mesaured_pack_out_voltage, volt measured_ts_out_voltage, volt shdn_out_voltage, unsigned long millis);
+    void update_metrics(Volt measured_glv, Volt mesaured_pack_out_voltage, Volt measured_ts_out_voltage, Volt shdn_out_voltage, unsigned long millis);
 
-    void reset_metrics(volt measured_glv, volt measured_pack_out_voltage, volt measured_ts_out_voltage, volt shdn_out_voltage);
+    void reset_metrics(Volt measured_glv, Volt measured_pack_out_voltage, Volt measured_ts_out_voltage, Volt shdn_out_voltage);
 
     bool is_shdn_out_voltage_invalid(unsigned long millis);
 

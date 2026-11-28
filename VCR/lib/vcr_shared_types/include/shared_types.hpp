@@ -3,12 +3,12 @@
 #include <stdint.h>
 namespace HTUnits
 {
-    using celcius = float;
-    using watts = float;
-    using var = float;
-    using torque_nm = float;
-    using speed_rpm = float;
-    using volts = float;
+    using Celcius = float;
+    using Watts = float;
+    using Var = float;
+    using TorqueNm = float;
+    using SpeedRpm = float;
+    using Volts = float;
 }; // namespace HTUnits
 
 /**
@@ -55,7 +55,7 @@ struct InverterStatus_s
     bool quit_inverter_on : 1;
     bool inverter_on : 1;
     bool derating_on : 1;
-    HTUnits::volts dc_bus_voltage;
+    HTUnits::Volts dc_bus_voltage;
     uint16_t diagnostic_number;
 };
 
@@ -63,26 +63,26 @@ struct InverterTemps_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
     unsigned long last_recv_millis = 0;
-    HTUnits::celcius motor_temp;
-    HTUnits::celcius inverter_temp;
-    HTUnits::celcius igbt_temp;
+    HTUnits::Celcius motor_temp;
+    HTUnits::Celcius inverter_temp;
+    HTUnits::Celcius igbt_temp;
 };
 
 struct InverterPower_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
     unsigned long last_recv_millis = 0;
-    HTUnits::watts active_power;
-    HTUnits::var reactive_power;
+    HTUnits::Watts active_power;
+    HTUnits::Var reactive_power;
 };
 
 struct MotorMechanics_s
 {
     mutable bool new_data : 1; // TODO: decide if we actually need this
     unsigned long last_recv_millis = 0;
-    HTUnits::watts actual_power;
-    HTUnits::torque_nm actual_torque;
-    HTUnits::speed_rpm actual_speed;
+    HTUnits::Watts actual_power;
+    HTUnits::TorqueNm actual_torque;
+    HTUnits::SpeedRpm actual_speed;
 };
 
 struct InverterControlFeedback_s

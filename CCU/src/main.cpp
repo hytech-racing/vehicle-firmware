@@ -25,8 +25,8 @@ HT_TASK::Task calculate_charge_current_task(
     CCUConstants::TICK_STATE_MACHINE_PRIORITY,
     CCUConstants::TICK_STATE_MACHINE_PERIOD);
 HT_TASK::Task
-    queue_ACU_CAN(HT_TASK::DUMMY_FUNCTION, &enqueueACUCANDataTask, CCUConstants::ENQUEUE_ACU_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_ACU_CAN_DATA_PERIOD);
-HT_TASK::Task queue_Charger_CAN(
+    queue_acu_can(HT_TASK::DUMMY_FUNCTION, &enqueueACUCANDataTask, CCUConstants::ENQUEUE_ACU_CAN_DATA_PRIORITY, CCUConstants::ENQUEUE_ACU_CAN_DATA_PERIOD);
+HT_TASK::Task queue_charger_can(
     HT_TASK::DUMMY_FUNCTION,
     &enqueueChargerCANdataTask,
     CCUConstants::ENQUEUE_CHARGER_CAN_DATA_PRIORITY,
@@ -36,7 +36,7 @@ HT_TASK::Task receive_ethernet(HT_TASK::DUMMY_FUNCTION, &receiveETHTask, CCUCons
 HT_TASK::Task send_ethernet(HT_TASK::DUMMY_FUNCTION, &sendETHTask, CCUConstants::SEND_ETHERNET_PRIORITY, CCUConstants::ETHERNET_PERIOD);
 HT_TASK::Task read_encoder_task(HT_TASK::DUMMY_FUNCTION, &readEncoderTask, CCUConstants::READ_DIAL_PRIORITY, CCUConstants::DIAL_PERIOD);
 HT_TASK::Task update_display_task(HT_TASK::DUMMY_FUNCTION, &updateDisplayTask, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
-HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debug_prints, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
+HT_TASK::Task debug_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrints, CCUConstants::UPDATE_DISPLAY_PRIORITY, CCUConstants::UPDATE_DISPLAY_PERIOD);
 
 void setup()
 {
@@ -54,8 +54,8 @@ void setup()
     scheduler.schedule(run_sample_can_data);
     scheduler.schedule(tick_state_machine_task);
     scheduler.schedule(calculate_charge_current_task);
-    scheduler.schedule(queue_ACU_CAN);
-    scheduler.schedule(queue_Charger_CAN);
+    scheduler.schedule(queue_acu_can);
+    scheduler.schedule(queue_charger_can);
     scheduler.schedule(send_all_data);
     scheduler.schedule(receive_ethernet);
     scheduler.schedule(send_ethernet);

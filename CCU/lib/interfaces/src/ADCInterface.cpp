@@ -4,14 +4,14 @@
 void ADCInterface::init(uint32_t init_millis)
 {
     // Pin Configuration
-    pinMode(_adc_parameters.pinout.teensy_shdn_A_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_B_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_C_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_D_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_E_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_F_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_shdn_G_pin, INPUT);
-    pinMode(_adc_parameters.pinout.teensy_scaled_24V_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_a_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_b_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_c_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_d_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_e_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_f_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_shdn_g_pin, INPUT);
+    pinMode(_adc_parameters.pinout.teensy_scaled_24v_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_control_pilot_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_proximity_pilot_pin, INPUT);
     pinMode(_adc_parameters.pinout.teensy_240_enabled_pin, INPUT);
@@ -23,56 +23,56 @@ void ADCInterface::init(uint32_t init_millis)
 
 bool ADCInterface::isShutdownAHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_A_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_a_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownBHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_B_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_b_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownCHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_C_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_c_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownDHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_D_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_d_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownEHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_E_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_e_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownFHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_F_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_f_pin);
     return out;
 }
 
 bool ADCInterface::isShutdownGHigh()
 {
-    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_G_pin);
+    bool out = digitalRead(_adc_parameters.pinout.teensy_shdn_g_pin);
     return out;
 }
 
-volt ADCInterface::readGLV()
+Volt ADCInterface::readGLV()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24V_pin))
+    Volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_scaled_24v_pin))
                 * _adc_parameters.conversions.glv_conv_factor; // input before voltage divider (4.3k / (4.3k + 36k))
     return data;
 }
 
-volt ADCInterface::readControlPilot()
+Volt ADCInterface::readControlPilot()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_control_pilot_pin)) * _adc_parameters.conversions.control_pilot_conv_factor;
+    Volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_control_pilot_pin)) * _adc_parameters.conversions.control_pilot_conv_factor;
     return data;
 }
 
@@ -81,9 +81,9 @@ bool ADCInterface::isControlPilotLow()
     return readControlPilot() < adc_default_parameters::CONTROL_PILOT_VOLTAGE_LOW_THRESHOLD;
 }
 
-volt ADCInterface::readProximityPilot()
+Volt ADCInterface::readProximityPilot()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_proximity_pilot_pin)) * _adc_parameters.conversions.proximity_pilot_conv_factor;
+    Volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_proximity_pilot_pin)) * _adc_parameters.conversions.proximity_pilot_conv_factor;
     return data;
 }
 
@@ -104,9 +104,9 @@ bool ADCInterface::read240OK()
     return out;
 }
 
-volt ADCInterface::readJumperOut()
+Volt ADCInterface::readJumperOut()
 {
-    volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_jumper_out_pin)) * _adc_parameters.conversions.jumper_out_conv_factor;
+    Volt data = static_cast<float>(analogRead(_adc_parameters.pinout.teensy_jumper_out_pin)) * _adc_parameters.conversions.jumper_out_conv_factor;
     return data;
 }
 

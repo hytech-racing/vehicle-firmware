@@ -96,7 +96,7 @@ void ACUInterface::receiveStateOfChargeCANMSG(const CAN_message_t& msg, unsigned
 {
     STATE_OF_CHARGE_t soc_msg{};
     Unpack_STATE_OF_CHARGE_ht_can(&soc_msg, &msg.buf[0], msg.len);
-    _curr_data.SoC = HT_CAN_SoC_ro_fromS(soc_msg.SoC_ro);
+    _curr_data.state_of_charge = HT_CAN_SoC_ro_fromS(soc_msg.SoC_ro);
 }
 
 void ACUInterface::enqueueCCUStatusCANMsg()
