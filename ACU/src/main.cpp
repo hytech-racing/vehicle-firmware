@@ -13,57 +13,55 @@ qn::EthernetUDP udp;               // setup of qn namespace
 /* Scheduler Setup */
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
-::HT_TASK::Task tick_state_machine_task(HT_TASK::DUMMY_FUNCTION, tick_state_machine, ACUConstants::TICK_SM_PRIORITY, ACUConstants::TICK_SM_PERIOD_US);
-::HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, run_kick_watchdog, ACUConstants::WATCHDOG_PRIORITY, ACUConstants::KICK_WATCHDOG_PERIOD_US);
-::HT_TASK::Task sample_bms_data_task(HT_TASK::DUMMY_FUNCTION, sample_bms_data, ACUConstants::SAMPLE_BMS_PRIORITY, ACUConstants::SAMPLE_BMS_PERIOD_US);
-::HT_TASK::Task eval_accumulator_task(HT_TASK::DUMMY_FUNCTION, evaluate_accumulator, ACUConstants::EVAL_ACC_PRIORITY, ACUConstants::EVAL_ACC_PERIOD_US);
+::HT_TASK::Task tick_state_machine_task(HT_TASK::dummyFunction, tick_state_machine, ACUConstants::TICK_SM_PRIORITY, ACUConstants::TICK_SM_PERIOD_US);
+::HT_TASK::Task kick_watchdog_task(HT_TASK::dummyFunction, run_kick_watchdog, ACUConstants::WATCHDOG_PRIORITY, ACUConstants::KICK_WATCHDOG_PERIOD_US);
+::HT_TASK::Task sample_bms_data_task(HT_TASK::dummyFunction, sample_bms_data, ACUConstants::SAMPLE_BMS_PRIORITY, ACUConstants::SAMPLE_BMS_PERIOD_US);
+::HT_TASK::Task eval_accumulator_task(HT_TASK::dummyFunction, evaluate_accumulator, ACUConstants::EVAL_ACC_PRIORITY, ACUConstants::EVAL_ACC_PERIOD_US);
 ::HT_TASK::Task write_cell_balancing_config_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     write_cell_balancing_config,
     ACUConstants::WRITE_CELL_BALANCE_PRIORITY,
     ACUConstants::WRITE_CELL_BALANCE_PERIOD_US);
 ::HT_TASK::Task send_all_data_ethernet_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     handle_send_ACU_all_ethernet_data,
     ACUConstants::ALL_DATA_ETHERNET_PRIORITY,
     ACUConstants::ALL_DATA_ETHERNET_PERIOD_US);
 ::HT_TASK::Task send_core_data_ethernet_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     handle_send_ACU_core_ethernet_data,
     ACUConstants::CORE_DATA_ETHERNET_PRIORITY,
     ACUConstants::CORE_DATA_ETHERNET_PERIOD_US);
-::HT_TASK::Task send_CAN_task(HT_TASK::DUMMY_FUNCTION, handle_send_all_CAN_data, ACUConstants::SEND_CAN_PRIORITY, ACUConstants::SEND_CAN_PERIOD_US);
-::HT_TASK::Task
-    enqueue_CCU_core_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_ACU_core_CAN_data, ACUConstants::CCU_SEND_PRIORITY, ACUConstants::CCU_SEND_PERIOD_US);
+::HT_TASK::Task send_CAN_task(HT_TASK::dummyFunction, handle_send_all_CAN_data, ACUConstants::SEND_CAN_PRIORITY, ACUConstants::SEND_CAN_PERIOD_US);
+::HT_TASK::Task enqueue_CCU_core_CAN_task(HT_TASK::dummyFunction, enqueue_ACU_core_CAN_data, ACUConstants::CCU_SEND_PRIORITY, ACUConstants::CCU_SEND_PERIOD_US);
 ::HT_TASK::Task enqueue_CCU_all_voltages_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueue_ACU_all_voltages_CAN_data,
     ACUConstants::CCU_SEND_A_PRIORITY,
     ACUConstants::CCU_SEND_A_PERIOD_US);
 ::HT_TASK::Task enqueue_CCU_all_temps_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueue_ACU_all_temps_CAN_data,
     ACUConstants::CCU_SEND_B_PRIORITY,
     ACUConstants::CCU_SEND_B_PERIOD_US);
-::HT_TASK::Task
-    enqueue_ACU_OK_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueue_ACU_ok_CAN_data, ACUConstants::ACU_OK_CAN_PRIORITY, ACUConstants::ACU_OK_CAN_PERIOD_US);
+::HT_TASK::Task enqueue_ACU_OK_CAN_task(HT_TASK::dummyFunction, enqueue_ACU_ok_CAN_data, ACUConstants::ACU_OK_CAN_PRIORITY, ACUConstants::ACU_OK_CAN_PERIOD_US);
 ::HT_TASK::Task enqueue_EM_measurement_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueue_EM_measurement_CAN_data,
     ACUConstants::EM_MEASUREMENT_SEND_PRIORITY,
     ACUConstants::EM_MEASUREMENT_SEND_PERIOD_US);
 ::HT_TASK::Task enqueue_FW_version_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueueFirmwareVersionCANData,
     ACUConstants::FW_VERSION_CAN_PRIORITY,
     ACUConstants::FW_VERSION_CAN_PERIOD_US);
 
-::HT_TASK::Task sample_CAN_task(HT_TASK::DUMMY_FUNCTION, sample_CAN_data, ACUConstants::RECV_CAN_PRIORITY, ACUConstants::RECV_CAN_PERIOD_US);
-::HT_TASK::Task idle_sample_task(HT_TASK::DUMMY_FUNCTION, idle_sample_interfaces, ACUConstants::IDLE_SAMPLE_PRIORITY, ACUConstants::IDLE_SAMPLE_PERIOD_US);
-::HT_TASK::Task debug_prints_task(HT_TASK::DUMMY_FUNCTION, debug_print, ACUConstants::DEBUG_PRINT_PRIORITY, ACUConstants::DEBUG_PRINT_PERIOD_US);
-::HT_TASK::Task sample_adc_task(HT_TASK::DUMMY_FUNCTION, sample_adc, ACUConstants::SAMPLE_ADC_PRIORITY, ACUConstants::SAMPLE_ADC_PERIOD_US);
+::HT_TASK::Task sample_CAN_task(HT_TASK::dummyFunction, sample_CAN_data, ACUConstants::RECV_CAN_PRIORITY, ACUConstants::RECV_CAN_PERIOD_US);
+::HT_TASK::Task idle_sample_task(HT_TASK::dummyFunction, idle_sample_interfaces, ACUConstants::IDLE_SAMPLE_PRIORITY, ACUConstants::IDLE_SAMPLE_PERIOD_US);
+::HT_TASK::Task debug_prints_task(HT_TASK::dummyFunction, debug_print, ACUConstants::DEBUG_PRINT_PRIORITY, ACUConstants::DEBUG_PRINT_PERIOD_US);
+::HT_TASK::Task sample_adc_task(HT_TASK::dummyFunction, sample_adc, ACUConstants::SAMPLE_ADC_PRIORITY, ACUConstants::SAMPLE_ADC_PERIOD_US);
 ::HT_TASK::Task soh_persistence_task(init_soh_persistence, persist_soh_data, ACUConstants::SOH_PERSIST_PRIORITY, ACUConstants::SOH_PERSIST_PERIOD_US);
-::HT_TASK::Task run_datalogger_task(HT_TASK::DUMMY_FUNCTION, run_data_logging, ACUConstants::DATA_LOG_PRIORITY, ACUConstants::DATA_LOG_PERIOD_US);
+::HT_TASK::Task run_datalogger_task(HT_TASK::dummyFunction, run_data_logging, ACUConstants::DATA_LOG_PRIORITY, ACUConstants::DATA_LOG_PERIOD_US);
 
 void setup()
 {

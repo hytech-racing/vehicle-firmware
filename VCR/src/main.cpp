@@ -15,47 +15,47 @@ qn::EthernetUDP udp;               // setup of qn namespace
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
-HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &runKickWatchdog, VCRConstants::WATCHDOG_PRIORITY, VCRConstants::WATCHDOG_KICK_PERIOD_US);
-HT_TASK::Task async_main_task(HT_TASK::DUMMY_FUNCTION, &async_tasks::handleAsyncMain, VCRConstants::ASYNC_MAIN_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task kick_watchdog_task(HT_TASK::dummyFunction, &runKickWatchdog, VCRConstants::WATCHDOG_PRIORITY, VCRConstants::WATCHDOG_KICK_PERIOD_US);
+HT_TASK::Task async_main_task(HT_TASK::dummyFunction, &async_tasks::handleAsyncMain, VCRConstants::ASYNC_MAIN_PRIORITY, VCRConstants::ASYNC_MAIN_PERIOD_US);
 HT_TASK::Task send_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     handleSendAllCANData,
     VCRConstants::SEND_CAN_PRIORITY,
     VCRConstants::SEND_CAN_PERIOD_US); // Sends all messages from the CAN queue
-HT_TASK::Task ams_system_task(HT_TASK::DUMMY_FUNCTION, updateACUHeartbeat, VCRConstants::AMS_PRIORITY, VCRConstants::AMS_UPDATE_PERIOD_US);
+HT_TASK::Task ams_system_task(HT_TASK::dummyFunction, updateACUHeartbeat, VCRConstants::AMS_PRIORITY, VCRConstants::AMS_UPDATE_PERIOD_US);
 HT_TASK::Task
-    enqueue_suspension_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueueSuspensionCANData, VCRConstants::SUSPENSION_PRIORITY, VCRConstants::SUSPENSION_CAN_PERIOD_US);
+    enqueue_suspension_CAN_task(HT_TASK::dummyFunction, enqueueSuspensionCANData, VCRConstants::SUSPENSION_PRIORITY, VCRConstants::SUSPENSION_CAN_PERIOD_US);
 HT_TASK::Task
-    enqueue_inverter_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueueInverterCANData, VCRConstants::INVERTER_SEND_PRIORITY, VCRConstants::INVERTER_SEND_PERIOD_US);
+    enqueue_inverter_CAN_task(HT_TASK::dummyFunction, enqueueInverterCANData, VCRConstants::INVERTER_SEND_PRIORITY, VCRConstants::INVERTER_SEND_PERIOD_US);
 HT_TASK::Task
-    vcr_data_ethernet_send(HT_TASK::DUMMY_FUNCTION, handleSendVCREthernetData, VCRConstants::ETHERNET_SEND_PRIORITY, VCRConstants::ETHERNET_SEND_PERIOD_US);
-HT_TASK::Task adc_0_sample_task(HT_TASK::DUMMY_FUNCTION, runReadADC0Task, VCRConstants::ADC0_PRIORITY, VCRConstants::ADC0_SAMPLE_PERIOD_US);
-HT_TASK::Task enqueue_controls_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueueControlsCANData, VCRConstants::CONTROLS_PRIORITY, VCRConstants::CONTROLS_CAN_PERIOD_US);
+    vcr_data_ethernet_send(HT_TASK::dummyFunction, handleSendVCREthernetData, VCRConstants::ETHERNET_SEND_PRIORITY, VCRConstants::ETHERNET_SEND_PERIOD_US);
+HT_TASK::Task adc_0_sample_task(HT_TASK::dummyFunction, runReadADC0Task, VCRConstants::ADC0_PRIORITY, VCRConstants::ADC0_SAMPLE_PERIOD_US);
+HT_TASK::Task enqueue_controls_CAN_task(HT_TASK::dummyFunction, enqueueControlsCANData, VCRConstants::CONTROLS_PRIORITY, VCRConstants::CONTROLS_CAN_PERIOD_US);
 HT_TASK::Task enqueue_coolant_temp_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueueCoolantTempCANData,
     VCRConstants::COOLANT_TEMP_SEND_PRIORITY,
     VCRConstants::COOLANT_TEMP_SEND_PERIOD_US);
 HT_TASK::Task enqueue_FW_version_CAN_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     enqueueFirmwareVersionCANData,
     VCRConstants::FW_VERSION_CAN_PRIORITY,
     VCRConstants::FW_VERSION_CAN_PERIOD_US);
 HT_TASK::Task
-    enqueue_dashboard_CAN_task(HT_TASK::DUMMY_FUNCTION, enqueueDashboardCANData, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
+    enqueue_dashboard_CAN_task(HT_TASK::dummyFunction, enqueueDashboardCANData, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
 HT_TASK::Task
-    run_enable_motor_cooling(HT_TASK::DUMMY_FUNCTION, enableMotorCooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
+    run_enable_motor_cooling(HT_TASK::dummyFunction, enableMotorCooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
 HT_TASK::Task
-    run_enable_inverter_cooling(HT_TASK::DUMMY_FUNCTION, enableInverterCooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
+    run_enable_inverter_cooling(HT_TASK::dummyFunction, enableInverterCooling, VCRConstants::DASHBOARD_SEND_PRIORITY, VCRConstants::DASHBOARD_SEND_PERIOD_US);
 HT_TASK::Task update_brakelight_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     runUpdateBrakelightTask,
     VCRConstants::UPDATE_BRAKELIGHT_PRIORITY,
     VCRConstants::UPDATE_BRAKELIGHT_PERIOD_US);
-HT_TASK::Task adc_1_sample_task(HT_TASK::DUMMY_FUNCTION, runReadADC1Task, VCRConstants::ADC1_PRIORITY, VCRConstants::ADC1_SAMPLE_PERIOD_US);
-HT_TASK::Task IOExpander_read_task(HT_TASK::DUMMY_FUNCTION, readIOExpander, VCRConstants::IOEXPANDER_PRIORITY, VCRConstants::IOEXPANDER_SAMPLE_PERIOD_US);
-HT_TASK::Task mpb_adc_sample_task(HT_TASK::DUMMY_FUNCTION, runReadMpbADCTask, VCRConstants::MPB_ADC_PRIORITY, VCRConstants::MPB_ADC_SAMPLE_PERIOD_US);
-HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, debugPrint, VCRConstants::DEBUG_PRIORITY, VCRConstants::DEBUG_PERIOD_US);
+HT_TASK::Task adc_1_sample_task(HT_TASK::dummyFunction, runReadADC1Task, VCRConstants::ADC1_PRIORITY, VCRConstants::ADC1_SAMPLE_PERIOD_US);
+HT_TASK::Task IOExpander_read_task(HT_TASK::dummyFunction, readIOExpander, VCRConstants::IOEXPANDER_PRIORITY, VCRConstants::IOEXPANDER_SAMPLE_PERIOD_US);
+HT_TASK::Task mpb_adc_sample_task(HT_TASK::dummyFunction, runReadMpbADCTask, VCRConstants::MPB_ADC_PRIORITY, VCRConstants::MPB_ADC_SAMPLE_PERIOD_US);
+HT_TASK::Task debug_state_print_task(HT_TASK::dummyFunction, debugPrint, VCRConstants::DEBUG_PRIORITY, VCRConstants::DEBUG_PERIOD_US);
 
 void setup()
 {

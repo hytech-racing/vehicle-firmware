@@ -6,13 +6,13 @@ namespace HT_SCHED
 {
     // Constructor
     Scheduler::Scheduler()
-        : _numTasks(0)
+        : _num_tasks(0)
     {
     }
 
-    void Scheduler::setTimingFunction(std::function<uint32_t()> microsFunction)
+    void Scheduler::setTimingFunction(std::function<uint32_t()> micros_function)
     {
-        _microsFunction = microsFunction;
+        _micros_function = micros_function;
     }
 
     // Add a task to the scheduler's list
@@ -21,33 +21,33 @@ namespace HT_SCHED
     // Return false when the scheduling queue is full. (increase HT_SCHED_MAX_TASKS if this happens)
     bool Scheduler::schedule(HT_TASK::Task& task)
     {
-        if (!(_numTasks < HT_SCHED_MAX_TASKS))
+        if (!(_num_tasks < HT_SCHED_MAX_TASKS))
         {
             return false;
         }
         // place the task at the back of the queue (last execution in a scheduling cycle)
-        _taskQueue[_numTasks] = &task;
+        _task_queue[_num_tasks] = &task;
 
         // start from the back (lowest priority) and shift forward until priority is correct
         // idle tasks are always lower priority than interval tasks
         // promote if either:
         // 1. tasks are the same type and priority of shifting task is higher
         // 2. shifting task is interval ask and compared task is idle
-        int i = _numTasks;
+        int i = _num_tasks;
         while ((i > 0)
                && (
                    // check tasks are the same type and priority of shifting task is higher
-                   ((task._taskInfo.priority < _taskQueue[i - 1]->_taskInfo.priority)
-                    && (task._taskInfo.isIntervalFunction == _taskQueue[i - 1]->_taskInfo.isIntervalFunction))
+                   ((task.task_info.priority < _task_queue[i - 1]->task_info.priority)
+                    && (task.task_info.is_interval_function == _task_queue[i - 1]->task_info.is_interval_function))
                    // check shifting task is interval ask and compared task is idle
-                   || ((_taskQueue[i - 1]->_taskInfo.isIntervalFunction == false) && (task._taskInfo.isIntervalFunction == true))))
+                   || ((_task_queue[i - 1]->task_info.is_interval_function == false) && (task.task_info.is_interval_function == true))))
         {
-            HT_TASK::Task* temp = _taskQueue[i];
-            _taskQueue[i] = _taskQueue[i - 1];
-            _taskQueue[i - 1] = temp;
+            HT_TASK::Task* temp = _task_queue[i];
+            _task_queue[i] = _task_queue[i - 1];
+            _task_queue[i - 1] = temp;
         }
 
-        task._taskInfo.id = ++_numTasks;
+        task.task_info.id = ++_num_tasks;
 
         return true;
     }
@@ -55,66 +55,66 @@ namespace HT_SCHED
     void Scheduler::run()
     {
         // get the time
-        uint32_t nowMicros = (uint32_t)_microsFunction();
-        uint32_t cycleExecTimer = 0;
+        uint32_t now_micros = (uint32_t)_micros_function();
+        uint32_t cycle_exec_timer = 0;
         // used to find the timing of the nearest interval function
-        _timeOfNextExec = ULONG_MAX;
+        _time_of_next_exec = ULONG_MAX;
 
-        for (int i = 0; i < _numTasks; i++)
+        for (int i = 0; i < _num_tasks; i++)
         {
-            HT_TASK::Task* task = _taskQueue[i];
+            HT_TASK::Task* task = _task_queue[i];
 
-            switch (task->_taskInfo.state)
+            switch (task->task_info.state)
             {
             case HT_TASK::TaskState::UNINITIALIZED:
             {
                 // enable the task
                 // run its setup function
                 // check if the task wants to exit
-                HT_TASK::TaskResponse result = task->_setup(nowMicros, task->_taskInfo);
+                HT_TASK::TaskResponse result = task->setup(now_micros, task->task_info);
                 if (result == HT_TASK::TaskResponse::EXIT)
-                    task->_taskInfo.state = HT_TASK::TaskState::KILLED;
+                    task->task_info.state = HT_TASK::TaskState::KILLED;
                 else
-                    task->_taskInfo.state = HT_TASK::TaskState::RUNNING;
+                    task->task_info.state = HT_TASK::TaskState::RUNNING;
 
-                task->_taskInfo.nextExecutionMicros = nowMicros;
-                task->_taskInfo.lastExecutionMicros = nowMicros;
-                task->_taskInfo.executions++;
+                task->task_info.next_execution_micros = now_micros;
+                task->task_info.last_execution_micros = now_micros;
+                task->task_info.executions++;
                 break;
             }
             case HT_TASK::TaskState::RUNNING:
             {
                 // find the time the next interval function is scheduled to run
-                if (task->_taskInfo.isIntervalFunction)
-                    _timeOfNextExec = std::min(task->_taskInfo.nextExecutionMicros, _timeOfNextExec);
+                if (task->task_info.is_interval_function)
+                    _time_of_next_exec = std::min(task->task_info.next_execution_micros, _time_of_next_exec);
 
                 // check if it's time to execute
                 if (
-                    // for interval functions, see if nextExecutionMicros has passed
-                    ((task->_taskInfo.isIntervalFunction == true)
-                     && (task->_taskInfo.nextExecutionMicros - nowMicros >= task->_taskInfo.executionIntervalMicros))
+                    // for interval functions, see if next_execution_micros has passed
+                    ((task->task_info.is_interval_function == true)
+                     && (task->task_info.next_execution_micros - now_micros >= task->task_info.execution_interval_micros))
                     // for idle functions, see if time might conflict with interval function
-                    || ((task->_taskInfo.isIntervalFunction == false)
-                        && (task->_taskInfo.filteredExecutionDurationMicros + _microsFunction() < _timeOfNextExec)))
+                    || ((task->task_info.is_interval_function == false)
+                        && (task->task_info.filtered_execution_duration_micros + _micros_function() < _time_of_next_exec)))
                 {
                     // run its loop function
-                    uint32_t dt = (uint32_t)_microsFunction();
-                    HT_TASK::TaskResponse result = task->_loop(nowMicros, task->_taskInfo);
-                    dt = _microsFunction() - dt;
+                    uint32_t dt = (uint32_t)_micros_function();
+                    HT_TASK::TaskResponse result = task->loop(now_micros, task->task_info);
+                    dt = _micros_function() - dt;
                     if (result == HT_TASK::EXIT)
-                        task->_taskInfo.state = HT_TASK::TaskState::KILLED;
+                        task->task_info.state = HT_TASK::TaskState::KILLED;
 
-                    task->_taskInfo.nextExecutionMicros += task->_taskInfo.executionIntervalMicros;
-                    task->_taskInfo.lastExecutionMicros = _microsFunction();
-                    task->_taskInfo.filteredExecutionDurationMicros = (dt * 0.5) + (task->_taskInfo.filteredExecutionDurationMicros * 0.5);
-                    task->_taskInfo.executions++;
+                    task->task_info.next_execution_micros += task->task_info.execution_interval_micros;
+                    task->task_info.last_execution_micros = _micros_function();
+                    task->task_info.filtered_execution_duration_micros = (dt * 0.5) + (task->task_info.filtered_execution_duration_micros * 0.5);
+                    task->task_info.executions++;
 
                     // track execution time
-                    if (task->_taskInfo.isIntervalFunction)
-                        _intervalExecTimer += dt;
+                    if (task->task_info.is_interval_function)
+                        _interval_exec_timer += dt;
                     else
-                        _idleExecTimer += dt;
-                    cycleExecTimer += dt;
+                        _idle_exec_timer += dt;
+                    cycle_exec_timer += dt;
                 }
                 break;
             }
@@ -125,47 +125,47 @@ namespace HT_SCHED
         }
 
         // track time in the scheduler
-        _schedulerExecTimer += _microsFunction() - nowMicros - cycleExecTimer;
+        _scheduler_exec_timer += _micros_function() - now_micros - cycle_exec_timer;
     }
 
-    HT_TASK::TaskResponse Scheduler::initSchedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+    HT_TASK::TaskResponse Scheduler::initSchedMon(const uint32_t& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
-        _intervalExecTimer = 0;
-        _idleExecTimer = 0;
-        _schedulerExecTimer = 0;
+        _interval_exec_timer = 0;
+        _idle_exec_timer = 0;
+        _scheduler_exec_timer = 0;
 
         return HT_TASK::TaskResponse::YIELD;
     }
 
-    HT_TASK::TaskResponse Scheduler::schedMon(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+    HT_TASK::TaskResponse Scheduler::schedMon(const uint32_t& sys_micros, const HT_TASK::TaskInfo& task_info)
     {
-        uint32_t totalTime = _intervalExecTimer + _idleExecTimer + _schedulerExecTimer;
-        periodicUtilization = (float)_intervalExecTimer / totalTime;
-        idleUtilization = (float)_idleExecTimer / totalTime;
-        schedulerUtilization = (float)_schedulerExecTimer / totalTime;
+        uint32_t total_time = _interval_exec_timer + _idle_exec_timer + _scheduler_exec_timer;
+        _periodic_utilization = (float)_interval_exec_timer / total_time;
+        _idle_utilization = (float)_idle_exec_timer / total_time;
+        _scheduler_utilization = (float)_scheduler_exec_timer / total_time;
 
         // reset counters
-        _intervalExecTimer = 0;
-        _idleExecTimer = 0;
-        _schedulerExecTimer = 0;
+        _interval_exec_timer = 0;
+        _idle_exec_timer = 0;
+        _scheduler_exec_timer = 0;
 
-        // std::cout << "p_util: " << periodicUtilization << ", i_util: " << idleUtilization << ", s_util:" << schedulerUtilization << "\n";
+        // std::cout << "p_util: " << _periodic_utilization << ", i_util: " << _idle_utilization << ", s_util:" << _scheduler_utilization << "\n";
 
         return HT_TASK::TaskResponse::YIELD;
     }
 
     const float& Scheduler::getPeriodicUtilization()
     {
-        return periodicUtilization;
+        return _periodic_utilization;
     }
 
     const float& Scheduler::getIdleUtilization()
     {
-        return idleUtilization;
+        return _idle_utilization;
     }
 
     const float& Scheduler::getSchedulerUtilization()
     {
-        return schedulerUtilization;
+        return _scheduler_utilization;
     }
 } // namespace HT_SCHED

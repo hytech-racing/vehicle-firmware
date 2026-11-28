@@ -16,32 +16,32 @@ uint32_t stdMicros()
     return static_cast<uint32_t>(elapsed);
 }
 
-HT_TASK::TaskResponse task1F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse task1F(const uint32_t& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    std::cout << "task1 exec " << taskInfo.executions << "\n";
+    std::cout << "task1 exec " << task_info.executions << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse task2F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse task2F(const uint32_t& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    std::cout << "task2 exec " << taskInfo.executions << "\n";
+    std::cout << "task2 exec " << task_info.executions << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
-HT_TASK::TaskResponse task3F(const uint32_t& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+HT_TASK::TaskResponse task3F(const uint32_t& sys_micros, const HT_TASK::TaskInfo& task_info)
 {
-    // std::cout << "task3 filtered duration " << taskInfo.filteredExecutionDurationMicros << "\n";
-    // std::cout << "task3 last execution " << taskInfo.lastExecutionMicros << "\n";
+    // std::cout << "task3 filtered duration " << task_info.filtered_execution_duration_micros << "\n";
+    // std::cout << "task3 last execution " << task_info.last_execution_micros << "\n";
     return HT_TASK::TaskResponse::YIELD;
 }
 
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
-HT_TASK::Task task1 = HT_TASK::Task(HT_TASK::DUMMY_FUNCTION, task1F, 2, 20000UL); // 20000us is 50hz
-HT_TASK::Task task2 = HT_TASK::Task(HT_TASK::DUMMY_FUNCTION, task2F, 1, 20000UL); // task2 is higher priority
-HT_TASK::Task task3 = HT_TASK::Task(HT_TASK::DUMMY_FUNCTION, task3F, 0);          // task3 is an idle task
+HT_TASK::Task task1 = HT_TASK::Task(HT_TASK::dummyFunction, task1F, 2, 20000UL); // 20000us is 50hz
+HT_TASK::Task task2 = HT_TASK::Task(HT_TASK::dummyFunction, task2F, 1, 20000UL); // task2 is higher priority
+HT_TASK::Task task3 = HT_TASK::Task(HT_TASK::dummyFunction, task3F, 0);          // task3 is an idle task
 
-HT_TASK::Task schedMon = HT_TASK::Task(
+HT_TASK::Task sched_mon = HT_TASK::Task(
     std::bind(&HT_SCHED::Scheduler::initSchedMon, std::ref(scheduler), std::placeholders::_1, std::placeholders::_2),
     std::bind(&HT_SCHED::Scheduler::schedMon, std::ref(scheduler), std::placeholders::_1, std::placeholders::_2),
     100000UL,
@@ -53,7 +53,7 @@ int main(void)
     scheduler.schedule(task1);
     scheduler.schedule(task2);
     scheduler.schedule(task3);
-    scheduler.schedule(schedMon);
+    scheduler.schedule(sched_mon);
 
     while (std::chrono::high_resolution_clock::now() - start_time < std::chrono::seconds(1))
     {

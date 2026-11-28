@@ -10,48 +10,47 @@
 HT_SCHED::Scheduler& scheduler = HT_SCHED::Scheduler::getInstance();
 
 /* Task Declarations */
-HT_TASK::Task kick_watchdog_task(HT_TASK::DUMMY_FUNCTION, &kickWatchdogTask, VCFConstants::WATCHDOG_PRIORITY, VCFConstants::WATCHDOG_KICK_PERIOD_US);
-HT_TASK::Task async_main(HT_TASK::DUMMY_FUNCTION, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PRIORITY, VCFConstants::ASYNC_MAIN_PERIOD_US);
-HT_TASK::Task adc0_sample(HT_TASK::DUMMY_FUNCTION, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PRIORITY, VCFConstants::PEDALS_SAMPLE_PERIOD_US);
-HT_TASK::Task adc1_sample(HT_TASK::DUMMY_FUNCTION, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PRIORITY, VCFConstants::LOADCELL_SAMPLE_PERIOD_US);
+HT_TASK::Task kick_watchdog_task(HT_TASK::dummyFunction, &kickWatchdogTask, VCFConstants::WATCHDOG_PRIORITY, VCFConstants::WATCHDOG_KICK_PERIOD_US);
+HT_TASK::Task async_main(HT_TASK::dummyFunction, &async_tasks::handle_async_main, VCFConstants::ASYNC_MAIN_PRIORITY, VCFConstants::ASYNC_MAIN_PERIOD_US);
+HT_TASK::Task adc0_sample(HT_TASK::dummyFunction, &readADC0Task, VCFConstants::PEDALS_SAMPLE_PRIORITY, VCFConstants::PEDALS_SAMPLE_PERIOD_US);
+HT_TASK::Task adc1_sample(HT_TASK::dummyFunction, &readADC1Task, VCFConstants::LOADCELL_SAMPLE_PRIORITY, VCFConstants::LOADCELL_SAMPLE_PERIOD_US);
 HT_TASK::Task
-    pedals_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PRIORITY, VCFConstants::PEDALS_SEND_PERIOD_US);
+    pedals_message_enqueue(HT_TASK::dummyFunction, &enqueuePedalsCANDataTask, VCFConstants::PEDALS_SEND_PRIORITY, VCFConstants::PEDALS_SEND_PERIOD_US);
+HT_TASK::Task steering_evaluate(HT_TASK::dummyFunction, &evaluateSteeringTask, VCFConstants::STEERING_SAMPLE_PRIORITY, VCFConstants::STEERING_SAMPLE_PERIOD_US);
 HT_TASK::Task
-    steering_evaluate(HT_TASK::DUMMY_FUNCTION, &evaluateSteeringTask, VCFConstants::STEERING_SAMPLE_PRIORITY, VCFConstants::STEERING_SAMPLE_PERIOD_US);
-HT_TASK::Task
-    steering_message_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PRIORITY, VCFConstants::STEERING_SEND_PERIOD_US);
+    steering_message_enqueue(HT_TASK::dummyFunction, &enqueueSteeringCANDataTask, VCFConstants::STEERING_SEND_PRIORITY, VCFConstants::STEERING_SEND_PERIOD_US);
 HT_TASK::Task front_suspension_message_enqueue(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     &enqueueFrontSuspensionCANDataTask,
     VCFConstants::LOADCELL_SEND_PRIORITY,
     VCFConstants::LOADCELL_SEND_PERIOD_US);
 HT_TASK::Task brake_pressure_message_enqueue(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     &enqueueBrakePressureCANDataTask,
     VCFConstants::BRAKE_PRESSURE_SEND_PRIORITY,
     VCFConstants::BRAKE_PRESSURE_SEND_PERIOD_US);
-HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
-HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
+HT_TASK::Task CAN_send(HT_TASK::dummyFunction, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
+HT_TASK::Task dash_CAN_enqueue(HT_TASK::dummyFunction, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
 HT_TASK::Task fw_version_CAN_enqueue(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     &enqueueFirmwareVersionCANDataTask,
     VCFConstants::FW_VERSION_CAN_PRIORITY,
     VCFConstants::FW_VERSION_CAN_PERIOD_US);
-HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
+HT_TASK::Task read_dash_GPIOs_task(HT_TASK::dummyFunction, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
 HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PRIORITY, VCFConstants::ETHERNET_SEND_PERIOD_US);
 HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_PRIORITY, VCFConstants::BUZZER_WRITE_PERIOD_US);
-HT_TASK::Task neopixels_task(HT_TASK::DUMMY_FUNCTION, &updateNeopixelsTask, VCFConstants::NEOPIXEL_UPDATE_PRIORITY, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US);
+HT_TASK::Task neopixels_task(HT_TASK::dummyFunction, &updateNeopixelsTask, VCFConstants::NEOPIXEL_UPDATE_PRIORITY, VCFConstants::NEOPIXEL_UPDATE_PERIOD_US);
 HT_TASK::Task pedals_calibration_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     &updatePedalsCalibrationTask,
     VCFConstants::PEDALS_RECALIBRATION_PRIORITY,
     VCFConstants::PEDALS_RECALIBRATION_PERIOD_US);
 HT_TASK::Task steering_calibration_task(
-    HT_TASK::DUMMY_FUNCTION,
+    HT_TASK::dummyFunction,
     &updateSteeringCalibrationTask,
     VCFConstants::STEERING_RECALIBRATION_PRIORITY,
     VCFConstants::STEERING_RECALIBRATION_PERIOD_US);
-HT_TASK::Task debug_state_print_task(HT_TASK::DUMMY_FUNCTION, &debugPrints, VCFConstants::DEBUG_PRIORITY, VCFConstants::DEBUG_PERIOD_US);
+HT_TASK::Task debug_state_print_task(HT_TASK::dummyFunction, &debugPrints, VCFConstants::DEBUG_PRIORITY, VCFConstants::DEBUG_PERIOD_US);
 
 
 void setup()
