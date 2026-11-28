@@ -19,9 +19,9 @@ class FlowmeterInterface
   public:
     FlowmeterInterface(const size_t flowmeter_pin);
 
-    static void count_pulse() { etl::singleton<FlowmeterInterface>::instance()._pulse_count++; };
+    static void countPulse() { etl::singleton<FlowmeterInterface>::instance()._pulse_count++; };
 
-    float get_flow_gpm(unsigned long curr_millis);
+    float getFlowGpm(unsigned long curr_millis);
 
   private:
     unsigned long _last_sample_timestamp_ms;

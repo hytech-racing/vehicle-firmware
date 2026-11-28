@@ -37,30 +37,30 @@ class VCRControls
      * the drivetrain must be commanded, it invokes this function, which will find the
      * function from the tc_mux and invoke the correct one on the drivetrain system.
      */
-    void handle_drivetrain_command(bool wanting_ready_to_drive, bool ready_to_drive);
+    void handleDrivetrainCommand(bool wanting_ready_to_drive, bool ready_to_drive);
 
-    bool drivebrain_is_in_control() const;
+    bool drivebrainIsInControl() const;
 
-    bool drivebrain_timing_failure() const;
+    bool drivebrainTimingFailure() const;
 
-    void send_controls_can_messages();
+    void sendControlsCANMsgs();
 
     /**
      * Function to cycle to the next torque limit (low, mid, max). The button input must
      * be handled elsewhere.
      */
-    void cycle_torque_limit()
+    void cycleTorqueLimit()
     {
         size_t torque_limit_int = static_cast<size_t>(_torque_limit);
         size_t new_torque_limit = (torque_limit_int + 1) % (static_cast<size_t>(TorqueLimit_e::TCMUX_NUM_TORQUE_LIMITS));
         _torque_limit = static_cast<TorqueLimit_e>(new_torque_limit);
     }
 
-    TorqueLimit_e get_current_torque_limit() { return _torque_limit; }
+    TorqueLimit_e getCurrentTorqueLimit() { return _torque_limit; }
 
-    SimpleLaunchController& get_launch_controller() { return _mode3; }
+    SimpleLaunchController& getLaunchController() { return _mode3; }
 
-    TorqueControllerMuxStatus_s get_tc_mux_status() const { return _tc_mux.get_tc_mux_status(); }
+    TorqueControllerMuxStatus_s getTcMuxStatus() const { return _tc_mux.getTcMuxStatus(); }
 
   private:
     TorqueControllerSimple _mode0; // this needs to be first for tc_mux to have a valid capture

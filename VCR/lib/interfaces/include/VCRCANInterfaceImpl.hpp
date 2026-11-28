@@ -76,15 +76,15 @@ struct VCRCANInterface_s
     {
     }
 
-    FlexCAN_t<CAN1> TELEM_CAN;
+    FlexCAN_t<CAN1> telem_can;
     CANRXBuffer_t telem_can_rx_buffer;
     CANTXBuffer_t telem_can_tx_buffer;
 
-    FlexCAN_t<CAN2> REAR_AUX_CAN;
+    FlexCAN_t<CAN2> rear_aux_can;
     CANRXBuffer_t rear_aux_can_rx_buffer;
     CANTXBuffer_t rear_aux_can_tx_buffer;
 
-    FlexCAN_t<CAN3> INVERTER_CAN;
+    FlexCAN_t<CAN3> inverter_can;
     CANRXBuffer_t inverter_can_rx_buffer;
     CANTXBuffer_t inverter_can_tx_buffer;
 
@@ -95,15 +95,15 @@ using VCRCANInterfaceInstance = etl::singleton<VCRCANInterface_s>;
 
 namespace VCRCANInterfaceImpl
 {
-    void on_auxillary_can_receive(const CAN_message_t& msg);
+    void onAuxillaryCANReceive(const CAN_message_t& msg);
 
-    void on_inverter_can_receive(const CAN_message_t& msg);
+    void onInverterCANReceive(const CAN_message_t& msg);
 
-    void on_telem_can_receive(const CAN_message_t& msg);
+    void onTelemCANReceive(const CAN_message_t& msg);
 
-    void vcr_recv_switch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis, CANInterfaceType_e interface_type);
+    void vcrRecvSwitch(CANInterfaces_s& interfaces, const CAN_message_t& msg, unsigned long millis, CANInterfaceType_e interface_type);
 
-    void send_all_CAN_msgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
+    void sendAllCANMsgs(CANTXBuffer_t& buffer, FlexCAN_T4_Base* can_interface);
 }; // namespace VCRCANInterfaceImpl
 
 #endif // VCRCANINTERFACEIMPL_H

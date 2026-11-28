@@ -2,7 +2,7 @@
 
 #include "VCRCANInterfaceImpl.hpp"
 
-void VCFInterface::receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis)
+void VCFInterface::receivePedalsMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     PEDALS_SYSTEM_DATA_t pedals_msg;
     Unpack_PEDALS_SYSTEM_DATA_ht_can(&pedals_msg, &msg.buf[0], msg.len);
@@ -31,7 +31,7 @@ void VCFInterface::receive_pedals_message(const CAN_message_t& msg, unsigned lon
     _curr_data.stamped_pedals.last_recv_millis = curr_millis;
 }
 
-void VCFInterface::receive_steering_message(const CAN_message_t& msg, unsigned long curr_millis)
+void VCFInterface::receiveSteeringMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     STEERING_DATA_t steering_msg;
 
@@ -55,7 +55,7 @@ void VCFInterface::receive_steering_message(const CAN_message_t& msg, unsigned l
     _curr_data.stamped_steering.last_recv_millis = curr_millis;
 }
 
-void VCFInterface::receive_dashboard_message(const CAN_message_t& msg, unsigned long curr_millis)
+void VCFInterface::receiveDashboardMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     DASH_INPUT_t dash_msg;
     Unpack_DASH_INPUT_ht_can(&dash_msg, &msg.buf[0], msg.len);
@@ -70,7 +70,7 @@ void VCFInterface::receive_dashboard_message(const CAN_message_t& msg, unsigned 
     _curr_data.dash_input_state.dial_state = static_cast<ControllerMode_e>(dash_msg.dash_dial_mode);
 }
 
-void VCFInterface::receive_front_suspension_message(const CAN_message_t& msg, unsigned long curr_millis)
+void VCFInterface::receiveFrontSuspensionMsg(const CAN_message_t& msg, unsigned long curr_millis)
 {
     FRONT_SUSPENSION_t front_suspension_msg;
     Unpack_FRONT_SUSPENSION_ht_can(&front_suspension_msg, &msg.buf[0], msg.len);
@@ -83,17 +83,17 @@ void VCFInterface::receive_front_suspension_message(const CAN_message_t& msg, un
     _curr_data.front_loadcell_data.valid_FR_sample = true; // or send validities over CAN
 }
 
-void VCFInterface::reset_pedals_heartbeat()
+void VCFInterface::resetPedalsHeartbeat()
 {
     _curr_data.stamped_pedals.heartbeat_ok = true;
 }
 
-void VCFInterface::reset_steering_heartbeat()
+void VCFInterface::resetSteeringHeartbeat()
 {
     _curr_data.stamped_steering.heartbeat_ok = true;
 }
 
-VCFCANInterfaceData_s VCFInterface::get_latest_data() const
+VCFCANInterfaceData_s VCFInterface::getLatestData() const
 {
 
     // only in the situation where the hearbeat has yet to be established or the heartbeat is ok do we re-evaluate the heartbeat.
@@ -113,7 +113,7 @@ VCFCANInterfaceData_s VCFInterface::get_latest_data() const
     return _curr_data;
 }
 
-void VCFInterface::send_buzzer_start_message()
+void VCFInterface::sendBuzzerStartMsg()
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
     ctrl.dash_buzzer_flag = true;
@@ -123,7 +123,7 @@ void VCFInterface::send_buzzer_start_message()
     CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void VCFInterface::send_recalibrate_pedals_message()
+void VCFInterface::sendRecalibratePedalsMsg()
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
     ctrl.dash_buzzer_flag = false;
@@ -133,7 +133,7 @@ void VCFInterface::send_recalibrate_pedals_message()
     CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void VCFInterface::send_recalibrate_steering_message()
+void VCFInterface::sendRecalibrateSteeringMsg()
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
     ctrl.dash_buzzer_flag = false;
@@ -143,7 +143,7 @@ void VCFInterface::send_recalibrate_steering_message()
     CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
+void VCFInterface::enqueueTorqueModeLEDMsg(TorqueLimit_e torque_limit)
 {
     DASHBOARD_BUZZER_CONTROL_t ctrl = {};
     ctrl.dash_buzzer_flag = false;
@@ -153,7 +153,7 @@ void VCFInterface::enqueue_torque_mode_LED_message(TorqueLimit_e torque_limit)
     CAN_util::enqueue_msg(&ctrl, &Pack_DASHBOARD_BUZZER_CONTROL_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
 }
 
-void VCFInterface::enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl)
+void VCFInterface::enqueueVehicleStateMsg(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl)
 {
     CAR_STATES_t state = {};
     state.vehicle_state = static_cast<uint8_t>(vehicle_state);

@@ -15,6 +15,6 @@
 /* Interface and System Data Structs */
 extern VCRData_s vcr_data; // NOLINT
 
-extern unsigned long pulseCount; // NOLINT
+extern unsigned long pulse_count; // NOLINT
 
 #endif /* VCR_GLOBALS */

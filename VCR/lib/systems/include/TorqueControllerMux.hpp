@@ -64,12 +64,12 @@ namespace TC_MUX_DEFAULT_PARAMS
 }; // namespace TC_MUX_DEFAULT_PARAMS
 
 /// @brief the torque controller muxer that can handle live switching between controller modes
-/// @tparam num_controllers the number of controllers that can be switched between. defaults to 5 if
+/// @tparam NumControllers the number of controllers that can be switched between. defaults to 5 if
 /// using TCMuxType.
-template <std::size_t num_controllers>
+template <std::size_t NumControllers>
 class TorqueControllerMux
 {
-    static_assert(num_controllers > 0, "Must create TC mux with at least 1 controller");
+    static_assert(NumControllers > 0, "Must create TC mux with at least 1 controller");
 
   public:
     TorqueControllerMux() = delete;
@@ -90,8 +90,8 @@ class TorqueControllerMux
     /// @param num_motors the number of motors. defaults to 4.
     /// @note TC Mux must be created with at least 1 controller.
     explicit TorqueControllerMux(
-        std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, num_controllers> controller_evals,
-        std::array<bool, num_controllers> mux_bypass_limits,
+        std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, NumControllers> controller_evals,
+        std::array<bool, NumControllers> mux_bypass_limits,
         float max_change_speed = TC_MUX_DEFAULT_PARAMS::MAX_SPEED_FOR_MODE_CHANGE,
         float max_torque_pos_change_delta = TC_MUX_DEFAULT_PARAMS::MAX_TORQUE_DELTA_FOR_MODE_CHANGE,
         float max_power_limit = TC_MUX_DEFAULT_PARAMS::MAX_POWER_LIMIT,
@@ -103,7 +103,7 @@ class TorqueControllerMux
           _max_power_limit(max_power_limit),
           _num_motors(num_motors) {};
 
-    const TorqueControllerMuxStatus_s& get_tc_mux_status() const { return _active_status; }
+    const TorqueControllerMuxStatus_s& getTcMuxStatus() const { return _active_status; }
 
     /// @brief function that evaluates the mux, controllers and gets the active command
     /// @param requested_controller_type the requested controller type from the dial state
@@ -112,12 +112,12 @@ class TorqueControllerMux
     /// @return the active DrivetrainCommand_s to be sent to the drivetrain to command increases and
     /// decreases in torque
     DrivetrainCommand_s
-    get_drivetrain_command(ControllerMode_e requested_controller_type, TorqueLimit_e controller_command_torque_limit, const VCRData_s& input_state);
+    getDrivetrainCommand(ControllerMode_e requested_controller_type, TorqueLimit_e controller_command_torque_limit, const VCRData_s& input_state);
 
   private:
-    std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, num_controllers> _controller_evals;
+    std::array<std::function<DrivetrainCommand_s(const VCRData_s& state, unsigned long curr_millis)>, NumControllers> _controller_evals;
 
-    std::array<bool, num_controllers> _mux_bypass_limits;
+    std::array<bool, NumControllers> _mux_bypass_limits;
 
     std::unordered_map<TorqueLimit_e, float> _torque_limit_map = {
         {TorqueLimit_e::TCMUX_FULL_TORQUE, PhysicalParameters::AMK_MAX_TORQUE},
@@ -130,7 +130,7 @@ class TorqueControllerMux
     size_t _num_motors;
     DrivetrainCommand_s _prev_command = {};
     TorqueControllerMuxStatus_s _active_status = {};
-    TorqueControllerMuxError_e can_switch_controller(
+    TorqueControllerMuxError_e _canSwitchController(
         DrivetrainDynamicReport_s active_drivetrain_data,
         DrivetrainCommand_s previous_controller_command,
         DrivetrainCommand_s desired_controller_out);
@@ -139,7 +139,7 @@ class TorqueControllerMux
     /// @param const DrivetrainCommand_s &command provides the rpm info as a DrivetrainCommand_s
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_positive_speed_limit(const DrivetrainCommand_s& command);
+    DrivetrainCommand_s _applyPositiveSpeedLimit(const DrivetrainCommand_s& command);
 
     /// @brief Ensure torque is at most at the specified limit. If exceeding, then limit it in the
     /// returned DrivetrainCommand_s
@@ -149,7 +149,7 @@ class TorqueControllerMux
     /// experience before it is limited.
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_torque_limit(const DrivetrainCommand_s& command, float max_torque);
+    DrivetrainCommand_s _applyTorqueLimit(const DrivetrainCommand_s& command, float max_torque);
 
     /// @brief Apply power limit (watts) such that the mechanical power of all wheels never exceeds
     /// the preset mechanical power limit. Scales all wheels down to preserve functionality of
@@ -161,8 +161,7 @@ class TorqueControllerMux
     /// @param float max_torque is used to indirectly specifiy the max power
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s
-    _apply_power_limit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain, float power_limit, float max_torque);
+    DrivetrainCommand_s _applyPowerLimit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain, float power_limit, float max_torque);
 
     /// @brief begin limiting regen at noRegenLimitKPH (hardcoded in func) and completely limit
     /// regen at fullRegenLimitKPH (hardcoded in func)
@@ -170,14 +169,14 @@ class TorqueControllerMux
     /// @param const DrivetrainDynamicReport_s &drivetrain_data provides RPMs
     /// @return DrivetrainCommand_s to update the drivetrain command in the getDrivetrainCommand
     /// method
-    DrivetrainCommand_s _apply_regen_limit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain_data, const ACUCoreData_s acu_data);
+    DrivetrainCommand_s _applyRegenLimit(const DrivetrainCommand_s& command, const DrivetrainDynamicReport_s& drivetrain_data, const ACUCoreData_s acu_data);
 };
 
-const int number_of_controllers = 5;
-using TCMuxType = TorqueControllerMux<number_of_controllers>;
+const int NUMBER_OF_CONTROLLERS = 5;
+using TCMuxType = TorqueControllerMux<NUMBER_OF_CONTROLLERS>;
 
-const int number_of_controllers_min_viable = 1;
-using TCMuxTypeMinViable = TorqueControllerMux<number_of_controllers_min_viable>;
+const int NUMBER_OF_CONTROLLERS_MIN_VIABLE = 1;
+using TCMuxTypeMinViable = TorqueControllerMux<NUMBER_OF_CONTROLLERS_MIN_VIABLE>;
 
 #include "TorqueControllerMux.tpp"
 #endif // __TorqueControllerMux_H__

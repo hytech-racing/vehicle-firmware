@@ -37,43 +37,43 @@ class VCFInterface
         _curr_data.stamped_steering.heartbeat_ok = false;
     };
 
-    bool is_start_button_pressed() { return _curr_data.dash_input_state.start_btn_is_pressed; }
+    bool isStartButtonPressed() { return _curr_data.dash_input_state.start_btn_is_pressed; }
 
-    bool is_brake_pressed() { return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
+    bool isBrakePressed() { return _curr_data.stamped_pedals.pedals_data.brake_is_pressed; }
 
-    bool is_drivetrain_reset_pressed() { return _curr_data.dash_input_state.mc_reset_btn_is_pressed; }
+    bool isDrivetrainResetPressed() { return _curr_data.dash_input_state.mc_reset_btn_is_pressed; }
 
-    bool is_recalibrate_pedals_button_pressed() { return _curr_data.dash_input_state.preset_btn_is_pressed; }
+    bool isRecalibratePedalsButtonPressed() { return _curr_data.dash_input_state.preset_btn_is_pressed; }
 
-    bool is_recalibrate_steering_button_pressed() { return _curr_data.dash_input_state.data_btn_is_pressed; }
+    bool isRecalibrateSteeringButtonPressed() { return _curr_data.dash_input_state.data_btn_is_pressed; }
 
-    bool is_pedals_heartbeat_not_ok() { return !_curr_data.stamped_pedals.heartbeat_ok; }
+    bool isPedalsHeartbeatNotOk() { return !_curr_data.stamped_pedals.heartbeat_ok; }
 
-    bool is_steering_heartbeat_not_ok() { return !_curr_data.stamped_steering.heartbeat_ok; }
+    bool isSteeringHeartbeatNotOk() { return !_curr_data.stamped_steering.heartbeat_ok; }
 
-    void reset_pedals_heartbeat();
+    void resetPedalsHeartbeat();
 
-    void reset_steering_heartbeat();
+    void resetSteeringHeartbeat();
 
-    void receive_pedals_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receivePedalsMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_steering_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveSteeringMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_dashboard_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveDashboardMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    void receive_front_suspension_message(const CAN_message_t& msg, unsigned long curr_millis);
+    void receiveFrontSuspensionMsg(const CAN_message_t& msg, unsigned long curr_millis);
 
-    VCFCANInterfaceData_s get_latest_data() const;
+    VCFCANInterfaceData_s getLatestData() const;
 
-    void send_buzzer_start_message();
+    void sendBuzzerStartMsg();
 
-    void send_recalibrate_pedals_message();
+    void sendRecalibratePedalsMsg();
 
-    void send_recalibrate_steering_message();
+    void sendRecalibrateSteeringMsg();
 
-    void enqueue_torque_mode_LED_message(TorqueLimit_e torque_mode);
+    void enqueueTorqueModeLEDMsg(TorqueLimit_e torque_mode);
 
-    void enqueue_vehicle_state_message(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
+    void enqueueVehicleStateMsg(VehicleState_e vehicle_state, DrivetrainState_e drivetrain_state, bool db_is_in_ctrl);
 
   private:
     mutable VCFCANInterfaceData_s _curr_data;

@@ -12,7 +12,7 @@
 
 namespace adc_default_parameters
 {
-    constexpr const unsigned int channels_within_mcp_adc = 8;
+    constexpr const unsigned int CHANNELS_WITHIN_MCP_ADC = 8;
 }
 
 struct ADCPinout_s
@@ -30,10 +30,10 @@ struct ADCChannels_s
     int glv_sense_channel;
     int current_sense_channel;
     int reference_sense_channel;
-    int RL_load_cell_channel;
-    int RR_load_cell_channel;
-    int RL_sus_pot_channel;
-    int RR_sus_pot_channel;
+    int rl_load_cell_channel;
+    int rr_load_cell_channel;
+    int rl_sus_pot_channel;
+    int rr_sus_pot_channel;
 
     /* ADC 1 */
     int thermistor0_channel;
@@ -51,10 +51,10 @@ struct ADCScales_s
     float glv_sense_scale;
     float current_sense_scale;
     float reference_sense_scale;
-    float RL_load_cell_scale;
-    float RR_load_cell_scale;
-    float RL_sus_pot_scale;
-    float RR_sus_pot_scale;
+    float rl_load_cell_scale;
+    float rr_load_cell_scale;
+    float rl_sus_pot_scale;
+    float rr_sus_pot_scale;
 
     float thermistor0_scale;
     float thermistor1_scale;
@@ -73,10 +73,10 @@ struct ADCOffsets_s
     float glv_sense_offset;
     float current_sense_offset;
     float reference_sense_offset;
-    float RL_load_cell_offset;
-    float RR_load_cell_offset;
-    float RL_sus_pot_offset;
-    float RR_sus_pot_offset;
+    float rl_load_cell_offset;
+    float rr_load_cell_offset;
+    float rl_sus_pot_offset;
+    float rr_sus_pot_offset;
 
     float thermistor0_offset;
     float thermistor1_offset;
@@ -109,16 +109,16 @@ class ADCInterface
               MCP_ADC_DEFAULT_SPI_SDO,
               MCP_ADC_DEFAULT_SPI_CLK,
               MCP_ADC_DEFAULT_SPI_SPEED,
-              adc0_scales().data(),
-              adc0_offsets().data()),
+              _adc0Scales().data(),
+              _adc0Offsets().data()),
           _adc1(
               _adc_parameters.pinouts.adc1_spi_cs_pin,
               MCP_ADC_DEFAULT_SPI_SDI,
               MCP_ADC_DEFAULT_SPI_SDO,
               MCP_ADC_DEFAULT_SPI_CLK,
               MCP_ADC_DEFAULT_SPI_SPEED,
-              adc1_scales().data(),
-              adc1_offsets().data()) {};
+              _adc1Scales().data(),
+              _adc1Offsets().data()) {};
 
     /**
      * Init function for pin modes
@@ -128,94 +128,94 @@ class ADCInterface
     /**
      * Samples from ADC0
      */
-    void tick_adc0();
+    void tickADC0();
 
     /**
      * Samples from ADC1
      */
-    void tick_adc1();
+    void tickADC1();
 
-    const ADCInterfaceParams_s& get_adc_params() const;
+    const ADCInterfaceParams_s& getADCParams() const;
 
     /* -------------------- ADC0 -------------------- */
 
     /**
      * @return The reading of the 24V sensor analog channel
      */
-    AnalogConversion_s get_glv() const;
+    AnalogConversion_s getGlv() const;
 
     /**
      * @return The reading of the BSPD current analog channel
      */
-    AnalogConversion_s get_bspd_current() const;
+    AnalogConversion_s getBspdCurrent() const;
 
     /**
      * @return The reading of the BSPD reference current analog channel
      */
-    AnalogConversion_s get_bspd_reference_current() const;
+    AnalogConversion_s getBspdReferenceCurrent() const;
 
     /**
      * @return The reading of the rear left load cell analog channel
      */
-    AnalogConversion_s get_RL_load_cell() const;
+    AnalogConversion_s getRLLoadCell() const;
 
     /**
      * @return The reading of the rear right load cell analog channel
      */
-    AnalogConversion_s get_RR_load_cell() const;
+    AnalogConversion_s getRRLoadCell() const;
 
     /**
      * @return The reading of the rear left suspension potentiometer analog channel
      */
-    AnalogConversion_s get_RL_sus_pot() const;
+    AnalogConversion_s getRLSusPot() const;
 
     /**
      * @return The reading of the rear right suspension potentiometer analog channel
      */
-    AnalogConversion_s get_RR_sus_pot() const;
+    AnalogConversion_s getRRSusPot() const;
 
     /**
      * Update filtered signals based on given alpha
      */
-    void update_filtered_values(float alpha);
+    void updateFilteredValues(float alpha);
 
     /**
      * @return The filtered value of the RL load cell
      */
-    float get_filtered_RL_load_cell() const;
+    float getFilteredRLLoadCell() const;
 
     /**
      * @return The filtered value of the RR load cell
      */
-    float get_filtered_RR_load_cell() const;
+    float getFilteredRRLoadCell() const;
 
     /**
      * @return The filtered value of the RL sus pot
      */
-    float get_filtered_RL_sus_pot() const;
+    float getFilteredRLSusPot() const;
 
     /**
      * @return The filtered value of the RR sus pot
      */
-    float get_filtered_RR_sus_pot() const;
+    float getFilteredRRSusPot() const;
 
     /* -------------------- ADC1 -------------------- */
 
-    AnalogConversion_s get_thermistor_0() const;
+    AnalogConversion_s getThermistor0() const;
 
-    AnalogConversion_s get_thermistor_1() const;
+    AnalogConversion_s getThermistor1() const;
 
-    AnalogConversion_s get_thermistor_2() const;
+    AnalogConversion_s getThermistor2() const;
 
-    AnalogConversion_s get_thermistor_3() const;
+    AnalogConversion_s getThermistor3() const;
 
-    AnalogConversion_s get_thermistor_4() const;
+    AnalogConversion_s getThermistor4() const;
 
-    AnalogConversion_s get_thermistor_5() const;
+    AnalogConversion_s getThermistor5() const;
 
-    AnalogConversion_s get_thermistor_6() const;
+    AnalogConversion_s getThermistor6() const;
 
-    AnalogConversion_s get_thermistor_7() const;
+    AnalogConversion_s getThermistor7() const;
 
     /**
      * Converts the output of the ADC to a temperature in degrees following the function:
@@ -223,34 +223,34 @@ class ADCInterface
      * @param n which thermistor to convert into degrees
      * @return defaults to -1 if incorrect thermistor number is given
      */
-    float get_thermistor_n_degrees_C(int n) const;
+    float getThermistorNDegreesC(int n) const;
 
-    bool is_brake_sense_high() const;
+    bool isBrakeSenseHigh() const;
 
-    bool is_current_sense_high() const;
+    bool isCurrentSenseHigh() const;
 
   private:
     const size_t _digital_high_threshold = 2048;
 
     ADCInterfaceParams_s _adc_parameters = {};
 
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc0;
-    MCP_ADC<adc_default_parameters::channels_within_mcp_adc> _adc1;
+    MCP_ADC<adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc0;
+    MCP_ADC<adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc1;
 
-    float _RL_load_cell_filtered;
-    float _RR_load_cell_filtered;
-    float _RL_sus_pot_filtered;
-    float _RR_sus_pot_filtered;
+    float _rl_load_cell_filtered;
+    float _rr_load_cell_filtered;
+    float _rl_sus_pot_filtered;
+    float _rr_sus_pot_filtered;
 
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc0_offsets();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_scales();
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> adc1_offsets();
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc0Scales();
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc0Offsets();
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc1Scales();
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> _adc1Offsets();
 
     /**
      * @return updated filtered value based on given alpha, previous value, and new value
      */
-    static float _apply_iir_filter(float alpha, float old_value, float new_value);
+    static float _applyIIRFilter(float alpha, float old_value, float new_value);
 };
 
 using ADCInterfaceInstance = etl::singleton<ADCInterface>;

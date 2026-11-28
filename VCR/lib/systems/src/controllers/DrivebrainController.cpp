@@ -6,8 +6,8 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s& state, unsig
     auto db_telem_input = state.interface_data.latest_drivebrain_telem_command;
     auto db_auxillary_input = state.interface_data.latest_drivebrain_auxillary_command;
 
-    _check_drivebrain_command_timing_failure(db_telem_input, curr_millis, _telem_latency_info);
-    _check_drivebrain_command_timing_failure(db_auxillary_input, curr_millis, _aux_latency_info);
+    _checkDrivebrainCommandTimingFailure(db_telem_input, curr_millis, _telem_latency_info);
+    _checkDrivebrainCommandTimingFailure(db_auxillary_input, curr_millis, _aux_latency_info);
     bool drivebrain_reinit_button_pressed = state.interface_data.dash_input_state.mc_reset_btn_is_pressed;
 
     if (drivebrain_reinit_button_pressed && (!_should_run_controller))
@@ -59,7 +59,7 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s& state, unsig
     return output;
 }
 
-void DrivebrainController::_check_drivebrain_command_timing_failure(
+void DrivebrainController::_checkDrivebrainCommandTimingFailure(
     StampedDrivetrainCommand_s command,
     unsigned long curr_millis,
     MessageLatencyInfo_s& latency_info)

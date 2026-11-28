@@ -34,14 +34,14 @@
 /**
  * Init Functions - to be called in setup@
  */
-void initialize_all_interfaces();
+void initializeAllInterfaces();
 
 /**
  * The read_adc0 task will command adc0 to sample all eight channels, convert the outputs, and
  * store them in structs defined in shared_firmware_types. This function relies on adc_0 being
  * defined in VCRGlobals.h.
  */
-::HT_TASK::TaskResponse run_read_adc0_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse runReadADC0Task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * NOTE: These channels are UNUSED BY DEFAULT and exist ONLY FOR TESTING. You may edit this
@@ -51,92 +51,92 @@ void initialize_all_interfaces();
  * store them in a struct defined in shared_firmware_types. This function relies on adc_1 being
  * defined in VCRGlobals.h.
  */
-::HT_TASK::TaskResponse run_read_adc1_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse runReadADC1Task(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * @brief Task will tick the maintenance panel ADC (ADS112U04) state machine
  * @note Non-blocking: each tick advances one step, so a full 4-channel sweep takes several ticks
  *       (~70 ms conversion wait per channel at 20 SPS)
  */
-::HT_TASK::TaskResponse run_read_mpb_adc_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse runReadMpbADCTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * This task will tick the AMS system and will update the software shutdown if necessary.
  */
-::HT_TASK::TaskResponse update_acu_heartbeat(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse updateACUHeartbeat(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * This task will fetch the watchdog state from WatchdogSystem and write it to the watchdog pin.
  */
-::HT_TASK::TaskResponse run_kick_watchdog(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse runKickWatchdog(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * Uses the I2C IOExpander to sense the shutdown line.
  */
-::HT_TASK::TaskResponse read_ioexpander(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse readIOExpander(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * This task reads the received pedals data and determines whether to turn on the brake light or not.
  */
-::HT_TASK::TaskResponse run_update_brakelight_task(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse runUpdateBrakelightTask(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 
-::HT_TASK::TaskResponse enable_motor_cooling(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enableMotorCooling(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
-::HT_TASK::TaskResponse enable_inverter_cooling(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enableInverterCooling(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * Handles sending of suspension CAN message data (load cell and shock pot data)
  */
-::HT_TASK::TaskResponse enqueue_suspension_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueSuspensionCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Handles sending flowmeter CAN message data
  */
-::HT_TASK::TaskResponse enqueue_flowmeter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT
+::HT_TASK::TaskResponse enqueueFlowmeterCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT
 
 /**
  * Handles sending controls info for drivebrain (latencies and stuff)
  */
-::HT_TASK::TaskResponse enqueue_controls_CAN_data(const unsigned long& sysMicro, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse enqueueControlsCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 /**
  * Handles sending of coolant temperature data
  */
-::HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueCoolantTempCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Enqueues VCR_FW_VERSION (git hash + main/master flag) on TELEM
  */
-::HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Enqueues all inverter CAN data. This will add all inverter data to the CAN queue, and then
  * the send_all_data task will empty the queue.
  */
-::HT_TASK::TaskResponse enqueue_inverter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueInverterCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Enqueues all data needed for dashboard.
  */
-::HT_TASK::TaskResponse enqueue_dashboard_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse enqueueDashboardCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Sends all CAN data from the TX buffers of both telem and inverter CAN lines.
  */
-::HT_TASK::TaskResponse handle_send_all_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+::HT_TASK::TaskResponse handleSendAllCANData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized CAN)
 
 /**
  * Task for sending all ethernet data
  */
-::HT_TASK::TaskResponse handle_send_VCR_ethernet_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized VCR)
+::HT_TASK::TaskResponse handleSendVCREthernetData(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info); // NOLINT (capitalized VCR)
 
-::HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+::HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
 
 namespace async_tasks
 {
-    ::HT_TASK::TaskResponse handle_async_main(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
-    VCRInterfaceData_s gather_latest_interface_data(CANInterfaces_s& can_interfaces);
+    ::HT_TASK::TaskResponse handleAsyncMain(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info);
+    VCRInterfaceData_s gatherLatestInterfaceData(CANInterfaces_s& can_interfaces);
 } // namespace async_tasks
 
 

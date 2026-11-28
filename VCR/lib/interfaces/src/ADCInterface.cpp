@@ -7,54 +7,54 @@ void ADCInterface::init()
     pinMode(_adc_parameters.pinouts.current_high_sense_pin, INPUT);
 }
 
-void ADCInterface::tick_adc0()
+void ADCInterface::tickADC0()
 {
     _adc0.tick();
 }
 
-void ADCInterface::tick_adc1()
+void ADCInterface::tickADC1()
 {
     _adc1.tick();
 }
 
-const ADCInterfaceParams_s& ADCInterface::get_adc_params() const
+const ADCInterfaceParams_s& ADCInterface::getADCParams() const
 {
     return _adc_parameters;
 }
 
-std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc0_scales()
+std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> ADCInterface::_adc0Scales()
 {
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> scales = {};
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> scales = {};
 
     scales.at(_adc_parameters.channels.glv_sense_channel) = _adc_parameters.scales.glv_sense_scale;
     scales.at(_adc_parameters.channels.current_sense_channel) = _adc_parameters.scales.current_sense_scale;
     scales.at(_adc_parameters.channels.reference_sense_channel) = _adc_parameters.scales.reference_sense_scale;
-    scales.at(_adc_parameters.channels.RL_load_cell_channel) = _adc_parameters.scales.RL_load_cell_scale;
-    scales.at(_adc_parameters.channels.RR_load_cell_channel) = _adc_parameters.scales.RR_load_cell_scale;
-    scales.at(_adc_parameters.channels.RL_sus_pot_channel) = _adc_parameters.scales.RL_sus_pot_scale;
-    scales.at(_adc_parameters.channels.RR_sus_pot_channel) = _adc_parameters.scales.RR_sus_pot_scale;
+    scales.at(_adc_parameters.channels.rl_load_cell_channel) = _adc_parameters.scales.rl_load_cell_scale;
+    scales.at(_adc_parameters.channels.rr_load_cell_channel) = _adc_parameters.scales.rr_load_cell_scale;
+    scales.at(_adc_parameters.channels.rl_sus_pot_channel) = _adc_parameters.scales.rl_sus_pot_scale;
+    scales.at(_adc_parameters.channels.rr_sus_pot_channel) = _adc_parameters.scales.rr_sus_pot_scale;
 
     return scales;
 }
 
-std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc0_offsets()
+std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> ADCInterface::_adc0Offsets()
 {
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> offsets = {};
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> offsets = {};
 
     offsets.at(_adc_parameters.channels.glv_sense_channel) = _adc_parameters.offsets.glv_sense_offset;
     offsets.at(_adc_parameters.channels.current_sense_channel) = _adc_parameters.offsets.current_sense_offset;
     offsets.at(_adc_parameters.channels.reference_sense_channel) = _adc_parameters.offsets.reference_sense_offset;
-    offsets.at(_adc_parameters.channels.RL_load_cell_channel) = _adc_parameters.offsets.RL_load_cell_offset;
-    offsets.at(_adc_parameters.channels.RR_load_cell_channel) = _adc_parameters.offsets.RR_load_cell_offset;
-    offsets.at(_adc_parameters.channels.RL_sus_pot_channel) = _adc_parameters.offsets.RL_sus_pot_offset;
-    offsets.at(_adc_parameters.channels.RR_sus_pot_channel) = _adc_parameters.offsets.RR_sus_pot_offset;
+    offsets.at(_adc_parameters.channels.rl_load_cell_channel) = _adc_parameters.offsets.rl_load_cell_offset;
+    offsets.at(_adc_parameters.channels.rr_load_cell_channel) = _adc_parameters.offsets.rr_load_cell_offset;
+    offsets.at(_adc_parameters.channels.rl_sus_pot_channel) = _adc_parameters.offsets.rl_sus_pot_offset;
+    offsets.at(_adc_parameters.channels.rr_sus_pot_channel) = _adc_parameters.offsets.rr_sus_pot_offset;
 
     return offsets;
 }
 
-std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc1_scales()
+std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> ADCInterface::_adc1Scales()
 {
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> scales = {};
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> scales = {};
 
     scales.at(_adc_parameters.channels.thermistor0_channel) = _adc_parameters.scales.thermistor0_scale;
     scales.at(_adc_parameters.channels.thermistor1_channel) = _adc_parameters.scales.thermistor1_scale;
@@ -68,9 +68,9 @@ std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface:
     return scales;
 }
 
-std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface::adc1_offsets()
+std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> ADCInterface::_adc1Offsets()
 {
-    std::array<float, adc_default_parameters::channels_within_mcp_adc> offsets = {};
+    std::array<float, adc_default_parameters::CHANNELS_WITHIN_MCP_ADC> offsets = {};
 
     offsets.at(_adc_parameters.channels.thermistor0_channel) = _adc_parameters.offsets.thermistor0_offset;
     offsets.at(_adc_parameters.channels.thermistor1_channel) = _adc_parameters.offsets.thermistor1_offset;
@@ -84,152 +84,152 @@ std::array<float, adc_default_parameters::channels_within_mcp_adc> ADCInterface:
     return offsets;
 }
 
-AnalogConversion_s ADCInterface::get_glv() const
+AnalogConversion_s ADCInterface::getGlv() const
 {
     return _adc0.data.conversions.at(_adc_parameters.channels.glv_sense_channel);
 }
 
-AnalogConversion_s ADCInterface::get_bspd_current() const
+AnalogConversion_s ADCInterface::getBspdCurrent() const
 {
     return _adc0.data.conversions.at(_adc_parameters.channels.current_sense_channel);
 }
 
-AnalogConversion_s ADCInterface::get_bspd_reference_current() const
+AnalogConversion_s ADCInterface::getBspdReferenceCurrent() const
 {
     return _adc0.data.conversions.at(_adc_parameters.channels.reference_sense_channel);
 }
 
-AnalogConversion_s ADCInterface::get_RL_load_cell() const
+AnalogConversion_s ADCInterface::getRLLoadCell() const
 {
-    return _adc0.data.conversions.at(_adc_parameters.channels.RL_load_cell_channel);
+    return _adc0.data.conversions.at(_adc_parameters.channels.rl_load_cell_channel);
 }
 
-AnalogConversion_s ADCInterface::get_RR_load_cell() const
+AnalogConversion_s ADCInterface::getRRLoadCell() const
 {
-    return _adc0.data.conversions.at(_adc_parameters.channels.RR_load_cell_channel);
+    return _adc0.data.conversions.at(_adc_parameters.channels.rr_load_cell_channel);
 }
 
-AnalogConversion_s ADCInterface::get_RL_sus_pot() const
+AnalogConversion_s ADCInterface::getRLSusPot() const
 {
-    return _adc0.data.conversions.at(_adc_parameters.channels.RL_sus_pot_channel);
+    return _adc0.data.conversions.at(_adc_parameters.channels.rl_sus_pot_channel);
 }
 
-AnalogConversion_s ADCInterface::get_RR_sus_pot() const
+AnalogConversion_s ADCInterface::getRRSusPot() const
 {
-    return _adc0.data.conversions.at(_adc_parameters.channels.RR_sus_pot_channel);
+    return _adc0.data.conversions.at(_adc_parameters.channels.rr_sus_pot_channel);
 }
 
-void ADCInterface::update_filtered_values(float alpha)
+void ADCInterface::updateFilteredValues(float alpha)
 {
-    _RL_load_cell_filtered = _apply_iir_filter(alpha, _RL_load_cell_filtered, get_RL_load_cell().conversion);
-    _RR_load_cell_filtered = _apply_iir_filter(alpha, _RR_load_cell_filtered, get_RR_load_cell().conversion);
-    _RL_sus_pot_filtered = _apply_iir_filter(alpha, _RL_sus_pot_filtered, get_RL_sus_pot().conversion);
-    _RR_sus_pot_filtered = _apply_iir_filter(alpha, _RR_sus_pot_filtered, get_RR_sus_pot().conversion);
+    _rl_load_cell_filtered = _applyIIRFilter(alpha, _rl_load_cell_filtered, getRLLoadCell().conversion);
+    _rr_load_cell_filtered = _applyIIRFilter(alpha, _rr_load_cell_filtered, getRRLoadCell().conversion);
+    _rl_sus_pot_filtered = _applyIIRFilter(alpha, _rl_sus_pot_filtered, getRLSusPot().conversion);
+    _rr_sus_pot_filtered = _applyIIRFilter(alpha, _rr_sus_pot_filtered, getRRSusPot().conversion);
 }
 
-float ADCInterface::get_filtered_RL_load_cell() const
+float ADCInterface::getFilteredRLLoadCell() const
 {
-    return _RL_load_cell_filtered;
+    return _rl_load_cell_filtered;
 }
 
-float ADCInterface::get_filtered_RR_load_cell() const
+float ADCInterface::getFilteredRRLoadCell() const
 {
-    return _RR_load_cell_filtered;
+    return _rr_load_cell_filtered;
 }
 
-float ADCInterface::get_filtered_RL_sus_pot() const
+float ADCInterface::getFilteredRLSusPot() const
 {
-    return _RL_sus_pot_filtered;
+    return _rl_sus_pot_filtered;
 }
 
-float ADCInterface::get_filtered_RR_sus_pot() const
+float ADCInterface::getFilteredRRSusPot() const
 {
-    return _RR_sus_pot_filtered;
+    return _rr_sus_pot_filtered;
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_0() const
+AnalogConversion_s ADCInterface::getThermistor0() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor0_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_1() const
+AnalogConversion_s ADCInterface::getThermistor1() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor1_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_2() const
+AnalogConversion_s ADCInterface::getThermistor2() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor2_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_3() const
+AnalogConversion_s ADCInterface::getThermistor3() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor3_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_4() const
+AnalogConversion_s ADCInterface::getThermistor4() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor4_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_5() const
+AnalogConversion_s ADCInterface::getThermistor5() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor5_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_6() const
+AnalogConversion_s ADCInterface::getThermistor6() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor6_channel);
 }
 
-AnalogConversion_s ADCInterface::get_thermistor_7() const
+AnalogConversion_s ADCInterface::getThermistor7() const
 {
     return _adc1.data.conversions.at(_adc_parameters.channels.thermistor7_channel);
 }
 
-float ADCInterface::get_thermistor_n_degrees_C(int n) const
+float ADCInterface::getThermistorNDegreesC(int n) const
 {
     int thermistor_reading;
     switch (n)
     {
     case 0:
     {
-        thermistor_reading = ADCInterface::get_thermistor_0().raw;
+        thermistor_reading = ADCInterface::getThermistor0().raw;
         break;
     }
     case 1:
     {
-        thermistor_reading = ADCInterface::get_thermistor_1().raw;
+        thermistor_reading = ADCInterface::getThermistor1().raw;
         break;
     }
     case 2:
     {
-        thermistor_reading = ADCInterface::get_thermistor_2().raw;
+        thermistor_reading = ADCInterface::getThermistor2().raw;
         break;
     }
     case 3:
     {
-        thermistor_reading = ADCInterface::get_thermistor_3().raw;
+        thermistor_reading = ADCInterface::getThermistor3().raw;
         break;
     }
     case 4:
     {
-        thermistor_reading = ADCInterface::get_thermistor_4().raw;
+        thermistor_reading = ADCInterface::getThermistor4().raw;
         break;
     }
     case 5:
     {
-        thermistor_reading = ADCInterface::get_thermistor_5().raw;
+        thermistor_reading = ADCInterface::getThermistor5().raw;
         break;
     }
     case 6:
     {
-        thermistor_reading = ADCInterface::get_thermistor_6().raw;
+        thermistor_reading = ADCInterface::getThermistor6().raw;
         break;
     }
     case 7:
     {
-        thermistor_reading = ADCInterface::get_thermistor_7().raw;
+        thermistor_reading = ADCInterface::getThermistor7().raw;
         break;
     }
     default:
@@ -241,17 +241,17 @@ float ADCInterface::get_thermistor_n_degrees_C(int n) const
     return _adc_parameters.offsets.coolant_temp_offset + (_adc_parameters.scales.coolant_temp_scale * log(thermistor_reading));
 }
 
-bool ADCInterface::is_brake_sense_high() const
+bool ADCInterface::isBrakeSenseHigh() const
 {
     return analogRead(_adc_parameters.pinouts.brake_high_sense_pin) > _digital_high_threshold;
 }
 
-bool ADCInterface::is_current_sense_high() const
+bool ADCInterface::isCurrentSenseHigh() const
 {
     return analogRead(_adc_parameters.pinouts.brake_high_sense_pin) > _digital_high_threshold;
 }
 
-float ADCInterface::_apply_iir_filter(float alpha, float old_value, float new_value)
+float ADCInterface::_applyIIRFilter(float alpha, float old_value, float new_value)
 {
     return (alpha * new_value) + (1.0f - alpha) * old_value;
 }

@@ -22,7 +22,7 @@
 
 
 /**
- * When user calls evaluate_drivetrain(), this is part of the returned status to
+ * When user calls evaluateDrivetrain(), this is part of the returned status to
  * indicate if the command was successful or invalid
  */
 enum class DrivetrainCmdResponse_e
@@ -86,17 +86,17 @@ class DrivetrainSystem
      * Functions for VSM state transitions (VSM needs to know drivetrain's status to trigger its
      * state transitions).
      */
-    bool hv_over_threshold();
-    bool drivetrain_error_present();
-    bool drivetrain_ready();
-    void reset_dt_error();
+    bool hvOverThreshold();
+    bool drivetrainErrorPresent();
+    bool drivetrainReady();
+    void resetDtError();
 
     /**
      * Drivetrain state machine (DSM) functions
      */
-    DrivetrainStatus_s evaluate_drivetrain(CmdVariant cmd);
-    DrivetrainState_e get_state() const;
-    DrivetrainStatus_s get_status() const;
+    DrivetrainStatus_s evaluateDrivetrain(CmdVariant cmd);
+    DrivetrainState_e getState() const;
+    DrivetrainStatus_s getStatus() const;
 
     struct InverterFuncts_s
     {
@@ -116,17 +116,17 @@ class DrivetrainSystem
     /**
      * Internal functions for handling DSM state transitions.
      */
-    bool _check_inverter_flags(std::function<bool(const InverterStatus_s&)> flag_check_func);
-    bool _drivetrain_active(float min_active_rpm);
-    void _set_state(DrivetrainState_e state);
-    void _set_drivetrain_disabled();
-    void _set_drivetrain_keepalive_idle();
-    void _set_enable_drivetrain_hv();
-    void _set_enable_drivetrain();
-    void _set_drivetrain_error_reset();
-    void _set_drivetrain_command(DrivetrainCommand_s cmd);
+    bool _checkInverterFlags(std::function<bool(const InverterStatus_s&)> flag_check_func);
+    bool _drivetrainActive(float min_active_rpm);
+    void _setState(DrivetrainState_e state);
+    void _setDrivetrainDisabled();
+    void _setDrivetrainKeepaliveIdle();
+    void _setEnableDrivetrainHv();
+    void _setEnableDrivetrain();
+    void _setDrivetrainErrorReset();
+    void _setDrivetrainCommand(DrivetrainCommand_s cmd);
 
-    DrivetrainState_e _evaluate_state_machine(CmdVariant cmd);
+    DrivetrainState_e _evaluateStateMachine(CmdVariant cmd);
     DrivetrainState_e _state;
     DrivetrainStatus_s _status;
 

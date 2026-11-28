@@ -5,9 +5,9 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
 {
     DrivetrainCommand_s out = {{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}};
 
-    const PedalsSystemData_s& pedalsData = vcr_data.interface_data.recvd_pedals_data.pedals_data;
+    const PedalsSystemData_s& pedals_data = vcr_data.interface_data.recvd_pedals_data.pedals_data;
 
-    int16_t brake_torque_req = static_cast<int16_t>(pedalsData.brake_percent * PhysicalParameters::MAX_REGEN_TORQUE);
+    int16_t brake_torque_req = static_cast<int16_t>(pedals_data.brake_percent * PhysicalParameters::MAX_REGEN_TORQUE);
 
     float max_speed = 0;
     veh_vec<speed_rpm> measured_speeds = vcr_data.system_data.drivetrain_data.measuredSpeeds;
@@ -31,9 +31,9 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
         _time_of_launch = curr_millis;
 
         // check speed is 0 and pedals not pressed
-        if ((pedalsData.accel_percent < LaunchControllerParams::launch_ready_accel_threshold)
-            && (pedalsData.brake_percent < LaunchControllerParams::launch_ready_brake_threshold)
-            && (max_speed < LaunchControllerParams::launch_ready_speed_threshold))
+        if ((pedals_data.accel_percent < LaunchControllerParams::LAUNCH_READY_ACCEL_THRESHOLD)
+            && (pedals_data.brake_percent < LaunchControllerParams::LAUNCH_READY_BRAKE_THRESHOLD)
+            && (max_speed < LaunchControllerParams::LAUNCH_READY_SPEED_THRESHOLD))
         {
             _launch_state = LaunchStates_e::LAUNCH_READY;
         }
@@ -52,12 +52,12 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
         _time_of_launch = curr_millis;
 
         // check speed is 0 and brake not pressed
-        if ((pedalsData.brake_percent >= LaunchControllerParams::launch_ready_brake_threshold)
-            || (max_speed >= LaunchControllerParams::launch_ready_speed_threshold))
+        if ((pedals_data.brake_percent >= LaunchControllerParams::LAUNCH_READY_BRAKE_THRESHOLD)
+            || (max_speed >= LaunchControllerParams::LAUNCH_READY_SPEED_THRESHOLD))
         {
             _launch_state = LaunchStates_e::LAUNCH_NOT_READY;
         }
-        else if (pedalsData.accel_percent >= LaunchControllerParams::launch_go_accel_threshold)
+        else if (pedals_data.accel_percent >= LaunchControllerParams::LAUNCH_GO_ACCEL_THRESHOLD)
         {
             _launch_state = LaunchStates_e::LAUNCHING;
         }
@@ -68,13 +68,13 @@ DrivetrainCommand_s SimpleLaunchController::evaluate(const VCRData_s& vcr_data, 
     {
         // use brackets to ignore 'cross initialization' of secs_since_launch
         // check accel below launch threshold and brake above
-        if ((pedalsData.accel_percent <= LaunchControllerParams::launch_stop_accel_threshold)
-            || (pedalsData.brake_percent >= LaunchControllerParams::launch_ready_brake_threshold))
+        if ((pedals_data.accel_percent <= LaunchControllerParams::LAUNCH_STOP_ACCEL_THRESHOLD)
+            || (pedals_data.brake_percent >= LaunchControllerParams::LAUNCH_READY_BRAKE_THRESHOLD))
         {
             _launch_state = LaunchStates_e::LAUNCH_NOT_READY;
         }
 
-        _launch_speed_target_rpm = calc_launch_algo(curr_millis);
+        _launch_speed_target_rpm = _calcLaunchAlgo(curr_millis);
 
         out.torque_limits.FL = PhysicalParameters::AMK_MAX_TORQUE;
         out.torque_limits.FR = PhysicalParameters::AMK_MAX_TORQUE;

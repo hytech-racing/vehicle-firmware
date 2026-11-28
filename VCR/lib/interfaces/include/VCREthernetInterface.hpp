@@ -32,7 +32,7 @@ class VCREthernetInterface
   public:
     VCREthernetInterface() = default;
 
-    void init_ethernet_device();
+    void initEthernetDevice();
 
     /**
      * Function to transform our struct from shared_data_types into the protoc struct hytech_msgs_VCRData_s.
@@ -40,9 +40,9 @@ class VCREthernetInterface
      * @param
      * @return A populated instance of the outgoing protoc struct.
      */
-    hytech_msgs_VCRData_s make_vcr_data_msg(
+    hytech_msgs_VCRData_s makeVCRDataMsg(
         const ADCInterface& adc_interface,
-        DrivetrainDynamicReport_s& DrivetrainData,
+        DrivetrainDynamicReport_s& drivetrain_data,
         const VCFInterface& vcf_interface,
         const VehicleStateMachine& vehicle_state_machine,
         const DrivetrainSystem& drivetrain_system,
@@ -61,7 +61,7 @@ class VCREthernetInterface
      *
      * @post After this function completes, shared_state will have updated contents of ACUAllData.
      */
-    void receive_pb_msg_db(const hytech_msgs_MCUCommandData& msg_in, VCRData_s& shared_state, unsigned long curr_millis);
+    void receivePbMsgDB(const hytech_msgs_MCUCommandData& msg_in, VCRData_s& shared_state, unsigned long curr_millis);
 
     /**
      * Function to take a populated protoc struct from VCF and update the VCR state.
@@ -71,7 +71,7 @@ class VCREthernetInterface
      *
      * @post After this function completes, shared_state will have updated contents of ACUAllData.
      */
-    void receive_pb_msg_vcf(const hytech_msgs_VCFData_s& msg_in, VCRData_s& shared_state, unsigned long curr_millis);
+    void receivePbMsgVCF(const hytech_msgs_VCFData_s& msg_in, VCRData_s& shared_state, unsigned long curr_millis);
 
     /**
      * Helper function to copy an instance of InverterData_s to the protoc struct hytech_msgs_InverterData_s.
@@ -79,7 +79,7 @@ class VCREthernetInterface
      * @param destination The destination protoc struct.
      * @post The destination struct will be populated with the data from original.
      */
-    void copy_inverter_data(const InverterFeedbackData_s& original, hytech_msgs_InverterData_s& destination);
+    void copyInverterData(const InverterFeedbackData_s& original, hytech_msgs_InverterData_s& destination);
 
     /**
      * Helper function to copy veh_vec data.
@@ -88,8 +88,8 @@ class VCREthernetInterface
      * @param destination A reference to an unpopulated instance of veh_vec.
      * @post The destination veh_vec will be populated with the data from the original.
      */
-    template <typename from_T, typename to_T>
-    void copy_veh_vec_members(const from_T& from, to_T& to)
+    template <typename FromT, typename ToT>
+    void copyVehVecMembers(const FromT& from, ToT& to)
     {
         to.FL = from.FL;
         to.FR = from.FR;
@@ -97,12 +97,12 @@ class VCREthernetInterface
         to.RR = from.RR;
     };
 
-    EthernetUDP* get_vcr_data_send_socket() { return &vcr_data_send_socket; }
+    EthernetUDP* getVCRDataSendSocket() { return &_vcr_data_send_socket; }
 
   private:
     /* Ethernet Sockets */
-    EthernetUDP vcr_data_send_socket;
-    EthernetUDP vcf_data_recv_socket;
+    EthernetUDP _vcr_data_send_socket;
+    EthernetUDP _vcf_data_recv_socket;
 };
 
 using VCREthernetInterfaceInstance = etl::singleton<VCREthernetInterface>;
