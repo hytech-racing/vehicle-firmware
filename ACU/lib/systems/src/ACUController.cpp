@@ -10,10 +10,10 @@ void ACUController::init(TimeMs system_start_time, Volt pack_voltage)
     _acu_state.last_time_pack_uv_fault_not_present = system_start_time;
     _acu_state.last_time_invalid_packet_present = system_start_time;
     _acu_state.prev_bms_time_stamp = system_start_time;
-    _acu_state.SoC = -1;
+    _acu_state.state_of_charge = -1;
     _acu_state.lifetime_ah_throughput = 0.0f;
-    _acu_state.SoH = 1.0f;
-    _acu_state.SoE_percentage = 0.0f;
+    _acu_state.state_of_health = 1.0f;
+    _acu_state.state_of_energy_percentage = 0.0f;
     _acu_state.remaining_pack_wh = 0.0f;
     _acu_state.balancing_enabled = false;
     _acu_state.high_side_contactor_welded = false;
@@ -25,7 +25,7 @@ void ACUController::restore_lifetime_throughput(double restored_ah)
 {
     // Restore the persisted accumulator and recompute SoH so it is valid before the first tick.
     _acu_state.lifetime_ah_throughput = fmax(0.0, restored_ah);
-    _acu_state.SoH = compute_soh_from_throughput(_acu_state.lifetime_ah_throughput);
+    _acu_state.state_of_health = compute_soh_from_throughput(_acu_state.lifetime_ah_throughput);
 }
 
 ACUControllerData_s ACUController::evaluate_accumulator(
@@ -45,19 +45,21 @@ ACUControllerData_s ACUController::evaluate_accumulator(
     }
 
     Volt min_cell_voltage = input_state.min_cell_voltage;
-    _acu_state.SoC = get_state_of_charge(em_current, current_millis - _acu_state.prev_bms_time_stamp, min_cell_voltage, current_millis, voltage_is_fresh);
-    _acu_state.V1 = _soc_ekf.get_voltage();
+    _acu_state.state_of_charge =
+        get_state_of_charge(em_current, current_millis - _acu_state.prev_bms_time_stamp, min_cell_voltage, current_millis, voltage_is_fresh);
+    _acu_state.v1 = _soc_ekf.get_voltage();
 
     // State of Health via Ah throughput model
     float dt = static_cast<float>(current_millis - _acu_state.prev_bms_time_stamp) / _ms_to_seconds;
     double ah_step = (fabs(static_cast<double>(em_current)) * static_cast<double>(dt)) / _seconds_per_hour;
     _acu_state.lifetime_ah_throughput += ah_step;
 
-    _acu_state.SoH = compute_soh_from_throughput(_acu_state.lifetime_ah_throughput);
+    _acu_state.state_of_health = compute_soh_from_throughput(_acu_state.lifetime_ah_throughput);
 
     // State of Energy mapped from EKF SoC estimate
-    _acu_state.SoE_percentage = _soc_ekf.get_soe_percentage();
-    _acu_state.remaining_pack_wh = (_acu_state.SoE_percentage / 100.0f) * (soc_ekf_constants::TOTAL_USABLE_WH_PER_CELL_3C * _acu_state.SoH) * NUM_CELLS;
+    _acu_state.state_of_energy_percentage = _soc_ekf.get_soe_percentage();
+    _acu_state.remaining_pack_wh =
+        (_acu_state.state_of_energy_percentage / 100.0f) * (soc_ekf_constants::TOTAL_USABLE_WH_PER_CELL_3C * _acu_state.state_of_health) * NUM_CELLS;
 
     // Cell balancing calculations
     bool previously_balancing = _acu_state.balancing_enabled;
@@ -187,7 +189,7 @@ float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_m
     {
         if (!voltage_is_fresh)
         {
-            return _acu_state.SoC;
+            return _acu_state.state_of_charge;
         }
         if (min_cell_voltage < acu_controller_default_parameters::MIN_CELL_VOLTAGE_FOR_SOC)
         {
@@ -197,8 +199,8 @@ float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_m
         {
             _soc_ekf.init(min_cell_voltage);
             _ekf_initialized = true;
-            _acu_state.SoC = _soc_ekf.get_soc();
-            return _acu_state.SoC;
+            _acu_state.state_of_charge = _soc_ekf.get_soc();
+            return _acu_state.state_of_charge;
         }
     }
 
@@ -221,10 +223,10 @@ float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_m
         {
             if (voltage_is_fresh)
             {
-                _acu_state.SoC = _get_soc_from_voltage(min_cell_voltage);
-                _soc_ekf.reset_soc(_acu_state.SoC);
+                _acu_state.state_of_charge = _get_soc_from_voltage(min_cell_voltage);
+                _soc_ekf.reset_soc(_acu_state.state_of_charge);
 
-                return _acu_state.SoC;
+                return _acu_state.state_of_charge;
             }
         }
     }
@@ -233,10 +235,10 @@ float ACUController::get_state_of_charge(float em_current, uint32_t delta_time_m
         _acu_state.first_zero_current_time_stamp = 0;
     }
 
-    EKFState_s ekf_state = _soc_ekf.update(em_current, min_cell_voltage, dt, voltage_is_fresh, _acu_state.SoH);
-    _acu_state.SoC = ekf_state.soc;
+    EKFState_s ekf_state = _soc_ekf.update(em_current, min_cell_voltage, dt, voltage_is_fresh, _acu_state.state_of_health);
+    _acu_state.state_of_charge = ekf_state.soc;
 
-    return _acu_state.SoC;
+    return _acu_state.state_of_charge;
 }
 
 

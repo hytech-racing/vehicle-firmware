@@ -50,7 +50,7 @@ struct AnalogConversionPacket_s
  * the four corners of the car.
  */
 template <typename T>
-struct veh_vec
+struct VehVec_s
 {
   public:
     T fl = {};
@@ -59,8 +59,8 @@ struct veh_vec
     T rr = {};
 
   public:
-    veh_vec() {};
-    veh_vec(T fl_value, T fr_value, T rl_value, T rr_value)
+    VehVec_s() {};
+    VehVec_s(T fl_value, T fr_value, T rl_value, T rr_value)
     {
         fl = fl_value;
         fr = fr_value;
@@ -69,7 +69,7 @@ struct veh_vec
     }
 
     /// @brief copy values to array in FL, FR, RL, RR order
-    void copy_to_arr(T (&arr_out)[4])
+    void copyToArr(T (&arr_out)[4])
     {
         arr_out[0] = fl;
         arr_out[1] = fr;
@@ -77,7 +77,7 @@ struct veh_vec
         arr_out[3] = rr;
     }
 
-    std::array<T, 4> as_array() { return {fl, fr, rl, rr}; }
+    std::array<T, 4> asArray() { return {fl, fr, rl, rr}; }
 };
 
 struct TimestampedData_s
@@ -89,7 +89,7 @@ struct TimestampedData_s
 template <typename T>
 struct StampedVehVec : TimestampedData_s
 {
-    veh_vec<T> veh_vec_data;
+    VehVec_s<T> veh_vec_data;
 };
 
 struct FWVersionInfo
@@ -100,7 +100,7 @@ struct FWVersionInfo
 };
 
 template <typename T>
-struct xyz_vec
+struct XYZVec_s
 {
     T x;
     T y;
@@ -108,7 +108,7 @@ struct xyz_vec
 };
 
 template <typename T>
-struct xy_vec
+struct XYVec_s
 {
     T x;
     T y;
@@ -167,15 +167,15 @@ enum class SteeringEncoderStatus_e
 
 struct EncoderErrorFlags_s
 {
-    bool dataInvalid = false;
-    bool operatingLimit = false;
-    bool noData = false;
+    bool data_invalid = false;
+    bool operating_limit = false;
+    bool no_data = false;
 };
 
 struct SteeringEncoderReading_s
 {
     float angle = 0.0f;
-    int rawValue = 0;
+    int raw_value = 0;
     SteeringEncoderStatus_e status = SteeringEncoderStatus_e::NOMINAL;
     EncoderErrorFlags_s errors;
 };
@@ -201,7 +201,7 @@ struct DashInputState_s
     bool mc_reset_btn_is_pressed : 1; // Resets the motor controller errors
     bool start_btn_is_pressed : 1;    // The start button is the READY_TO_DRIVE button
     bool data_btn_is_pressed : 1;
-    bool BUTTON_2 : 1;
+    bool button_2 : 1;
     ControllerMode_e dial_state;
 };
 
@@ -268,7 +268,7 @@ struct RearSusPotData_s
 struct ThermistorData_s
 {
     uint32_t thermistor_analog;
-    float thermistor_degrees_C;
+    float thermistor_degrees_c;
 };
 
 struct VCRThermistorData_s
@@ -295,7 +295,7 @@ struct VectorNavData_s
     float linear_accel_x;
     float linear_accel_y;
     float linear_accel_z;
-    float uncompLinear_accel[3]; // 3D uncompensated linear acceleration
+    float uncomp_linear_accel[3]; // 3D uncompensated linear acceleration
     float yaw;
     float pitch;
     float roll;
@@ -304,7 +304,7 @@ struct VectorNavData_s
     double ecef_coords[3]; // x,y,z
     uint64_t gps_time;     // gps time
     uint8_t vn_status;     // status
-    xyz_vec<float> angular_rates;
+    XYZVec_s<float> angular_rates;
 };
 
 struct CurrentSensorData_s
@@ -445,8 +445,8 @@ struct TorqueControllerMuxStatus_s
 /// max torque requested from the inverter to reach such speeds.
 struct DrivetrainCommand_s
 {
-    veh_vec<SpeedRpm> desired_speeds;
-    veh_vec<TorqueNm> torque_limits;
+    VehVec_s<SpeedRpm> desired_speeds;
+    VehVec_s<TorqueNm> torque_limits;
 };
 
 struct StampedDrivetrainCommand_s
@@ -454,7 +454,7 @@ struct StampedDrivetrainCommand_s
     StampedVehVec<SpeedRpm> desired_speeds;
     StampedVehVec<TorqueNm> torque_limits;
 
-    DrivetrainCommand_s get_command() { return {.desired_speeds = desired_speeds.veh_vec_data, .torque_limits = torque_limits.veh_vec_data}; }
+    DrivetrainCommand_s getCommand() { return {.desired_speeds = desired_speeds.veh_vec_data, .torque_limits = torque_limits.veh_vec_data}; }
 };
 
 struct DrivebrainMessageLatencyInfo_s
@@ -470,8 +470,8 @@ struct DrivebrainMessageLatencyInfo_s
 
 struct DrivetrainTorqueCommand_s
 {
-    veh_vec<TorqueNm> torque_limits;
-    veh_vec<TorqueNm> torque_setpoints;
+    VehVec_s<TorqueNm> torque_limits;
+    VehVec_s<TorqueNm> torque_setpoints;
 };
 
 struct StampedDrivetrainTorqueCommand_s
@@ -479,16 +479,16 @@ struct StampedDrivetrainTorqueCommand_s
     StampedVehVec<SpeedRpm> torque_limits;
     StampedVehVec<TorqueNm> torque_setpoints;
 
-    DrivetrainTorqueCommand_s get_command() { return {.torque_limits = torque_limits.veh_vec_data, .torque_setpoints = torque_setpoints.veh_vec_data}; }
+    DrivetrainTorqueCommand_s getCommand() { return {.torque_limits = torque_limits.veh_vec_data, .torque_setpoints = torque_setpoints.veh_vec_data}; }
 };
 
 struct DrivetrainDynamicReport_s
 {
-    uint16_t measuredInverterFLPackVoltage;
-    veh_vec<SpeedRpm> measuredSpeeds;
-    veh_vec<TorqueNm> measuredTorques;
-    veh_vec<float> measuredTorqueCurrents;
-    veh_vec<float> measuredMagnetizingCurrents;
+    uint16_t measured_inverter_fl_pack_voltage;
+    VehVec_s<SpeedRpm> measured_speeds;
+    VehVec_s<TorqueNm> measured_torques;
+    VehVec_s<float> measured_torque_currents;
+    VehVec_s<float> measured_magnetizing_currents;
 };
 
 /**
@@ -552,7 +552,7 @@ struct StampedACUCoreData_s : TimestampedData_s
 /**
  * ACUAllData contains the detailed, unprocessed data from ACU sensors.
  */
-template <size_t num_cells, size_t num_cell_temps, size_t num_chips>
+template <size_t NumCells, size_t NumCellTemps, size_t NumChips>
 struct ACUAllData_s
 {
     ACUCoreData_s core_data;
@@ -567,20 +567,20 @@ struct ACUAllData_s
     float measured_bspd_current;
     FWVersionInfo fw_version_info;
     float valid_packet_rate;
-    float SoC;
-    float SoH;
+    float state_of_charge;
+    float state_of_health;
     float lifetime_ah_throughput;
-    float SoE_percentage;
-    float V1;
+    float state_of_energy_percentage;
+    float v1;
     double remaining_pack_wh;
-    std::array<size_t, num_chips> consecutive_invalid_packet_counts;
-    std::array<Volt, num_cells> cell_voltages;
-    std::array<Celsius, num_cell_temps> cell_temps;
-    std::array<Celsius, num_chips> board_temps;
+    std::array<size_t, NumChips> consecutive_invalid_packet_counts;
+    std::array<Volt, NumCells> cell_voltages;
+    std::array<Celsius, NumCellTemps> cell_temps;
+    std::array<Celsius, NumChips> board_temps;
     bool shutdown_has_gone_low;
 };
 
-using ACUAllDataType_s = ACUAllData_s<126, 48, 12>;
+using ACUAllDataType_t = ACUAllData_s<126, 48, 12>;
 
 /**
  * Timestamped pedals data. Extends TimestampedData_s to include a received timestamp, in milliseconds.
@@ -715,10 +715,10 @@ struct VCRInterfaceData_s
     CurrentSensorData_s current_sensor_data = {};
     StampedPedalsSystemData_s recvd_pedals_data = {};
     StampedSteeringSystemData_s recvd_steering_data = {};
-    veh_vec<InverterData_s> inverter_data = {};
+    VehVec_s<InverterData_s> inverter_data = {};
     DashInputState_s dash_input_state = {};
     StampedACUCoreData_s stamped_acu_core_data = {};
-    ACUAllDataType_s acu_all_data = {};
+    ACUAllDataType_t acu_all_data = {};
     StampedDrivetrainCommand_s latest_drivebrain_telem_command = {};
     StampedDrivetrainCommand_s latest_drivebrain_auxillary_command = {};
 };

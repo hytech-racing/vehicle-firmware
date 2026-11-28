@@ -114,7 +114,7 @@ DashInputState_s DashboardInterface::getDashboardOutputs()
     _dashboard_outputs.mc_reset_btn_is_pressed = !digitalRead(_dashboard_gpios.MC_CYCLE_BUTTON);
     _dashboard_outputs.start_btn_is_pressed = !digitalRead(_dashboard_gpios.START_BUTTON);
     _dashboard_outputs.data_btn_is_pressed = !digitalRead(_dashboard_gpios.DATA_BUTTON);
-    _dashboard_outputs.BUTTON_2 = !digitalRead(_dashboard_gpios.BUTTON_2);
+    _dashboard_outputs.button_2 = !digitalRead(_dashboard_gpios.BUTTON_2);
 
     return _dashboard_outputs;
 }

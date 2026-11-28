@@ -24,7 +24,7 @@ void SteeringSystem::evaluateSteering(const uint32_t analog_raw, const SteeringE
     _system_data.both_sensors_fail = false;
 
     // Update raw data
-    const uint32_t digital_raw = digital_reading.rawValue;
+    const uint32_t digital_raw = digital_reading.raw_value;
     _system_data.analog_raw = analog_raw;
     _system_data.digital_raw = digital_raw;
     _system_data.interface_sensor_error = (digital_reading.status == SteeringEncoderStatus_e::ERROR);

@@ -2,10 +2,10 @@
 
 const auto start_time = std::chrono::high_resolution_clock::now();
 
-// Helper: assemble ACUAllDataType_s from BMS driver data and watchdog getWatchDogData
-static ACUAllDataType_s make_acu_all_data()
+// Helper: assemble ACUAllDataType_t from BMS driver data and watchdog getWatchDogData
+static ACUAllDataType_t make_acu_all_data()
 {
-    ACUAllDataType_s out{};
+    ACUAllDataType_t out{};
 
     auto bms = BMSDriverInstance_t::instance().get_bms_data();
     auto fault_data = BMSFaultDataManagerInstance_t::instance().get_fault_data();
@@ -57,11 +57,11 @@ static ACUAllDataType_s make_acu_all_data()
     // SoC/SoH placeholders (leave unchanged here)
     auto ACUStatus = ACUControllerInstance::instance().get_status();
 
-    out.SoC = ACUStatus.SoC;
-    out.SoH = ACUStatus.SoH;
-    out.SoE_percentage = ACUStatus.SoE_percentage;
+    out.state_of_charge = ACUStatus.state_of_charge;
+    out.state_of_health = ACUStatus.state_of_health;
+    out.state_of_energy_percentage = ACUStatus.state_of_energy_percentage;
     out.lifetime_ah_throughput = ACUStatus.lifetime_ah_throughput;
-    out.V1 = ACUStatus.V1;
+    out.v1 = ACUStatus.v1;
     out.remaining_pack_wh = ACUStatus.remaining_pack_wh;
 
     out.core_data.high_side_contactor_welded = ACUStatus.high_side_contactor_welded;
@@ -589,7 +589,7 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.print("CCU Charging Requested? : ");
     // Serial.println(CCUInterfaceInstance::instance().get_latest_data(sys_time::hal_millis()).charging_requested);
     // Serial.print("State of Charge: ");
-    // Serial.print(ACUControllerInstance::instance().get_status().SoC * 100, 3);
+    // Serial.print(ACUControllerInstance::instance().get_status().state_of_charge * 100, 3);
     // Serial.println("%");
     // Serial.print("Measured GLV: "); Serial.print(ADCInterfaceInstance::instance().read_global_lv_value());
     // Serial.println("V");
@@ -647,13 +647,13 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
 
     // Serial.println("\nSoC SoH SoE Info:");
     // Serial.print("SoH (0-1):   ");
-    // Serial.println(ACUControllerInstance::instance().get_status().SoH, 3);
+    // Serial.println(ACUControllerInstance::instance().get_status().state_of_health, 3);
     // Serial.print("Lifetime Ah: ");
     // Serial.println(ACUControllerInstance::instance().get_status().lifetime_ah_throughput, 2);
     // Serial.print("SoC:         ");
-    // Serial.print(ACUControllerInstance::instance().get_status().SoC * 100.0f, 1); Serial.println("%");
+    // Serial.print(ACUControllerInstance::instance().get_status().state_of_charge * 100.0f, 1); Serial.println("%");
     // Serial.print("SoE:         ");
-    // Serial.print(ACUControllerInstance::instance().get_status().SoE_percentage, 1); Serial.println("%");
+    // Serial.print(ACUControllerInstance::instance().get_status().state_of_energy_percentage, 1); Serial.println("%");
     // Serial.print("Remaining:   ");
     // Serial.print(ACUControllerInstance::instance().get_status().remaining_pack_wh, 1); Serial.println(" Wh");
 
@@ -670,10 +670,10 @@ HT_TASK::TaskResponse debug_print(const unsigned long& sysMicros, const HT_TASK:
     // Serial.print(sys_time::hal_millis());                                               Serial.print("|");
     // Serial.print(em_data.em_current, 4);                                                Serial.print("|");
     // Serial.print(BMSDriverInstance_t::instance().get_bms_data().min_cell_voltage, 4);   Serial.print("|");
-    // Serial.print(status.SoC * 100.0f, 2);                                               Serial.print("|");
+    // Serial.print(status.state_of_charge * 100.0f, 2);                                               Serial.print("|");
     // Serial.print((float)status.lifetime_ah_throughput, 2);                              Serial.print("|");
-    // Serial.print(status.SoH, 4);                                                        Serial.print("|");
-    // Serial.print(status.SoE_percentage, 2);                                             Serial.print("|");
+    // Serial.print(status.state_of_health, 4);                                                        Serial.print("|");
+    // Serial.print(status.state_of_energy_percentage, 2);                                             Serial.print("|");
     // Serial.println(status.remaining_pack_wh, 1);
 
     return HT_TASK::TaskResponse::YIELD;

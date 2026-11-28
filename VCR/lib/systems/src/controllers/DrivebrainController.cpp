@@ -19,11 +19,11 @@ DrivetrainCommand_s DrivebrainController::evaluate(const VCRData_s& state, unsig
 
     if (_should_run_controller && !_telem_latency_info.timing_failure)
     {
-        output = db_telem_input.get_command();
+        output = db_telem_input.getCommand();
     }
     else if (_should_run_controller && !_aux_latency_info.timing_failure)
     {
-        output = db_auxillary_input.get_command();
+        output = db_auxillary_input.getCommand();
     }
     else
     {

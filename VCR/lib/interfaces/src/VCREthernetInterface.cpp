@@ -78,7 +78,7 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataMsg(
     out.ethernet_is_linked.ubiquiti_link = IOExpanderInterfaceInstance::instance().getBitPortA(5);   // GPA5 = Ubiquiti_LINK_SENSE
     out.ethernet_is_linked.vcf_link = IOExpanderInterfaceInstance::instance().getBitPortB(6);        // GPB6 = VCF_LINK_SENSE
 
-    // veh_vec<InverterData>
+    // VehVec_s<InverterData>
     copyInverterData(fl_inverter.getAllInverterData(), out.inverter_data.FL);
     out.inverter_data.has_FL = true;
     copyInverterData(fr_inverter.getAllInverterData(), out.inverter_data.FR);
@@ -98,12 +98,12 @@ hytech_msgs_VCRData_s VCREthernetInterface::makeVCRDataMsg(
 
 
     // DrivetrainDynamicReport_s
-    out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measuredInverterFLPackVoltage;
+    out.drivetrain_data.measuredInverterFLPackVoltage = drivetrain_data.measured_inverter_fl_pack_voltage;
 
-    copyVehVecMembers(drivetrain_data.measuredSpeeds, out.drivetrain_data.measuredSpeeds);
-    copyVehVecMembers(drivetrain_data.measuredTorques, out.drivetrain_data.measuredTorques);
-    copyVehVecMembers(drivetrain_data.measuredTorqueCurrents, out.drivetrain_data.measuredTorqueCurrents);
-    copyVehVecMembers(drivetrain_data.measuredMagnetizingCurrents, out.drivetrain_data.measuredMagnetizingCurrents);
+    copyVehVecMembers(drivetrain_data.measured_speeds, out.drivetrain_data.measuredSpeeds);
+    copyVehVecMembers(drivetrain_data.measured_torques, out.drivetrain_data.measuredTorques);
+    copyVehVecMembers(drivetrain_data.measured_torque_currents, out.drivetrain_data.measuredTorqueCurrents);
+    copyVehVecMembers(drivetrain_data.measured_magnetizing_currents, out.drivetrain_data.measuredMagnetizingCurrents);
 
     // TorqueControllerMuxStatus
     out.tcmux_status.active_error = (hytech_msgs_TorqueControllerMuxError_e)vcr_controls.getTcMuxStatus().active_error;

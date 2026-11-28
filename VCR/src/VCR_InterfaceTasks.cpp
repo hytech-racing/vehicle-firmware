@@ -383,19 +383,19 @@ namespace async_tasks
     {
         handleAsyncRecvs();
 
-        bool torque_mode_cycle_button_was_pressed = vcr_data.interface_data.dash_input_state.BUTTON_2;
+        bool torque_mode_cycle_button_was_pressed = vcr_data.interface_data.dash_input_state.button_2;
 
         VCRInterfaceData_s new_interface_data = gatherLatestInterfaceData(CANInterfacesInstance::instance());
 
-        vcr_data.system_data.drivetrain_data.measuredSpeeds = {
+        vcr_data.system_data.drivetrain_data.measured_speeds = {
             new_interface_data.inverter_data.fl.speed_rpm,
             new_interface_data.inverter_data.fr.speed_rpm,
             new_interface_data.inverter_data.rl.speed_rpm,
             new_interface_data.inverter_data.rr.speed_rpm};
 
-        vcr_data.system_data.drivetrain_data.measuredInverterFLPackVoltage = new_interface_data.inverter_data.fl.dc_bus_voltage;
+        vcr_data.system_data.drivetrain_data.measured_inverter_fl_pack_voltage = new_interface_data.inverter_data.fl.dc_bus_voltage;
 
-        if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.BUTTON_2)
+        if (torque_mode_cycle_button_was_pressed && !new_interface_data.dash_input_state.button_2)
         {
             VCRControlsInstance::instance().cycleTorqueLimit();
             VCFInterfaceInstance::instance().enqueueTorqueModeLEDMsg(VCRControlsInstance::instance().getCurrentTorqueLimit());
@@ -559,23 +559,23 @@ HT_TASK::TaskResponse debugPrint(const unsigned long& sys_micros, const HT_TASK:
     // Serial.println(ADCInterfaceInstance::instance().read_thermistor_0().conversion);
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_0.thermistor_analog);
     // Serial.print(" Thermistor 0 degrees C: ");
-    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_0.thermistor_degrees_C);
+    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_0.thermistor_degrees_c);
     // Serial.print("Thermistor 4 Analog: ");
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_4.thermistor_analog);
     // Serial.print(" Thermistor 4 degrees C: ");
-    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_4.thermistor_degrees_C);
+    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_4.thermistor_degrees_c);
     // Serial.print("Thermistor 5 Analog: ");
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_5.thermistor_analog);
     // Serial.print(" Thermistor 5 degrees C: ");
-    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_5.thermistor_degrees_C);
+    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_5.thermistor_degrees_c);
     // Serial.print("Thermistor 6 Analog: ");
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_6.thermistor_analog);
     // Serial.print(" Thermistor 6 degrees C: ");
-    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_6.thermistor_degrees_C);
+    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_6.thermistor_degrees_c);
     // Serial.print("Thermistor 7 Analog: ");
     // Serial.print(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_analog);
     // Serial.print(" Thermistor 7 degrees C: ");
-    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_degrees_C);
+    // Serial.println(vcr_data.interface_data.thermistor_data.thermistor_7.thermistor_degrees_c);
 
     /* TTPMS Data */
     const TTPMSAllSensorData_s all_ttpms_data = TTPMSInterfaceInstance::instance().getTTPMSData();

@@ -46,7 +46,7 @@ class CCUEthernetInterface
 
     void initEthernetDevice();
 
-    void receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_s& acu_all_data);
+    void receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_t& acu_all_data);
 
     hytech_msgs_CCUData makeCCUDataMsg();
 

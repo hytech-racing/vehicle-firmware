@@ -1,7 +1,7 @@
 #include <DrivetrainSystem.hpp>
 
 DrivetrainSystem::DrivetrainSystem(
-    veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+    VehVec_s<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
     etl::delegate<void(bool)> set_ef_active_pin,
     unsigned long ef_pin_enable_delay_ms)
     : _inverter_interfaces(inverter_interfaces),
@@ -329,7 +329,7 @@ void DrivetrainSystem::_setState(DrivetrainState_e new_state)
 // returns false if any of the inverters fail the flag check.
 bool DrivetrainSystem::_checkInverterFlags(std::function<bool(const InverterStatus_s&)> flag_check_func)
 {
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         auto inverter_status = func.get_status();
@@ -344,7 +344,7 @@ bool DrivetrainSystem::_checkInverterFlags(std::function<bool(const InverterStat
 void DrivetrainSystem::_setDrivetrainDisabled()
 {
     InverterControlWord_s disabled_control_word = {.inverter_enable = false, .hv_enable = false, .driver_enable = false, .remove_error = false};
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(disabled_control_word);
@@ -356,7 +356,7 @@ void DrivetrainSystem::_setEnableDrivetrainHv()
 {
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = false, .remove_error = false};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -373,7 +373,7 @@ void DrivetrainSystem::_setDrivetrainKeepaliveIdle()
 {
     InverterControlWord_s control_word = {.inverter_enable = true, .hv_enable = true, .driver_enable = true, .remove_error = false};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -385,7 +385,7 @@ void DrivetrainSystem::_setDrivetrainErrorReset()
 {
     InverterControlWord_s control_word = {.inverter_enable = false, .hv_enable = true, .driver_enable = true, .remove_error = true};
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         func.set_inverter_control_word(control_word);
@@ -404,7 +404,7 @@ void DrivetrainSystem::_setDrivetrainCommand(DrivetrainCommand_s cmd)
 bool DrivetrainSystem::_drivetrainActive(float min_active_rpm)
 {
 
-    auto funcs_arr = _inverter_interfaces.as_array();
+    auto funcs_arr = _inverter_interfaces.asArray();
     for (const auto& func : funcs_arr)
     {
         auto motor_mechanics = func.get_motor_mechanics();

@@ -1,6 +1,6 @@
 #include "Dash_Tasks.hpp"
 
-veh_vec<int> fake_temps = {30, 32, 28, 31};
+VehVec_s<int> fake_temps = {30, 32, 28, 31};
 
 
 void initialize_all_interfaces()

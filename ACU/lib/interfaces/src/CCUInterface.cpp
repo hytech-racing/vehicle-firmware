@@ -73,7 +73,7 @@ void CCUInterface::handle_enqueue_acu_voltages_CAN_message()
 void CCUInterface::handle_enqueue_acu_SoC_CAN_message()
 {
     STATE_OF_CHARGE_t msg = {};
-    msg.SoC_ro = HT_CAN_SoC_ro_toS(_acu_all_data.SoC * 100);
+    msg.SoC_ro = HT_CAN_SoC_ro_toS(_acu_all_data.state_of_charge * 100);
     msg.min_cell_voltage_est_ro = 0;
     msg.charge_coulombs_ro = 0;
     CAN_util::enqueue_msg(&msg, &Pack_STATE_OF_CHARGE_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
@@ -84,9 +84,9 @@ void CCUInterface::handle_enqueue_acu_SoH_CAN_message()
     STATE_OF_ENERGY_t msg = {};
     msg.lifetime_ah_throughput_ro = HT_CAN_lifetime_ah_throughput_ro_toS(_acu_all_data.lifetime_ah_throughput);
     msg.remaining_pack_wh_ro = HT_CAN_remaining_pack_wh_ro_toS(_acu_all_data.remaining_pack_wh);
-    msg.SoH_ro = HT_CAN_SoH_ro_toS(_acu_all_data.SoH * 100);
-    msg.SoE_ro = HT_CAN_SoE_ro_toS(_acu_all_data.SoE_percentage);
-    msg.V1_ro = HT_CAN_V1_ro_toS(_acu_all_data.V1);
+    msg.SoH_ro = HT_CAN_SoH_ro_toS(_acu_all_data.state_of_health * 100);
+    msg.SoE_ro = HT_CAN_SoE_ro_toS(_acu_all_data.state_of_energy_percentage);
+    msg.V1_ro = HT_CAN_V1_ro_toS(_acu_all_data.v1);
     CAN_util::enqueue_msg(&msg, &Pack_STATE_OF_ENERGY_ht_can, ACUCANInterfaceInstance::instance().ccu_can_tx_buffer);
 }
 

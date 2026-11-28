@@ -184,7 +184,7 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     msg_out.start_button = dash_outputs.start_btn_is_pressed;
     msg_out.data_button_is_pressed = dash_outputs.data_btn_is_pressed;
     msg_out.left_shifter_button = 0;
-    msg_out.right_shifter_button = dash_outputs.BUTTON_2;
+    msg_out.right_shifter_button = dash_outputs.button_2;
     msg_out.led_dimmer_button = dash_outputs.brightness_ctrl_btn_is_pressed;
     msg_out.dash_dial_mode = static_cast<int>(DashboardInterfaceInstance::instance().getDashboardOutputs().dial_state);
     CAN_util::enqueue_msg(&msg_out, &Pack_DASH_INPUT_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);

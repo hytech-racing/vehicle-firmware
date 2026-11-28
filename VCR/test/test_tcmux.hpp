@@ -56,8 +56,8 @@ TEST(TorqueControllerMuxTesting, test_invalid_controller_request_error)
     for (int i = 0; i < 4; i++)
     {
 
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0);
+        ASSERT_EQ(res.desired_speeds.asArray()[i], 0.0);
+        ASSERT_EQ(res.torque_limits.asArray()[i], 0.0);
     }
 
     res = test.getDrivetrainCommand(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, {});
@@ -66,8 +66,8 @@ TEST(TorqueControllerMuxTesting, test_invalid_controller_request_error)
     for (int i = 0; i < 4; i++)
     {
 
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0);
+        ASSERT_EQ(res.desired_speeds.asArray()[i], 0.0);
+        ASSERT_EQ(res.torque_limits.asArray()[i], 0.0);
     }
 }
 
@@ -90,7 +90,7 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
 
     TorqueControllerMux<2> test({test_func_1, test_func_2}, {false, false});
     VCRData_s state;
-    setFourOutputs(state.system_data.drivetrain_data.measuredSpeeds, 10000.0);
+    setFourOutputs(state.system_data.drivetrain_data.measured_speeds, 10000.0);
 
     auto res1 = test.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
 
@@ -101,7 +101,7 @@ TEST(TorqueControllerMuxTesting, test_controller_output_swap_logic)
 
     setOutputs(out1, 0, 1);
     setOutputs(out2, 0, 1);
-    setFourOutputs(state.system_data.drivetrain_data.measuredSpeeds, 0);
+    setFourOutputs(state.system_data.drivetrain_data.measured_speeds, 0);
 
     res1 = test.getDrivetrainCommand(ControllerMode_e::MODE_1, TorqueLimit_e::TCMUX_FULL_TORQUE, state);
 
@@ -232,7 +232,7 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
     TorqueControllerSimple tc_simple(standard_params);
 
     DrivetrainDynamicReport_s drivetrain_data = {};
-    setFourOutputs(drivetrain_data.measuredSpeeds, 1000.0f);
+    setFourOutputs(drivetrain_data.measured_speeds, 1000.0f);
 
     VCRData_s mode_0_input_state;
     mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
@@ -255,7 +255,7 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
 
 
     float rpm_set = 20000.0f;
-    setFourOutputs(drivetrain_data.measuredSpeeds, rpm_set);
+    setFourOutputs(drivetrain_data.measured_speeds, rpm_set);
     mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
     out = torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
 
@@ -267,7 +267,7 @@ TEST(TorqueControllerMuxTesting, test_power_limit)
         new_power_lim,
         0.1);
     mode_0_input_state.interface_data.recvd_pedals_data.pedals_data.accel_percent = 0.6f;
-    setFourOutputs(drivetrain_data.measuredSpeeds, rpm_set);
+    setFourOutputs(drivetrain_data.measured_speeds, rpm_set);
     mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
     (void)torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
     (void)torque_controller_mux.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_FULL_TORQUE, mode_0_input_state);
@@ -297,7 +297,7 @@ TEST(TorqueControllerMuxTesting, test_torque_limit)
     TorqueControllerMux<1> test({test_func_1}, {false});
 
     DrivetrainDynamicReport_s drivetrain_data = {};
-    setFourOutputs(drivetrain_data.measuredSpeeds, 500.0f);
+    setFourOutputs(drivetrain_data.measured_speeds, 500.0f);
 
     VCRData_s mode_0_input_state;
     mode_0_input_state.system_data.drivetrain_data = drivetrain_data;
@@ -334,8 +334,8 @@ TEST(TorqueControllerMuxTesting, test_null_pointer_error_state)
     auto res = test.getDrivetrainCommand(ControllerMode_e::MODE_0, TorqueLimit_e::TCMUX_LOW_TORQUE, state);
     for (int i = 0; i < 4; i++)
     {
-        ASSERT_EQ(res.desired_speeds.as_array()[i], 0.0f);
-        ASSERT_EQ(res.torque_limits.as_array()[i], 0.0f);
+        ASSERT_EQ(res.desired_speeds.asArray()[i], 0.0f);
+        ASSERT_EQ(res.torque_limits.asArray()[i], 0.0f);
     }
     ASSERT_EQ(test.getTcMuxStatus().active_error, TorqueControllerMuxError_e::ERROR_CONTROLLER_NULL_POINTER);
 }

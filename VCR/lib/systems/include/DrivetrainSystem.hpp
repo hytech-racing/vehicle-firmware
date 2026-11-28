@@ -39,7 +39,7 @@ enum class DrivetrainCmdResponse_e
 struct DrivetrainStatus_s
 {
     bool all_inverters_connected;
-    veh_vec<InverterStatus_s> inverter_statuses;
+    VehVec_s<InverterStatus_s> inverter_statuses;
     DrivetrainCmdResponse_e cmd_resp;
     DrivetrainState_e state;
 };
@@ -108,7 +108,7 @@ class DrivetrainSystem
     };
 
     DrivetrainSystem(
-        veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
+        VehVec_s<DrivetrainSystem::InverterFuncts_s> inverter_interfaces,
         etl::delegate<void(bool)> set_ef_active_pin,
         unsigned long ef_pin_enable_delay_ms = 50); // why not make delay a constant that can easily be changed elsewhere where other constants are changed
 
@@ -131,7 +131,7 @@ class DrivetrainSystem
     DrivetrainStatus_s _status;
 
     const float _active_rpm_level = 100;
-    veh_vec<InverterFuncts_s> _inverter_interfaces;
+    VehVec_s<InverterFuncts_s> _inverter_interfaces;
 
     /**
      * Lambda functions defined on construction for the DSM state transitions.

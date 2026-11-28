@@ -12,7 +12,7 @@ void CCUEthernetInterface::initEthernetDevice()
     _ccu_data_send_socket.begin(EthernetIPDefsInstance::instance().CCUData_port);
 }
 
-void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_s& acu_all_data)
+void CCUEthernetInterface::receiveACUAllData(const hytech_msgs_ACUAllData& msg_in, ACUAllDataType_t& acu_all_data)
 {
     std::copy(std::begin(msg_in.cell_voltages), std::end(msg_in.cell_voltages), std::begin(acu_all_data.cell_voltages));
     std::copy(std::begin(msg_in.cell_temperatures), std::end(msg_in.cell_temperatures), std::begin(acu_all_data.cell_temps));

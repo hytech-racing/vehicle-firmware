@@ -81,7 +81,7 @@ SteeringSystemParams_s gen_default_params()
 static SteeringEncoderReading_s hardcode_digital_data(const uint32_t raw_value, const SteeringEncoderStatus_e status = SteeringEncoderStatus_e::NOMINAL)
 {
     SteeringEncoderReading_s data{};
-    data.rawValue = raw_value;
+    data.raw_value = raw_value;
     data.status = status;
     data.angle = 0.0f; // calculated by the system, not the sensor
     data.errors = {};  // no error flags set

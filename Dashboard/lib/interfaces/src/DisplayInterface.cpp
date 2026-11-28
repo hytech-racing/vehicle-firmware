@@ -181,7 +181,7 @@ void DisplayInterface::display_min_cell(float min_cell_voltage)
     _display.print(min_cell_voltage);
 }
 
-void DisplayInterface::display_all_temps(veh_vec<int> temps)
+void DisplayInterface::display_all_temps(VehVec_s<int> temps)
 {
     _display.setFont(&FreeSans9pt7b);
     _display.setTextSize(1);

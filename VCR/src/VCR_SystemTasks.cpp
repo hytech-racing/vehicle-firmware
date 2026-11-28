@@ -45,7 +45,7 @@ DrivetrainSystem::InverterFuncts_s rr_inverter_functs = {
         return rr_inverter_interface.getMotorMechanics();
     }};
 
-veh_vec<DrivetrainSystem::InverterFuncts_s> inverter_functs(fl_inverter_functs, fr_inverter_functs, rl_inverter_functs, rr_inverter_functs);
+VehVec_s<DrivetrainSystem::InverterFuncts_s> inverter_functs(fl_inverter_functs, fr_inverter_functs, rl_inverter_functs, rr_inverter_functs);
 
 etl::delegate<void(bool)> set_ef_pin_active =
     etl::delegate<void(bool)>::create([](bool set_active) { digitalWrite(VCRInterfaces::INVERTER_ENABLE_PIN, static_cast<int>(set_active)); });

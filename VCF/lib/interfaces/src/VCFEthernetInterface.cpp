@@ -70,7 +70,7 @@ hytech_msgs_VCFData_s VCFEthernetInterface::make_vcf_data_msg(
     out.dash_input_state.start_btn_is_pressed = dash_int.getDashboardOutputs().start_btn_is_pressed;
     out.dash_input_state.data_btn_is_pressed = dash_int.getDashboardOutputs().data_btn_is_pressed;
     out.dash_input_state.left_paddle_is_pressed = 0;
-    out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().BUTTON_2;
+    out.dash_input_state.right_paddle_is_pressed = dash_int.getDashboardOutputs().button_2;
     out.dash_input_state.dial_state = (hytech_msgs_ControllerMode_e)(dash_int.getDashboardOutputs().dial_state);
 
     // Ethernet link data

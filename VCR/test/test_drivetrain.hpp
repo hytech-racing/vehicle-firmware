@@ -78,7 +78,7 @@ MockInverterInterface fr(fr_status, fr_motor_mechanics);
 MockInverterInterface rl(rl_status, rl_motor_mechanics);
 MockInverterInterface rr(rr_status, rr_motor_mechanics);
 
-veh_vec<DrivetrainSystem::InverterFuncts_s> mock_inverter_functs = {fl.inverter_functs, fr.inverter_functs, rl.inverter_functs, rr.inverter_functs};
+VehVec_s<DrivetrainSystem::InverterFuncts_s> mock_inverter_functs = {fl.inverter_functs, fr.inverter_functs, rl.inverter_functs, rr.inverter_functs};
 
 DrivetrainInit_s init = {DrivetrainModeRequest_e::INIT_DRIVE_MODE};
 DrivetrainResetError_s reset = {true};

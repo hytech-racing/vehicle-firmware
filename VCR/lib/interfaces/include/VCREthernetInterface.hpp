@@ -82,11 +82,11 @@ class VCREthernetInterface
     void copyInverterData(const InverterFeedbackData_s& original, hytech_msgs_InverterData_s& destination);
 
     /**
-     * Helper function to copy veh_vec data.
+     * Helper function to copy VehVec_s data.
      *
-     * @param original A populated instance of a veh_vec.
-     * @param destination A reference to an unpopulated instance of veh_vec.
-     * @post The destination veh_vec will be populated with the data from the original.
+     * @param original A populated instance of a VehVec_s.
+     * @param destination A reference to an unpopulated instance of VehVec_s.
+     * @post The destination VehVec_s will be populated with the data from the original.
      */
     template <typename FromT, typename ToT>
     void copyVehVecMembers(const FromT& from, ToT& to)

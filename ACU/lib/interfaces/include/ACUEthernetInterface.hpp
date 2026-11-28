@@ -63,7 +63,7 @@ class ACUEthernetInterface
      * @param shared_state Detailed, unprocessed data from ACU sensors.
      * @return A populated instance of the outgoing protoc struct.
      */
-    hytech_msgs_ACUAllData make_acu_all_data_msg(const ACUAllDataType_s& shared_state);
+    hytech_msgs_ACUAllData make_acu_all_data_msg(const ACUAllDataType_t& shared_state);
 
   private:
     const ACUParams_s _acu_params = {};

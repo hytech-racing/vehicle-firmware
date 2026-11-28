@@ -23,15 +23,15 @@ struct MotorMechanics_s
 
 struct Temperature_s
 {
-    veh_vec<int> inverter_temps;
-    veh_vec<int> motor_temps;
+    VehVec_s<int> inverter_temps;
+    VehVec_s<int> motor_temps;
 };
 
 struct InverterStatus_s
 {
-    veh_vec<bool> error;
-    veh_vec<float> dc_bus_voltage;
-    veh_vec<int> error_id;
+    VehVec_s<bool> error;
+    VehVec_s<float> dc_bus_voltage;
+    VehVec_s<int> error_id;
 };
 
 class VCRInterface

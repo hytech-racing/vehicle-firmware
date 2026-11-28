@@ -12,7 +12,7 @@ DrivetrainCommand_s LoadCellVectoringTorqueController::evaluate(const VCRData_s&
     const FrontLoadCellData_s& front_lc_data = vcr_data.interface_data.front_loadcell_data;
     const RearLoadCellData_s& rear_lc_data = vcr_data.interface_data.rear_loadcell_data;
 
-    veh_vec<float> load_cell_data(
+    VehVec_s<float> load_cell_data(
         static_cast<float>(front_lc_data.fl_loadcell_analog),
         static_cast<float>(front_lc_data.fr_loadcell_analog),
         static_cast<float>(rear_lc_data.rl_loadcell_analog),

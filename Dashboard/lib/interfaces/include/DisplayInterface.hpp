@@ -76,7 +76,7 @@ class DisplayInterface
     void display_speeds(float rpm);
     void display_mode(int mode);
     void display_min_cell(float min_cell_voltage);
-    void display_all_temps(veh_vec<int> temps);
+    void display_all_temps(VehVec_s<int> temps);
     void display_max_temps(int inverter_temp, int motor_temp);
 
     /* Status Icons */

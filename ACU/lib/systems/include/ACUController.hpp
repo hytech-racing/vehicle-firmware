@@ -41,11 +41,11 @@ struct ACUControllerData_s
     TimeMs prev_bms_time_stamp;
     TimeMs prev_em_time_stamp;
     TimeMs first_zero_current_time_stamp;
-    float SoC;
+    float state_of_charge;
     double lifetime_ah_throughput;
-    float SoH;
-    float SoE_percentage;
-    float V1;
+    float state_of_health;
+    float state_of_energy_percentage;
+    float v1;
     float remaining_pack_wh;
     bool has_fault;
     bool bms_ok;

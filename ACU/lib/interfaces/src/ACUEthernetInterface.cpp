@@ -70,7 +70,7 @@ hytech_msgs_ACUCoreData ACUEthernetInterface::make_acu_core_data_msg(const ACUCo
     return out;
 }
 
-hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_s& shared_state)
+hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllDataType_t& shared_state)
 {
     auto fw_version_hash = convert_version_to_char_arr(device_status_t::firmware_version);
     hytech_msgs_ACUAllData out = {};
@@ -98,7 +98,7 @@ hytech_msgs_ACUAllData ACUEthernetInterface::make_acu_all_data_msg(const ACUAllD
     out.max_cell_temp_id = shared_state.max_cell_temp_id;
     out.measured_bspd_current = shared_state.measured_bspd_current;
     out.valid_packet_rate = shared_state.valid_packet_rate;
-    out.SoC = shared_state.SoC;
+    out.SoC = shared_state.state_of_charge;
     out.SoH = -1;
     /* Firmware Version Hash Assignment */
     out.has_firmware_version_info = true;
