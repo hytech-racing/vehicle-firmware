@@ -28,11 +28,8 @@ HT_TASK::Task enqueue_strain_gauge_data_task(
     RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY,
     RDCConstants::ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US);
 
-HT_TASK::Task enqueue_fw_version_task(
-    HT_TASK::DUMMY_FUNCTION,
-    &enqueueFirmwareVersion,
-    RDCConstants::FW_VERSION_CAN_PRIORITY,
-    RDCConstants::FW_VERSION_CAN_PERIOD_US);
+HT_TASK::Task
+    enqueue_fw_version_task(HT_TASK::DUMMY_FUNCTION, &enqueueFirmwareVersion, RDCConstants::FW_VERSION_CAN_PRIORITY, RDCConstants::FW_VERSION_CAN_PERIOD_US);
 
 HT_TASK::Task run_tick_state_machine_task(
     HT_TASK::DUMMY_FUNCTION,

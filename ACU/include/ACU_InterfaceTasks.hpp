@@ -15,12 +15,12 @@
 #include "BMSDriverGroup.hpp"
 #include "BMSFaultDataManager.hpp"
 #include "DataLoggingInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "MAX114XInterface.hpp"
 #include "SoHPersistenceInterface.hpp"
 #include "SystemTimeInterface.h"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"
-#include "FirmwareVersionCAN.hpp"
 
 /* Local System Includes */
 #include "ACUController.hpp"

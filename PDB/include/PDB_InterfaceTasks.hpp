@@ -11,12 +11,12 @@
 
 /* Local Interface Includes */
 #include "BuckConverterInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "HotSwapInterface.hpp"
 #include "LoadSwitchInterface.hpp"
 #include "PDBCANInterface.hpp"
 #include "TempSensorInterface.hpp"
 #include "VCRInterface.hpp"
-#include "FirmwareVersionCAN.hpp"
 
 
 /**

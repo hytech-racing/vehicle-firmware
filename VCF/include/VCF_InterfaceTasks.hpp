@@ -12,6 +12,7 @@
 #include "ACUInterface.hpp"
 #include "ADCInterface.hpp"
 #include "DashboardInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "NeopixelInterface.hpp"
 #include "OrbisInterface.hpp"
 #include "SystemTimeInterface.h"
@@ -20,7 +21,6 @@
 #include "VCFIRTempInterface.hpp"
 #include "VCRInterface.hpp"
 #include "WatchdogInterface.hpp"
-#include "FirmwareVersionCAN.hpp"
 
 /* Local System Includes */
 #include "NeopixelController.hpp"

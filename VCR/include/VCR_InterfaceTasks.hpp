@@ -17,6 +17,7 @@
 #include "ADCInterface.hpp"
 #include "ADS112Interface.hpp"
 #include "DrivebrainInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
@@ -25,7 +26,6 @@
 #include "VCREthernetInterface.hpp"
 #include "VCRIRTempInterface.hpp"
 #include "WatchdogInterface.hpp"
-#include "FirmwareVersionCAN.hpp"
 
 /* Local System Includes */
 #include "VehicleStateMachine.hpp"
