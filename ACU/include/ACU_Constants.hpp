@@ -160,6 +160,9 @@ namespace ACUConstants
     constexpr uint8_t WRITE_CELL_BALANCE_PRIORITY = 15;
     constexpr time_us WRITE_CELL_BALANCE_PERIOD_US = 100000UL; // 100 000 us = 10 Hz
 
+    constexpr uint8_t FW_VERSION_CAN_PRIORITY = 17;
+    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000UL; // 1 000 000 us = 1 Hz
+
     constexpr uint8_t DATA_LOG_PRIORITY = 18;
     constexpr time_us DATA_LOG_PERIOD_US = 500000UL; // 500 000 us = 2 Hz
 

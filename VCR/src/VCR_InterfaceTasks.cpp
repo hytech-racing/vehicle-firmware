@@ -245,6 +245,13 @@ HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicr
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    VCR_FW_VERSION_t msg = FirmwareVersionCAN::makeFirmwareVersionMsg<VCR_FW_VERSION_t>();
+    CAN_util::enqueue_msg(&msg, &Pack_VCR_FW_VERSION_ht_can, VCRCANInterfaceInstance::instance().telem_can_tx_buffer);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse enqueue_inverter_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     fl_inverter_interface.send_INV_CONTROL_WORD();

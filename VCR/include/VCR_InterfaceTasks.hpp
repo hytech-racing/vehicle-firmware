@@ -17,6 +17,7 @@
 #include "ADCInterface.hpp"
 #include "ADS112Interface.hpp"
 #include "DrivebrainInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "FlowmeterInterface.hpp"
 #include "MCP23017Interface.hpp"
 #include "SystemTimeInterface.h"
@@ -103,6 +104,11 @@ void initialize_all_interfaces();
  * Handles sending of coolant temperature data
  */
 ::HT_TASK::TaskResponse enqueue_coolant_temp_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
+
+/**
+ * Enqueues VCR_FW_VERSION (git hash + main/master flag) on TELEM
+ */
+::HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo); // NOLINT (capitalized CAN)
 
 /**
  * Enqueues all inverter CAN data. This will add all inverter data to the CAN queue, and then

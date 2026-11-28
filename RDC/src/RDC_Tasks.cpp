@@ -3,6 +3,7 @@
 #include "ADCInterface.hpp"
 #include "CoreRDCCANInterface.hpp"
 #include "DriverlessStateMachine.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "RDC_Constants.hpp"
 #include "ht_can.h"
 #include "ht_task.hpp"
@@ -177,6 +178,13 @@ HT_TASK::TaskResponse enqueueStrainGaugeData(const unsigned long& sys_micros, co
 
     CoreRDCCANInterfaceInstance::instance().enqueueMsg(&msg, &Pack_STRAIN_GAUGES_REAR_ht_can);
 
+    return HT_TASK::TaskResponse::YIELD;
+}
+
+HT_TASK::TaskResponse enqueueFirmwareVersion(const unsigned long& sys_micros, const HT_TASK::TaskInfo& task_info)
+{
+    RDC_FW_VERSION_t fw_version_msg = FirmwareVersionCAN::makeFirmwareVersionMsg<RDC_FW_VERSION_t>();
+    CoreRDCCANInterfaceInstance::instance().enqueueMsg(&fw_version_msg, &Pack_RDC_FW_VERSION_ht_can);
     return HT_TASK::TaskResponse::YIELD;
 }
 

@@ -35,6 +35,9 @@ namespace PDBConstants
     constexpr uint8_t LOAD_SWITCH_SAMPLE_PRIORITY = 4;
     constexpr time_us LOAD_SWITCH_SAMPLE_PERIOD_US = 10000UL; // 10 000 us = 100 Hz, FLT + IMON
 
+    constexpr uint8_t FW_VERSION_CAN_PRIORITY = 5;
+    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000UL; // 1 000 000 us = 1 Hz
+
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 10;        // Lowest: only runs when nothing else is due
     constexpr time_us DEBUG_PRINT_PERIOD_US = 250000UL; // 250 000 us = 4 Hz
 

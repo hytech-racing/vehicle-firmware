@@ -31,6 +31,9 @@ namespace RDCConstants
     constexpr uint8_t ENQUEUE_STRAIN_GAUGE_DATA_PRIORITY = 11;
     constexpr time_us ENQUEUE_STRAIN_GAUGE_DATA_PERIOD_US = 10000; // 10 000 us = 100 Hz
 
+    constexpr uint8_t FW_VERSION_CAN_PRIORITY = 12;
+    constexpr time_us FW_VERSION_CAN_PERIOD_US = 1000000; // 1000000 us = 1 HZ
+
     constexpr uint8_t DEBUG_PRINT_PRIORITY = 100;
     constexpr time_us DEBUG_PRINT_PERIOD_US = 100000; // 100000 us = 10 HZ
     /* --------- CAN Constants ---------- */

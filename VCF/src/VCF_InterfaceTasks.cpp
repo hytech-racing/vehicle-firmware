@@ -191,6 +191,13 @@ HT_TASK::TaskResponse enqueueDashboardCANDataTask(const unsigned long& sysMicros
     return HT_TASK::TaskResponse::YIELD;
 }
 
+HT_TASK::TaskResponse enqueueFirmwareVersionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
+{
+    VCF_FW_VERSION_t msg_out = FirmwareVersionCAN::makeFirmwareVersionMsg<VCF_FW_VERSION_t>();
+    CAN_util::enqueue_msg(&msg_out, &Pack_VCF_FW_VERSION_ht_can, VCFCANInterfaceInstance::instance().telem_can_tx_buffer);
+    return HT_TASK::TaskResponse::YIELD;
+}
+
 HT_TASK::TaskResponse enqueueFrontSuspensionCANDataTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo)
 {
     FRONT_SUSPENSION_t msg_out;

@@ -11,6 +11,7 @@
 
 /* Local Interface Includes */
 #include "BuckConverterInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "HotSwapInterface.hpp"
 #include "LoadSwitchInterface.hpp"
 #include "PDBCANInterface.hpp"
@@ -52,6 +53,11 @@ HT_TASK::TaskResponse updateHotSwapTask(const unsigned long& sysMicros, const HT
  * @brief Samples every load switch's FLT pin and IMON current.
  */
 HT_TASK::TaskResponse sampleLoadSwitchesTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Sends PDB_FW_VERSION (git hash + main/master flag) on the rear aux bus.
+ */
+HT_TASK::TaskResponse sendFirmwareVersionCANTask(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 /**
  * @brief Debug prints.

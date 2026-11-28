@@ -32,6 +32,11 @@ HT_TASK::Task brake_pressure_message_enqueue(
     VCFConstants::BRAKE_PRESSURE_SEND_PERIOD_US);
 HT_TASK::Task CAN_send(HT_TASK::DUMMY_FUNCTION, &clearCANBuffersTask, VCFConstants::CAN_SEND_PRIORITY, VCFConstants::CAN_SEND_PERIOD_US);
 HT_TASK::Task dash_CAN_enqueue(HT_TASK::DUMMY_FUNCTION, &enqueueDashboardCANDataTask, VCFConstants::DASH_SEND_PRIORITY, VCFConstants::DASH_SEND_PERIOD_US);
+HT_TASK::Task fw_version_CAN_enqueue(
+    HT_TASK::DUMMY_FUNCTION,
+    &enqueueFirmwareVersionCANDataTask,
+    VCFConstants::FW_VERSION_CAN_PRIORITY,
+    VCFConstants::FW_VERSION_CAN_PERIOD_US);
 HT_TASK::Task read_dash_GPIOs_task(HT_TASK::DUMMY_FUNCTION, &run_dash_GPIOs_task, VCFConstants::DASH_SAMPLE_PRIORITY, VCFConstants::DASH_SAMPLE_PERIOD_US);
 HT_TASK::Task ethernet_send_task(&initSendAllETHDataTask, &sendAllETHDataTask, VCFConstants::ETHERNET_SEND_PRIORITY, VCFConstants::ETHERNET_SEND_PERIOD_US);
 HT_TASK::Task buzzer_control_task(&init_buzzer_control_task, &run_buzzer_control_task, VCFConstants::BUZZER_PRIORITY, VCFConstants::BUZZER_WRITE_PERIOD_US);
@@ -63,6 +68,7 @@ void setup()
     HT_SCHED::Scheduler::getInstance().schedule(async_main);
     HT_SCHED::Scheduler::getInstance().schedule(CAN_send);
     HT_SCHED::Scheduler::getInstance().schedule(dash_CAN_enqueue);
+    HT_SCHED::Scheduler::getInstance().schedule(fw_version_CAN_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(buzzer_control_task);
     HT_SCHED::Scheduler::getInstance().schedule(pedals_message_enqueue);
     HT_SCHED::Scheduler::getInstance().schedule(adc0_sample);

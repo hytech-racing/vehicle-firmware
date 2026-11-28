@@ -15,6 +15,7 @@
 #include "BMSDriverGroup.hpp"
 #include "BMSFaultDataManager.hpp"
 #include "DataLoggingInterface.hpp"
+#include "FirmwareVersionCAN.hpp"
 #include "MAX114XInterface.hpp"
 #include "SoHPersistenceInterface.hpp"
 #include "SystemTimeInterface.h"
@@ -68,6 +69,11 @@ void initialize_all_interfaces();
 ::HT_TASK::TaskResponse enqueue_ACU_ok_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse enqueue_EM_measurement_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
+
+/**
+ * @brief Enqueues ACU_FW_VERSION (git hash + main/master flag) on TELEM
+ */
+::HT_TASK::TaskResponse enqueueFirmwareVersionCANData(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
 ::HT_TASK::TaskResponse sample_CAN_data(const unsigned long& sysMicros, const HT_TASK::TaskInfo& taskInfo);
 
